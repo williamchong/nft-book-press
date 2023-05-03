@@ -16,6 +16,11 @@
           List and Sell NFT
         </NuxtLink>
       </li>
+      <li>
+        <NuxtLink :to="{ name: 'nft-book-store' }">
+          Manage NFT Books
+        </NuxtLink>
+      </li>
     </ul>
   </nav>
 </template>

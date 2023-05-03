@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import stringify from 'fast-json-stable-stringify'
 import {
   Window as KeplrWindow,
   AccountData,
@@ -30,10 +31,58 @@ export const useWalletStore = defineStore('wallet', () => {
     accounts.value = acc
   }
 
+  async function signMessageMemo (action: string, permissions?: string[]) {
+    if (!signer.value || !wallet.value) {
+      await connect()
+    }
+    if (!signer.value || !wallet.value) {
+      throw new Error('WALLET_NOT_INITED')
+    }
+    const ts = Date.now()
+    const payload = JSON.stringify({
+      action,
+      permissions,
+      likeWallet: wallet.value,
+      ts
+    })
+    const signingPayload = {
+      chain_id: network.chainId,
+      memo: payload,
+      msgs: [],
+      fee: {
+        gas: '0',
+        amount: [
+          {
+            denom: network.feeCurrencies[0].coinDenom,
+            amount: '0'
+          }
+        ]
+      },
+      sequence: '0',
+      account_number: '0'
+    }
+    const { signed, signature } = await signer.value.signAmino(wallet.value, signingPayload)
+    return {
+      signature: signature.signature,
+      publicKey: signature.pub_key.value,
+      message: stringify(signed),
+      wallet: wallet.value,
+      signMethod: 'memo'
+    }
+  }
+
   function disconnect () {
     signer.value = null
     accounts.value = []
   }
 
-  return { accounts, signer, wallet, isConnected, connect, disconnect }
+  return {
+    accounts,
+    signer,
+    wallet,
+    isConnected,
+    connect,
+    disconnect,
+    signMessageMemo
+  }
 })
