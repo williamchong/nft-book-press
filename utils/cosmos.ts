@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 import { OfflineSigner } from '@cosmjs/proto-signing'
 import { ISCNSigningClient, ISCNRecordData } from '@likecoin/iscn-js'
 import { parseAndCalculateStakeholderRewards } from '@likecoin/iscn-js/dist/iscn/parsing'

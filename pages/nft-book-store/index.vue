@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>List as NFT Book</h1>
+    <h1>NFT Book Listing</h1>
     <div v-if="error" style="color: red">
       {{ error }}
     </div>
@@ -8,51 +8,40 @@
       Loading...
     </div>
     <hr>
-    <section v-if="!bookStoreApiStore.isAuthenticated">
-      <h2>1. Authenticate</h2>
-      <div>
-        <button :disabled="isLoading" @click="onClickAuth">
-          Authorize
-        </button>
-      </div>
+    <section v-if="bookStoreApiStore.isAuthenticated">
+      <h2>Current listing</h2>
+      <ul>
+        <li v-for="b in bookList" :key="b.classId">
+          {{ b.classId }} | {{ b.price }} | {{ b.stock }} | {{ `https://api.rinkeby.like.co/likernft/book/purchase/${b.classId}/new` }}
+        </li>
+      </ul>
+      <NuxtLink :to="{ name: 'nft-book-store-new' }">New Listing</NuxtLink>
     </section>
-    <slot v-else />
   </div>
 </template>
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useWalletStore } from '~/stores/wallet'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
+import { useWalletStore } from '~/stores/wallet'
+import { LIKE_CO_API } from '~/constant'
 
 const walletStore = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
-const { wallet, signer } = storeToRefs(walletStore)
-const { connect, signMessageMemo } = walletStore
-const { authenticate } = bookStoreApiStore
+const { wallet } = storeToRefs(walletStore)
 
 const error = ref('')
 const isLoading = ref(false)
+const bookList = ref<any[]>([])
 
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
 })
 
-async function onClickAuth () {
-  try {
-    isLoading.value = true
-    if (!wallet.value || !signer.value) {
-      await connect()
-    }
-    if (!wallet.value || !signer.value) { return }
-    const signature = await signMessageMemo('authorize', ['read:nftbook', 'write:nftbook'])
-    await authenticate(wallet.value, signature)
-  } catch (err) {
-    console.error(err)
-    error.value = (err as Error).toString()
-  } finally {
-    isLoading.value = false
-  }
-}
+onMounted(async () => {
+  const { data } = await useFetch(`${LIKE_CO_API}/likernft/book/store/list?wallet=${wallet.value}`)
+  if (!data?.value) { throw new Error('INVALID_ISCN_ID') }
+  bookList.value = (data.value as any)?.list
+})
 
 </script>

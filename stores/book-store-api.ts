@@ -11,19 +11,35 @@ export const useBookStoreApiStore = defineStore('book-api', () => {
   const isAuthenticated = computed(() => storeWallet.value === wallet.value && !!token.value)
 
   async function authenticate (inputWallet: string, signature: any) {
-    const { data } = await useFetch(`${LIKE_CO_API}/wallet/authorize`, {
+    const { error, data } = await useFetch(`${LIKE_CO_API}/wallet/authorize`, {
       method: 'POST',
       body: signature
     })
+    if (error.value) { throw error.value }
     if ((!data?.value as any)?.token) { throw new Error('INVALID_SIGNATURE') }
     token.value = (data.value as any).token
     wallet.value = inputWallet
+  }
+
+  function newBookListing (classId: string, payload: any) {
+    const { error, data } = useFetch(`${LIKE_CO_API}/likernft/book/store/${classId}/new`, {
+      method: 'POST',
+      body: payload,
+      headers: {
+        authorization: `Bearer ${token.value}`
+      }
+    })
+    if (error.value) {
+      throw error.value
+    }
+    return data
   }
 
   return {
     token,
     wallet,
     isAuthenticated,
-    authenticate
+    authenticate,
+    newBookListing
   }
 })
