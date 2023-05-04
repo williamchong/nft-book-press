@@ -10,11 +10,26 @@
     <hr>
     <section v-if="bookStoreApiStore.isAuthenticated">
       <h2>Current listing</h2>
-      <ul>
-        <li v-for="b in bookList" :key="b.classId">
-          {{ b.classId }} | {{ b.price }} | {{ b.stock }} | {{ `https://api.rinkeby.like.co/likernft/book/purchase/${b.classId}/new` }}
-        </li>
-      </ul>
+      <table>
+        <tr>
+          <td>Class Id</td>
+          <td>Price in USD</td>
+          <td>Remaining Stock</td>
+          <td>Purchase Link</td>
+          <td>Details</td>
+        </tr>
+        <tr v-for="b in bookList" :key="b.classId">
+          <td>{{ b.classId }}</td>
+          <td>{{ b.price }}</td>
+          <td>{{ b.stock }}</td>
+          <td>{{ `https://api.${IS_TESTNET ? 'rinkeby.' : ''}like.co/likernft/book/purchase/${b.classId}/new` }}</td>
+          <td>
+            <NuxtLink :to="{ name: 'nft-book-store-status-classId', params: { classId: b.classId } }">
+              Details
+            </NuxtLink>
+          </td>
+        </tr>
+      </table>
       <NuxtLink :to="{ name: 'nft-book-store-new' }">New Listing</NuxtLink>
     </section>
   </div>
@@ -24,7 +39,7 @@
 import { storeToRefs } from 'pinia'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
-import { LIKE_CO_API } from '~/constant'
+import { IS_TESTNET, LIKE_CO_API } from '~/constant'
 
 const walletStore = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
