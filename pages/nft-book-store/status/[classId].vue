@@ -14,6 +14,8 @@
         <td>{{ p.email }}</td>
         <td>{{ p.status }}</td>
         <td>{{ p.wallet }}</td>
+        <td>{{ p.message }}</td>
+        <td>{{ p.from }}</td>
         <td>Send / Tx</td>
       </tr>
     </section>
