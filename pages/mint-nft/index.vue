@@ -186,8 +186,8 @@ async function onISCNIDInput () {
   try {
     isLoading.value = true
     if (iscnIdInput.value.startsWith('iscn://')) {
-      const { data } = await useFetch(`${LCD_URL}/iscn/records/id?iscn_id=${encodeURIComponent(iscnIdInput.value)}`)
-      if (!data?.value) { throw new Error('INVALID_ISCN_ID') }
+      const { data, error } = await useFetch(`${LCD_URL}/iscn/records/id?iscn_id=${encodeURIComponent(iscnIdInput.value)}`)
+      if (error.value) { throw new Error(error.value) }
       const { records, owner } = data.value as any
       iscnData.value = records[0].data
       iscnOwner.value = owner

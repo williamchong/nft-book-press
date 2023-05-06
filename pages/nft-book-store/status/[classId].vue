@@ -40,13 +40,19 @@ watch(isLoading, (newIsLoading) => {
 })
 
 onMounted(async () => {
-  const { data } = await useFetch(`${LIKE_CO_API}/likernft/book/purchase/${classId.value}/orders`,
+  const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/purchase/${classId.value}/orders`,
     {
       headers: {
         authorization: `Bearer ${token.value}`
       }
     })
-  if (!data?.value) { throw new Error('INVALID_ISCN_ID') }
+  if (fetchError.value) {
+    if (fetchError.value.statusCode === 403) {
+      error.value = 'NOT_OWNER_OF_NFT_CLASS'
+    } else {
+      error.value = fetchError.value.toString()
+    }
+  }
   purchaseList.value = (data.value as any).orders
 })
 

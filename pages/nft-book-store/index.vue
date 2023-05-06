@@ -54,8 +54,10 @@ watch(isLoading, (newIsLoading) => {
 })
 
 onMounted(async () => {
-  const { data } = await useFetch(`${LIKE_CO_API}/likernft/book/store/list?wallet=${wallet.value}`)
-  if (!data?.value) { throw new Error('INVALID_ISCN_ID') }
+  const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/store/list?wallet=${wallet.value}`)
+  if (fetchError.value) {
+    error.value = fetchError.value.toString()
+  }
   bookList.value = (data.value as any)?.list
 })
 
