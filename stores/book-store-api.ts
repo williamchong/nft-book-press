@@ -21,8 +21,8 @@ export const useBookStoreApiStore = defineStore('book-api', () => {
     wallet.value = inputWallet
   }
 
-  function newBookListing (classId: string, payload: any) {
-    const { error, data } = useFetch(`${LIKE_CO_API}/likernft/book/store/${classId}/new`, {
+  async function newBookListing (classId: string, payload: any) {
+    const { error, data } = await useFetch(`${LIKE_CO_API}/likernft/book/store/${classId}/new`, {
       method: 'POST',
       body: payload,
       headers: {

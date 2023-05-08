@@ -57,7 +57,7 @@ async function onSubmit () {
       }
     })
     if (fetchError.value) {
-      error.value = fetchError.value.toString()
+      throw fetchError.value
     }
     isDone.value = true
   } catch (err) {
