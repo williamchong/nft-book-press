@@ -14,20 +14,21 @@
         <tr>
           <td>Class Id</td>
           <td>Price in USD</td>
+          <td>Sold</td>
           <td>Remaining Stock</td>
           <td>Purchase Link</td>
-          <td>Details</td>
         </tr>
         <tr v-for="b in bookList" :key="b.classId">
-          <td>{{ b.classId }}</td>
-          <td>{{ b.price }}</td>
-          <td>{{ b.stock }}</td>
-          <td>{{ `https://api.${IS_TESTNET ? 'rinkeby.' : ''}like.co/likernft/book/purchase/${b.classId}/new` }}</td>
           <td>
             <NuxtLink :to="{ name: 'nft-book-store-status-classId', params: { classId: b.classId } }">
-              Details
+              {{ b.classId }}
             </NuxtLink>
           </td>
+          <td>{{ b.price }}</td>
+          <td>{{ b.sold }}</td>
+          <td>{{ b.stock }}</td>
+          <td>{{ b.pendingNFTCount }}</td>
+          <td>{{ `https://api.${IS_TESTNET ? 'rinkeby.' : ''}like.co/likernft/book/purchase/${b.classId}/new` }}</td>
         </tr>
       </table>
       <NuxtLink :to="{ name: 'nft-book-store-new' }">New Listing</NuxtLink>

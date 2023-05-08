@@ -9,6 +9,9 @@
     </div>
     <hr>
     <section v-if="bookStoreApiStore.isAuthenticated">
+      <div>
+        {{ `https://api.${IS_TESTNET ? 'rinkeby.' : ''}like.co/likernft/book/purchase/${classId}/new` }}
+      </div>
       <tr v-for="p in purchaseList" :key="p.classId">
         <td>{{ p.email }}</td>
         <td>{{ p.status }}</td>
