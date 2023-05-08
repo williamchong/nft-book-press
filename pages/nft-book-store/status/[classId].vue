@@ -10,13 +10,33 @@
     <hr>
     <section v-if="bookStoreApiStore.isAuthenticated">
       <tr v-for="p in purchaseList" :key="p.classId">
-        <td>{{ p.id }}</td>
         <td>{{ p.email }}</td>
         <td>{{ p.status }}</td>
         <td>{{ p.wallet }}</td>
         <td>{{ p.message }}</td>
         <td>{{ p.from }}</td>
-        <td>Send / Tx</td>
+        <td>
+          <NuxtLink
+            v-if="p.status === 'pendingNFT'"
+            :to="{
+              name: 'nft-book-store-send-classId',
+              params: {
+                classId: p.classId
+              },
+              query: {
+                payment_id: p.id
+              }
+            }"
+          >
+            Send NFT
+          </NuxtLink>
+          <a v-else-if="p.status === 'completed'" :href="`${chainExplorerURL}/${p.txHash}`" target="_blank">
+            View Transaction
+          </a>
+          <span v-else>
+            -
+          </span>
+        </td>
       </tr>
     </section>
   </div>
@@ -24,7 +44,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { LIKE_CO_API } from '~/constant'
+import { CHAIN_EXPLORER_URL, LIKE_CO_API } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 
 const bookStoreApiStore = useBookStoreApiStore()
@@ -36,6 +56,7 @@ const error = ref('')
 const isLoading = ref(false)
 const classId = ref(route.params.classId)
 const purchaseList = ref<any[]>([])
+const chainExplorerURL = ref(CHAIN_EXPLORER_URL)
 
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
