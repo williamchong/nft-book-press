@@ -10,18 +10,20 @@
     <hr>
     <section v-if="bookStoreApiStore.isAuthenticated">
       <h3>Status</h3>
-      <tr>
-        <td>Price in USD</td>
-        <td>Pending NFT Send</td>
-        <td>Sold</td>
-        <td>Remaining Stock</td>
-      </tr>
-      <tr>
-        <td>{{ classListingInfo.price }}</td>
-        <td>{{ classListingInfo.pendingNFTCount }}</td>
-        <td>{{ classListingInfo.sold }}</td>
-        <td>{{ classListingInfo.stock }}</td>
-      </tr>
+      <table>
+        <tr>
+          <td>Price in USD</td>
+          <td>Pending action</td>
+          <td>Sold</td>
+          <td>Remaining Stock</td>
+        </tr>
+        <tr>
+          <td>{{ classListingInfo.price }}</td>
+          <td>{{ classListingInfo.pendingNFTCount }}</td>
+          <td>{{ classListingInfo.sold }}</td>
+          <td>{{ classListingInfo.stock }}</td>
+        </tr>
+      </table>
       <h3>Orders</h3>
       <table>
         <tr>
@@ -30,6 +32,7 @@
           <td>wallet</td>
           <td>buyer message</td>
           <td>sales channel</td>
+          <td>Action</td>
         </tr>
         <tr v-for="p in purchaseList" :key="p.classId">
           <td>{{ p.email }}</td>
@@ -61,17 +64,19 @@
           </td>
         </tr>
       </table>
-      <h3>Sales Channel</h3>
-      <tr>
-        <td>Channel ID</td>
-        <td>Count</td>
-        <td>USD</td>
-      </tr>
-      <tr v-for="[key, value] in Object.entries(salesChannelMap)" :key="key">
-        <td>{{ key }}</td>
-        <td>{{ value.count }}</td>
-        <td>{{ value.totalUSD }}</td>
-      </tr>
+      <h3>Sales Channel Summary</h3>
+      <table>
+        <tr>
+          <td>Channel ID</td>
+          <td>Count</td>
+          <td>USD</td>
+        </tr>
+        <tr v-for="[key, value] in Object.entries(salesChannelMap)" :key="key">
+          <td>{{ key }}</td>
+          <td>{{ value.count }}</td>
+          <td>{{ value.totalUSD }}</td>
+        </tr>
+      </table>
       <hr>
       <h3>Copy Purchase Link</h3>
       <p>

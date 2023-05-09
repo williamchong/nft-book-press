@@ -9,21 +9,23 @@
     </div>
     <hr>
     <section v-if="bookStoreApiStore.isAuthenticated">
-      <tr>
-        <td>email</td>
-        <td>status</td>
-        <td>wallet</td>
-        <td>buyer message</td>
-        <td>sales channel</td>
-      </tr>
-      <tr>
-        <td>{{ orderInfo.email }}</td>
-        <td>{{ orderInfo.status }}</td>
-        <td>{{ orderInfo.wallet }}</td>
-        <td>{{ orderInfo.message }}</td>
-        <td>{{ orderInfo.from }}</td>
-      </tr>
-      <hr />
+      <table>
+        <tr>
+          <td>email</td>
+          <td>status</td>
+          <td>wallet</td>
+          <td>buyer message</td>
+          <td>sales channel</td>
+        </tr>
+        <tr>
+          <td>{{ orderInfo.email }}</td>
+          <td>{{ orderInfo.status }}</td>
+          <td>{{ orderInfo.wallet }}</td>
+          <td>{{ orderInfo.message }}</td>
+          <td>{{ orderInfo.from }}</td>
+        </tr>
+      </table>
+      <hr>
       <p><label>Enter Author's Message (optional)</label></p>
       <input v-model="memo" placeholder="default memo">
       <p><label>Enter NFT ID (optional)</label></p>

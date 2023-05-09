@@ -9,10 +9,10 @@
     </div>
     <hr>
     <section v-if="!bookStoreApiStore.isAuthenticated">
-      <h2>1. Authenticate</h2>
+      <h2>Verify your wallet address</h2>
       <div>
         <button :disabled="isLoading" @click="onClickAuth">
-          Authorize
+          Sign
         </button>
       </div>
     </section>
@@ -56,3 +56,9 @@ async function onClickAuth () {
 }
 
 </script>
+<style>
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+</style>

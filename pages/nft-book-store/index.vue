@@ -14,7 +14,7 @@
         <tr>
           <td>Class Id</td>
           <td>Price in USD</td>
-          <td>Pending NFT Send</td>
+          <td>Pending action</td>
           <td>Sold</td>
           <td>Remaining Stock</td>
         </tr>
