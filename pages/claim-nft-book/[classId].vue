@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>New NFT Book Listing</h1>
+    <h1>Claim your NFT Book</h1>
     <div v-if="error" style="color: red">
       {{ error }}
     </div>
@@ -14,6 +14,9 @@
     <section v-else>
       <p><label>Your Wallet</label></p>
       <input v-model="walletInput" placeholder="like1....">
+      <button :disabled="isLoading" @click="connect">
+        Connect Keplr
+      </button>
       <p><label>Message to creator (optional)</label></p>
       <input v-model="buyerMessage">
       <button :disabled="isLoading" @click="onSubmit">
@@ -24,7 +27,16 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import { LIKE_CO_API } from '~/constant'
+import { useWalletStore } from '~/stores/wallet'
+
+definePageMeta({
+  layout: 'page'
+})
+const store = useWalletStore()
+const { wallet } = storeToRefs(store)
+const { connect } = store
 
 const route = useRoute()
 
@@ -32,9 +44,12 @@ const error = ref('')
 const isDone = ref(false)
 const isLoading = ref(false)
 
-const walletInput = ref('')
+const walletInput = ref(wallet.value)
 const buyerMessage = ref('')
 
+watch(wallet, (wallet) => {
+  if (wallet) { walletInput.value = wallet }
+})
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
 })
