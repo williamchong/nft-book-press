@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>NFT Book Status {{ classId }}</h1>
+    <h1>Deliver NFT Book {{ classId }}</h1>
     <div v-if="error" style="color: red">
       {{ error }}
     </div>
@@ -9,6 +9,13 @@
     </div>
     <hr>
     <section v-if="bookStoreApiStore.isAuthenticated">
+      <tr>
+        <td>email</td>
+        <td>status</td>
+        <td>wallet</td>
+        <td>buyer message</td>
+        <td>sales channel</td>
+      </tr>
       <tr>
         <td>{{ orderInfo.email }}</td>
         <td>{{ orderInfo.status }}</td>

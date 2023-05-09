@@ -14,9 +14,9 @@
         <tr>
           <td>Class Id</td>
           <td>Price in USD</td>
+          <td>Pending NFT Send</td>
           <td>Sold</td>
           <td>Remaining Stock</td>
-          <td>Purchase Link</td>
         </tr>
         <tr v-for="b in bookList" :key="b.classId">
           <td>
@@ -25,12 +25,12 @@
             </NuxtLink>
           </td>
           <td>{{ b.price }}</td>
+          <td>{{ b.pendingNFTCount }}</td>
           <td>{{ b.sold }}</td>
           <td>{{ b.stock }}</td>
-          <td>{{ b.pendingNFTCount }}</td>
-          <td>{{ `https://api.${IS_TESTNET ? 'rinkeby.' : ''}like.co/likernft/book/purchase/${b.classId}/new` }}</td>
         </tr>
       </table>
+      <hr>
       <NuxtLink :to="{ name: 'nft-book-store-new' }">New Listing</NuxtLink>
     </section>
   </div>
@@ -40,7 +40,7 @@
 import { storeToRefs } from 'pinia'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
-import { IS_TESTNET, LIKE_CO_API } from '~/constant'
+import { LIKE_CO_API } from '~/constant'
 
 const walletStore = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()

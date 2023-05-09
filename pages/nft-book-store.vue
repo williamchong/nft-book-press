@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>NFT Book</h1>
+    <h1>NFT Book Store management page</h1>
     <div v-if="error" style="color: red">
       {{ error }}
     </div>
