@@ -177,7 +177,7 @@ onMounted(async () => {
 })
 
 async function copyPurchaseLink () {
-  await navigator.clipboard.writeText(purchaseLink.value);
+  await navigator.clipboard.writeText(purchaseLink.value)
 }
 
 </script>
