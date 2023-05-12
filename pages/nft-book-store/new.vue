@@ -28,13 +28,14 @@ import { useBookStoreApiStore } from '~/stores/book-store-api'
 const bookStoreApiStore = useBookStoreApiStore()
 const { newBookListing } = bookStoreApiStore
 const router = useRouter()
+const route = useRoute()
 
 const error = ref('')
 const isLoading = ref(false)
 
-const classIdInput = ref('')
+const classIdInput = ref(route.query.class_id as string || '')
 const priceInput = ref(0)
-const stockInput = ref(0)
+const stockInput = ref(Number(route.query.count as string || 0))
 
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }

@@ -144,17 +144,26 @@
 
     <section v-if="step > 3">
       Success!
-      <button :disabled="isLoading" @click="onDownloadCSV">
-        Download NFT result csv
-      </button>
-      <p>
-        <a
-          target="_blank"
-          :href="`${likerLandURL}/nft/class/${encodeURIComponent(classId)}`"
-        >
-          View your NFT
-        </a>
-      </p>
+
+      <ul>
+        <li>
+          <a href="#" :disabled="isLoading" @click="onDownloadCSV">
+            Download NFT result csv
+          </a>
+        </li>
+        <li>
+          <a
+            target="_blank"
+            :href="`${likerLandURL}/nft/class/${encodeURIComponent(classId)}`"
+          >
+            View your NFT
+          </a>
+        </li>
+      </ul>
+
+      <NuxtLink :to="{ name: 'nft-book-store-new', query: { class_id: classId, count: nftMintCount } }">
+        Continue to publish NFT Book
+      </NuxtLink>
     </section>
   </div>
 </template>
@@ -177,7 +186,7 @@ const { connect } = store
 
 const appLikeCoURL = APP_LIKE_CO_URL
 const likerLandURL = LIKER_LAND_URL
-const step = ref(1)
+const step = ref(4)
 const error = ref('')
 const isLoading = ref(false)
 
@@ -434,7 +443,8 @@ function onMintNFTFileChange (event: Event) {
   reader.readAsText(file)
 }
 
-function onDownloadCSV () {
+function onDownloadCSV (e?: Event) {
+  if (e) { e.preventDefault() }
   downloadBlob(nftCSVData.value, 'nft.csv', 'text/csv;charset=utf-8;')
 }
 </script>
