@@ -186,7 +186,7 @@ const { connect } = store
 
 const appLikeCoURL = APP_LIKE_CO_URL
 const likerLandURL = LIKER_LAND_URL
-const step = ref(4)
+const step = ref(1)
 const error = ref('')
 const isLoading = ref(false)
 
