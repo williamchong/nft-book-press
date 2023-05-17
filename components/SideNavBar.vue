@@ -22,6 +22,6 @@
 <script setup>
 import { ISCN_TOOLS_URL } from '~/constant'
 
-const toolsURL = ref(ISCN_TOOLS_URL)
+const toolsURL = ISCN_TOOLS_URL
 
 </script>

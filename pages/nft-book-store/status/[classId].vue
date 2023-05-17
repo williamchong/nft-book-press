@@ -110,7 +110,7 @@ const classId = ref(route.params.classId)
 const fromChannel = ref<string | undefined>(undefined)
 const classListingInfo = ref<any>({})
 const purchaseList = ref<any[]>([])
-const chainExplorerURL = ref(CHAIN_EXPLORER_URL)
+const chainExplorerURL = CHAIN_EXPLORER_URL
 
 const purchaseLink = computed(() => {
   const queryString = fromChannel.value ? `?from=${fromChannel.value}` : ''
@@ -177,7 +177,7 @@ onMounted(async () => {
 })
 
 async function copyPurchaseLink () {
-  await navigator.clipboard.writeText(purchaseLink.value)
+  await navigator.clipboard.writeText(purchaseLink.value);
 }
 
 </script>
