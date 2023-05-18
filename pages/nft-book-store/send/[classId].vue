@@ -79,8 +79,9 @@ onMounted(async () => {
     } else {
       error.value = fetchError.value.toString()
     }
+  } else {
+    orderInfo.value = (data.value as any)
   }
-  orderInfo.value = (data.value as any)
 })
 
 async function onSendNFTStart () {
