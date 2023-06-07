@@ -10,39 +10,39 @@
     <hr>
     <section v-if="bookStoreApiStore.isAuthenticated">
       <table>
-        <thead>
-          <tr>
-            <th>Buyer Email</th>
-            <th>Status</th>
-            <th>Buyer Wallet</th>
-            <th>Price Name</th>
-            <th>Price</th>
-            <th>Buyer message</th>
-            <th>Sales channel</th>
-          </tr>
-        </thead>
-        <tr>
-          <td>{{ orderInfo.email }}</td>
-          <td>{{ orderInfo.status }}</td>
-          <td>{{ orderInfo.wallet }}</td>
-          <td>{{ orderInfo.priceName }}</td>
-          <td>{{ orderInfo.price }}</td>
-          <td>{{ orderInfo.message }}</td>
-          <td>{{ orderInfo.from }}</td>
-        </tr>
+        <tr><th>Buyer Email</th><td>{{ orderInfo.email }}</td></tr>
+        <tr><th>Status</th><td>{{ orderInfo.status }}</td></tr>
+        <tr><th>Buyer Wallet</th><td>{{ orderInfo.wallet }}</td></tr>
+        <tr><th>Price Name</th><td>{{ orderInfo.priceName }}</td></tr>
+        <tr><th>Price</th><td>{{ orderInfo.price }}</td></tr>
+        <tr><th>Buyer message</th><td>{{ orderInfo.message }}</td></tr>
+        <tr><th>Sales channel</th><td>{{ orderInfo.from }}</td></tr>
       </table>
-      <hr>
-      <p><label>Enter Author's Message (optional)</label></p>
-      <input v-model="memo" placeholder="default memo">
-      <p><label>Enter NFT ID (optional)</label></p>
-      <img v-if="nftImage" :src="nftImage" height="128"><br>
-      <input v-model="nftId" placeholder="(leave empty to auto fetch)">
-      <button v-if="nftId" :disabled="isLoading" style="margin-top: 16px" @click="onSendNFTStart">
-        Sign and Send
-      </button>
-      <button v-else :disabled="isLoading" style="margin-top: 16px" @click="fetchNftId">
-        Fetch NFT ID to Send
-      </button>
+      <div>
+        <p><label>Enter Author's Message (optional)</label></p>
+        <p><textarea v-model="memo" placeholder="default memo" /></p>
+      </div>
+      <div>
+        <p><label>Specify NFT ID</label></p>
+        <p>
+          <input v-model="nftId" placeholder="leave empty to auto-fetch" size="30">
+          <button v-if="!nftId" :disabled="isLoading" style="margin-left: 8px" @click="fetchNftId">
+            Auto-fetch NFT ID
+          </button>
+        </p>
+        <img v-if="nftImage" :src="nftImage" height="128" style="display:block">
+        <div
+          v-else
+          style="display: table-cell; vertical-align: middle; height: 128px; width: 90px; border-radius: 8px; background-color: #f7f7f7; border: 1px solid #ececec; text-align: center;"
+        >
+          <span style="font-size: 12px; color: #4a4a4a">NFT Preview</span>
+        </div>
+      </div>
+      <p>
+        <button :disabled="isSendButtonDisabled" @click="onSendNFTStart">
+          Sign and Send
+        </button>
+      </p>
     </section>
   </div>
 </template>
@@ -73,6 +73,8 @@ const memo = ref('')
 const nftId = ref('')
 const orderInfo = ref<any>({})
 const nftImage = ref('')
+
+const isSendButtonDisabled = computed(() => !nftId.value || isLoading.value)
 
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
@@ -132,6 +134,7 @@ async function fetchNftId () {
 }
 
 async function onSendNFTStart () {
+  if (isSendButtonDisabled) { return }
   try {
     isLoading.value = true
     if (!wallet.value || !signer.value) {
