@@ -16,15 +16,3 @@
     </div>
   </div>
 </template>
-<style>
-body {
-  margin: 0;
-  /* overflow: hidden; */
-}
-
-.wrapper {
-  /* overflow: auto; */
-  display: flex;
-  height: 100%;
-}
-</style>

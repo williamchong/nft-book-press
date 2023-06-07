@@ -1,0 +1,10 @@
+body {
+  margin: 0;
+
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.wrapper {
+  display: flex;
+  height: 100%;
+}
