@@ -14,8 +14,8 @@
       <p>Total number of NFT for sale: {{ totalStock }}</p>
       <hr>
       <div v-for="p, index in prices" :key="index">
-        <p><label>Price(USD) per NFT Book</label></p>
-        <input :value="p.price" type="number" @input="e => updatePrice(e, 'price', index)">
+        <p><label>Price(USD) per NFT Book (Minimal ${{MINIMAL_PRICE}})</label></p>
+        <input :value="p.price" type="number" :min="MINIMAL_PRICE" @input="e => updatePrice(e, 'price', index)">
         <p><label>Total number of NFT for sale at this price</label></p>
         <input :value="p.stock" type="number" @input="e => updatePrice(e, 'stock', index)">
         <p><label>Product name of this price</label></p>
@@ -23,6 +23,21 @@
         <hr>
       </div>
       <button @click="addMorePrice">Add more prices</button>
+      <p><label>Share sales data to wallets:</label></p>
+      <ul>
+        <li v-for="m, i in moderatorWallets" :key="m">
+          {{ m }}<button style="margin-left: 4px" @click="() => moderatorWallets.splice(i, 1)">x</button>
+        </li>
+      </ul>
+      <input v-model="moderatorWalletInput" placeholder="like1..."><button style="margin-left: 4px" @click="addModeratorWallet">Add</button>
+      <p><label>Email to receive sales notifications</label></p>
+      <ul>
+        <li v-for="e, i in notificationEmails" :key="e">
+          {{ e }}<button style="margin-left: 4px" @click="() => notificationEmails.splice(i, 1)">x</button>
+        </li>
+      </ul>
+      <input v-model="notificationEmailInput"><button @click="addNotificationEmail">Add</button>
+      <hr>
       <button :disabled="isLoading" @click="onSubmit">
         Submit
       </button>
@@ -38,6 +53,8 @@ const { newBookListing } = bookStoreApiStore
 const router = useRouter()
 const route = useRoute()
 
+const MINIMAL_PRICE = 5
+
 const error = ref('')
 const isLoading = ref(false)
 
@@ -47,6 +64,10 @@ const prices = ref<any[]>([{
   stock: Number(route.query.count as string || 0),
   name: 'Standard Edition'
 }])
+const moderatorWallets = ref<string[]>([])
+const notificationEmails = ref<string[]>([])
+const moderatorWalletInput = ref('')
+const notificationEmailInput = ref('')
 const totalStock = computed(() => prices.value.reduce((acc, p) => acc + Number(p.stock), 0))
 
 watch(isLoading, (newIsLoading) => {
@@ -61,8 +82,19 @@ function addMorePrice () {
   prices.value.push({ price: 0, stock: 0, name: `Tier ${prices.value.length}` })
 }
 
+function addModeratorWallet () {
+  moderatorWallets.value.push(moderatorWalletInput.value)
+}
+
+function addNotificationEmail () {
+  notificationEmails.value.push(notificationEmailInput.value)
+}
+
 async function onSubmit () {
   try {
+    if (!classIdInput.value) {
+      throw new Error('Please input NFT class ID')
+    }
     isLoading.value = true
     const p = prices.value
       .filter(p => p.price > 0)
@@ -73,12 +105,15 @@ async function onSubmit () {
         stock: Number(p.stock)
       }))
     await newBookListing(classIdInput.value, {
+      moderatorWallets,
+      notificationEmails,
       prices: p
     })
     router.push({ name: 'nft-book-store' })
   } catch (err) {
-    console.error(err)
-    error.value = (err as Error).toString()
+    const errorData = (err as any).data || err
+    console.error(errorData)
+    error.value = errorData
   } finally {
     isLoading.value = false
   }
