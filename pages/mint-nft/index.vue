@@ -39,6 +39,7 @@
         </div>
         <input type="file" @change="onISCNFileChange">
         <br>
+        <p>You can also create your ISCN using <a :href="`${appLikeCoURL}/new`" target="_blank">app.like.co</a></p>
         <button :disabled="isLoading" style="margin-top: 16px" @click="onISCNFileInput">
           Create
         </button>
@@ -350,7 +351,7 @@ async function onMintNFTStart () {
     }
     if (!wallet.value || !signer.value) { return }
     if (!nftMintDefaultData.value) { throw new Error('NO_MINT_DATA') }
-    if (nftMintListData.value.length && nftMintListData.value.length !== nftMintCount.value) { 
+    if (nftMintListData.value.length && nftMintListData.value.length !== nftMintCount.value) {
       throw new Error(`NFT csv data length ${nftMintListData.value.length} must match nft mint amount ${nftMintCount.value}`)
     }
     const defaultURI = nftMintDefaultData.value.uri
