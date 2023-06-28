@@ -130,13 +130,31 @@
 
       <h3>Other Settings</h3>
       <p><label>Share sales data to wallets:</label></p>
-      <ul>
-        <li v-for="m, i in moderatorWallets" :key="m">
-          {{ m }}<button @click="()=> moderatorWallets.splice(i, 1)">
-            x
-          </button>
-        </li>
-      </ul>
+      <table>
+        <tr>
+          <td>Wallet</td>
+          <td v-if="userIsOwner">Send NFT grant Status</td>
+          <td v-if="userIsOwner">Remove</td>
+        </tr>
+        <tr v-for="m, i in moderatorWallets" :key="m">
+          <td>{{ m }}</td>
+          <td v-if="userIsOwner">
+            <NuxtLink :to="{ name: 'authz', query: { grantee: m } }">
+              <span v-if="moderatorWalletsGrants[m]">
+                Granted
+              </span>
+              <span v-else>
+                Click to grant
+              </span>
+            </NuxtLink>
+          </td>
+          <td v-if="userIsOwner">
+            <button @click="()=> moderatorWallets.splice(i, 1)">
+              x
+            </button>
+          </td>
+        </tr>
+      </table>
       <input v-model="moderatorWalletInput" placeholder="like1..."><button style="margin-left: 4px" @click="addModeratorWallet">
         Add
       </button>
@@ -211,6 +229,7 @@ import { CHAIN_EXPLORER_URL, IS_TESTNET, LIKE_CO_API } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useNftStore } from '~/stores/nft'
 import { useWalletStore } from '~/stores/wallet'
+import { getNFTAuthzGrants } from '~/utils/cosmos'
 
 const store = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
@@ -235,6 +254,7 @@ const connectStatus = ref<any>({})
 const chainExplorerURL = CHAIN_EXPLORER_URL
 
 const moderatorWallets = ref<string[]>([])
+const moderatorWalletsGrants = ref<any>({})
 const notificationEmails = ref<string[]>([])
 const moderatorWalletInput = ref('')
 const notificationEmailInput = ref('')
@@ -279,6 +299,16 @@ const salesChannelMap = computed(() => {
 
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
+})
+
+watch(moderatorWallets, (newModeratorWallets) => {
+  newModeratorWallets.forEach(async (m) => {
+    if (!moderatorWalletsGrants.value[m]) {
+      try {
+        moderatorWalletsGrants.value[m] = await getNFTAuthzGrants(wallet.value, m)
+      } catch {}
+    }
+  })
 })
 
 onMounted(async () => {
