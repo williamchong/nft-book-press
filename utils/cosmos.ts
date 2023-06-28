@@ -82,9 +82,9 @@ export async function getNFTAuthzGrants (granter: string, grantee: string) {
   const c = (await getSigningClient()).getISCNQueryClient()
   const client = await c.getQueryClient()
   const g = await client.authz.grants(granter, grantee, '/cosmos.nft.v1beta1.MsgSend')
-  if (!g?.grants) { return [] }
+  if (!g?.grants) { return null }
   const grants = g.grants.map(parseAuthzGrant)
-  return grants
+  return grants[0]
 }
 
 export async function getNFTs ({ classId = '', owner = '', needCount }) {
