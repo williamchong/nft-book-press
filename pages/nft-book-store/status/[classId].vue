@@ -35,7 +35,7 @@
             <th>Price</th>
             <th>Buyer message</th>
             <th>Sales channel</th>
-            <th>Action</th>
+            <th v-if="userCanSendNFT">Action</th>
           </tr>
         </thead>
         <tr v-for="p in purchaseList" :key="p.classId">
@@ -46,7 +46,7 @@
           <td>{{ p.price }}</td>
           <td>{{ p.message }}</td>
           <td>{{ p.from }}</td>
-          <td>
+          <td v-if="userCanSendNFT">
             <NuxtLink
               v-if="p.status === 'pendingNFT'"
               :to="{
@@ -55,6 +55,7 @@
                   classId: p.classId
                 },
                 query: {
+                  owner_wallet: ownerWallet,
                   payment_id: p.id
                 }
               }"
@@ -213,6 +214,7 @@ const stripeConnectWalletInput = ref('')
 
 const ownerWallet = computed(() => classListingInfo?.value?.ownerWallet)
 const userIsOwner = computed(() => wallet.value && ownerWallet.value === wallet.value)
+const userCanSendNFT = computed(() => userIsOwner.value || (wallet.value && moderatorWalletsGrants.value[wallet.value]))
 const purchaseLink = computed(() => {
   const payload: Record<string, string> = {
     from: fromChannel.value || '',
@@ -253,7 +255,7 @@ watch(moderatorWallets, (newModeratorWallets) => {
   newModeratorWallets.forEach(async (m) => {
     if (!moderatorWalletsGrants.value[m]) {
       try {
-        moderatorWalletsGrants.value[m] = await getNFTAuthzGrants(wallet.value, m)
+        moderatorWalletsGrants.value[m] = await getNFTAuthzGrants(ownerWallet.value, m)
       } catch {}
     }
   })
