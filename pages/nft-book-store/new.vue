@@ -113,7 +113,7 @@ async function onSubmit () {
       .map(p => ({
         name: { en: p.nameEn, zh: p.nameZh },
         description: { en: p.descriptionEn, zh: p.descriptionZh },
-        priceInDecimal: Number(p.price) * 100,
+        priceInDecimal: Math.round(Number(p.price) * 100),
         price: Number(p.price),
         stock: Number(p.stock)
       }))
