@@ -18,8 +18,8 @@
     </section>
     <template v-else>
       <h2>*Warning*</h2>
-      <p>Granting other wallet send NFT authz permission allows them to send away *ANY* NFT you own, not limited to NFT books or NFT you created.</p>
-      <p>Use with CAUTION and ONLY grant to those you absolutely trust!</p>
+      <p style="color: red">Granting other wallet send NFT authz permission allows them to send away *ANY* NFT you own, not limited to NFT books or NFT you created.</p>
+      <p style="color: red">Use with CAUTION and ONLY grant to those you absolutely trust!</p>
       <hr>
       <h2>Current grants</h2>
       <table>
