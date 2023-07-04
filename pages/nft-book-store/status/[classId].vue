@@ -64,7 +64,9 @@
             <th>Price</th>
             <th>Buyer message</th>
             <th>Sales channel</th>
-            <th v-if="userCanSendNFT">Action</th>
+            <th v-if="userCanSendNFT">
+              Action
+            </th>
           </tr>
         </thead>
         <tr v-for="p in purchaseList" :key="p.classId">
@@ -134,8 +136,12 @@
       <table>
         <tr>
           <td>Wallet</td>
-          <td v-if="userIsOwner">Send NFT grant Status</td>
-          <td v-if="userIsOwner">Remove</td>
+          <td v-if="userIsOwner">
+            Send NFT grant Status
+          </td>
+          <td v-if="userIsOwner">
+            Remove
+          </td>
         </tr>
         <tr v-for="m, i in moderatorWallets" :key="m">
           <td>{{ m }}</td>
