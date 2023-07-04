@@ -74,18 +74,30 @@
       <p><label>Share sales data to wallets:</label></p>
       <ul>
         <li v-for="m, i in moderatorWallets" :key="m">
-          {{ m }}<button @click="()=> moderatorWallets.splice(i, 1)">x</button>
+          {{ m }}<button @click="()=> moderatorWallets.splice(i, 1)">
+            x
+          </button>
         </li>
       </ul>
-      <input v-model="moderatorWalletInput" placeholder="like1..."><button style="margin-left: 4px" @click="addModeratorWallet">Add</button>
+      <input v-model="moderatorWalletInput" placeholder="like1..."><button style="margin-left: 4px" @click="addModeratorWallet">
+        Add
+      </button>
       <p><label>Email to receive sales notifications</label></p>
       <ul>
         <li v-for="e, i in notificationEmails" :key="e">
-          {{ e }}<button style="margin-left: 4px" @click="() => notificationEmails.splice(i, 1)">x</button>
+          {{ e }}<button style="margin-left: 4px" @click="() => notificationEmails.splice(i, 1)">
+            x
+          </button>
         </li>
       </ul>
-      <input v-model="notificationEmailInput"><button style="margin-left: 4px" @click="addNotificationEmail">Add</button>
-      <p><button @click="updateSettings">Update</button></p>
+      <input v-model="notificationEmailInput"><button style="margin-left: 4px" @click="addNotificationEmail">
+        Add
+      </button>
+      <p>
+        <button @click="updateSettings">
+          Update
+        </button>
+      </p>
       <hr>
       <h3>Sales Channel Summary</h3>
       <table>
@@ -119,7 +131,9 @@
         {{ purchaseLink }}
       </a>
       <br>
-      <button @click="copyPurchaseLink">Copy Purchase Link</button>
+      <button @click="copyPurchaseLink">
+        Copy Purchase Link
+      </button>
       <hr>
     </section>
   </div>

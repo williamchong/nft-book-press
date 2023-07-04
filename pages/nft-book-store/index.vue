@@ -55,7 +55,9 @@
         </table>
         <hr>
       </template>
-      <NuxtLink :to="{ name: 'nft-book-store-new' }">New Listing</NuxtLink>
+      <NuxtLink :to="{ name: 'nft-book-store-new' }">
+        New Listing
+      </NuxtLink>
     </section>
   </div>
 </template>

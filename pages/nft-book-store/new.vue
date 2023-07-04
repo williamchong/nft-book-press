@@ -14,7 +14,7 @@
       <p>Total number of NFT for sale: {{ totalStock }}</p>
       <hr>
       <div v-for="p, index in prices" :key="index">
-        <p><label>Price(USD) per NFT Book (Minimal ${{MINIMAL_PRICE}})</label></p>
+        <p><label>Price(USD) per NFT Book (Minimal ${{ MINIMAL_PRICE }})</label></p>
         <input :value="p.price" type="number" :min="MINIMAL_PRICE" @input="e => updatePrice(e, 'price', index)">
         <p><label>Total number of NFT for sale at this price</label></p>
         <input :value="p.stock" type="number" @input="e => updatePrice(e, 'stock', index)">
@@ -26,21 +26,31 @@
         <textarea placeholder="產品中文描述" :value="p.descriptionZh" @input="e => updatePrice(e, 'descriptionZh', index)" />
         <hr>
       </div>
-      <button @click="addMorePrice">Add more prices</button>
+      <button @click="addMorePrice">
+        Add more prices
+      </button>
       <p><label>Share sales data to wallets (moderator):</label></p>
       <ul>
         <li v-for="m, i in moderatorWallets" :key="m">
-          {{ m }}<button style="margin-left: 4px" @click="() => moderatorWallets.splice(i, 1)">x</button>
+          {{ m }}<button style="margin-left: 4px" @click="() => moderatorWallets.splice(i, 1)">
+            x
+          </button>
         </li>
       </ul>
-      <input v-model="moderatorWalletInput" placeholder="like1..."><button style="margin-left: 4px" @click="addModeratorWallet">Add</button>
+      <input v-model="moderatorWalletInput" placeholder="like1..."><button style="margin-left: 4px" @click="addModeratorWallet">
+        Add
+      </button>
       <p><label>Email to receive sales notifications</label></p>
       <ul>
         <li v-for="e, i in notificationEmails" :key="e">
-          {{ e }}<button style="margin-left: 4px" @click="() => notificationEmails.splice(i, 1)">x</button>
+          {{ e }}<button style="margin-left: 4px" @click="() => notificationEmails.splice(i, 1)">
+            x
+          </button>
         </li>
       </ul>
-      <input v-model="notificationEmailInput"><button @click="addNotificationEmail">Add</button>
+      <input v-model="notificationEmailInput"><button @click="addNotificationEmail">
+        Add
+      </button>
       <hr>
       <button :disabled="isLoading" @click="onSubmit">
         Submit
