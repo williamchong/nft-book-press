@@ -84,7 +84,7 @@
         <tr v-for="m, i in moderatorWallets" :key="m">
           <td>{{ m }}</td>
           <td>
-            <NuxtLink :to="{ name: 'authz', query: { grantee: m } }">
+            <NuxtLink :to="{ name: 'authz', query: { grantee: m } }" target="_blank">
               <span v-if="moderatorWalletsGrants[m]">
                 Granted
               </span>
