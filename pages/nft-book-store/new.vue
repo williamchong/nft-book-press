@@ -194,7 +194,7 @@ async function onSubmit () {
     if (fetchError.value && fetchError.value?.statusCode !== 404) {
       throw new Error(fetchError.value.toString())
     }
-    const collectionId = (data?.value as any)?.class?.metadata?.nft_meta_collection_id || ''
+    const collectionId = (data?.value as any)?.class?.data?.metadata?.nft_meta_collection_id || ''
     if (!collectionId.includes('nft_book') && !collectionId.includes('book_nft')) {
       throw new Error('NFT Class not in NFT BOOK meta collection')
     }
