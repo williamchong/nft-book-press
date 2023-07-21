@@ -1,0 +1,154 @@
+<template>
+  <div>
+    <h1>Setup readership plans for your readers</h1>
+    <div v-if="error" style="color: red">
+      {{ error }}
+    </div>
+    <div v-if="isLoading" style="color: green">
+      Loading...
+    </div>
+    <hr>
+    <section v-if="bookStoreApiStore.isAuthenticated">
+      <section v-if="!connectStatus?.isReady">
+        <NuxtLink :to="{ name: 'nft-book-store-user' }">
+          Please setup stripe connect first
+        </NuxtLink>
+      </section>
+      <section v-else>
+        <h2>Your current plans</h2>
+        <table>
+          <tr>
+            <td>price id</td>
+            <td>name</td>
+            <td>description</td>
+            <td>price</td>
+            <td>free mint WNFT</td>
+          </tr>
+          <tr v-for="p in plansInfo" :key="p.id">
+            <td>{{ p?.stripePriceId }}</td>
+            <td>{{ p?.name.en }}</td>
+            <td>{{ p?.description.en }}</td>
+            <td>{{ p?.priceInDecimal / 100 }}</td>
+            <td>{{ p?.canFreeMintWNFT }}</td>
+          </tr>
+        </table>
+        <hr>
+        <section>
+          <h2>Create new plan</h2>
+          <p><label>Price(USD) of new subscription plan (Minimal ${{ MINIMAL_PRICE }})</label></p>
+          <input v-model="newPlanPrice" type="number" step="0.01" :min="MINIMAL_PRICE">
+          <p><label>Name of new subscription plan</label></p>
+          <input v-model="newPlanNameEn" placeholder="Product name in English"><br>
+          <input v-model="newPlanNameZh" placeholder="產品中文名字">
+          <p><label>Description of new subscription plan</label></p>
+          <textarea v-model="newPlanDescriptionEn" placeholder="Product description in English" /><br>
+          <textarea v-model="newPlanDescriptionZh" placeholder="產品中文描述" />
+          <p>
+            <input v-model="newPlanCanMintFreeWNFT" type="checkbox">
+            <label>Allow subscriber to mint WNFT for free</label>
+          </p>
+          <button @click="onClickNewPlan">
+            Create
+          </button>
+        </section>
+      </section>
+    </section>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useBookStoreApiStore } from '~/stores/book-store-api'
+import { useWalletStore } from '~/stores/wallet'
+import { LIKE_CO_API } from '~/constant'
+
+const walletStore = useWalletStore()
+const bookStoreApiStore = useBookStoreApiStore()
+const { wallet } = storeToRefs(walletStore)
+const { token } = storeToRefs(bookStoreApiStore)
+
+const MINIMAL_PRICE = 0.9
+
+const error = ref('')
+const isLoading = ref(false)
+const connectStatus = ref<any>({})
+const plansInfo = ref<any[]>([])
+
+const newPlanPrice = ref<string>(undefined)
+const newPlanNameEn = ref<string>(undefined)
+const newPlanNameZh = ref<string>(undefined)
+const newPlanDescriptionEn = ref<string>(undefined)
+const newPlanDescriptionZh = ref<string>(undefined)
+const newPlanCanMintFreeWNFT = ref(true)
+
+watch(isLoading, (newIsLoading) => {
+  if (newIsLoading) { error.value = '' }
+})
+
+onMounted(async () => {
+  try {
+    isLoading.value = true
+    const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/user/connect/status?wallet=${wallet.value}`,
+      {
+        headers: {
+          authorization: `Bearer ${token.value}`
+        }
+      }
+    )
+    if (fetchError.value && fetchError.value?.statusCode !== 404) {
+      throw new Error(fetchError.value.toString())
+    }
+    connectStatus.value = (data.value as any) || {}
+    await refreshPlans()
+  } catch (e) {
+    console.error(e)
+    error.value = e.toString()
+  } finally {
+    isLoading.value = false
+  }
+})
+
+async function refreshPlans () {
+  const { data: plansData, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/subscription/creators/${wallet.value}/plans`,
+    {
+      headers: {
+        authorization: `Bearer ${token.value}`
+      }
+    }
+  )
+  if (fetchError.value && fetchError.value?.statusCode !== 404) {
+    throw new Error(fetchError.value.toString())
+  }
+  plansInfo.value = ((plansData.value as any) || {})?.plans
+}
+
+async function onClickNewPlan () {
+  try {
+    isLoading.value = true
+    const { error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/subscription/creators/${wallet.value}/plans`,
+      {
+        method: 'POST',
+        body: {
+          priceInDecimal: Math.round(newPlanPrice.value * 100),
+          name: { en: newPlanNameEn.value, zh: newPlanNameZh.value },
+          description: { en: newPlanDescriptionEn.value, zh: newPlanDescriptionZh.value },
+          canFreeMintWNFT: newPlanCanMintFreeWNFT.value
+        },
+        headers: {
+          authorization: `Bearer ${token.value}`
+        }
+      }
+    )
+    if (fetchError.value) {
+      throw new Error(fetchError.value.toString())
+    }
+    await refreshPlans()
+  } catch (e) {
+    console.error(e)
+    error.value = e.toString()
+  } finally {
+    isLoading.value = false
+  }
+}
+
+</script>

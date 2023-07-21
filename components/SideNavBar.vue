@@ -21,6 +21,11 @@
               Manage Stripe Account
             </NuxtLink>
           </li>
+          <li>
+            <NuxtLink :to="{ name: 'nft-book-store-user-subscription' }">
+              Manage Readership Subscription
+            </NuxtLink>
+          </li>
         </ul>
       </li>
       <li>
