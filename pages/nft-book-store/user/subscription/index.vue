@@ -23,6 +23,7 @@
             <td>description</td>
             <td>price</td>
             <td>free mint WNFT</td>
+            <td>current subscribers</td>
           </tr>
           <tr v-for="p in plansInfo" :key="p.id">
             <td>{{ p?.stripePriceId }}</td>
@@ -30,6 +31,7 @@
             <td>{{ p?.description.en }}</td>
             <td>{{ p?.priceInDecimal / 100 }}</td>
             <td>{{ p?.canFreeMintWNFT }}</td>
+            <td>{{ subscriberInfo.filter(s => s.priceId === p.stripePriceId).length }}</td>
           </tr>
         </table>
         <hr>
@@ -73,6 +75,7 @@ const error = ref('')
 const isLoading = ref(false)
 const connectStatus = ref<any>({})
 const plansInfo = ref<any[]>([])
+const subscriberInfo = ref<any[]>([])
 
 const newPlanPrice = ref<string>(undefined)
 const newPlanNameEn = ref<string>(undefined)
@@ -102,24 +105,40 @@ onMounted(async () => {
     await refreshPlans()
   } catch (e) {
     console.error(e)
-    error.value = e.toString()
+    error.value = (e as Error).toString()
   } finally {
     isLoading.value = false
   }
 })
 
 async function refreshPlans () {
-  const { data: plansData, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/subscription/creators/${wallet.value}/plans`,
-    {
-      headers: {
-        authorization: `Bearer ${token.value}`
+  const [
+    { data: plansData, error: fetchPlanError },
+    { data: subscriberData, error: fetchSubscriberError }
+  ] = await Promise.all([
+    useFetch(`${LIKE_CO_API}/likernft/subscription/creators/${wallet.value}/plans`,
+      {
+        headers: {
+          authorization: `Bearer ${token.value}`
+        }
       }
-    }
-  )
-  if (fetchError.value && fetchError.value?.statusCode !== 404) {
-    throw new Error(fetchError.value.toString())
+    ),
+    useFetch(`${LIKE_CO_API}/likernft/subscription/creators/${wallet.value}/subscribers`,
+      {
+        headers: {
+          authorization: `Bearer ${token.value}`
+        }
+      }
+    )
+  ])
+  if (fetchPlanError.value && fetchPlanError.value?.statusCode !== 404) {
+    throw new Error(fetchPlanError.value.toString())
+  }
+  if (fetchSubscriberError.value && fetchSubscriberError.value?.statusCode !== 404) {
+    throw new Error(fetchSubscriberError.value.toString())
   }
   plansInfo.value = ((plansData.value as any) || {})?.plans
+  subscriberInfo.value = ((subscriberData.value as any) || {})?.readers
 }
 
 async function onClickNewPlan () {
