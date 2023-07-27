@@ -10,7 +10,7 @@
     <hr>
     <section v-if="bookStoreApiStore.isAuthenticated">
       <p><label>NFT Class ID:</label></p>
-      <input v-model="classIdInput" placeholder="likenft....">
+      <input v-model="classIdInput" class="classIdInput" placeholder="likenft....">
       <p>Total number of NFT for sale: {{ totalStock }}</p>
       <hr>
       <div v-for="p, index in prices" :key="index">
@@ -22,8 +22,8 @@
         <input placeholder="Product name in English" :value="p.nameEn" @input="e => updatePrice(e, 'nameEn', index)"><br>
         <input placeholder="產品中文名字" :value="p.nameZh" @input="e => updatePrice(e, 'nameZh', index)">
         <p><label>Product description of this price</label></p>
-        <textarea placeholder="Product description in English" :value="p.descriptionEn" @input="e => updatePrice(e, 'descriptionEn', index)" /><br>
-        <textarea placeholder="產品中文描述" :value="p.descriptionZh" @input="e => updatePrice(e, 'descriptionZh', index)" />
+        <md-editor v-model="p.descriptionEn" :editor-id="`en-${index}`" :placeholder="mdEditorPlaceholder.en" :toolbars="toolbarOptions" />
+        <md-editor v-model="p.descriptionZh" :editor-id="`zh-${index}`" :placeholder="mdEditorPlaceholder.zh" :toolbars="toolbarOptions" />
         <hr>
       </div>
       <button @click="addMorePrice">
@@ -88,6 +88,9 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { MdEditor } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
+
 import { LCD_URL, LIKE_CO_API } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
@@ -106,14 +109,19 @@ const error = ref('')
 const isLoading = ref(false)
 const connectStatus = ref<any>({})
 
+const mdEditorPlaceholder = ref({
+  en: 'Product description in English...',
+  zh: '產品中文描述...'
+})
+
 const classIdInput = ref(route.query.class_id as string || '')
 const prices = ref<any[]>([{
   price: 0,
   stock: Number(route.query.count as string || 0),
   nameEn: 'Standard Edition',
   nameZh: '標準版',
-  descriptionEn: 'Content of standard edition',
-  descriptionZh: '標準版內容'
+  descriptionEn: '',
+  descriptionZh: ''
 }])
 const moderatorWallets = ref<string[]>([])
 const notificationEmails = ref<string[]>([])
@@ -123,6 +131,23 @@ const isStripeConnectChecked = ref(false)
 const stripeConnectWallet = ref('')
 const stripeConnectWalletInput = ref('')
 const totalStock = computed(() => prices.value.reduce((acc, p) => acc + Number(p.stock), 0))
+
+const toolbarOptions = ref<string[]>([
+  'bold',
+  'underline',
+  'italic',
+  '-',
+  'strikeThrough',
+  'title',
+  'quote',
+  'unorderedList',
+  'orderedList',
+  '-',
+  'code',
+  'link',
+  '=',
+  'preview'
+])
 
 onMounted(async () => {
   try {
@@ -159,7 +184,9 @@ function addMorePrice () {
     price: 0,
     stock: 0,
     nameEn: `Tier ${prices.value.length}`,
-    nameZh: `級別 ${prices.value.length}`
+    nameZh: `級別 ${prices.value.length}`,
+    descriptionEn: '',
+    descriptionZh: ''
   })
 }
 
@@ -242,3 +269,13 @@ async function onSubmit () {
 }
 
 </script>
+<style scoped>
+.classIdInput{
+   width: 450px;
+}
+.md-editor {
+  width: 60vw;
+  min-width: 300px;
+  height: 500px;
+}
+</style>
