@@ -30,7 +30,7 @@
             <td>{{ p?.name.en }}</td>
             <td>{{ p?.description.en }}</td>
             <td>{{ p?.priceInDecimal / 100 }}</td>
-            <td>{{ p?.canFreeMintWNFT }}</td>
+            <td>{{ p?.canFreeCollectWNFT }}</td>
             <td>{{ subscriberInfo.filter(s => s.priceId === p.stripePriceId).length }}</td>
           </tr>
         </table>
@@ -46,7 +46,7 @@
           <textarea v-model="newPlanDescriptionEn" placeholder="Product description in English" /><br>
           <textarea v-model="newPlanDescriptionZh" placeholder="產品中文描述" />
           <p>
-            <input v-model="newPlanCanMintFreeWNFT" type="checkbox">
+            <input v-model="newPlanCanCollectFreeWNFT" type="checkbox">
             <label>Allow subscriber to mint WNFT for free</label>
           </p>
           <button @click="onClickNewPlan">
@@ -82,7 +82,7 @@ const newPlanNameEn = ref<string>(undefined)
 const newPlanNameZh = ref<string>(undefined)
 const newPlanDescriptionEn = ref<string>(undefined)
 const newPlanDescriptionZh = ref<string>(undefined)
-const newPlanCanMintFreeWNFT = ref(true)
+const newPlanCanCollectFreeWNFT = ref(true)
 
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
@@ -151,7 +151,7 @@ async function onClickNewPlan () {
           priceInDecimal: Math.round(newPlanPrice.value * 100),
           name: { en: newPlanNameEn.value, zh: newPlanNameZh.value },
           description: { en: newPlanDescriptionEn.value, zh: newPlanDescriptionZh.value },
-          canFreeMintWNFT: newPlanCanMintFreeWNFT.value
+          canFreeCollectWNFT: newPlanCanCollectFreeWNFT.value
         },
         headers: {
           authorization: `Bearer ${token.value}`
