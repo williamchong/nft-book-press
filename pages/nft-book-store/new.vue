@@ -270,7 +270,7 @@ async function onSubmit () {
 
 </script>
 <style scoped>
-.classIdInput{
+.classIdInput {
    width: 450px;
 }
 .md-editor {
