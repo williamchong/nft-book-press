@@ -22,8 +22,8 @@
         <input placeholder="Product name in English" :value="p.nameEn" @input="e => updatePrice(e, 'nameEn', index)"><br>
         <input placeholder="產品中文名字" :value="p.nameZh" @input="e => updatePrice(e, 'nameZh', index)">
         <p><label>Product description of this price</label></p>
-        <md-editor v-model="p.descriptionEn" :editor-id="`en-${index}`" :placeholder="mdEditorPlaceholder.en" :toolbars="toolbarOptions" />
-        <md-editor v-model="p.descriptionZh" :editor-id="`zh-${index}`" :placeholder="mdEditorPlaceholder.zh" :toolbars="toolbarOptions" />
+        <md-editor v-model="p.descriptionEn" :editor-id="`en-${index}`" :placeholder="mdEditorPlaceholder.en" :toolbars="toolbarOptions" :sanitize="sanitizeHtml" />
+        <md-editor v-model="p.descriptionZh" :editor-id="`zh-${index}`" :placeholder="mdEditorPlaceholder.zh" :toolbars="toolbarOptions" :sanitize="sanitizeHtml" />
         <hr>
       </div>
       <button @click="addMorePrice">
@@ -90,6 +90,7 @@
 import { storeToRefs } from 'pinia'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
+import DOMPurify from 'dompurify'
 
 import { LCD_URL, LIKE_CO_API } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
@@ -203,6 +204,10 @@ function addNotificationEmail () {
 function onStripeConnectWalletInput () {
   // force stripeConnectWallet to update when stripeConnectWalletInput is updated
   stripeConnectWallet.value = stripeConnectWalletInput.value.trim()
+}
+
+function sanitizeHtml (html: string) {
+  return DOMPurify.sanitize(html)
 }
 
 async function onSubmit () {
