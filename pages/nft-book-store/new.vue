@@ -102,7 +102,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { MdEditor } from 'md-editor-v3'
+import { MdEditor, config } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import DOMPurify from 'dompurify'
 
@@ -149,7 +149,6 @@ const totalStock = computed(() => prices.value.reduce((acc, p) => acc + Number(p
 
 const toolbarOptions = ref<string[]>([
   'bold',
-  'underline',
   'italic',
   '-',
   'strikeThrough',
@@ -163,6 +162,12 @@ const toolbarOptions = ref<string[]>([
   '=',
   'preview'
 ])
+
+config({
+  markdownItConfig (mdit: any) {
+    mdit.options.html = false
+  }
+})
 
 onMounted(async () => {
   try {
@@ -220,6 +225,10 @@ function onStripeConnectWalletInput () {
   stripeConnectWallet.value = stripeConnectWalletInput.value.trim()
 }
 
+function esacpeHtml (text = '') {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function sanitizeHtml (html: string) {
   return DOMPurify.sanitize(html)
 }
@@ -250,7 +259,10 @@ async function onSubmit () {
       .filter(p => p.price > 0)
       .map(p => ({
         name: { en: p.nameEn, zh: p.nameZh },
-        description: { en: p.descriptionEn, zh: p.descriptionZh },
+        description: {
+          en: esacpeHtml(p.descriptionEn),
+          zh: esacpeHtml(p.descriptionZh)
+        },
         priceInDecimal: Math.round(Number(p.price) * 100),
         price: Number(p.price),
         stock: Number(p.stock)
