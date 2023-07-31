@@ -10,11 +10,15 @@
     <hr>
     <section v-if="bookStoreApiStore.isAuthenticated">
       <p><label>NFT Class ID:</label></p>
-      <input v-model="classIdInput" placeholder="likenft....">
+      <input v-model="classIdInput" class="classIdInput" placeholder="likenft....">
       <p>Total number of NFT for sale: {{ totalStock }}</p>
       <hr>
 
-      <h3>Pricing and Availability <button @click="addMorePrice">Add Edition</button></h3>
+      <h3>
+        Pricing and Availability <button @click="addMorePrice">
+          Add Edition
+        </button>
+      </h3>
       <component :is="hasMultiplePrices ? 'ul' : 'div'">
         <component :is="hasMultiplePrices ? 'li' : 'div'" v-for="p, index in prices" :key="p.index">
           <hr v-if="index > 0">
@@ -26,9 +30,27 @@
           <input placeholder="Product name in English" :value="p.nameEn" @input="e => updatePrice(e, 'nameEn', index)"><br>
           <input placeholder="產品中文名字" :value="p.nameZh" @input="e => updatePrice(e, 'nameZh', index)">
           <p><label>Product description of this {{ priceItemLabel }}</label></p>
-          <textarea placeholder="Product description in English" :value="p.descriptionEn" @input="e => updatePrice(e, 'descriptionEn', index)" /><br>
-          <textarea placeholder="產品中文描述" :value="p.descriptionZh" @input="e => updatePrice(e, 'descriptionZh', index)" />
-          <p v-if="hasMultiplePrices"><button @click="deletePrice(index)">Delete</button></p>
+          <md-editor
+            v-model="p.descriptionEn"
+            language="en-US"
+            :editor-id="`en-${index}`"
+            :placeholder="mdEditorPlaceholder.en"
+            :toolbars="toolbarOptions"
+            :sanitize="sanitizeHtml"
+          />
+          <md-editor
+            v-model="p.descriptionZh"
+            language="en-US"
+            :editor-id="`zh-${index}`"
+            :placeholder="mdEditorPlaceholder.zh"
+            :toolbars="toolbarOptions"
+            :sanitize="sanitizeHtml"
+          />
+          <p v-if="hasMultiplePrices">
+            <button @click="deletePrice(index)">
+              Delete
+            </button>
+          </p>
         </component>
       </component>
 
@@ -90,6 +112,10 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { MdEditor, config } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
+import DOMPurify from 'dompurify'
+
 import { v4 as uuidv4 } from 'uuid'
 import { LCD_URL, LIKE_CO_API } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
@@ -109,6 +135,11 @@ const error = ref('')
 const isLoading = ref(false)
 const connectStatus = ref<any>({})
 
+const mdEditorPlaceholder = ref({
+  en: 'Product description in English...',
+  zh: '產品中文描述...'
+})
+
 const classIdInput = ref(route.query.class_id as string || '')
 const nextPriceIndex = ref(1)
 const prices = ref<any[]>([{
@@ -116,8 +147,8 @@ const prices = ref<any[]>([{
   stock: Number(route.query.count as string || 1),
   nameEn: 'Standard Edition',
   nameZh: '標準版',
-  descriptionEn: 'Content of standard edition',
-  descriptionZh: '標準版內容'
+  descriptionEn: '',
+  descriptionZh: ''
 }])
 const hasMultiplePrices = computed(() => prices.value.length > 1)
 const priceItemLabel = computed(() => hasMultiplePrices.value ? 'edition' : 'book')
@@ -129,6 +160,28 @@ const isStripeConnectChecked = ref(false)
 const stripeConnectWallet = ref('')
 const stripeConnectWalletInput = ref('')
 const totalStock = computed(() => prices.value.reduce((acc, p) => acc + Number(p.stock), 0))
+
+const toolbarOptions = ref<string[]>([
+  'bold',
+  'italic',
+  '-',
+  'strikeThrough',
+  'title',
+  'quote',
+  'unorderedList',
+  'orderedList',
+  '-',
+  'code',
+  'link',
+  '=',
+  'preview'
+])
+
+config({
+  markdownItConfig (mdit: any) {
+    mdit.options.html = false
+  }
+})
 
 onMounted(async () => {
   try {
@@ -167,7 +220,9 @@ function addMorePrice () {
     price: MINIMAL_PRICE,
     stock: 1,
     nameEn: `Tier ${nextPriceIndex.value}`,
-    nameZh: `級別 ${nextPriceIndex.value}`
+    nameZh: `級別 ${nextPriceIndex.value}`,
+    descriptionEn: '',
+    descriptionZh: ''
   })
 }
 
@@ -188,6 +243,14 @@ function addNotificationEmail () {
 function onStripeConnectWalletInput () {
   // force stripeConnectWallet to update when stripeConnectWalletInput is updated
   stripeConnectWallet.value = stripeConnectWalletInput.value.trim()
+}
+
+function esacpeHtml (text = '') {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+function sanitizeHtml (html: string) {
+  return DOMPurify.sanitize(html)
 }
 
 async function onSubmit () {
@@ -216,7 +279,10 @@ async function onSubmit () {
       .filter(p => p.price > 0)
       .map(p => ({
         name: { en: p.nameEn, zh: p.nameZh },
-        description: { en: p.descriptionEn, zh: p.descriptionZh },
+        description: {
+          en: esacpeHtml(p.descriptionEn),
+          zh: esacpeHtml(p.descriptionZh)
+        },
         priceInDecimal: Math.round(Number(p.price) * 100),
         price: Number(p.price),
         stock: Number(p.stock)
@@ -254,3 +320,13 @@ async function onSubmit () {
 }
 
 </script>
+<style scoped>
+.classIdInput {
+   width: 450px;
+}
+.md-editor {
+  width: 60vw;
+  min-width: 300px;
+  height: 500px;
+}
+</style>
