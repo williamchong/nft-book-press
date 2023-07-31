@@ -22,9 +22,23 @@
         <input placeholder="Product name in English" :value="p.nameEn" @input="e => updatePrice(e, 'nameEn', index)"><br>
         <input placeholder="產品中文名字" :value="p.nameZh" @input="e => updatePrice(e, 'nameZh', index)">
         <p><label>Product description of this price</label></p>
-        <md-editor v-model="p.descriptionEn" :editor-id="`en-${index}`" :placeholder="mdEditorPlaceholder.en" :toolbars="toolbarOptions" :sanitize="sanitizeHtml" />
-        <md-editor v-model="p.descriptionZh" :editor-id="`zh-${index}`" :placeholder="mdEditorPlaceholder.zh" :toolbars="toolbarOptions" :sanitize="sanitizeHtml" />
-        <hr>
+        <md-editor
+          v-model="p.descriptionEn"
+          language="en-US"
+          :editor-id="`en-${index}`"
+          :placeholder="mdEditorPlaceholder.en"
+          :toolbars="toolbarOptions"
+          :sanitize="sanitizeHtml"
+        />
+        <md-editor
+          v-model="p.descriptionZh"
+          language="en-US"
+          :editor-id="`zh-${index}`"
+          :placeholder="mdEditorPlaceholder.zh"
+          :toolbars="toolbarOptions"
+          :sanitize="sanitizeHtml"
+        />
+        <hr>text =>
       </div>
       <button @click="addMorePrice">
         Add more prices
