@@ -245,8 +245,12 @@ function onStripeConnectWalletInput () {
   stripeConnectWallet.value = stripeConnectWalletInput.value.trim()
 }
 
-function esacpeHtml (text = '') {
-  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+function escapeHtml (text = '') {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
 }
 
 function sanitizeHtml (html: string) {
@@ -280,8 +284,8 @@ async function onSubmit () {
       .map(p => ({
         name: { en: p.nameEn, zh: p.nameZh },
         description: {
-          en: esacpeHtml(p.descriptionEn),
-          zh: esacpeHtml(p.descriptionZh)
+          en: escapeHtml(p.descriptionEn),
+          zh: escapeHtml(p.descriptionZh)
         },
         priceInDecimal: Math.round(Number(p.price) * 100),
         price: Number(p.price),
