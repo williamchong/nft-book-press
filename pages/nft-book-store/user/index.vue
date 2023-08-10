@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Stripe connect status</h1>
+    <h1>Stripe Connect status</h1>
     <div v-if="error" style="color: red">
       {{ error }}
     </div>
@@ -10,10 +10,10 @@
     <hr>
     <section v-if="bookStoreApiStore.isAuthenticated">
       <h2>Current status</h2>
-      <table>
+      <table style="margin-bottom: 24px;">
         <tr>
-          <td>Account Created</td>
-          <td>Set up completed</td>
+          <td>Setup initiated</td>
+          <td>Setup completed</td>
         </tr>
         <tr>
           <td>{{ connectStatus?.hasAccount || false }}</td>
