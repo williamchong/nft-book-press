@@ -43,8 +43,22 @@
           <input v-model="newPlanNameEn" placeholder="Product name in English"><br>
           <input v-model="newPlanNameZh" placeholder="產品中文名字">
           <p><label>Description of new subscription plan</label></p>
-          <textarea v-model="newPlanDescriptionEn" placeholder="Product description in English" /><br>
-          <textarea v-model="newPlanDescriptionZh" placeholder="產品中文描述" />
+          <md-editor
+            v-model="newPlanDescriptionEn"
+            language="en-US"
+            editor-id="en-01"
+            placeholder="Product description in English"
+            :toolbars="toolbarOptions"
+            :sanitize="sanitizeHtml"
+          />
+          <md-editor
+            v-model="newPlanDescriptionZh"
+            language="en-US"
+            editor-id="zh-01"
+            placeholder="產品中文描述"
+            :toolbars="toolbarOptions"
+            :sanitize="sanitizeHtml"
+          />
           <p>
             <input v-model="newPlanCanCollectFreeWNFT" type="checkbox">
             <label>Allow subscriber to mint WNFT for free</label>
@@ -59,10 +73,13 @@
 </template>
 
 <script setup lang="ts">
+import DOMPurify from 'dompurify'
 import { storeToRefs } from 'pinia'
+import { MdEditor, config } from 'md-editor-v3'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
 import { LIKE_CO_API } from '~/constant'
+import 'md-editor-v3/lib/style.css'
 
 const walletStore = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
@@ -83,6 +100,27 @@ const newPlanNameZh = ref<string>(undefined)
 const newPlanDescriptionEn = ref<string>(undefined)
 const newPlanDescriptionZh = ref<string>(undefined)
 const newPlanCanCollectFreeWNFT = ref(true)
+
+const toolbarOptions = ref<string[]>([
+  'bold',
+  'italic',
+  'strikeThrough',
+  'title',
+  '-',
+  'unorderedList',
+  'orderedList',
+  '-',
+  'code',
+  'link',
+  '=',
+  'preview'
+])
+
+config({
+  markdownItConfig (mdit: any) {
+    mdit.options.html = false
+  }
+})
 
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
@@ -141,6 +179,18 @@ async function refreshPlans () {
   subscriberInfo.value = ((subscriberData.value as any) || {})?.readers
 }
 
+function escapeHtml (text = '') {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+function sanitizeHtml (html: string) {
+  return DOMPurify.sanitize(html)
+}
+
 async function onClickNewPlan () {
   try {
     isLoading.value = true
@@ -150,7 +200,7 @@ async function onClickNewPlan () {
         body: {
           priceInDecimal: Math.round(newPlanPrice.value * 100),
           name: { en: newPlanNameEn.value, zh: newPlanNameZh.value },
-          description: { en: newPlanDescriptionEn.value, zh: newPlanDescriptionZh.value },
+          description: { en: escapeHtml(newPlanDescriptionEn.value), zh: escapeHtml(newPlanDescriptionZh.value) },
           canFreeCollectWNFT: newPlanCanCollectFreeWNFT.value
         },
         headers: {
