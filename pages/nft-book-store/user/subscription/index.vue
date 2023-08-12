@@ -28,7 +28,9 @@
           <tr v-for="p in plansInfo" :key="p.id">
             <td>{{ p?.stripePriceId }}</td>
             <td>{{ p?.name.en }}</td>
-            <td>{{ p?.description.en }}</td>
+            <td>
+              <md-preview :editor-id="p.stripePriceId" :model-value="p?.description.en" />
+            </td>
             <td>{{ p?.priceInDecimal / 100 }}</td>
             <td>{{ p?.canFreeCollectWNFT }}</td>
             <td>{{ subscriberInfo.filter(s => s.priceId === p.stripePriceId).length }}</td>
@@ -75,7 +77,7 @@
 <script setup lang="ts">
 import DOMPurify from 'dompurify'
 import { storeToRefs } from 'pinia'
-import { MdEditor, config } from 'md-editor-v3'
+import { MdEditor, config, MdPreview } from 'md-editor-v3'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
 import { LIKE_CO_API } from '~/constant'
@@ -94,11 +96,11 @@ const connectStatus = ref<any>({})
 const plansInfo = ref<any[]>([])
 const subscriberInfo = ref<any[]>([])
 
-const newPlanPrice = ref<string>(undefined)
-const newPlanNameEn = ref<string>(undefined)
-const newPlanNameZh = ref<string>(undefined)
-const newPlanDescriptionEn = ref<string>(undefined)
-const newPlanDescriptionZh = ref<string>(undefined)
+const newPlanPrice = ref<any>(undefined)
+const newPlanNameEn = ref<string>('')
+const newPlanNameZh = ref<string>('')
+const newPlanDescriptionEn = ref<string>('')
+const newPlanDescriptionZh = ref<string>('')
 const newPlanCanCollectFreeWNFT = ref(true)
 
 const toolbarOptions = ref<string[]>([
@@ -191,6 +193,15 @@ function sanitizeHtml (html: string) {
   return DOMPurify.sanitize(html)
 }
 
+function initPlan () {
+  newPlanPrice.value = undefined
+  newPlanNameEn.value = ''
+  newPlanNameZh.value = ''
+  newPlanDescriptionEn.value = ''
+  newPlanDescriptionZh.value = ''
+  newPlanCanCollectFreeWNFT.value = true
+}
+
 async function onClickNewPlan () {
   try {
     isLoading.value = true
@@ -216,6 +227,7 @@ async function onClickNewPlan () {
     console.error(e)
     error.value = e.toString()
   } finally {
+    initPlan()
     isLoading.value = false
   }
 }
