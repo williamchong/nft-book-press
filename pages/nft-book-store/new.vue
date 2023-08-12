@@ -108,12 +108,12 @@
 import { storeToRefs } from 'pinia'
 import { MdEditor, config } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
-import DOMPurify from 'dompurify'
 
 import { v4 as uuidv4 } from 'uuid'
 import { LCD_URL, LIKE_CO_API } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
+import { escapeHtml, sanitizeHtml } from '~/utils/index'
 
 const walletStore = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
@@ -238,18 +238,6 @@ function onStripeConnectWalletInput () {
   stripeConnectWallet.value = stripeConnectWalletInput.value.trim()
 }
 
-function escapeHtml (text = '') {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
-
-function sanitizeHtml (html: string) {
-  return DOMPurify.sanitize(html)
-}
-
 async function onSubmit () {
   try {
     if (!classIdInput.value) {
@@ -320,10 +308,5 @@ async function onSubmit () {
 <style scoped>
 .classIdInput {
    width: 450px;
-}
-.md-editor {
-  width: 60vw;
-  min-width: 300px;
-  height: 500px;
 }
 </style>

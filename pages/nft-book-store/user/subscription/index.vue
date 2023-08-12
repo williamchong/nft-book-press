@@ -75,12 +75,12 @@
 </template>
 
 <script setup lang="ts">
-import DOMPurify from 'dompurify'
 import { storeToRefs } from 'pinia'
 import { MdEditor, config, MdPreview } from 'md-editor-v3'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
 import { LIKE_CO_API } from '~/constant'
+import { escapeHtml, sanitizeHtml } from '~/utils/index'
 import 'md-editor-v3/lib/style.css'
 
 const walletStore = useWalletStore()
@@ -179,18 +179,6 @@ async function refreshPlans () {
   }
   plansInfo.value = ((plansData.value as any) || {})?.plans
   subscriberInfo.value = ((subscriberData.value as any) || {})?.readers
-}
-
-function escapeHtml (text = '') {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
-
-function sanitizeHtml (html: string) {
-  return DOMPurify.sanitize(html)
 }
 
 function initPlan () {

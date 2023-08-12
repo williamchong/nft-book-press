@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify'
+
 export function addParamToUrl (url: string, params: { [key: string]: string }) {
   const urlObject = new URL(url)
   const urlParams = new URLSearchParams(urlObject.search)
@@ -24,4 +26,16 @@ export function downloadBlob (content: string, filename: string, contentType: st
 
 export function parseImageURLFromMetadata (image: string): string {
   return image.replace('ar://', 'https://arweave.net/').replace('ipfs://', 'https://ipfs.io/ipfs/')
+}
+
+export function escapeHtml (text = '') {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+export function sanitizeHtml (html: string) {
+  return DOMPurify.sanitize(html)
 }
