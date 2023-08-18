@@ -69,7 +69,16 @@
         </thead>
         <tr v-for="p in purchaseList" :key="p.classId">
           <td>{{ p.email }}</td>
-          <td>{{ p.status }}</td>
+          <td>
+            {{ p.status }}
+            <button
+              v-if="p.status === 'pendingNFT'"
+              style="margin-top: 6px;"
+              @click="hardSetStatusToCompleted(p)"
+            >
+              Mark Complete
+            </button>
+          </td>
           <td>{{ p.wallet }}</td>
           <td>{{ p.priceName }}</td>
           <td>{{ p.price }}</td>
@@ -90,7 +99,7 @@
             >
               Send NFT
             </NuxtLink>
-            <a v-else-if="p.status === 'completed'" :href="`${chainExplorerURL}/${p.txHash}`" target="_blank">
+            <a v-else-if="p.status === 'completed' && p.txHash" :href="`${chainExplorerURL}/${p.txHash}`" target="_blank">
               View Transaction
             </a>
             <span v-else>
@@ -363,6 +372,27 @@ async function handlePriceReorder ({
   } finally {
     isUpdatingPricesOrder.value = false
   }
+}
+
+async function hardSetStatusToCompleted (purchase: any) {
+  const userConfirmed = confirm('Do you want to skip the \'Send NFT\' action and override this payment status to \'completed\'?')
+  if (!userConfirmed) {
+    return
+  }
+
+  const { error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/purchase/${classId.value}/sent/${purchase.id}`,
+    {
+      method: 'POST',
+      body: { txHash: null },
+      headers: {
+        authorization: `Bearer ${token.value}`
+      }
+    })
+  if (fetchError.value) {
+    throw fetchError.value
+  }
+  purchase.status = 'completed'
+  classListingInfo.value.pendingNFTCount -= 1
 }
 
 function addModeratorWallet () {
