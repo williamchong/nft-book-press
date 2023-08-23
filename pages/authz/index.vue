@@ -55,7 +55,7 @@
       <hr>
       <h2>Grant new send NFT authz</h2>
       <input v-model="newGrantee" placeholder="like1...">
-      <button :disabled="isLoading" @click="onNewGrant">
+      <button :disabled="isLoading" @click="onNewGrant()">
         Submit
       </button>
     </template>
@@ -77,7 +77,7 @@ const { connect } = walletStore
 const route = useRoute()
 
 const error = ref('')
-const newGrantee = ref(route.query.grantee || '')
+const newGrantee = ref(route.query.grantee as string || '')
 const grants = ref([] as any)
 const isLoading = ref(false)
 
