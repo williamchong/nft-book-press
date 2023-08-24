@@ -40,6 +40,28 @@
         </Draggable>
       </table>
 
+      <template v-if="classListingInfo.shippingRates">
+        <h3>Shipping Options</h3>
+        <table>
+          <thead>
+            <tr>
+              <th />
+              <th>Name</th>
+              <th>Price (USD)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(element, index) in classListingInfo.shippingRates" :key="index">
+              <td>{{ index + 1 }}</td>
+              <td>{{ element.name }}</td>
+              <td style="text-align: right;">
+                {{ element.price }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+
       <h3>Status</h3>
       <table>
         <tr>

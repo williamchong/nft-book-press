@@ -46,6 +46,11 @@
             :toolbars="toolbarOptions"
             :sanitize="sanitizeHtml"
           />
+          <div>
+            <h3>Physical Goods</h3>
+            <input type="checkbox" @input="e => updatePrice(e, 'hasShipping', index)">
+            <label>Includes physical good that requires shipping</label>
+          </div>
           <p v-if="hasMultiplePrices">
             <button @click="deletePrice(index)">
               Delete
@@ -53,7 +58,22 @@
           </p>
         </component>
       </component>
-
+      <div v-if="hasShipping">
+        <hr>
+        <h3>Shipping Options and Prices</h3><button @click="addMoreShippingRate">
+          Add Option
+        </button>
+        <component :is="hasMultipleShippingRates ? 'ul' : 'div'">
+          <component :is="hasMultipleShippingRates ? 'li' : 'div'" v-for="s, index in shippingRates" :key="s.index">
+            <hr v-if="index > 0">
+            <p><label>Price(USD) of this shipping option</label></p>
+            <input :value="s.price" type="number" step="0.01" :min="0" @input="e => updateShippingRate(e, 'price', index)">
+            <p><label>Name of this shipping option</label></p>
+            <input placeholder="Shipping option name" :value="s.nameEn" @input="e => updateShippingRate(e, 'nameEn', index)"><br>
+            <input placeholder="運送選項名稱" :value="s.nameZh" @input="e => updateShippingRate(e, 'nameZh', index)">
+          </component>
+        </component>
+      </div>
       <hr>
       <div>
         <h3>Connect to your own Stripe Account</h3>
@@ -164,7 +184,14 @@ const prices = ref<any[]>([{
   descriptionEn: '',
   descriptionZh: ''
 }])
+const shippingRates = ref<any[]>([{
+  price: 10.0,
+  nameEn: 'Standard Shipping',
+  nameZh: '標準寄送'
+}])
 const hasMultiplePrices = computed(() => prices.value.length > 1)
+const hasShipping = computed(() => prices.value.find(p => p.hasShipping))
+const hasMultipleShippingRates = computed(() => shippingRates.value.length > 1)
 const priceItemLabel = computed(() => hasMultiplePrices.value ? 'edition' : 'book')
 const moderatorWallets = ref<string[]>([])
 const moderatorWalletsGrants = ref<any>({})
@@ -254,6 +281,19 @@ function deletePrice (index: number) {
   prices.value.splice(index, 1)
 }
 
+function updateShippingRate (e: InputEvent, key: string, index: number) {
+  shippingRates.value[index][key] = (e.target as HTMLInputElement)?.value
+}
+
+function addMoreShippingRate () {
+  shippingRates.value.push({
+    index: uuidv4(),
+    price: 20,
+    nameEn: 'International Shipping',
+    nameZh: '國際寄送'
+  })
+}
+
 function addModeratorWallet () {
   moderatorWallets.value.push(moderatorWalletInput.value)
   moderatorWalletInput.value = ''
@@ -313,7 +353,8 @@ async function onSubmit () {
         },
         priceInDecimal: Math.round(Number(p.price) * 100),
         price: Number(p.price),
-        stock: Number(p.stock)
+        stock: Number(p.stock),
+        hasShipping: p.hasShipping || false
       }))
 
     if (isStripeConnectChecked.value && stripeConnectWallet.value) {
@@ -331,11 +372,20 @@ async function onSubmit () {
           [stripeConnectWallet.value]: 100
         }
       : null
+    const s = hasShipping.value
+      ? shippingRates.value
+        .map(rate => ({
+          name: { en: rate.nameEn, zh: rate.nameZh },
+          priceInDecimal: Math.round(Number(rate.price) * 100),
+          price: Number(rate.price)
+        }))
+      : undefined
     await newBookListing(classIdInput.value, {
       connectedWallets,
       moderatorWallets,
       notificationEmails,
-      prices: p
+      prices: p,
+      shippingRates: s
     })
     router.push({ name: 'nft-book-store' })
   } catch (err) {
