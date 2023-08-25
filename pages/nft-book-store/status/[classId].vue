@@ -55,7 +55,7 @@
               <td>{{ index + 1 }}</td>
               <td>{{ element.name }}</td>
               <td style="text-align: right;">
-                {{ element.price }}
+                {{ element.priceInDecimal / 100 }}
               </td>
             </tr>
           </tbody>
@@ -81,6 +81,9 @@
           <tr>
             <th>Buyer Email</th>
             <th>Status</th>
+            <th v-if="orderHasShipping">
+              Shipping Status
+            </th>
             <th>Buyer Wallet</th>
             <th>Price Name</th>
             <th>Price</th>
@@ -102,6 +105,25 @@
             >
               Mark Complete
             </button>
+          </td>
+          <td v-if="orderHasShipping">
+            <NuxtLink
+              v-if="p.shippingStatus === 'pending'"
+              :to="{
+                name: 'nft-book-store-send-shipping-classId',
+                params: {
+                  classId: p.classId
+                },
+                query: {
+                  payment_id: p.id
+                }
+              }"
+            >
+              Pending, Handle Shipping
+            </NuxtLink>
+            <span v-else>
+              {{ p.shippingStatus }}
+            </span>
           </td>
           <td>{{ p.wallet }}</td>
           <td>{{ p.priceName }}</td>
@@ -293,6 +315,7 @@ const stripeConnectWalletInput = ref('')
 
 const nftClassName = computed(() => nftStore.getClassMetadataById(classId.value as string)?.name)
 const ownerWallet = computed(() => classListingInfo?.value?.ownerWallet)
+const orderHasShipping = computed(() => purchaseList.value.find(p => !!p.shippingStatus))
 const userIsOwner = computed(() => wallet.value && ownerWallet.value === wallet.value)
 const userCanSendNFT = computed(() => userIsOwner.value || (wallet.value && moderatorWalletsGrants.value[wallet.value]))
 const purchaseLink = computed(() => {
