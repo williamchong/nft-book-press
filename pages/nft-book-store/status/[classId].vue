@@ -40,6 +40,28 @@
         </Draggable>
       </table>
 
+      <template v-if="classListingInfo.shippingRates">
+        <h3>Shipping Options</h3>
+        <table>
+          <thead>
+            <tr>
+              <th />
+              <th>Name</th>
+              <th>Price (USD)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(element, index) in classListingInfo.shippingRates" :key="index">
+              <td>{{ index + 1 }}</td>
+              <td>{{ element.name }}</td>
+              <td style="text-align: right;">
+                {{ element.priceInDecimal / 100 }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+
       <h3>Status</h3>
       <table>
         <tr>
@@ -59,6 +81,9 @@
           <tr>
             <th>Buyer Email</th>
             <th>Status</th>
+            <th v-if="orderHasShipping">
+              Shipping Status
+            </th>
             <th>Buyer Wallet</th>
             <th>Price Name</th>
             <th>Price</th>
@@ -80,6 +105,25 @@
             >
               Mark Complete
             </button>
+          </td>
+          <td v-if="orderHasShipping">
+            <NuxtLink
+              v-if="p.shippingStatus === 'pending'"
+              :to="{
+                name: 'nft-book-store-send-shipping-classId',
+                params: {
+                  classId: p.classId
+                },
+                query: {
+                  payment_id: p.id
+                }
+              }"
+            >
+              Pending, Handle Shipping
+            </NuxtLink>
+            <span v-else>
+              {{ p.shippingStatus }}
+            </span>
           </td>
           <td>{{ p.wallet }}</td>
           <td>{{ p.priceName }}</td>
@@ -271,6 +315,7 @@ const stripeConnectWalletInput = ref('')
 
 const nftClassName = computed(() => nftStore.getClassMetadataById(classId.value as string)?.name)
 const ownerWallet = computed(() => classListingInfo?.value?.ownerWallet)
+const orderHasShipping = computed(() => purchaseList.value.find(p => !!p.shippingStatus))
 const userIsOwner = computed(() => wallet.value && ownerWallet.value === wallet.value)
 const userCanSendNFT = computed(() => userIsOwner.value || (wallet.value && moderatorWalletsGrants.value[wallet.value]))
 const purchaseLink = computed(() => {
