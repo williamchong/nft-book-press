@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>New NFT Book Listing</h1>
+    <h1>{{ pageTitle }}</h1>
     <div v-if="error" style="color: red">
       {{ error }}
     </div>
@@ -10,12 +10,16 @@
     <hr>
     <section v-if="bookStoreApiStore.isAuthenticated">
       <p><label>NFT Class ID:</label></p>
-      <input v-model="classIdInput" class="classIdInput" placeholder="likenft....">
+      <input v-if="!isEditMode" v-model="classIdInput" class="classIdInput" placeholder="likenft....">
+      <p v-else style="font-weight: bold">
+        {{ classId }}
+      </p>
       <p>Total number of NFT for sale: {{ totalStock }}</p>
       <hr>
 
       <h3>
-        Pricing and Availability <button @click="addMorePrice">
+        Pricing and Availability
+        <button v-if="!isEditMode" @click="addMorePrice">
           Add Edition
         </button>
       </h3>
@@ -136,7 +140,7 @@
       </button>
       <hr>
       <button :disabled="isLoading" @click="onSubmit">
-        Submit
+        {{ submitButtonText }}
       </button>
     </section>
   </div>
@@ -158,10 +162,14 @@ const walletStore = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
 const { wallet } = storeToRefs(walletStore)
 const { token } = storeToRefs(bookStoreApiStore)
-const { newBookListing } = bookStoreApiStore
+const { newBookListing, updateEditionPrice } = bookStoreApiStore
 
 const router = useRouter()
 const route = useRoute()
+// params.editingClassId and params.editionIndex is only available when editing an existing class
+// query.class_id is only available when creating a new class
+const classId = ref(route.params.editingClassId || route.query.class_id as string)
+const editionIndex = ref(route.params.editionIndex as string)
 
 const MINIMAL_PRICE = 0.9
 
@@ -174,7 +182,7 @@ const mdEditorPlaceholder = ref({
   zh: '產品中文描述...'
 })
 
-const classIdInput = ref(route.query.class_id as string || '')
+const classIdInput = ref(classId || '')
 const nextPriceIndex = ref(1)
 const prices = ref<any[]>([{
   price: MINIMAL_PRICE,
@@ -218,6 +226,12 @@ const toolbarOptions = ref<string[]>([
   'preview'
 ])
 
+const isEditMode = computed(() => route.params.editingClassId && editionIndex.value)
+const pageTitle = computed(() => isEditMode.value ? 'Edit Current Edition' : 'New NFT Book Listing')
+const submitButtonText = computed(() => isEditMode.value ? 'Save Changes' : 'Submit')
+const editionInfo = ref<any>({})
+const classOwnerWallet = ref<any>({})
+
 config({
   markdownItConfig (mdit: any) {
     mdit.options.html = false
@@ -227,17 +241,61 @@ config({
 onMounted(async () => {
   try {
     isLoading.value = true
-    const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/user/connect/status?wallet=${wallet.value}`,
-      {
+
+    const fetchClassDataPromise = isEditMode.value
+      ? useFetch(`${LIKE_CO_API}/likernft/book/store/${classId.value}`, {
         headers: {
           authorization: `Bearer ${token.value}`
         }
+      })
+      : Promise.resolve({ data: null })
+
+    const fetchConnectStatusPromise =
+        useFetch(`${LIKE_CO_API}/likernft/book/user/connect/status?wallet=${wallet.value}`, {
+          headers: {
+            authorization: `Bearer ${token.value}`
+          }
+        })
+
+    const [classData, connectStatusData] = await Promise.all([fetchClassDataPromise, fetchConnectStatusPromise])
+
+    if (classData?.data?.value) {
+      const data = classData.data?.value
+      classOwnerWallet.value = data
+
+      if (classOwnerWallet?.value?.ownerWallet !== wallet.value) {
+        throw new Error('NOT_OWNER_OF_NFT_CLASS')
       }
-    )
-    if (fetchError.value && fetchError.value?.statusCode !== 404) {
-      throw new Error(fetchError.value.toString())
+
+      editionInfo.value = data
+      const currentEdition = editionInfo.value.prices.filter(e => e.index.toString() === editionIndex.value)[0]
+      if (currentEdition) {
+        prices.value = [
+          {
+            price: currentEdition.price,
+            stock: currentEdition.stock,
+            nameEn: currentEdition.name?.en || '',
+            nameZh: currentEdition.name?.zh || '',
+            descriptionEn: currentEdition.description?.en || '',
+            descriptionZh: currentEdition.description?.zh || ''
+          }
+        ]
+      }
+      const {
+        moderatorWallets: classModeratorWallets,
+        notificationEmails: classNotificationEmails,
+        connectedWallets: classConnectedWallets
+      } = data as any
+      moderatorWallets.value = classModeratorWallets
+      notificationEmails.value = classNotificationEmails
+      isStripeConnectChecked.value = !!(classConnectedWallets && Object.keys(classConnectedWallets).length)
+      stripeConnectWallet.value = classConnectedWallets && Object.keys(classConnectedWallets)[0]
     }
-    connectStatus.value = (data.value as any) || {}
+
+    if (connectStatusData.error?.value && connectStatusData.error?.value?.statusCode !== 404) {
+      throw new Error(connectStatusData.error.value.toString())
+    }
+    connectStatus.value = (connectStatusData?.data?.value as any) || {}
   } catch (e) {
     console.error(e)
     error.value = (e as Error).toString()
@@ -321,7 +379,35 @@ function sanitizeHtml (html: string) {
   return DOMPurify.sanitize(html)
 }
 
-async function onSubmit () {
+function mapPrices (prices:any) {
+  return prices
+    .filter(p => p.price > 0)
+    .map(p => ({
+      name: { en: p.nameEn, zh: p.nameZh },
+      description: {
+        en: escapeHtml(p.descriptionEn),
+        zh: escapeHtml(p.descriptionZh)
+      },
+      priceInDecimal: Math.round(Number(p.price) * 100),
+      price: Number(p.price),
+      stock: Number(p.stock),
+      hasShipping: p.hasShipping || false
+    }))
+}
+
+async function checkStripeConnect () {
+  if (isStripeConnectChecked.value && stripeConnectWallet.value) {
+    const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/user/connect/status?wallet=${stripeConnectWallet.value}`)
+    if (fetchError.value && fetchError.value?.statusCode !== 404) {
+      throw new Error(fetchError.value.toString())
+    }
+    if (!(data?.value as any)?.isReady) {
+      throw new Error('CONNECTED_WALLET_STRIPE_ACCOUNT_NOT_READY')
+    }
+  }
+}
+
+async function submitNewClass () {
   try {
     if (!classIdInput.value) {
       throw new Error('Please input NFT class ID')
@@ -342,30 +428,8 @@ async function onSubmit () {
       throw new Error('NFT Class not in NFT BOOK meta collection')
     }
 
-    isLoading.value = true
-    const p = prices.value
-      .filter(p => p.price > 0)
-      .map(p => ({
-        name: { en: p.nameEn, zh: p.nameZh },
-        description: {
-          en: escapeHtml(p.descriptionEn),
-          zh: escapeHtml(p.descriptionZh)
-        },
-        priceInDecimal: Math.round(Number(p.price) * 100),
-        price: Number(p.price),
-        stock: Number(p.stock),
-        hasShipping: p.hasShipping || false
-      }))
-
-    if (isStripeConnectChecked.value && stripeConnectWallet.value) {
-      const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/user/connect/status?wallet=${stripeConnectWallet.value}`)
-      if (fetchError.value && fetchError.value?.statusCode !== 404) {
-        throw new Error(fetchError.value.toString())
-      }
-      if (!(data?.value as any)?.isReady) {
-        throw new Error('CONNECTED_WALLET_STRIPE_ACCOUNT_NOT_READY')
-      }
-    }
+    const p = mapPrices(prices.value)
+    await checkStripeConnect()
 
     const connectedWallets = (isStripeConnectChecked.value && stripeConnectWallet.value)
       ? {
@@ -380,7 +444,8 @@ async function onSubmit () {
           price: Number(rate.price)
         }))
       : undefined
-    await newBookListing(classIdInput.value, {
+
+    await newBookListing(classIdInput.value as string, {
       connectedWallets,
       moderatorWallets,
       notificationEmails,
@@ -395,6 +460,46 @@ async function onSubmit () {
   } finally {
     isLoading.value = false
   }
+}
+
+async function submitEditedClass () {
+  try {
+    if (!isEditMode.value) {
+      throw new Error('Unable to submit edit: Missing edition index or class ID')
+    }
+    const p = mapPrices(prices.value)
+    const price = p[0]
+
+    if (!price || !price.price) {
+      throw new Error('Please input price of edition')
+    }
+
+    if (!price.stock) {
+      throw new Error('Please input stock of edition')
+    }
+
+    if (!price.name.en || !price.name.zh) {
+      throw new Error('Please input product name')
+    }
+
+    isLoading.value = true
+
+    await updateEditionPrice(classId.value as string, editionIndex.value, {
+      price
+    })
+
+    router.push({ name: 'nft-book-store' })
+  } catch (err) {
+    const errorData = (err as any).data || err
+    console.error(errorData)
+    error.value = errorData
+  } finally {
+    isLoading.value = false
+  }
+}
+
+function onSubmit () {
+  return isEditMode.value ? submitEditedClass() : submitNewClass()
 }
 
 </script>
