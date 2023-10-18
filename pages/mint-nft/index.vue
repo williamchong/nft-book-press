@@ -4,9 +4,6 @@
     <div v-if="error" style="color: red">
       {{ error }}
     </div>
-    <div v-if="isLoading" style="color: green">
-      Loading...
-    </div>
     <div>Steps {{ step }} / 4</div>
     <hr>
     <section v-if="step === 1">
@@ -14,7 +11,7 @@
       <div v-if="!iscnCreateData">
         <p><label>Enter ISCN ID or NFT Class ID:</label></p>
         <input v-model="iscnIdInput" placeholder="iscn://... or likenft....">
-        <button :disabled="isLoading" @click="onISCNIDInput">
+        <button class="button" :disabled="isLoading || !(iscnIdInput)" @click="onISCNIDInput">
           Submit
         </button>
       </div>
@@ -39,8 +36,16 @@
         </div>
         <input type="file" @change="onISCNFileChange">
         <br>
-        <p>You can also create your ISCN using <a :href="`${appLikeCoURL}/new`" target="_blank">app.like.co</a></p>
-        <button :disabled="isLoading" style="margin-top: 16px" @click="onISCNFileInput">
+        <p>
+          You can also create your ISCN using
+          <a :href="`${appLikeCoURL}/new`" target="_blank">app.like.co</a>
+        </p>
+
+        <button
+          class="button"
+          :disabled="isLoading || !(iscnCreateData)"
+          @click="onISCNFileInput"
+        >
           Create
         </button>
       </div>
@@ -68,31 +73,142 @@
     </section>
     <section v-if="step === 2">
       <h2>2. Create NFT Class</h2>
-      <div>
-        <label>Max number of supply for this NFT Class (optional):</label>
-        <input v-model="classMaxSupply" type="number">
-        <p>
-          <label>Upload NFT Class data json (
-            <a
-              href="https://github.com/likecoin/iscn-nft-tools/blob/master/mint-nft/samples/nft_class.json"
+      <div style="display: flex; flex-direction: row; justify-content: center; align-items: start; gap: 24px">
+        <!-- Mint NFT by uploading data files -->
+        <div class="container">
+          <h3>Mint NFT by uploading data files</h3>
+
+          <label>Max number of supply for this NFT Class (optional):</label>
+          <input
+            v-model="classMaxSupply"
+            type="number"
+            :min="nftMintCount"
+          >
+          <label>Number of NFT to mint:</label>
+          <input
+            v-model="nftMintCount"
+            type="number"
+            :min="0"
+            :max="classMaxSupply"
+          >
+
+          <p>
+            <label>Upload NFT Class data json (
+              <a
+                href="https://github.com/likecoin/iscn-nft-tools/blob/master/mint-nft/samples/nft_class.json"
+                target="_blank"
+              >
+                nft_class.json
+              </a>
+              ) file: </label>
+          </p>
+          <div v-if="classCreateData">
+            <!-- eslint-disable-next-line vue/no-textarea-mustache -->
+            <textarea cols="100" rows="10" readonly>{{ JSON.stringify(classCreateData, null, 2) }}</textarea>
+          </div>
+          <input type="file" @change="onClassFileChange">
+          <p>
+            <label>Upload NFT default data json (
+              <a
+                href="https://github.com/likecoin/iscn-nft-tools/blob/master/mint-nft/samples/nfts_default.json"
+                target="_blank"
+              >
+                nfts_default.json
+              </a>) file: </label>
+          </p>
+          <div v-if="nftMintDefaultData">
+            <!-- eslint-disable-next-line vue/no-textarea-mustache -->
+            <textarea cols="100" rows="10" readonly>{{ JSON.stringify(nftMintDefaultData, null, 2) }}</textarea>
+          </div>
+          <input type="file" @change="onMintNFTDefaultFileChange">
+          <p>
+            <label>Upload NFT CSV (<a
+              href="https://github.com/likecoin/iscn-nft-tools/blob/master/mint-nft/samples/nfts.csv"
               target="_blank"
             >
-              nft_class.json
-            </a>
-            ) file: </label>
-        </p>
-        <div v-if="classCreateData">
-          <!-- eslint-disable-next-line vue/no-textarea-mustache -->
-          <textarea cols="100" rows="10" readonly>{{ JSON.stringify(classCreateData, null, 2) }}</textarea>
+              nfts.csv
+            </a>) file: </label>
+          </p>
+          <div v-if="nftMintListData?.length">
+            <pre>Number of NFT data in CSV:{{ nftMintListData?.length }}</pre>
+          </div>
+          <input type="file" @change="onMintNFTFileChange">
+          <br>
+
+          <button
+            class="button"
+            :disabled="
+              isLoading ||
+                !(
+                  classCreateData &&
+                  nftMintDefaultData &&
+                  nftMintListData
+                )"
+            @click="onClickMintByUploading"
+          >
+            Mint
+          </button>
         </div>
-        <input type="file" @change="onClassFileChange">
-        <br>
-        <button :disabled="isLoading" @click="onClassFileInput">
-          Create
-        </button>
+
+        <div style="align-self: center;">
+          <h3>or</h3>
+        </div>
+
+        <!-- input data to mint -->
+        <div class="container">
+          <h3>Mint NFT by filling required information</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div>
+              <label>NFT ID Prefix: </label>
+              <input v-model="nftIdPrefix" placeholder="English only ex.MoneyVerse">
+            </div>
+            <div>
+              <label>Number of NFT to mint: </label>
+              <input
+                v-model="nftMintCount"
+                placeholder="0-100"
+                type="number"
+                :min="0"
+                :max="classMaxSupply"
+              >
+            </div>
+            <div>
+              <label>Image URL: </label>
+              <input v-model="imageUrl" placeholder="ipfs:// ... or ar://....">
+            </div>
+            <div>
+              <label>External URL (optional):</label>
+              <input v-model="externalUrl" placeholder="https://">
+            </div>
+            <div>
+              <label>URI (optional):</label>
+              <input v-model="uri" placeholder="https://">
+            </div>
+            <div>
+              <label>Max number of supply for this NFT Class (optional):</label>
+              <input
+                v-model="classMaxSupply"
+                type="number"
+                :min="nftMintCount"
+                :placeholder="`> ${nftMintCount}`"
+              >
+              <span
+                v-if="classMaxSupply && classMaxSupply < nftMintCount"
+                style="color: red"
+              >should more than number of NFT to mint</span>
+            </div>
+          </div>
+          <button
+            class="button"
+            :disabled="isLoading || !(nftIdPrefix && nftMintCount && imageUrl)"
+            @click="onClickMintByInputting"
+          >
+            Mint
+          </button>
+        </div>
       </div>
     </section>
-    <section v-else-if="step > 2">
+    <section v-else-if="step > 2 && classId">
       <h3>NFT Class Information</h3>
       <p>
         NFT Class ID:
@@ -105,43 +221,6 @@
       </p>
       <hr>
     </section>
-    <section v-if="step === 3">
-      <h2>3. Mint NFT</h2>
-      <div>
-        <label>Number of NFT to mint:</label>
-        <input v-model="nftMintCount" type="number">
-        <p>
-          <label>Upload NFT default data json (
-            <a
-              href="https://github.com/likecoin/iscn-nft-tools/blob/master/mint-nft/samples/nfts_default.json"
-              target="_blank"
-            >
-              nfts_default.json
-            </a>) file: </label>
-        </p>
-        <div v-if="nftMintDefaultData">
-          <!-- eslint-disable-next-line vue/no-textarea-mustache -->
-          <textarea cols="100" rows="10" readonly>{{ JSON.stringify(nftMintDefaultData, null, 2) }}</textarea>
-        </div>
-        <input type="file" @change="onMintNFTDefaultFileChange">
-        <p>
-          <label>Upload NFT CSV (<a
-            href="https://github.com/likecoin/iscn-nft-tools/blob/master/mint-nft/samples/nfts.csv"
-            target="_blank"
-          >
-            nfts.csv
-          </a>) file: </label>
-        </p>
-        <div v-if="nftMintListData?.length">
-          <pre>Number of NFT data in CSV:{{ nftMintListData?.length }}</pre>
-        </div>
-        <input type="file" @change="onMintNFTFileChange">
-        <br>
-        <button :disabled="isLoading" style="margin-top: 16px" @click="onMintNFTStart">
-          Create
-        </button>
-      </div>
-    </section>
 
     <section v-if="step > 3">
       Success!
@@ -152,6 +231,23 @@
             Download NFT result csv
           </a>
         </li>
+
+        <li v-if="shouldShowDownloadLink">
+          <a href="#" :disabled="isLoading" @click="onDownloadClassJSON">
+            Download nft_class.json
+          </a>
+        </li>
+        <li v-if="shouldShowDownloadLink">
+          <a href="#" :disabled="isLoading" @click="onDownloadDefaultClassJSON">
+            Download nft_default.json
+          </a>
+        </li>
+        <li v-if="shouldShowDownloadLink">
+          <a href="#" :disabled="isLoading" @click="onDownloadNftsCSV">
+            Download nfts.csv
+          </a>
+        </li>
+
         <li>
           <a
             target="_blank"
@@ -166,6 +262,9 @@
         Continue to publish NFT Book
       </NuxtLink>
     </section>
+    <div v-if="isLoading" style="color: green; width: 100%; text-align: center;">
+      <h3>Loading...</h3>
+    </div>
   </div>
 </template>
 
@@ -177,7 +276,7 @@ import { stringify } from 'csv-stringify/sync'
 
 import { useWalletStore } from '~/stores/wallet'
 import { LCD_URL, APP_LIKE_CO_URL, LIKER_LAND_URL } from '~/constant'
-import { sleep } from '~/utils'
+import { downloadFile, generateCsvData, sleep } from '~/utils'
 
 const router = useRouter()
 const route = useRoute()
@@ -196,6 +295,10 @@ const iscnIdInput = ref(route.query.class_id || route.query.iscn_id || '')
 const iscnOwner = ref('')
 const iscnCreateData = ref<any>(null)
 const iscnData = ref<any>(null)
+const nftIdPrefix = ref('BOOKSN')
+const imageUrl = ref('')
+const externalUrl = ref('')
+const uri = ref('')
 
 const classData = ref<any>(null)
 const classMaxSupply = ref<number | undefined>(undefined)
@@ -209,6 +312,8 @@ const nftCSVData = ref('')
 
 const iscnId = computed(() => iscnData.value?.['@id'])
 const classId = computed(() => classData.value?.id)
+
+const shouldShowDownloadLink = ref(false)
 
 watch(iscnId, (newIscnId) => {
   if (newIscnId) {
@@ -245,7 +350,7 @@ async function onISCNIDInput () {
       const { records, owner } = resISCN.value as any
       iscnData.value = records[0].data
       iscnOwner.value = owner
-      step.value = 3
+      step.value = 4
     } else {
       throw new Error('Invalid ISCN ID or NFT Class ID')
     }
@@ -301,6 +406,73 @@ function onISCNFileChange (event: Event) {
     }
   }
   reader.readAsText(file)
+}
+
+async function onClickMintByInputting () {
+  isLoading.value = true
+  step.value = 3
+  const { contentMetadata } = iscnData.value
+
+  const nftClassData = {
+    name: contentMetadata.name,
+    description: contentMetadata.description,
+    symbol: 'BOOK',
+    uri: uri.value || '',
+    metadata: {
+      name: contentMetadata.name,
+      image: imageUrl.value,
+      external_url: externalUrl.value,
+      nft_meta_collection_id: 'nft_book',
+      nft_meta_collection_name: 'NFT Book',
+      nft_meta_collection_descrption: 'NFT Book by Liker Land'
+    }
+  }
+  const nftsDefaultData = {
+    uri: uri.value || '',
+    metadata: {
+      name: contentMetadata.name,
+      image: imageUrl.value,
+      external_url: externalUrl.value
+    }
+  }
+  const csvDataString = generateCsvData({
+    prefix: nftIdPrefix.value,
+    nftMintCount: nftMintCount.value,
+    imgUrl: imageUrl.value,
+    uri: uri.value
+  })
+  const csvDataArray = parse(csvDataString, { columns: true })
+
+  classCreateData.value = nftClassData
+  nftMintDefaultData.value = nftsDefaultData
+  nftMintListData.value = csvDataArray
+  nftMintCount.value = csvDataArray.length
+
+  try {
+    await onClassFileInput() // step=3
+    await onMintNFTStart() // step=4
+  } catch (error) {
+    console.error(error)
+  } finally {
+    isLoading.value = false
+    step.value = 4
+    shouldShowDownloadLink.value = true
+  }
+}
+
+async function onClickMintByUploading () {
+  isLoading.value = true
+  step.value = 3
+  try {
+    await onClassFileInput() // step=3
+    await onMintNFTStart() // step=4
+  } catch (error) {
+    console.error(error)
+  } finally {
+    isLoading.value = false
+    step.value = 4
+    shouldShowDownloadLink.value = false
+  }
 }
 
 async function onClassFileInput () {
@@ -398,7 +570,6 @@ async function onMintNFTStart () {
     )
     nftData.value = res
     step.value = 4
-    onDownloadCSV()
   } catch (err) {
     console.error(err)
     error.value = (err as Error).toString()
@@ -440,7 +611,7 @@ function onMintNFTFileChange (event: Event) {
       if (typeof text !== 'string') { return }
       const data = parse(text, { columns: true })
       nftMintListData.value = data
-      if (data.length && data.length !== nftMintCount.value) { throw new Error('NFT data length and nft count not match') }
+      nftMintCount.value = data.length
     } catch (err) {
       console.error(err)
       error.value = (err as Error).toString()
@@ -451,6 +622,41 @@ function onMintNFTFileChange (event: Event) {
 
 function onDownloadCSV (e?: Event) {
   if (e) { e.preventDefault() }
-  downloadBlob(nftCSVData.value, 'nft.csv', 'text/csv;charset=utf-8;')
+  downloadBlob(nftCSVData.value, 'nft_result.csv', 'text/csv;charset=utf-8;')
 }
+
+function onDownloadClassJSON (e?: Event) {
+  if (e) { e.preventDefault() }
+  downloadFile({ data: classCreateData.value, fileName: 'nft_class.json', fileType: 'json' })
+}
+
+function onDownloadDefaultClassJSON (e?: Event) {
+  if (e) { e.preventDefault() }
+  downloadFile({ data: nftMintDefaultData.value, fileName: 'nfts_default.json', fileType: 'json' })
+}
+
+function onDownloadNftsCSV (e?: Event) {
+  if (e) { e.preventDefault() }
+  downloadFile({ data: nftMintListData.value, fileName: 'nfts.csv', fileType: 'csv' })
+}
+
 </script>
+<style scoped>
+ input {
+  display: block;
+  width: 250px;
+  margin-bottom: 8px;
+}
+.button{
+  margin-top: 16px;
+  font-size: 16px;
+  min-width: 68px;
+  background-color: wheat;
+  cursor: pointer;
+}
+.container{
+  border: 1px solid gray;
+  padding: 6px;
+  border-radius: 4px;
+}
+</style>
