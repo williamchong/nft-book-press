@@ -98,6 +98,7 @@
           <tr>
             <th>Buyer Email</th>
             <th>Status</th>
+            <th>Order Date</th>
             <th v-if="orderHasShipping">
               Shipping Status
             </th>
@@ -123,6 +124,7 @@
               Mark Complete
             </button>
           </td>
+          <td>{{ p.formattedDate }}</td>
           <td v-if="orderHasShipping">
             <NuxtLink
               v-if="p.shippingStatus === 'pending'"
@@ -317,7 +319,7 @@ const priceIndex = ref(0)
 const classListingInfo = ref<any>({})
 const prices = ref<any[]>([])
 const isUpdatingPricesOrder = ref(false)
-const purchaseList = ref<any[]>([])
+const ordersData = ref<any>({})
 const connectStatus = ref<any>({})
 const chainExplorerURL = CHAIN_EXPLORER_URL
 
@@ -332,7 +334,7 @@ const stripeConnectWalletInput = ref('')
 
 const nftClassName = computed(() => nftStore.getClassMetadataById(classId.value as string)?.name)
 const ownerWallet = computed(() => classListingInfo?.value?.ownerWallet)
-const orderHasShipping = computed(() => purchaseList.value.find(p => !!p.shippingStatus))
+const orderHasShipping = computed(() => purchaseList.value.find((p: any) => !!p.shippingStatus))
 const userIsOwner = computed(() => wallet.value && ownerWallet.value === wallet.value)
 const userCanSendNFT = computed(() => userIsOwner.value || (wallet.value && moderatorWalletsGrants.value[wallet.value]))
 const purchaseLink = computed(() => {
@@ -352,7 +354,7 @@ const salesChannelMap = computed(() => {
       count: number,
       totalUSD: number
     };
-  } = purchaseList.value.reduce((acc, cur) => {
+  } = purchaseList.value.reduce((acc: any, cur: any) => {
     const from = cur.from || '(empty)'
     if (!acc[from]) {
       acc[from] = {
@@ -365,6 +367,18 @@ const salesChannelMap = computed(() => {
     return acc
   }, {})
   return map
+})
+
+const purchaseList = computed(() => {
+  if (ordersData.value?.orders) {
+    return ordersData.value.orders.map((purchase: any) => {
+      const timestamp = purchase.timestamp
+      const date = new Date(timestamp)
+      const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
+      return { ...purchase, formattedDate }
+    }).sort((a: any, b: any) => b.timestamp - a.timestamp)
+  }
+  return []
 })
 
 watch(isLoading, (newIsLoading) => {
@@ -407,7 +421,7 @@ onMounted(async () => {
     if (stripeConnectWallet.value !== ownerWallet.value) {
       stripeConnectWalletInput.value = stripeConnectWallet.value
     }
-    const { data: ordersData, error: fetchOrdersError } = await useFetch(`${LIKE_CO_API}/likernft/book/purchase/${classId.value}/orders`,
+    const { data: orders, error: fetchOrdersError } = await useFetch(`${LIKE_CO_API}/likernft/book/purchase/${classId.value}/orders`,
       {
         headers: {
           authorization: `Bearer ${token.value}`
@@ -420,7 +434,8 @@ onMounted(async () => {
         throw fetchOrdersError.value
       }
     }
-    purchaseList.value = (ordersData.value as any).orders
+
+    ordersData.value = orders.value
 
     const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/user/connect/status?wallet=${wallet.value}`,
       {
