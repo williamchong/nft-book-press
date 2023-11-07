@@ -1,44 +1,41 @@
 <template>
-  <nav>
-    <ul>
-      <li>
-        <NuxtLink :to="{ name: 'mint-nft' }">
-          Mint NFT
-        </NuxtLink>
-      </li>
-      <li>
-        <NuxtLink :to="{ name: 'nft-book-store' }">
-          NFT Book Press
-        </NuxtLink>
-        <ul>
-          <li>
-            <NuxtLink :to="{ name: 'nft-book-store' }">
-              Manage NFT Books
-            </NuxtLink>
-          </li>
-          <li>
-            <NuxtLink :to="{ name: 'nft-book-store-user' }">
-              Manage Stripe Account
-            </NuxtLink>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <NuxtLink :to="{ name: 'authz' }">
-          NFT authz grants
-        </NuxtLink>
-      </li>
-      <li>
-        <a :href="toolsURL" target="_blank">
-          More NFT tools
-        </a>
-      </li>
-    </ul>
-  </nav>
+  <UVerticalNavigation :links="links" />
 </template>
+
 <script setup>
 import { ISCN_TOOLS_URL } from '~/constant'
 
-const toolsURL = ISCN_TOOLS_URL
-
+const links = [
+  {
+    label: 'Mint NFT',
+    icon: 'i-heroicons-sparkles',
+    to: { name: 'mint-nft' }
+  },
+  {
+    label: 'NFT Book Press',
+    icon: 'i-heroicons-shopping-bag',
+    to: { name: 'nft-book-store' }
+  },
+  {
+    label: 'Manage NFT Books',
+    icon: 'i-heroicons-rectangle-stack',
+    to: { name: 'nft-book-store' }
+  },
+  {
+    label: 'Manage Stripe Account',
+    icon: 'i-heroicons-user-group',
+    to: { name: 'nft-book-store-user' }
+  },
+  {
+    label: 'NFT Authz Grants',
+    icon: 'i-heroicons-user-plus',
+    to: { name: 'authz' }
+  },
+  {
+    label: 'More NFT Tools',
+    icon: 'i-heroicons-arrow-top-right-on-square',
+    to: ISCN_TOOLS_URL,
+    target: '_blank'
+  }
+]
 </script>

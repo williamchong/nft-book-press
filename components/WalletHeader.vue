@@ -1,14 +1,20 @@
 <template>
-  <div style="display:flex; flex-wrap:wrap; justify-content: center; align-items: center; gap: 10px;">
+  <div class="flex items-center gap-4">
     <template v-if="wallet">
       <span>{{ wallet }}</span>
-      <button @click="onClickDisconnect">
-        Logout
-      </button>
+      <UButton
+        label="Disconnect Wallet"
+        color="primary"
+        variant="outline"
+        @click="onClickDisconnect"
+      />
     </template>
-    <button v-if="!wallet" @click="connect">
-      Connect
-    </button>
+    <UButton
+      v-if="!wallet"
+      label="Connect Wallet"
+      color="primary"
+      @click="connect"
+    />
   </div>
 </template>
 
