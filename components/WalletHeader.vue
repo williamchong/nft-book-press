@@ -2,6 +2,7 @@
   <div class="flex items-center gap-2">
     <template v-if="wallet">
       <UButton
+        class="font-mono"
         :label="wallet"
         :to="portfolioURL"
         variant="soft"
@@ -28,13 +29,13 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useWalletStore } from '~/stores/wallet'
-import { LIKER_LAND_HOST } from '~/constant'
+import { getPortfolioURL } from '~/utils'
 
 const store = useWalletStore()
 const { wallet } = storeToRefs(store)
 const { connect, disconnect } = store
 
-const portfolioURL = computed(() => `https://${LIKER_LAND_HOST}/${wallet.value}`)
+const portfolioURL = computed(() => getPortfolioURL(wallet.value))
 
 function onClickDisconnect () {
   disconnect()
