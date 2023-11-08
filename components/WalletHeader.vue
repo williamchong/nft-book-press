@@ -1,17 +1,24 @@
 <template>
-  <div class="flex items-center gap-4">
+  <div class="flex items-center gap-2">
     <template v-if="wallet">
-      <span>{{ wallet }}</span>
+      <UButton
+        :label="wallet"
+        :to="portfolioURL"
+        variant="soft"
+        target="_blank"
+      />
       <UButton
         label="Disconnect Wallet"
+        icon="i-heroicons-arrow-left-on-rectangle"
         color="primary"
         variant="outline"
         @click="onClickDisconnect"
       />
     </template>
     <UButton
-      v-if="!wallet"
+      v-else
       label="Connect Wallet"
+      icon="i-heroicons-arrow-right-on-rectangle"
       color="primary"
       @click="connect"
     />
@@ -21,10 +28,13 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useWalletStore } from '~/stores/wallet'
+import { LIKER_LAND_HOST } from '~/constant'
 
 const store = useWalletStore()
 const { wallet } = storeToRefs(store)
 const { connect, disconnect } = store
+
+const portfolioURL = computed(() => `https://${LIKER_LAND_HOST}/${wallet.value}`)
 
 function onClickDisconnect () {
   disconnect()
