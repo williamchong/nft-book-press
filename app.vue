@@ -4,5 +4,7 @@
     <NuxtLayout class="w-full flex-grow">
       <NuxtPage />
     </NuxtLayout>
+
+    <UNotifications />
   </div>
 </template>

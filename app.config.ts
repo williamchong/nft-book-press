@@ -1,6 +1,11 @@
 export default defineAppConfig({
   ui: {
     primary: 'like-green',
-    gray: 'cool'
+    gray: 'cool',
+
+    notifications: {
+      // Show toasts at the top right of the screen
+      position: 'top-0 bottom-auto'
+    }
   }
 })
