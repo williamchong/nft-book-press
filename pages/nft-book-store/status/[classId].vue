@@ -1,295 +1,443 @@
 <template>
-  <div>
-    <h1>NFT Book Status "{{ nftClassName || classId }}"</h1>
-    <div v-if="error" style="color: red">
-      {{ error }}
-    </div>
-    <div v-if="isLoading" style="color: green">
-      Loading...
-    </div>
-    <hr>
-    <section v-if="bookStoreApiStore.isAuthenticated">
-      <h3>Editions</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Order</th>
-            <th>Name</th>
-            <th>Price (USD)</th>
-            <th v-if="userIsOwner">
-              Sort
-            </th>
-            <th v-if="userIsOwner">
-              Edit
-            </th>
-          </tr>
-        </thead>
-        <Draggable
-          v-model="prices"
-          tag="tbody"
-          item-key="index"
-          handle="td:last-child"
-          :disabled="!userIsOwner || isUpdatingPricesOrder"
-          @end="handlePriceReorder"
-        >
-          <template #item="{ element, index }">
-            <tr>
-              <td>{{ index + 1 }}</td>
-              <td>{{ element.name }}</td>
-              <td style="text-align: right;">
-                {{ element.price }}
-              </td>
-              <td v-if="userIsOwner" style="text-align: center;cursor: grab">
-                ::
-              </td>
-              <td>
-                <NuxtLink
-                  :to="{
-                    name: 'nft-book-store-status-editingClassId-edit-editionIndex',
-                    params: { editingClassId: classId, editionIndex: index }
-                  }"
-                >
-                  ✏️
-                </NuxtLink>
-              </td>
-            </tr>
-          </template>
-        </Draggable>
-      </table>
+  <main class="space-y-4">
+    <h1 class="text-lg font-bold font-mono">
+      NFT Book Status "{{ nftClassName || classId }}"
+    </h1>
 
-      <template v-if="classListingInfo.shippingRates">
-        <h3>Shipping Options</h3>
-        <table>
-          <thead>
-            <tr>
-              <th />
-              <th>Name</th>
-              <th>Price (USD)</th>
+    <UAlert
+      v-if="error"
+      icon="i-heroicons-exclamation-triangle"
+      color="red"
+      variant="soft"
+      :title="`${error}`"
+      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      @close="error = ''"
+    />
+
+    <UProgress v-if="isLoading" animation="carousel">
+      <template #indicator>
+        Loading...
+      </template>
+    </UProgress>
+
+    <template v-if="bookStoreApiStore.isAuthenticated">
+      <UCard :ui="{ body: { padding: '' } }">
+        <template #header>
+          <h3 class="font-bold font-mono">
+            Editions
+          </h3>
+        </template>
+
+        <table class="w-full divide-y text-sm">
+          <thead class="border-b-2">
+            <tr class="text-left">
+              <th class="px-3 py-4">Order</th>
+              <th class="px-3 py-4">Name</th>
+              <th class="px-3 py-4 text-right">Price (USD)</th>
+              <th v-if="userIsOwner" class="px-3 py-4 text-center">
+                Sort
+              </th>
+              <th v-if="userIsOwner" class="px-3 py-4 text-center">
+                Details
+              </th>
             </tr>
           </thead>
-          <tbody>
-            <tr v-for="(element, index) in classListingInfo.shippingRates" :key="index">
-              <td>{{ index + 1 }}</td>
-              <td>{{ element.name }}</td>
-              <td style="text-align: right;">
-                {{ element.priceInDecimal / 100 }}
-              </td>
-            </tr>
-          </tbody>
+          <Draggable
+            v-model="prices"
+            tag="tbody"
+            item-key="index"
+            handle="td:last-child"
+            :disabled="!userIsOwner || isUpdatingPricesOrder"
+            @end="handlePriceReorder"
+          >
+            <template #item="{ element, index }">
+              <tr>
+                <td class="px-3 py-4">{{ index + 1 }}</td>
+                <td class="px-3 py-4">{{ element.name }}</td>
+                <td class="px-3 py-4 text-right">
+                  {{ element.price }}
+                </td>
+                <td
+                  v-if="userIsOwner"
+                  class="px-3 py-4 text-center cursor-grab"
+                >
+                  <UIcon
+                    name="i-heroicons-arrows-up-down"
+                    color="gray"
+                  />
+                </td>
+                <td class="text-center">
+                  <UButton
+                    icon="i-heroicons-document-magnifying-glass"
+                    :to="{
+                      name: 'nft-book-store-status-editingClassId-edit-editionIndex',
+                      params: { editingClassId: classId, editionIndex: index }
+                    }"
+                    variant="soft"
+                    color="gray"
+                  />
+                </td>
+              </tr>
+            </template>
+          </Draggable>
         </table>
-      </template>
+      </UCard>
 
-      <h3>Status</h3>
-      <table>
-        <tr>
-          <th>Pending action</th>
-          <th>Sold</th>
-          <th>Remaining Stock</th>
-        </tr>
-        <tr>
-          <td>{{ classListingInfo.pendingNFTCount }}</td>
-          <td>{{ classListingInfo.sold }}</td>
-          <td>{{ classListingInfo.stock }}</td>
-        </tr>
-      </table>
-      <h3>Orders</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Buyer Email</th>
-            <th>Status</th>
-            <th>Order Date</th>
-            <th v-if="orderHasShipping">
-              Shipping Status
-            </th>
-            <th>Buyer Wallet</th>
-            <th>Price Name</th>
-            <th>Price</th>
-            <th>Buyer message</th>
-            <th>Sales channel</th>
-            <th v-if="userCanSendNFT">
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tr v-for="p in purchaseList" :key="p.classId">
-          <td>{{ p.email }}</td>
-          <td>
-            {{ p.status }}
-            <button
-              v-if="p.status === 'pendingNFT'"
-              style="margin-top: 6px;"
-              @click="hardSetStatusToCompleted(p)"
-            >
-              Mark Complete
-            </button>
-          </td>
-          <td>{{ p.formattedDate }}</td>
-          <td v-if="orderHasShipping">
-            <NuxtLink
-              v-if="p.shippingStatus === 'pending'"
-              :to="{
-                name: 'nft-book-store-send-shipping-classId',
-                params: {
-                  classId: p.classId
-                },
-                query: {
-                  payment_id: p.id
-                }
-              }"
-            >
-              Pending, Handle Shipping
-            </NuxtLink>
-            <span v-else>
-              {{ p.shippingStatus }}
-            </span>
-          </td>
-          <td>{{ p.wallet }}</td>
-          <td>{{ p.priceName }}</td>
-          <td>{{ p.price }}</td>
-          <td>{{ p.message }}</td>
-          <td>{{ p.from }}</td>
-          <td v-if="userCanSendNFT">
-            <NuxtLink
-              v-if="p.status === 'pendingNFT'"
-              :to="{
-                name: 'nft-book-store-send-classId',
-                params: {
-                  classId: p.classId
-                },
-                query: {
-                  owner_wallet: ownerWallet,
-                  payment_id: p.id
-                }
-              }"
-            >
-              Send NFT
-            </NuxtLink>
-            <a v-else-if="p.status === 'completed' && p.txHash" :href="`${chainExplorerURL}/${p.txHash}`" target="_blank">
-              View Transaction
-            </a>
-            <span v-else>
-              -
-            </span>
-          </td>
-        </tr>
-      </table>
-
-      <hr>
-      <div v-if="userIsOwner">
-        <h3>Connect to your own Stripe Account</h3>
-        <input v-model="isStripeConnectChecked" name="stripe" type="checkbox"><label>Use a Stripe Connect account for receiving all payment</label>
-        <br>
-        <template v-if="isStripeConnectChecked">
-          <input v-model="stripeConnectWallet" type="radio" :disabled="!(connectStatus?.isReady)" :value="ownerWallet"><span v-if="connectStatus?.isReady">Use my account</span>
-          <span v-else>
-            No stripe account connected yet.
-            <NuxtLink :to="{ name: 'nft-book-store-user' }" target="_blank">
-              Create one here
-            </NuxtLink>
-          </span>
-          <br>
-          <input v-model="stripeConnectWallet" type="radio" :value="stripeConnectWalletInput"> Enter a wallet address with connected account:
-          <input v-if="stripeConnectWallet !== ownerWallet" v-model="stripeConnectWalletInput" placeholder="like1..." @input="onStripeConnectWalletInput">
+      <UCard
+        v-if="classListingInfo.shippingRates"
+        :ui="{ body: { padding: '' } }"
+      >
+        <template #header>
+          <h3 class="font-bold font-mono">Shipping Options</h3>
         </template>
-      </div>
 
-      <h3>Other Settings</h3>
-      <p><label>Share sales data to wallets:</label></p>
-      <table>
-        <tr>
-          <td>Wallet</td>
-          <td v-if="userIsOwner">
-            Send NFT grant Status
-          </td>
-          <td v-if="userIsOwner">
-            Remove
-          </td>
-        </tr>
-        <tr v-for="m, i in moderatorWallets" :key="m">
-          <td>{{ m }}</td>
-          <td v-if="userIsOwner">
-            <NuxtLink :to="{ name: 'authz', query: { grantee: m } }" target="_blank">
-              <span v-if="moderatorWalletsGrants[m]">
-                Granted
-              </span>
+        <UTable
+          :columns="[
+            { key: 'index', },
+            { key: 'name', label: 'Name' },
+            { key: 'price', label: 'Price (USD)' },
+          ]"
+          :rows="shippingRatesTableRows"
+        >
+          <template #price-data="{ row }">
+            <span class="text-right">{{ row.price }}</span>
+          </template>
+        </UTable>
+      </UCard>
+
+      <UCard :ui="{ body: { padding: '' } }">
+        <template #header>
+          <h3 class="font-bold font-mono">
+            Status
+          </h3>
+        </template>
+
+        <UTable
+          :columns="[
+            { key: 'pendingAction', label: 'Pending Action' },
+            { key: 'sold', label: 'Sold' },
+            { key: 'stock', label: 'Stock' },
+          ]"
+          :rows="[
+            {
+              pendingAction: classListingInfo.pendingNFTCount || 0,
+              sold: classListingInfo.sold || 0,
+              stock: classListingInfo.stock || 0
+            },
+          ]"
+        >
+          <template #pendingAction-data="{ row }">
+            <UBadge
+              v-if="row.pendingAction"
+              :label="`${row.pendingAction}`"
+              color="red"
+              :ui="{ rounded: 'rounded-full' }"
+            />
+            <template v-else>
+              {{ row.pendingAction }}
+            </template>
+          </template>
+        </UTable>
+      </UCard>
+
+      <UCard :ui="{ body: { padding: '' } }">
+        <template #header>
+          <h3 class="font-bold font-mono">
+            Orders
+          </h3>
+        </template>
+
+        <UTable
+          :columns="orderTableColumns"
+          :rows="ordersTableRows"
+        >
+          <template #email-data="{ row }">
+            <UButton
+              :label="row.email"
+              :to="`mailto:${row.email}`"
+              variant="link"
+              :padded="false"
+            />
+          </template>
+          <template #wallet-data="{ row }">
+            <UButton
+              class="font-mono"
+              :label="row.wallet"
+              :to="getPortfolioURL(row.wallet)"
+              variant="link"
+              :padded="false"
+              target="_blank"
+            />
+          </template>
+          <template #status-data="{ row }">
+            <UBadge
+              :color="row.statusLabelColor"
+              :label="row.statusLabel"
+              variant="outline"
+              :ui="{ rounded: 'rounded-full' }"
+            />
+          </template>
+          <template #actions-data="{ row }">
+            <UDropdown :items="row.actions">
+              <UButton
+                :class="{ hidden: !row.actions.length }"
+                icon="i-heroicons-ellipsis-horizontal-20-solid"
+                color="gray"
+                variant="ghost"
+              />
+            </UDropdown>
+          </template>
+        </UTable>
+      </UCard>
+
+      <UCard
+        v-if="userIsOwner"
+        :ui="{
+          divide: isStripeConnectChecked ? undefined : '',
+          header: { base: 'flex flex-wrap justify-between items-center gap-2' },
+          body: { padding: isStripeConnectChecked ? undefined : '', base: 'grid lg:grid-cols-2 gap-4' }
+        }"
+      >
+        <template #header>
+          <h3 class="font-bold font-mono">
+            Connect to your own Stripe Account
+          </h3>
+          <UToggle v-model="isStripeConnectChecked" name="stripe" label="Use a Stripe Connect account for receiving all payment" />
+        </template>
+
+        <template v-if="isStripeConnectChecked">
+          <URadio v-model="stripeConnectWallet" :disabled="!(connectStatus?.isReady)" :value="ownerWallet">
+            <template #label>
+              <span v-if="connectStatus?.isReady">Use my account</span>
               <span v-else>
-                Click to grant
+                No stripe account connected yet.<br>
+                <UButton
+                  class="mt-2"
+                  label="Create one here"
+                  :to="{ name: 'nft-book-store-user' }"
+                  target="_blank"
+                  variant="outline"
+                />
               </span>
-            </NuxtLink>
-          </td>
-          <td v-if="userIsOwner">
-            <button @click="()=> moderatorWallets.splice(i, 1)">
-              x
-            </button>
-          </td>
-        </tr>
-      </table>
-      <input v-model="moderatorWalletInput" placeholder="like1..."><button style="margin-left: 4px" @click="addModeratorWallet">
-        Add
-      </button>
-      <p><label>Email to receive sales notifications</label></p>
-      <ul>
-        <li v-for="e, i in notificationEmails" :key="e">
-          {{ e }}<button style="margin-left: 4px" @click="() => notificationEmails.splice(i, 1)">
-            x
-          </button>
-        </li>
-      </ul>
-      <input v-model="notificationEmailInput"><button style="margin-left: 4px" @click="addNotificationEmail">
-        Add
-      </button>
-      <p>
-        <button @click="updateSettings">
-          Update
-        </button>
-      </p>
-      <hr>
-      <h3>Sales Channel Summary</h3>
-      <table>
-        <tr>
-          <td>Channel ID</td>
-          <td>Count</td>
-          <td>USD</td>
-        </tr>
-        <tr v-for="[key, value] in Object.entries(salesChannelMap)" :key="key">
-          <td>{{ key }}</td>
-          <td>{{ value.count }}</td>
-          <td>{{ value.totalUSD }}</td>
-        </tr>
-      </table>
-      <hr>
-      <h3>Copy Purchase Link</h3>
-      <p>
-        <label>Price (Required)</label>
-        <select v-model="priceIndex">
-          <option v-for="p in classListingInfo?.prices" :key="p.index" :value="p.index">
-            {{ `${p.name.en || p.name} - $${p.price}` }}
-          </option>
-        </select>
-      </p>
-      <p>
-        <label>Sales channel for this link (Optional)</label>
-        <input v-model="fromChannel" placeholder="Channel ID">
-      </p>
-      <br>
-      <a :href="purchaseLink" target="_blank">
-        {{ purchaseLink }}
-      </a>
-      <br>
-      <button @click="copyPurchaseLink">
-        Copy Purchase Link
-      </button>
-      <hr>
-      <h3>Purchase Link QRCode</h3>
-      <QRCode
-        :data="purchaseLink"
-        :file-name="`${nftClassName || classId}-price_${priceIndex}-channel_${fromChannel || ''}`"
-        :width="500"
-        :height="500"
-      />
-    </section>
-  </div>
+            </template>
+          </URadio>
+          <URadio v-model="stripeConnectWallet" :value="stripeConnectWalletInput">
+            <template #label>
+              <UFormGroup label="Enter a wallet address with connected account">
+                <UInput
+                  v-if="stripeConnectWallet !== ownerWallet"
+                  v-model="stripeConnectWalletInput"
+                  class="font-mono"
+                  placeholder="like1..."
+                  @input="onStripeConnectWalletInput"
+                />
+              </UFormGroup>
+            </template>
+          </URadio>
+        </template>
+      </UCard>
+
+      <UCard :ui="{ body: { base: 'space-y-8' } }">
+        <template #header>
+          <h3 class="font-bold font-mono">
+            Other Settings
+          </h3>
+        </template>
+
+        <UCard
+          :ui="{
+            header: { base: 'flex justify-between items-center' },
+            body: { padding: '', base: 'space-y-8' }
+          }"
+        >
+          <template #header>
+            <h4 class="text-sm font-bold font-mono">Share sales data to wallets</h4>
+            <div class="flex gap-2">
+              <UInput
+                v-model="moderatorWalletInput"
+                class="font-mono"
+                placeholder="like1..."
+              />
+
+              <UButton
+                label="Add"
+                variant="outline"
+                @click="addModeratorWallet"
+              />
+            </div>
+          </template>
+
+          <UTable
+            :columns="moderatorWalletsTableColumns"
+            :rows="moderatorWalletsTableRows"
+          >
+            <template #wallet-data="{ row }">
+              <UButton
+                class="font-mono"
+                :label="row.wallet"
+                :to="row.walletLink"
+                variant="link"
+                :padded="false"
+              />
+            </template>
+            <template #authz-data="{ row }">
+              <UBadge
+                v-if="moderatorWalletsGrants[row.wallet]"
+                label="Granted"
+                color="green"
+                variant="outline"
+              />
+              <UButton
+                v-else
+                label="Grant"
+                :to="row.walletLink"
+                variant="outline"
+              />
+            </template>
+            <template #remove-data="{ row }">
+              <div class="flex justify-end items-center">
+                <UButton
+                  icon="i-heroicons-x-mark"
+                  variant="soft"
+                  color="red"
+                  @click="() => moderatorWallets.splice(row.index, 1)"
+                />
+              </div>
+            </template>
+          </UTable>
+        </UCard>
+
+        <UCard
+          :ui="{
+            header: { base: 'flex justify-between items-center' },
+            body: { padding: '' }
+          }"
+        >
+          <template #header>
+            <h4 class="text-sm font-bold font-mono">Email to receive sales notifications</h4>
+
+            <div class="flex gap-2">
+              <UInput
+                v-model="notificationEmailInput"
+                placeholder="abc@example.com"
+              />
+
+              <UButton
+                label="Add"
+                variant="outline"
+                @click="addNotificationEmail"
+              />
+            </div>
+          </template>
+
+          <UTable
+            :columns="[{ key: 'email', label: 'Email', sortable: true }, { key: 'action' }]"
+            :rows="notificationEmailsTableRows"
+          >
+            <template #email-data="{ row }">
+              <UButton
+                :label="row.email"
+                :to="`mailto:${row.email}`"
+                variant="link"
+                :padded="false"
+              />
+            </template>
+
+            <template #action-data="{ row }">
+              <div class="flex justify-end items-center">
+                <UButton
+                  icon="i-heroicons-x-mark"
+                  variant="soft"
+                  color="red"
+                  @click="() => notificationEmails.splice(row.index, 1)"
+                />
+              </div>
+            </template>
+          </UTable>
+        </UCard>
+
+        <template #footer>
+          <UButton
+            label="Update"
+            @click="updateSettings"
+          />
+        </template>
+      </UCard>
+
+      <UCard :ui="{ body: { padding: '' } }">
+        <template #header>
+          <h3 class="font-bold font-mono">
+            Sales Channel Summary
+          </h3>
+        </template>
+
+        <UTable
+          :columns="[
+            { key: 'id', label: 'Channel ID', sortable: true },
+            { key: 'count', label: 'Count', sortable: true },
+            { key: 'totalUSD', label: 'Total USD', sortable: true },
+          ]"
+          :rows="salesChannelTableRows"
+        >
+          <template #id-data="{ row }">
+            <span
+              v-if="row.id !== 'empty'"
+              class="font-bold font-mono"
+            >{{ row.idLabel }}</span>
+            <UBadge
+              v-else
+              :label="row.idLabel"
+              :ui="{ rounded: 'rounded-full' }"
+              color="gray"
+            />
+          </template>
+        </UTable>
+      </UCard>
+
+      <UCard
+        :ui="{ body: { base: 'space-y-4' } }"
+      >
+        <template #header>
+          <h3 class="font-bold font-mono">Copy Purchase Link</h3>
+        </template>
+
+        <UFormGroup label="Price" :required="true">
+          <USelect v-model="priceIndex" :options="priceIndexOptions" />
+        </UFormGroup>
+
+        <UFormGroup label="Sales channel for this link" hint="Optional">
+          <UInput v-model="fromChannel" placeholder="Channel ID" />
+        </UFormGroup>
+
+        <UButton
+          class="font-mono"
+          :label="`${purchaseLink}`"
+          :to="purchaseLink"
+          variant="outline"
+          color="gray"
+          target="_blank"
+        />
+        <br>
+        <UButton
+          label="Copy Purchase Link"
+          variant="outline"
+          color="primary"
+          @click="copyPurchaseLink"
+        />
+
+        <QRCode
+          :data="purchaseLink"
+          :file-name="`${nftClassName || classId}-price_${priceIndex}-channel_${fromChannel || ''}`"
+          :width="500"
+          :height="500"
+        >
+          <template #header>
+            <h3 class="font-bold font-mono">Purchase Link QRCode</h3>
+          </template>
+        </QRCode>
+      </UCard>
+    </template>
+  </main>
 </template>
 
 <script setup lang="ts">
@@ -299,6 +447,7 @@ import { CHAIN_EXPLORER_URL, IS_TESTNET, LIKE_CO_API } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useNftStore } from '~/stores/nft'
 import { useWalletStore } from '~/stores/wallet'
+import { getPortfolioURL } from '~/utils'
 import { getNFTAuthzGrants } from '~/utils/cosmos'
 
 const store = useWalletStore()
@@ -321,7 +470,6 @@ const prices = ref<any[]>([])
 const isUpdatingPricesOrder = ref(false)
 const ordersData = ref<any>({})
 const connectStatus = ref<any>({})
-const chainExplorerURL = CHAIN_EXPLORER_URL
 
 const moderatorWallets = ref<string[]>([])
 const moderatorWalletsGrants = ref<any>({})
@@ -355,7 +503,7 @@ const salesChannelMap = computed(() => {
       totalUSD: number
     };
   } = purchaseList.value.reduce((acc: any, cur: any) => {
-    const from = cur.from || '(empty)'
+    const from = cur.from || 'empty'
     if (!acc[from]) {
       acc[from] = {
         count: 0,
@@ -381,12 +529,179 @@ const purchaseList = computed(() => {
   return []
 })
 
+const shippingRatesTableRows = computed(() => {
+  if (!classListingInfo.value.shippingRates) {
+    return []
+  }
+  return classListingInfo.value.shippingRates.map((r: any, index: number) => ({
+    index: index + 1,
+    name: r.name,
+    price: r.priceInDecimal / 100
+  }))
+})
+
+const orderTableColumns = computed(() => {
+  const columns = [
+    { key: 'email', label: 'Buyer Email', sortable: true },
+    { key: 'status', label: 'Status', sortable: true },
+    { key: 'orderDate', label: 'Order Date', sortable: true }
+  ]
+  if (orderHasShipping.value) {
+    columns.push({ key: 'shippingStatus', label: 'Shipping Status', sortable: true })
+  }
+  columns.push(
+    { key: 'wallet', label: 'Buyer Wallet', sortable: true },
+    { key: 'price', label: 'Price', sortable: true },
+    { key: 'priceName', label: 'Price Name', sortable: false },
+    { key: 'message', label: 'Buyer Message', sortable: false },
+    { key: 'from', label: 'Sales Channel', sortable: true },
+    { key: 'actions', label: 'Actions', sortable: false }
+  )
+
+  return columns
+})
+
+function getOrdersTableActionItems (purchaseListItem: any) {
+  const actionItems = []
+
+  if (purchaseListItem.status === 'completed') {
+    actionItems.push([{
+      label: 'View Transaction',
+      icon: 'i-heroicons-magnifying-glass',
+      to: `${CHAIN_EXPLORER_URL}/${purchaseListItem.txHash}`,
+      target: '_blank'
+    }])
+  } else if (purchaseListItem.status === 'pendingNFT' && userCanSendNFT.value) {
+    actionItems.push([{
+      label: 'Send NFT',
+      icon: 'i-heroicons-paper-airplane',
+      to: {
+        name: 'nft-book-store-send-classId',
+        params: {
+          classId: purchaseListItem.classId
+        },
+        query: {
+          owner_wallet: ownerWallet,
+          payment_id: purchaseListItem.id
+        }
+      }
+    }])
+  }
+
+  if (purchaseListItem.status === 'pendingNFT') {
+    actionItems.push([{
+      label: 'Mark Complete',
+      icon: 'i-heroicons-check-circle',
+      click: () => {
+        hardSetStatusToCompleted(purchaseListItem)
+      }
+    }])
+  }
+
+  return actionItems
+}
+
+function getStatusLabel (purchaseListItem: any) {
+  switch (purchaseListItem.status) {
+    case 'paid':
+      return 'Paid'
+
+    case 'pendingNFT':
+      return 'Pending NFT'
+
+    case 'completed':
+      return 'Completed'
+
+    default:
+      return purchaseListItem.status
+  }
+}
+
+function getStatusLabelColor (purchaseListItem: any) {
+  switch (purchaseListItem.status) {
+    case 'paid':
+      return 'blue'
+
+    case 'pendingNFT':
+      return 'amber'
+
+    case 'completed':
+      return 'green'
+
+    default:
+      return 'gray'
+  }
+}
+
+const ordersTableRows = computed(() => purchaseList.value?.map((p: any, index: number) => ({
+  index,
+  email: p.email,
+  status: p.status,
+  statusLabel: getStatusLabel(p),
+  statusLabelColor: getStatusLabelColor(p),
+  orderDate: p.formattedDate,
+  shippingStatus: p.shippingStatus,
+  wallet: p.wallet || '',
+  priceName: p.priceName,
+  price: p.price || 0,
+  message: p.message || '',
+  from: p.from || '',
+  actions: getOrdersTableActionItems(p)
+})))
+
+const moderatorWalletsTableColumns = computed(() => {
+  const columns = [{ key: 'wallet', label: 'Wallet', sortable: true }]
+
+  if (userIsOwner.value) {
+    columns.push(
+      { key: 'authz', label: 'Send NFT Grant', sortable: false },
+      { key: 'remove', label: '', sortable: false }
+    )
+  }
+
+  return columns
+})
+
+const moderatorWalletsTableRows = computed(() => moderatorWallets.value.map((wallet, index) => ({
+  index,
+  wallet,
+  walletLink: getPortfolioURL(wallet)
+})))
+
+const notificationEmailsTableRows = computed(() => notificationEmails.value.map((email, index) => ({
+  index,
+  email
+})))
+
+function normalizeChannelId (channelId: string) {
+  switch (channelId) {
+    case 'empty':
+      return 'Not set'
+
+    default:
+      return channelId
+  }
+}
+
+const salesChannelTableRows = computed(() => Object.entries(salesChannelMap.value).map(([id, value]) => ({
+  id,
+  idLabel: normalizeChannelId(id),
+  count: value.count || 0,
+  totalUSD: value.totalUSD || 0
+})))
+
+const priceIndexOptions = computed(() => classListingInfo.value.prices?.map((p: any, index: number) => ({
+  label: `${p.name.en || p.name} - $${p.price}`,
+  value: index,
+  disabled: index === priceIndex.value
+})))
+
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
 })
 
 watch(moderatorWallets, (newModeratorWallets) => {
-  newModeratorWallets.forEach(async (m) => {
+  newModeratorWallets?.forEach(async (m) => {
     if (!moderatorWalletsGrants.value[m]) {
       try {
         moderatorWalletsGrants.value[m] = await getNFTAuthzGrants(ownerWallet.value, m)
