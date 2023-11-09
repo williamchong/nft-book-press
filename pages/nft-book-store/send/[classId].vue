@@ -1,35 +1,58 @@
 <template>
-  <div>
-    <h1>Deliver NFT Book "{{ nftClassName || classId }}"</h1>
-    <div v-if="error" style="color: red">
-      {{ error }}
-    </div>
-    <div v-if="isLoading" style="color: green">
-      Loading...
-    </div>
-    <hr>
-    <section v-if="bookStoreApiStore.isAuthenticated">
-      <table>
-        <tr><th>Buyer Email</th><td>{{ orderInfo.email }}</td></tr>
-        <tr><th>Status</th><td>{{ orderInfo.status }}</td></tr>
-        <tr><th>Buyer Wallet</th><td>{{ orderInfo.wallet }}</td></tr>
-        <tr><th>Price Name</th><td>{{ orderInfo.priceName }}</td></tr>
-        <tr><th>Price</th><td>{{ orderInfo.price }}</td></tr>
-        <tr><th>Buyer message</th><td>{{ orderInfo.message }}</td></tr>
-        <tr><th>Sales channel</th><td>{{ orderInfo.from }}</td></tr>
-      </table>
+  <main class="space-y-4">
+    <h1 class="text-lg font-bold font-mono">Deliver NFT Book "{{ nftClassName || classId }}"</h1>
+
+    <UAlert
+      v-if="error"
+      icon="i-heroicons-exclamation-triangle"
+      color="red"
+      variant="soft"
+      :title="`${error}`"
+      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      @close="error = ''"
+    />
+
+    <UProgress v-if="isLoading" animation="carousel">
+      <template #indicator>
+        Loading...
+      </template>
+    </UProgress>
+
+    <UCard
+      v-if="bookStoreApiStore.isAuthenticated"
+      :ui="{ body: { base: 'space-y-4' } }"
+    >
+      <UCard :ui="{ body: { padding: '' } }">
+        <table class="divide-y w-full">
+          <tr><th class="text-left px-4 py-3">Buyer Email</th><td class="px-4 py-3">{{ orderInfo.email }}</td></tr>
+          <tr><th class="text-left px-4 py-3">Status</th><td class="px-4 py-3">{{ orderInfo.status }}</td></tr>
+          <tr><th class="text-left px-4 py-3">Buyer Wallet</th><td class="px-4 py-3">{{ orderInfo.wallet }}</td></tr>
+          <tr><th class="text-left px-4 py-3">Price Name</th><td class="px-4 py-3">{{ orderInfo.priceName }}</td></tr>
+          <tr><th class="text-left px-4 py-3">Price</th><td class="px-4 py-3">{{ orderInfo.price }}</td></tr>
+          <tr><th class="text-left px-4 py-3">Buyer message</th><td class="px-4 py-3">{{ orderInfo.message }}</td></tr>
+          <tr><th class="text-left px-4 py-3">Sales channel</th><td class="px-4 py-3">{{ orderInfo.from }}</td></tr>
+        </table>
+      </UCard>
+
+      <UFormGroup label="Enter Author's Message" hint="optional">
+        <UTextarea v-model="memo" placeholder="default memo" />
+      </UFormGroup>
+
+      <UFormGroup label="Specify NFT ID">
+        <UInput class="font-mono" v-model="nftId" placeholder="leave empty to auto-fetch" />
+
+        <template #help>
+          <UButton
+            v-if="!nftId"
+            label="Auto-fetch NFT ID"
+            :disabled="isLoading"
+            variant="outline"
+            @click="fetchNftId"
+          />
+        </template>
+      </UFormGroup>
+
       <div>
-        <p><label>Enter Author's Message (optional)</label></p>
-        <p><textarea v-model="memo" placeholder="default memo" /></p>
-      </div>
-      <div>
-        <p><label>Specify NFT ID</label></p>
-        <p>
-          <input v-model="nftId" placeholder="leave empty to auto-fetch" size="30">
-          <button v-if="!nftId" :disabled="isLoading" style="margin-left: 8px" @click="fetchNftId">
-            Auto-fetch NFT ID
-          </button>
-        </p>
         <img v-if="nftImage" :src="nftImage" height="128" style="display:block">
         <div
           v-else
@@ -38,13 +61,16 @@
           <span style="font-size: 12px; color: #4a4a4a">NFT Preview</span>
         </div>
       </div>
-      <p>
-        <button :disabled="isSendButtonDisabled" @click="onSendNFTStart">
-          Sign and Send
-        </button>
-      </p>
-    </section>
-  </div>
+
+      <template #footer>
+        <UButton
+          label="Sign and Send"
+          :disabled="isSendButtonDisabled"
+          @click="onSendNFTStart"
+        />
+      </template>
+    </UCard>
+  </main>
 </template>
 
 <script setup lang="ts">
