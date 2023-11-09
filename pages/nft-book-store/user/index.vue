@@ -1,37 +1,68 @@
 <template>
-  <div>
-    <h1>Stripe Connect status</h1>
-    <div v-if="error" style="color: red">
-      {{ error }}
-    </div>
-    <div v-if="isLoading" style="color: green">
-      Loading...
-    </div>
-    <hr>
-    <section v-if="bookStoreApiStore.isAuthenticated">
-      <h2>Current status</h2>
-      <table style="margin-bottom: 24px;">
-        <tr>
-          <td>Setup initiated</td>
-          <td>Setup completed</td>
-        </tr>
-        <tr>
-          <td>{{ connectStatus?.hasAccount || false }}</td>
-          <td>{{ connectStatus?.isReady || false }}</td>
-        </tr>
-      </table>
-      <div v-if="connectStatus?.isReady">
-        <button @click="onLoginToStripe">
-          Login to Stripe account
-        </button>
-      </div>
-      <div v-else>
-        <button @click="onSetupStripe">
-          Setup Stripe Payment Recipient Account
-        </button>
-      </div>
-    </section>
-  </div>
+  <main class="space-y-4">
+    <h1 class="font-bold font-mono">Stripe Connect status</h1>
+
+    <UAlert
+      v-if="error"
+      icon="i-heroicons-exclamation-triangle"
+      color="red"
+      variant="soft"
+      :title="`${error}`"
+      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      @close="error = ''"
+    />
+
+    <UProgress v-if="isLoading" animation="carousel">
+      <template #indicator>
+        Loading...
+      </template>
+    </UProgress>
+
+    <UCard
+      v-if="bookStoreApiStore.isAuthenticated"
+      :ui="{ body: { padding: '' }, footer: { base: 'text-center' }}"
+    >
+      <template #header>
+        <h2 class="text-sm text-center font-bold font-mono">Current Status</h2>
+      </template>
+
+      <UTable
+        :columns="[
+          { key: 'initiated', label: 'Setup Initiated' },
+          { key: 'completed', label: 'Setup Completed' }
+        ]"
+        :rows="[{
+          initiated: connectStatus?.hasAccount || false,
+          completed: connectStatus?.isReady || false
+        }]"
+        :ui="{ th: { base: 'text-center' }, td: { base: 'text-center' } }"
+      >
+        <template #initiated-data="{ row }">
+          <UBadge v-if="row.initiated" label="Yes" color="green" variant="outline" />
+          <UBadge v-else label="No" color="red" variant="outline" />
+        </template>
+        <template #completed-data="{ row }">
+          <UBadge v-if="row.initiated" label="Yes" color="green" variant="outline" />
+          <UBadge v-else label="No" color="red" variant="outline" />
+        </template>
+      </UTable>
+
+      <template #footer>
+        <UButton
+          v-if="connectStatus?.isReady"
+          label="Login to Stripe account"
+          size="lg"
+          @click="onLoginToStripe"
+        />
+        <UButton
+          v-else
+          label="Setup Stripe Payment Recipient Account"
+          size="lg"
+          @click="onSetupStripe"
+        />
+      </template>
+    </UCard>
+  </main>
 </template>
 
 <script setup lang="ts">

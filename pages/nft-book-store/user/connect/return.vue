@@ -1,13 +1,23 @@
 <template>
   <div>
-    <h1>Stripe Connect status</h1>
-    <div v-if="error" style="color: red">
-      {{ error }}
-    </div>
-    <div v-if="isLoading" style="color: green">
-      Loading...
-    </div>
-    <hr>
+    <h1 class="font-bold font-mono">Stripe Connect status</h1>
+
+    <UAlert
+      v-if="error"
+      icon="i-heroicons-exclamation-triangle"
+      color="red"
+      variant="soft"
+      :title="`${error}`"
+      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      @close="error = ''"
+    />
+
+    <UProgress v-if="isLoading" animation="carousel">
+      <template #indicator>
+        Loading...
+      </template>
+    </UProgress>
+
     <section v-if="bookStoreApiStore.isAuthenticated">
       <h2>Refreshing Stripe Connect account status</h2>
       <div>
