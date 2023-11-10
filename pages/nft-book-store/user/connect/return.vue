@@ -18,12 +18,17 @@
       </template>
     </UProgress>
 
-    <section v-if="bookStoreApiStore.isAuthenticated">
-      <h2>Refreshing Stripe Connect account status</h2>
-      <div>
-        <p>Refreshing...</p>
-      </div>
-    </section>
+    <UCard v-if="bookStoreApiStore.isAuthenticated">
+      <template #header>
+        <h2 class="text-sm font-bold font-mono">Refreshing Stripe Connect account status</h2>
+      </template>
+
+      <UProgress animation="carousel">
+        <template #indicator>
+          Refreshing...
+        </template>
+      </UProgress>
+    </UCard>
   </div>
 </template>
 

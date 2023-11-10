@@ -1,9 +1,22 @@
 <template>
-  <UVerticalNavigation :links="links" />
+  <UVerticalNavigation
+    :links="links"
+    :ui="{
+      icon: props.isLarge ? 'w-12 h-12' : undefined,
+      size: props.isLarge ? 'text-xl' : undefined,
+    }"
+  />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ISCN_TOOLS_URL } from '~/constant'
+
+const props = defineProps({
+  isLarge: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const links = [
   {
