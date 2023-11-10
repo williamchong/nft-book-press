@@ -1,45 +1,65 @@
 <template>
-  <div>
-    <h1>NFT Book Physical Good shipping status "{{ nftClassName || classId }}"</h1>
-    <div v-if="error" style="color: red">
-      {{ error }}
-    </div>
-    <div v-if="isLoading" style="color: green">
-      Loading...
-    </div>
-    <hr>
-    <section v-if="bookStoreApiStore.isAuthenticated">
-      <h3>Order status</h3>
-      <table>
-        <tr><th>Buyer Email</th><td>{{ orderInfo.email }}</td></tr>
-        <tr><th>Shipping Status</th><td>{{ orderInfo.shippingStatus }}</td></tr>
-        <tr><th>Shipping cost paid</th><td>{{ orderInfo.shippingCost }}</td></tr>
-        <tr><th>Buyer Wallet</th><td>{{ orderInfo.wallet }}</td></tr>
-        <tr><th>Price Name</th><td>{{ orderInfo.priceName }}</td></tr>
-        <tr><th>Price</th><td>{{ orderInfo.price }}</td></tr>
-        <tr><th>Buyer message</th><td>{{ orderInfo.message }}</td></tr>
-        <tr><th>Sales channel</th><td>{{ orderInfo.from }}</td></tr>
-      </table>
-      <div v-if="orderInfo.shippingDetails?.address">
-        <h3>Shipping Details</h3>
-        <table>
+  <main class="space-y-4">
+    <h1 class="text-lg font-bold font-mono">NFT Book Physical Good shipping status "{{ nftClassName || classId }}"</h1>
+
+    <UAlert
+      v-if="error"
+      icon="i-heroicons-exclamation-triangle"
+      color="red"
+      variant="soft"
+      :title="`${error}`"
+      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      @close="error = ''"
+    />
+
+    <UProgress v-if="isLoading" animation="carousel">
+      <template #indicator>
+        Loading...
+      </template>
+    </UProgress>
+
+    <UCard v-if="bookStoreApiStore.isAuthenticated">
+      <template #header>
+        <h3 class="font-bold font-mono">Order status</h3>
+      </template>
+
+      <UCard :ui="{ body: { padding: '' } }">
+        <table class="divide-y w-full">
+          <tr><th class="text-left px-4 py-3">Buyer Email</th><td class="text-left px-4 py-3">{{ orderInfo.email }}</td></tr>
+          <tr><th class="text-left px-4 py-3">Shipping Status</th><td class="text-left px-4 py-3">{{ orderInfo.shippingStatus }}</td></tr>
+          <tr><th class="text-left px-4 py-3">Shipping cost paid</th><td class="text-left px-4 py-3">{{ orderInfo.shippingCost }}</td></tr>
+          <tr><th class="text-left px-4 py-3">Buyer Wallet</th><td class="text-left px-4 py-3">{{ orderInfo.wallet }}</td></tr>
+          <tr><th class="text-left px-4 py-3">Price Name</th><td class="text-left px-4 py-3">{{ orderInfo.priceName }}</td></tr>
+          <tr><th class="text-left px-4 py-3">Price</th><td class="text-left px-4 py-3">{{ orderInfo.price }}</td></tr>
+          <tr><th class="text-left px-4 py-3">Buyer message</th><td class="text-left px-4 py-3">{{ orderInfo.message }}</td></tr>
+          <tr><th class="text-left px-4 py-3">Sales channel</th><td class="text-left px-4 py-3">{{ orderInfo.from }}</td></tr>
+        </table>
+      </UCard>
+
+      <UCard v-if="orderInfo.shippingDetails?.address">
+        <template #header>
+          <h3 class="text-sm font-bold font-mono">Shipping Details</h3>
+        </template>
+        <table class="divide-y w-full">
           <tr v-for="[key, value] in Object.entries(orderInfo.shippingDetails?.address)" :key="key">
-            <td>{{ key }}</td>
-            <td>{{ value }}</td>
+            <td class="text-left px-4 py-3">{{ key }}</td>
+            <td class="text-left px-4 py-3">{{ value }}</td>
           </tr>
         </table>
-      </div>
-      <div>
-        <p><label>Enter shipping information and message emailed to buyer</label></p>
-        <p><textarea v-model="message" placeholder="shipping tracking ID, ETA..." /></p>
-      </div>
-      <div>
-        <button :disabled="isSendButtonDisabled" @click="onSetShipped">
-          Set as Shipped and send email
-        </button>
-      </div>
-    </section>
-  </div>
+      </UCard>
+
+      <template #footer>
+        <UFormGroup label="Enter shipping information and message emailed to buyer">
+          <UTextarea v-model="message" placeholder="shipping tracking ID, ETA..." />
+        </UFormGroup>
+        <UButton
+          label="Set as Shipped and send email"
+          :disabled="isSendButtonDisabled"
+          @click="onSetShipped"
+        />
+      </template>
+    </UCard>
+  </main>
 </template>
 
 <script setup lang="ts">
