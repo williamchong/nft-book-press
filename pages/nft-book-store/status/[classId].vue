@@ -581,7 +581,7 @@ function getOrdersTableActionItems (purchaseListItem: any) {
           classId: purchaseListItem.classId
         },
         query: {
-          owner_wallet: ownerWallet,
+          owner_wallet: ownerWallet.value,
           payment_id: purchaseListItem.id
         }
       }
