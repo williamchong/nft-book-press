@@ -1,29 +1,56 @@
 <template>
-  <div>
-    <h1>Claim your NFT Book</h1>
-    <div v-if="error" style="color: red">
-      {{ error }}
-    </div>
-    <div v-if="isLoading" style="color: green">
-      Loading...
-    </div>
-    <hr>
-    <section v-if="isDone">
+  <main class="space-y-4">
+    <h1 class="text-lg font-bold font-mono">Claim your NFT Book</h1>
+
+    <UAlert
+      v-if="error"
+      icon="i-heroicons-exclamation-triangle"
+      color="red"
+      variant="soft"
+      :title="`${error}`"
+      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      @close="error = ''"
+    />
+
+    <UProgress v-if="isLoading" animation="carousel">
+      <template #indicator>
+        Loading...
+      </template>
+    </UProgress>
+
+    <UCard v-if="isDone">
       Your wallet is recorded and the NFT book will been sent to you once its ready.
-    </section>
-    <section v-else>
-      <p><label>Your Wallet</label></p>
-      <input v-model="walletInput" placeholder="like1....">
-      <button :disabled="isLoading" @click="connect">
-        Connect Keplr
-      </button>
-      <p><label>Message to creator (optional)</label></p>
-      <input v-model="buyerMessage">
-      <button :disabled="isLoading" @click="onSubmit">
-        Submit
-      </button>
-    </section>
-  </div>
+    </UCard>
+    <UCard v-else :ui="{ body: { base: 'space-y-4' } }">
+      <UFormGroup label="Your Wallet">
+        <div class="flex gap-2">
+          <UInput
+            v-model="walletInput"
+            class="font-mono flex-grow"
+            placeholder="like1...."
+          />
+          <UButton
+            label="Connect Keplr"
+            :disabled="isLoading"
+            variant="outline"
+            @click="connect"
+          />
+        </div>
+      </UFormGroup>
+
+      <UFormGroup label="Message to creator" hint="(optional)">
+        <UInput v-model="buyerMessage" />
+      </UFormGroup>
+
+      <template #footer>
+        <UButton
+          label="Submit"
+          :disabled="isLoading"
+          @click="onSubmit"
+        />
+      </template>
+    </UCard>
+  </main>
 </template>
 
 <script setup lang="ts">
