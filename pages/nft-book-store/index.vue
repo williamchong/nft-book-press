@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <main class="space-y-4">
     <UAlert
       v-if="error"
       class="mt-4"
@@ -140,7 +140,7 @@
         </template>
       </UTabs>
     </UCard>
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">
