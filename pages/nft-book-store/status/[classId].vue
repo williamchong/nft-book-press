@@ -34,7 +34,7 @@
               <th class="px-3 py-4">Order</th>
               <th class="px-3 py-4">Name</th>
               <th class="px-3 py-4 text-right">Price (USD)</th>
-              <th v-if="userIsOwner" class="px-3 py-4 text-center">
+              <th v-if="userIsOwner && prices.length > 1" class="px-3 py-4 text-center">
                 Sort
               </th>
               <th v-if="userIsOwner" class="px-3 py-4 text-center">
@@ -60,7 +60,7 @@
                   {{ element.price }}
                 </td>
                 <td
-                  v-if="userIsOwner"
+                  v-if="userIsOwner && prices.length > 1"
                   class="px-3 py-4 text-center cursor-grab"
                 >
                   <UIcon
