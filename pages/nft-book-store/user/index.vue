@@ -12,10 +12,26 @@
 
     <UCard
       v-if="bookStoreApiStore.isAuthenticated"
-      :ui="{ body: { padding: '' }, footer: { base: 'text-center' }}"
+      :ui="{
+        header: { base: 'flex justify-between items-center' },
+        body: { padding: '' },
+        footer: { base: 'text-center' },
+      }"
     >
       <template #header>
         <h1 class="text-center font-bold font-mono">Stripe Connect Status</h1>
+
+        <UTooltip
+          text="Refresh Status"
+          :popper="{ placement: 'left' }"
+        >
+          <UButton
+            icon="i-heroicons-arrow-path"
+            variant="outline"
+            :disabled="isLoading"
+            @click="loadStripeConnectStatus"
+          />
+        </UTooltip>
       </template>
 
       <UTable
@@ -83,7 +99,7 @@ watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
 })
 
-onMounted(async () => {
+async function loadStripeConnectStatus () {
   try {
     isLoading.value = true
     const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/user/connect/status?wallet=${wallet.value}`,
@@ -99,11 +115,11 @@ onMounted(async () => {
     connectStatus.value = (data.value as any) || {}
   } catch (e) {
     console.error(e)
-    error.value = e.toString()
+    error.value = (e as Error).toString()
   } finally {
     isLoading.value = false
   }
-})
+}
 
 async function onLoginToStripe () {
   try {
@@ -121,7 +137,7 @@ async function onLoginToStripe () {
     }
     const url = (data.value as any).url
     if (url) {
-      window.location.href = url
+      window.open(url)
     } else {
       throw new Error('CANNOT_GET_STRIPE_CONNECT_RUL')
     }
@@ -149,7 +165,7 @@ async function onSetupStripe () {
     }
     const url = (data.value as any).url
     if (url) {
-      window.location.href = url
+      window.open(url)
     } else {
       throw new Error('CANNOT_GET_STRIPE_CONNECT_RUL')
     }
