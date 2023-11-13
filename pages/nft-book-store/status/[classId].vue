@@ -46,7 +46,9 @@
             v-model="prices"
             tag="tbody"
             item-key="index"
-            handle="td:last-child"
+            handle="td.cursor-grab"
+            drag-class="bg-white"
+            ghost-class="opacity-20"
             :disabled="!userIsOwner || isUpdatingPricesOrder"
             @end="handlePriceReorder"
           >
@@ -457,6 +459,7 @@ const { updateBookListingSetting } = bookStoreApiStore
 const { lazyFetchClassMetadataById } = nftStore
 
 const route = useRoute()
+const toast = useToast()
 
 const error = ref('')
 const isLoading = ref(false)
@@ -805,6 +808,12 @@ async function handlePriceReorder ({
     }
     prices.value = prices.value.map((p, order) => ({ ...p, order }))
     classListingInfo.value.prices = prices.value
+    toast.add({
+      icon: 'i-heroicons-check-circle',
+      title: 'Updated editions order successfully',
+      timeout: 0,
+      color: 'green'
+    })
   } catch (err) {
     prices.value = classListingInfo.value.prices
     error.value = (err as Error).toString()
