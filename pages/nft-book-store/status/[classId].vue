@@ -543,20 +543,20 @@ const shippingRatesTableRows = computed(() => {
 
 const orderTableColumns = computed(() => {
   const columns = [
-    { key: 'email', label: 'Buyer Email', sortable: true },
-    { key: 'status', label: 'Status', sortable: true },
-    { key: 'orderDate', label: 'Order Date', sortable: true }
+    { key: 'actions', label: 'Actions', sortable: false },
+    { key: 'orderDate', label: 'Order Date', sortable: true },
+    { key: 'status', label: 'Status', sortable: true }
   ]
   if (orderHasShipping.value) {
     columns.push({ key: 'shippingStatus', label: 'Shipping Status', sortable: true })
   }
   columns.push(
-    { key: 'wallet', label: 'Buyer Wallet', sortable: true },
+    { key: 'from', label: 'Sales Channel', sortable: true },
     { key: 'price', label: 'Price', sortable: true },
     { key: 'priceName', label: 'Price Name', sortable: false },
-    { key: 'message', label: 'Buyer Message', sortable: false },
-    { key: 'from', label: 'Sales Channel', sortable: true },
-    { key: 'actions', label: 'Actions', sortable: false }
+    { key: 'email', label: 'Buyer Email', sortable: true },
+    { key: 'wallet', label: 'Buyer Wallet', sortable: true },
+    { key: 'message', label: 'Buyer Message', sortable: false }
   )
 
   return columns
