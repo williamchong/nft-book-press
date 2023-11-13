@@ -261,7 +261,9 @@
 
               <UButton
                 label="Add"
-                variant="outline"
+                :variant="moderatorWalletInput ? 'outline' : 'solid'"
+                :color="moderatorWalletInput ? 'primary' : 'gray'"
+                :disabled="!moderatorWalletInput"
                 @click="addModeratorWallet"
               />
             </div>
@@ -324,7 +326,9 @@
 
               <UButton
                 label="Add"
-                variant="outline"
+                :variant="notificationEmailInput ? 'outline' : 'solid'"
+                :color="notificationEmailInput ? 'primary' : 'gray'"
+                :disabled="!notificationEmailInput"
                 @click="addNotificationEmail"
               />
             </div>
@@ -826,11 +830,13 @@ async function hardSetStatusToCompleted (purchase: any) {
 }
 
 function addModeratorWallet () {
+  if (!moderatorWalletInput.value) { return }
   moderatorWallets.value.push(moderatorWalletInput.value)
   moderatorWalletInput.value = ''
 }
 
 function addNotificationEmail () {
+  if (!notificationEmailInput.value) { return }
   notificationEmails.value.push(notificationEmailInput.value)
   notificationEmailInput.value = ''
 }
