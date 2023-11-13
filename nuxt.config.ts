@@ -13,5 +13,9 @@ export default defineNuxtConfig({
     plugins: [
       nodePolyfills()
     ]
+  },
+  app: {
+    pageTransition: { name: 'page', mode: 'out-in' },
+    layoutTransition: { name: 'page', mode: 'out-in' }
   }
 })

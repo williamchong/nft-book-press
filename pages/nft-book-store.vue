@@ -1,5 +1,5 @@
 <template>
-  <main>
+  <main :key="route.path">
     <h1 class="text-xl font-bold font-mono mb-4">NFT Book Store Management Page</h1>
 
     <UContainer
@@ -21,7 +21,6 @@
     </UContainer>
 
     <NuxtPage v-else />
-
   </main>
 </template>
 
@@ -29,6 +28,8 @@
 import { storeToRefs } from 'pinia'
 import { useWalletStore } from '~/stores/wallet'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
+
+const route = useRoute()
 
 const walletStore = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
