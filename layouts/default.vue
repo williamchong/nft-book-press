@@ -1,7 +1,7 @@
 <template>
-  <UContainer class="flex flex-row gap-4">
-    <SideNavBar class="py-4 max-w-[220px]" />
-    <UContainer class="w-full py-4">
+  <UContainer class="lg:grid grid-cols-10 gap-4">
+    <SiteMenu class="col-span-2 py-4 hidden lg:block" />
+    <UContainer class="col-span-8 py-4" :ui="{ base: '' }">
       <slot />
     </UContainer>
   </UContainer>

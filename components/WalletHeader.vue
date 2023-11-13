@@ -1,8 +1,8 @@
 <template>
-  <div class="flex items-center gap-2">
+  <div class="flex flex-wrap items-center gap-2">
     <template v-if="wallet">
       <UButton
-        class="font-mono"
+        class="text-xs font-mono"
         :label="wallet"
         :to="portfolioURL"
         variant="soft"

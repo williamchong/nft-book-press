@@ -26,6 +26,12 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['click-link'])
+
+function handleLinkClick () {
+  emit('click-link')
+}
+
 const items = [
   {
     label: 'Mint NFT',
@@ -75,5 +81,11 @@ const items = [
       }
     ]
   }
-]
+].map(item => ({
+  ...item,
+  links: item.links.map(link => ({
+    ...link,
+    click: handleLinkClick
+  }))
+}))
 </script>
