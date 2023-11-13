@@ -31,9 +31,15 @@
         <table class="w-full divide-y text-sm">
           <thead class="border-b-2">
             <tr class="text-left">
-              <th class="px-3 py-4">Order</th>
-              <th class="px-3 py-4">Name</th>
-              <th class="px-3 py-4 text-right">Price (USD)</th>
+              <th class="px-3 py-4">
+                Order
+              </th>
+              <th class="px-3 py-4">
+                Name
+              </th>
+              <th class="px-3 py-4 text-right">
+                Price (USD)
+              </th>
               <th v-if="userIsOwner && prices.length > 1" class="px-3 py-4 text-center">
                 Sort
               </th>
@@ -54,7 +60,9 @@
           >
             <template #item="{ element, index }">
               <tr>
-                <td class="px-3 py-4">{{ index + 1 }}</td>
+                <td class="px-3 py-4">
+                  {{ index + 1 }}
+                </td>
                 <td class="px-3 py-4">
                   <template v-if="typeof element.name === 'object'">
                     <UCard :ui="{ body: { padding: '' } }">
@@ -113,7 +121,9 @@
         :ui="{ body: { padding: '' } }"
       >
         <template #header>
-          <h3 class="font-bold font-mono">Shipping Options</h3>
+          <h3 class="font-bold font-mono">
+            Shipping Options
+          </h3>
         </template>
 
         <UTable
@@ -165,11 +175,18 @@
         </UTable>
       </UCard>
 
-      <UCard :ui="{ body: { padding: '' } }">
+      <UCard
+        :ui="{
+          header: { base: 'flex justify-between items-center gap-4' },
+          body: { padding: '' },
+        }"
+      >
         <template #header>
           <h3 class="font-bold font-mono">
             Orders
           </h3>
+
+          <UInput v-model="searchInput" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search..." />
         </template>
 
         <UTable
@@ -276,7 +293,9 @@
           }"
         >
           <template #header>
-            <h4 class="text-sm font-bold font-mono">Share sales data to wallets</h4>
+            <h4 class="text-sm font-bold font-mono">
+              Share sales data to wallets
+            </h4>
             <div class="flex gap-2">
               <UInput
                 v-model="moderatorWalletInput"
@@ -335,7 +354,9 @@
           }"
         >
           <template #header>
-            <h4 class="text-sm font-bold font-mono">Email to receive sales notifications</h4>
+            <h4 class="text-sm font-bold font-mono">
+              Email to receive sales notifications
+            </h4>
 
             <div class="flex gap-2">
               <UInput
@@ -421,7 +442,9 @@
         :ui="{ body: { base: 'space-y-4' } }"
       >
         <template #header>
-          <h3 class="font-bold font-mono">Copy Purchase Link</h3>
+          <h3 class="font-bold font-mono">
+            Copy Purchase Link
+          </h3>
         </template>
 
         <UFormGroup label="Price" :required="true">
@@ -455,7 +478,9 @@
           :height="500"
         >
           <template #header>
-            <h3 class="font-bold font-mono">Purchase Link QRCode</h3>
+            <h3 class="font-bold font-mono">
+              Purchase Link QR Code
+            </h3>
           </template>
         </QRCode>
       </UCard>
@@ -494,6 +519,9 @@ const prices = ref<any[]>([])
 const isUpdatingPricesOrder = ref(false)
 const ordersData = ref<any>({})
 const connectStatus = ref<any>({})
+
+// Search
+const searchInput = ref('')
 
 const moderatorWallets = ref<string[]>([])
 const moderatorWalletsGrants = ref<any>({})
@@ -671,7 +699,18 @@ const ordersTableRows = computed(() => purchaseList.value?.map((p: any, index: n
   message: p.message || '',
   from: p.from || '',
   actions: getOrdersTableActionItems(p)
-})))
+})).filter((p: any) => {
+  if (!searchInput.value) { return true }
+  const normalizedSearchInput = searchInput.value.toLowerCase()
+  return (
+    p.email.toLowerCase().includes(normalizedSearchInput) ||
+    p.wallet?.toLowerCase().includes(normalizedSearchInput) ||
+    p.priceName?.toLowerCase().includes(normalizedSearchInput) ||
+    p.statusLabel?.toLowerCase().includes(normalizedSearchInput) ||
+    p.orderDate?.toLowerCase().includes(normalizedSearchInput) ||
+    p.from?.toLowerCase().includes(normalizedSearchInput)
+  )
+}))
 
 const moderatorWalletsTableColumns = computed(() => {
   const columns = [{ key: 'wallet', label: 'Wallet', sortable: true }]
