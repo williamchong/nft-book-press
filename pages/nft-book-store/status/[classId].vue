@@ -677,7 +677,7 @@ const moderatorWalletsTableRows = computed(() => moderatorWallets.value.map((wal
   }
 }))
 
-const notificationEmailsTableRows = computed(() => notificationEmails.value.map((email, index) => ({
+const notificationEmailsTableRows = computed(() => notificationEmails.value?.map((email, index) => ({
   index,
   email
 })))
@@ -692,7 +692,7 @@ function normalizeChannelId (channelId: string) {
   }
 }
 
-const salesChannelTableRows = computed(() => Object.entries(salesChannelMap.value).map(([id, value]) => ({
+const salesChannelTableRows = computed(() => Object.entries(salesChannelMap.value)?.map(([id, value]) => ({
   id,
   idLabel: normalizeChannelId(id),
   count: value.count || 0,
