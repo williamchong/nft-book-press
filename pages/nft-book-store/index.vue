@@ -114,9 +114,9 @@
 
             <!-- Table -->
             <UTable
+              v-model:sort="sort"
               :columns="selectedTableColumns"
               :rows="paginatedTableRows"
-              :sort="{ column: 'pendingAction', direction: 'desc' }"
               @select="selectTableRow"
             >
               <template #priceInUSD-data="{ row }">
@@ -187,6 +187,11 @@ const selectedTabItemIndex = computed({
 // Search
 const searchInput = ref('')
 
+const sort = ref({
+  column: 'pendingAction',
+  direction: 'desc' as 'asc' | 'desc'
+})
+
 // Pagination
 const tableRowsPerPageOptions = [5, 10, 20, 50]
 const tableRowsPerPage = ref(tableRowsPerPageOptions[1])
@@ -210,8 +215,21 @@ const tableRows = computed(() => (tabItems[selectedTabItemIndex.value].key === '
   return b.classId.toLowerCase().includes(normalizedSearchInput) || b.className.toLowerCase().includes(normalizedSearchInput)
 }))
 
+const sortedTableRows = computed(() => {
+  const { column, direction } = sort.value
+  return tableRows.value.sort((a: any, b: any) => {
+    if (a[column] < b[column]) {
+      return direction === 'asc' ? -1 : 1
+    }
+    if (a[column] > b[column]) {
+      return direction === 'asc' ? 1 : -1
+    }
+    return 0
+  })
+})
+
 const paginatedTableRows = computed(() => {
-  return tableRows.value.slice((tablePage.value - 1) * tableRowsPerPage.value, tablePage.value * tableRowsPerPage.value)
+  return sortedTableRows.value.slice((tablePage.value - 1) * tableRowsPerPage.value, tablePage.value * tableRowsPerPage.value)
 })
 
 // Columns
