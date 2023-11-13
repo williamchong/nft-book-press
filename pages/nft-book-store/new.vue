@@ -250,17 +250,11 @@
               />
             </template>
             <template #authz-data="{ row }">
-              <UBadge
-                v-if="moderatorWalletsGrants[row.wallet]"
-                label="Granted"
-                color="green"
-                variant="outline"
-              />
               <UButton
-                v-else
-                label="Grant"
-                :to="row.walletLink"
-                variant="outline"
+                :label="row.grantLabel"
+                :to="row.grantRoute"
+                :variant="row.isGranted ? 'outline' : 'solid'"
+                color="green"
               />
             </template>
             <template #remove-data="{ row }">
@@ -433,11 +427,22 @@ const moderatorWalletsTableColumns = computed(() => [
   { key: 'remove', label: '', sortable: false }
 ])
 
-const moderatorWalletsTableRows = computed(() => moderatorWallets.value.map((wallet, index) => ({
-  index,
-  wallet,
-  walletLink: getPortfolioURL(wallet)
-})))
+const moderatorWalletsTableRows = computed(() => moderatorWallets.value.map((wallet, index) => {
+  const isGranted = !!moderatorWalletsGrants.value[wallet]
+  return {
+    index,
+    wallet,
+    walletLink: getPortfolioURL(wallet),
+    isGranted,
+    grantLabel: isGranted ? 'Granted' : 'Grant',
+    grantRoute: {
+      name: 'authz',
+      query: {
+        grantee: wallet
+      }
+    }
+  }
+}))
 
 const notificationEmailsTableRows = computed(() => notificationEmails.value.map((email, index) => ({
   index,
