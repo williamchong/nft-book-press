@@ -55,7 +55,30 @@
             <template #item="{ element, index }">
               <tr>
                 <td class="px-3 py-4">{{ index + 1 }}</td>
-                <td class="px-3 py-4">{{ element.name }}</td>
+                <td class="px-3 py-4">
+                  <template v-if="typeof element.name === 'object'">
+                    <UCard :ui="{ body: { padding: '' } }">
+                      <UTable
+                        :columns="[{ key: 'locale', label: 'Locale' }, { key: 'content', label: 'Content' }]"
+                        :rows="Object.entries(element.name).map(([locale, content]) => ({ locale, content }))"
+                      >
+                        <template #locale-data="{ row }">
+                          <UBadge
+                            :label="row.locale"
+                            variant="subtle"
+                            :ui="{
+                              font: 'font-mono',
+                              rounded: 'rounded-full',
+                            }"
+                          />
+                        </template>
+                      </UTable>
+                    </UCard>
+                  </template>
+                  <template v-else>
+                    {{ element.name }}
+                  </template>
+                </td>
                 <td class="px-3 py-4 text-right">
                   {{ element.price }}
                 </td>
