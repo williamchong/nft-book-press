@@ -54,12 +54,12 @@
           <UInput class="my-4" type="file" @change="onISCNFileChange" />
         </UFormGroup>
         <UAlert
+          title=""
           icon="i-heroicons-light-bulb"
-          title="Tip"
           color="primary"
           variant="soft"
         >
-          <template #description>
+          <template #title>
             You can also create your ISCN using
             <UButton
               :to="`${appLikeCoURL}/new`"
