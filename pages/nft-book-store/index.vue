@@ -135,6 +135,11 @@
                   </li>
                 </ul>
               </template>
+              <template #className-data="{ row }">
+                <div class="max-w-xs truncate">
+                  {{ row.className || '-' }}
+                </div>
+              </template>
             </UTable>
           </UCard>
         </template>
