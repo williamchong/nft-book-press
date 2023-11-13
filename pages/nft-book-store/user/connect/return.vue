@@ -1,26 +1,9 @@
 <template>
-  <div>
-    <h1 class="font-bold font-mono">Stripe Connect status</h1>
-
-    <UAlert
-      v-if="error"
-      icon="i-heroicons-exclamation-triangle"
-      color="red"
-      variant="soft"
-      :title="`${error}`"
-      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
-      @close="error = ''"
-    />
-
-    <UProgress v-if="isLoading" animation="carousel">
-      <template #indicator>
-        Loading...
-      </template>
-    </UProgress>
-
-    <UCard v-if="bookStoreApiStore.isAuthenticated">
+  <UModal :model-value="true">
+    <!-- Loading -->
+    <UCard v-if="isLoading">
       <template #header>
-        <h2 class="text-sm font-bold font-mono">Refreshing Stripe Connect account status</h2>
+        <h2 class="text-sm font-bold font-mono">Refreshing Stripe Connect Account Status</h2>
       </template>
 
       <UProgress animation="carousel">
@@ -29,7 +12,49 @@
         </template>
       </UProgress>
     </UCard>
-  </div>
+
+    <!-- Success case -->
+    <UCard v-else-if="isDone && !error">
+      <template #header>
+        <h2 class="text-sm font-bold font-mono">Stripe Connect Account Status Refreshed</h2>
+      </template>
+
+      <UProgress :value="100">
+        <template #indicator>
+          Refreshed! Redirect back in 3 seconds...
+        </template>
+      </UProgress>
+    </UCard>
+
+    <!-- Error case -->
+    <UCard
+      v-else
+      :ui="{
+        body: { base: 'space-y-4' },
+        footer: { base: 'text-center' }
+      }"
+    >
+      <template #header>
+        <h2 class="text-sm font-bold font-mono">An error occurred when refreshing the Stripe Connect Account Status</h2>
+      </template>
+
+      <UProgress :value="100" color="red" />
+
+      <UAlert
+        icon="i-heroicons-exclamation-triangle"
+        color="red"
+        variant="soft"
+        :title="error || 'Unknown error'"
+      />
+
+      <template #footer>
+        <UButton
+          label="Go Back"
+          :to="{ name: 'nft-book-store-user' }"
+        />
+      </template>
+    </UCard>
+  </UModal>
 </template>
 
 <script setup lang="ts">
@@ -44,6 +69,10 @@ const { token } = storeToRefs(bookStoreApiStore)
 const error = ref('')
 const isLoading = ref(false)
 const isDone = ref(false)
+
+definePageMeta({
+  layout: 'page'
+})
 
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
@@ -63,11 +92,14 @@ onMounted(async () => {
     if (fetchError.value) {
       throw new Error(fetchError.value.toString())
     }
-    isDone.value = data.isReady
-    router.push({ name: 'nft-book-store-user' })
+    isDone.value = (data.value as any).isReady || false
+
+    setTimeout(() => {
+      router.replace({ name: 'nft-book-store-user' })
+    }, 3000)
   } catch (e) {
     console.error(e)
-    error.value = e.toString()
+    error.value = (e as Error).toString()
   } finally {
     isLoading.value = false
   }

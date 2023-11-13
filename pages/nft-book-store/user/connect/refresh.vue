@@ -1,15 +1,20 @@
 <template>
-  <div>
-    <h1 class="font-bold font-mono">Stripe Connect returned</h1>
-    <UCard>
-      Some unexpected issue happened, please go back to connect status page and try again
+  <UModal :model-value="true">
+    <UCard :ui="{ header: { base: 'font-bold font-mono' } }">
+      <template #header>A unexpected issue happened</template>
+
+      Please go back to Stripe Connect status page and try again.
 
       <template #footer>
         <UButton
-          label="Go back"
+          label="Go Back"
           :to="{ name: 'nft-book-store-user' }"
         />
       </template>
     </UCard>
-  </div>
+  </UModal>
 </template>
+
+<script setup lang="ts">
+definePageMeta({ layout: 'page' })
+</script>

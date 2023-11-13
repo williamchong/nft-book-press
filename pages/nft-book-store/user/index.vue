@@ -1,7 +1,5 @@
 <template>
   <main class="space-y-4">
-    <h1 class="font-bold font-mono">Stripe Connect status</h1>
-
     <UAlert
       v-if="error"
       icon="i-heroicons-exclamation-triangle"
@@ -12,18 +10,12 @@
       @close="error = ''"
     />
 
-    <UProgress v-if="isLoading" animation="carousel">
-      <template #indicator>
-        Loading...
-      </template>
-    </UProgress>
-
     <UCard
       v-if="bookStoreApiStore.isAuthenticated"
       :ui="{ body: { padding: '' }, footer: { base: 'text-center' }}"
     >
       <template #header>
-        <h2 class="text-sm text-center font-bold font-mono">Current Status</h2>
+        <h1 class="text-center font-bold font-mono">Stripe Connect Status</h1>
       </template>
 
       <UTable
@@ -42,14 +34,21 @@
           <UBadge v-else label="No" color="red" variant="outline" />
         </template>
         <template #completed-data="{ row }">
-          <UBadge v-if="row.initiated" label="Yes" color="green" variant="outline" />
+          <UBadge v-if="row.completed" label="Yes" color="green" variant="outline" />
           <UBadge v-else label="No" color="red" variant="outline" />
         </template>
       </UTable>
 
       <template #footer>
         <UButton
-          v-if="connectStatus?.isReady"
+          v-if="isLoading"
+          label="Loading"
+          size="lg"
+          :loading="true"
+          @click="onLoginToStripe"
+        />
+        <UButton
+          v-else-if="connectStatus?.isReady"
           label="Login to Stripe account"
           size="lg"
           @click="onLoginToStripe"
