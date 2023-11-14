@@ -456,7 +456,7 @@
         </UFormGroup>
 
         <UButton
-          class="font-mono"
+          class="font-mono break-all"
           :label="`${purchaseLink}`"
           :to="purchaseLink"
           variant="outline"
@@ -963,6 +963,12 @@ async function updateSettings () {
 
 async function copyPurchaseLink () {
   await navigator.clipboard.writeText(purchaseLink.value)
+  toast.add({
+    icon: 'i-heroicons-check-circle',
+    title: 'Copied purchase link to clipboard',
+    timeout: 2000,
+    color: 'green'
+  })
 }
 
 </script>
