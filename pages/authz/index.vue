@@ -74,14 +74,17 @@
             :sort="{ column: 'expiration', direction: 'desc' }"
           >
             <template #wallet-data="{ row }">
-              <UButton
-                class="font-mono"
-                :label="row.wallet"
-                :to="getPortfolioURL(row.wallet)"
-                variant="link"
-                :padded="false"
-                target="_blank"
-              />
+              <UTooltip :text="row.wallet">
+                <UButton
+                  class="font-mono"
+                  :label="row.shortenWallet"
+                  :to="getPortfolioURL(row.wallet)"
+                  variant="link"
+                  :padded="false"
+                  size="xs"
+                  target="_blank"
+                />
+              </UTooltip>
             </template>
             <template #actions-data="{ row }">
               <div class="flex items-center gap-2">
@@ -134,7 +137,8 @@ import { useWalletStore } from '~/stores/wallet'
 import {
   getNFTAuthzGranterGrants,
   signGrantNFTSendAuthz,
-  signRevokeNFTSendAuthz
+  signRevokeNFTSendAuthz,
+  shortenWalletAddress
 } from '~/utils/cosmos'
 
 const walletStore = useWalletStore()
@@ -149,6 +153,7 @@ const isLoading = ref(false)
 
 const tableRows = computed(() => grants.value.map((grant: any) => ({
   wallet: grant.grantee,
+  shortenWallet: shortenWalletAddress(grant.grantee),
   expiration: new Date(grant.expiration.seconds.toNumber() * 1000)
 })))
 

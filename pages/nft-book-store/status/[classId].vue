@@ -202,14 +202,17 @@
             />
           </template>
           <template #wallet-data="{ row }">
-            <UButton
-              class="font-mono"
-              :label="row.wallet"
-              :to="getPortfolioURL(row.wallet)"
-              variant="link"
-              :padded="false"
-              target="_blank"
-            />
+            <UTooltip :text="row.wallet">
+              <UButton
+                class="font-mono"
+                :label="row.shortenWallet"
+                :to="row.walletLink"
+                variant="link"
+                :padded="false"
+                size="xs"
+                target="_blank"
+              />
+            </UTooltip>
           </template>
           <template #status-data="{ row }">
             <UBadge
@@ -318,13 +321,16 @@
             :rows="moderatorWalletsTableRows"
           >
             <template #wallet-data="{ row }">
-              <UButton
-                class="font-mono"
-                :label="row.wallet"
-                :to="row.walletLink"
-                variant="link"
-                :padded="false"
-              />
+              <UTooltip :text="row.wallet">
+                <UButton
+                  class="font-mono"
+                  :label="row.shortenWallet"
+                  :to="row.walletLink"
+                  variant="link"
+                  :padded="false"
+                  size="xs"
+                />
+              </UTooltip>
             </template>
             <template #authz-data="{ row }">
               <UButton
@@ -496,7 +502,7 @@ import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useNftStore } from '~/stores/nft'
 import { useWalletStore } from '~/stores/wallet'
 import { getPortfolioURL } from '~/utils'
-import { getNFTAuthzGrants } from '~/utils/cosmos'
+import { getNFTAuthzGrants, shortenWalletAddress } from '~/utils/cosmos'
 
 const store = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
@@ -694,6 +700,8 @@ const ordersTableRows = computed(() => purchaseList.value?.map((p: any, index: n
   orderDate: p.formattedDate,
   shippingStatus: p.shippingStatus,
   wallet: p.wallet || '',
+  walletLink: getPortfolioURL(p.wallet),
+  shortenWallet: shortenWalletAddress(p.wallet),
   priceName: p.priceName,
   price: p.price || 0,
   message: p.message || '',
@@ -730,6 +738,7 @@ const moderatorWalletsTableRows = computed(() => moderatorWallets.value.map((wal
   return {
     index,
     wallet,
+    shortenWallet: shortenWalletAddress(wallet),
     walletLink: getPortfolioURL(wallet),
     isGranted,
     grantLabel: isGranted ? 'Granted' : 'Grant',

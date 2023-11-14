@@ -1,13 +1,15 @@
 <template>
   <div class="flex flex-wrap items-center gap-2">
     <template v-if="wallet">
-      <UButton
-        class="text-xs font-mono"
-        :label="wallet"
-        :to="portfolioURL"
-        variant="soft"
-        target="_blank"
-      />
+      <UTooltip :text="wallet">
+        <UButton
+          class="text-xs font-mono"
+          :label="shortenWalletAddress(wallet)"
+          :to="portfolioURL"
+          variant="soft"
+          target="_blank"
+        />
+      </UTooltip>
       <UButton
         label="Disconnect Wallet"
         icon="i-heroicons-arrow-left-on-rectangle"
@@ -30,6 +32,7 @@
 import { storeToRefs } from 'pinia'
 import { useWalletStore } from '~/stores/wallet'
 import { getPortfolioURL } from '~/utils'
+import { shortenWalletAddress } from '~/utils/cosmos'
 
 const store = useWalletStore()
 const { wallet } = storeToRefs(store)
