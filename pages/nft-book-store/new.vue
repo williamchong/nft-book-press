@@ -1,44 +1,91 @@
 <template>
-  <div>
-    <h1>{{ pageTitle }}</h1>
-    <div v-if="error" style="color: red">
-      {{ error }}
-    </div>
-    <div v-if="isLoading" style="color: green">
-      Loading...
-    </div>
-    <hr>
-    <section v-if="bookStoreApiStore.isAuthenticated">
-      <p><label>NFT Class ID:</label></p>
-      <input v-if="!isEditMode" v-model="classIdInput" class="classIdInput" placeholder="likenft....">
-      <p v-else style="font-weight: bold">
-        {{ classId }}
-      </p>
-      <p>Total number of NFT for sale: {{ totalStock }}</p>
-      <hr>
+  <div class="space-y-4">
+    <UAlert
+      v-if="error"
+      icon="i-heroicons-exclamation-triangle"
+      color="red"
+      variant="soft"
+      :title="`${error}`"
+      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      @close="error = ''"
+    />
 
-      <h3>
-        Pricing and Availability
-        <button v-if="!isEditMode" @click="addMorePrice">
-          Add Edition
-        </button>
-      </h3>
-      <p><label>Default display currency when user checkout (note that prices setting below are always in USD)</label></p>
-      <input v-model="defaultPaymentCurrency" name="USD" type="radio" value="USD">
-      <label for="USD">USD</label>
-      <input v-model="defaultPaymentCurrency" name="HKD" type="radio" value="HKD">
-      <label for="HKD">HKD</label>
+    <UProgress v-if="isLoading" animation="carousel">
+      <template #indicator>
+        Loading...
+      </template>
+    </UProgress>
+
+    <template v-if="bookStoreApiStore.isAuthenticated">
+      <UCard :ui="{ body: { base: 'space-y-4' } }">
+        <template #header>
+          <h2 class="font-bold font-mono">{{ pageTitle }}</h2>
+        </template>
+
+        <UFormGroup label="NFT Class ID">
+          <UInput
+            v-if="!isEditMode"
+            v-model="classIdInput"
+            class="font-mono"
+            placeholder="likenft...."
+          />
+          <UInput
+            v-else
+            :value="classId"
+            :readonly="true"
+          />
+        </UFormGroup>
+
+        <UFormGroup label="Total number of NFT for sale">
+          <UInput
+            :value="`${totalStock}`"
+            :readonly="true"
+          />
+        </UFormGroup>
+      </UCard>
+
+      <UCard :ui="{ header: { base: 'flex justify-between items-center gap-2' } }">
+        <template #header>
+          <h3 class="font-bold font-mono">Pricing and Availability</h3>
+
+          <UButton
+            v-if="!isEditMode"
+            icon="i-heroicons-plus-circle"
+            label="Add Edition"
+            @click="addMorePrice"
+          />
+        </template>
+
+        <UFormGroup
+          label="Default display currency when user checkout"
+          help="note that prices setting are always in USD"
+        >
+          <URadio v-model="defaultPaymentCurrency" label="USD" name="USD" value="USD" />
+          <URadio v-model="defaultPaymentCurrency" label="HKD" name="HKD" value="HKD" />
+        </UFormGroup>
+      </UCard>
+
       <component :is="hasMultiplePrices ? 'ul' : 'div'">
-        <component :is="hasMultiplePrices ? 'li' : 'div'" v-for="p, index in prices" :key="p.index">
-          <hr v-if="index > 0">
-          <p><label>Price(USD) of this {{ priceItemLabel }} (Minimal ${{ MINIMAL_PRICE }} or free)</label></p>
-          <input :value="p.price" type="number" step="0.01" :min="0" @input="e => updatePrice(e, 'price', index)">
-          <p><label>Total number of NFT for sale of this {{ priceItemLabel }}</label></p>
-          <input :value="p.stock" min="0" type="number" @input="e => updatePrice(e, 'stock', index)">
-          <p><label>Product name of this {{ priceItemLabel }}</label></p>
-          <input placeholder="Product name in English" :value="p.nameEn" @input="e => updatePrice(e, 'nameEn', index)"><br>
-          <input placeholder="產品中文名字" :value="p.nameZh" @input="e => updatePrice(e, 'nameZh', index)">
-          <p><label>Product description of this {{ priceItemLabel }}</label></p>
+        <component :is="hasMultiplePrices ? 'li' : 'div'" v-for="p, index in prices" :key="p.index" class="space-y-4">
+          <UDivider v-if="index > 0" />
+
+          <UFormGroup :label="`Price(USD) of this ${priceItemLabel} (Minimal ${MINIMAL_PRICE} or free)`">
+            <UInput :value="p.price" type="number" step="0.01" :min="0" @input="e => updatePrice(e, 'price', index)" />
+          </UFormGroup>
+
+          <UFormGroup :label="`Total number of NFT for sale of this ${priceItemLabel}`">
+            <UInput :value="p.stock" type="number" step="0.01" :min="0" @input="e => updatePrice(e, 'stock', index)" />
+          </UFormGroup>
+
+          <UFormGroup
+            :label="`Product name of this ${priceItemLabel}`"
+            :ui="{ container: 'space-y-2' }"
+          >
+            <UInput placeholder="Product name in English" :value="p.nameEn" @input="e => updatePrice(e, 'nameEn', index)" />
+            <UInput placeholder="產品中文名字" :value="p.nameZh" @input="e => updatePrice(e, 'nameZh', index)" />
+          </UFormGroup>
+
+          <h5 class="font-bold font-mono">Product description of this {{ priceItemLabel }}</h5>
           <md-editor
             v-model="p.descriptionEn"
             language="en-US"
@@ -55,99 +102,234 @@
             :toolbars="toolbarOptions"
             :sanitize="sanitizeHtml"
           />
-          <div>
-            <h3>Physical Goods</h3>
-            <input type="checkbox" @input="e => updatePrice(e, 'hasShipping', index)">
-            <label>Includes physical good that requires shipping</label>
-          </div>
-          <p v-if="hasMultiplePrices">
-            <button @click="deletePrice(index)">
-              Delete
-            </button>
-          </p>
+
+          <UButton v-if="hasMultiplePrices" label="Delete" color="red" @click="deletePrice(index)" />
+
+          <UCard
+            :ui="{
+              divide: isStripeConnectChecked ? undefined : '',
+              header: { base: 'flex flex-wrap justify-between items-center gap-2' },
+              body: { padding: isStripeConnectChecked ? undefined : '', base: 'grid lg:grid-cols-2 gap-4' }
+            }"
+          >
+            <template #header>
+              <h3 class="font-bold font-mono">Physical Goods</h3>
+
+              <UCheckbox
+                :value="hasShipping"
+                label="Includes physical good that requires shipping"
+                @input="e => updatePrice(e, 'hasShipping', index)"
+              />
+            </template>
+          </UCard>
         </component>
       </component>
-      <div v-if="hasShipping">
-        <hr>
-        <h3>Shipping Options and Prices</h3><button @click="addMoreShippingRate">
-          Add Option
-        </button>
+
+      <UCard
+        v-if="hasShipping"
+        :ui="{
+          divide: isStripeConnectChecked ? undefined : '',
+          header: { base: 'flex flex-wrap justify-between items-center gap-2' },
+          body: { padding: isStripeConnectChecked ? undefined : '', base: 'grid lg:grid-cols-2 gap-4' }
+        }"
+      >
+        <template #header>
+          <h3 class="font-bold font-mono">Shipping Options and Prices</h3>
+
+          <UButton
+            label="Add Option"
+            variant="outline"
+            @click="addMoreShippingRate"
+          />
+        </template>
+
         <component :is="hasMultipleShippingRates ? 'ul' : 'div'">
-          <component :is="hasMultipleShippingRates ? 'li' : 'div'" v-for="s, index in shippingRates" :key="s.index">
-            <hr v-if="index > 0">
-            <p><label>Price(USD) of this shipping option</label></p>
-            <input :value="s.price" type="number" step="0.01" :min="0" @input="e => updateShippingRate(e, 'price', index)">
-            <p><label>Name of this shipping option</label></p>
-            <input placeholder="Shipping option name" :value="s.nameEn" @input="e => updateShippingRate(e, 'nameEn', index)"><br>
-            <input placeholder="運送選項名稱" :value="s.nameZh" @input="e => updateShippingRate(e, 'nameZh', index)">
+          <component :is="hasMultipleShippingRates ? 'li' : 'div'" v-for="s, index in shippingRates" :key="s.index" class="space-y-2 px-5 py-4">
+            <UDivider v-if="index > 0" />
+            <UFormGroup label="Price(USD) of this shipping option">
+              <UInput :value="s.price" type="number" step="0.01" :min="0" @input="e => updateShippingRate(e, 'price', index)" />
+            </UFormGroup>
+
+            <UFormGroup label="Name of this shipping option" :ui="{ container: 'space-y-2' }">
+              <UInput placeholder="Shipping option name" :value="s.nameEn" @input="e => updateShippingRate(e, 'nameEn', index)" />
+              <UInput placeholder="運送選項名稱" :value="s.nameZh" @input="e => updateShippingRate(e, 'nameZh', index)" />
+            </UFormGroup>
           </component>
         </component>
-      </div>
-      <hr>
-      <div>
-        <h3>Connect to your own Stripe Account</h3>
-        <input v-model="isStripeConnectChecked" name="stripe" type="checkbox"><label>Use a Stripe Connect account for receiving all payment</label>
-        <br>
-        <template v-if="isStripeConnectChecked">
-          <input v-model="stripeConnectWallet" type="radio" :disabled="!(connectStatus?.isReady)" :value="ownerWallet"><span v-if="connectStatus?.isReady">Use my account</span>
-          <span v-else>
-            No stripe account connected yet.
-            <NuxtLink :to="{ name: 'nft-book-store-user' }">
-              Create one here
-            </NuxtLink>
-          </span>
-          <br>
-          <input v-model="stripeConnectWallet" type="radio" :value="stripeConnectWalletInput"> Enter a wallet address with connected account:
-          <input v-if="stripeConnectWallet !== ownerWallet" v-model="stripeConnectWalletInput" placeholder="like1..." @input="onStripeConnectWalletInput">
-        </template>
-      </div>
+      </UCard>
 
-      <h3>Other Settings</h3>
-      <p><label>Share sales data to wallets (moderator):</label></p>
-      <table>
-        <tr>
-          <td>Wallet</td>
-          <td>Send NFT grant Status</td>
-          <td>Remove</td>
-        </tr>
-        <tr v-for="m, i in moderatorWallets" :key="m">
-          <td>{{ m }}</td>
-          <td>
-            <NuxtLink :to="{ name: 'authz', query: { grantee: m } }" target="_blank">
-              <span v-if="moderatorWalletsGrants[m]">
-                Granted
-              </span>
+      <UCard
+        :ui="{
+          divide: isStripeConnectChecked ? undefined : '',
+          header: { base: 'flex flex-wrap justify-between items-center gap-2' },
+          body: { padding: isStripeConnectChecked ? undefined : '', base: 'grid lg:grid-cols-2 gap-4' }
+        }"
+      >
+        <template #header>
+          <h3 class="font-bold font-mono">
+            Connect to your own Stripe Account
+          </h3>
+          <UToggle v-model="isStripeConnectChecked" name="stripe" label="Use a Stripe Connect account for receiving all payment" />
+        </template>
+
+        <template v-if="isStripeConnectChecked">
+          <URadio v-model="stripeConnectWallet" :disabled="!(connectStatus?.isReady)" :value="classOwnerWallet?.value?.ownerWallet">
+            <template #label>
+              <span v-if="connectStatus?.isReady">Use my account</span>
               <span v-else>
-                Click to grant
+                No stripe account connected yet.<br>
+                <UButton
+                  class="mt-2"
+                  label="Create one here"
+                  :to="{ name: 'nft-book-store-user' }"
+                  target="_blank"
+                  variant="outline"
+                />
               </span>
-            </NuxtLink>
-          </td>
-          <td>
-            <button @click="()=> moderatorWallets.splice(i, 1)">
-              x
-            </button>
-          </td>
-        </tr>
-      </table>
-      <input v-model="moderatorWalletInput" placeholder="like1..."><button style="margin-left: 4px" @click="addModeratorWallet">
-        Add
-      </button>
-      <p><label>Email to receive sales notifications</label></p>
-      <ul>
-        <li v-for="e, i in notificationEmails" :key="e">
-          {{ e }}<button style="margin-left: 4px" @click="() => notificationEmails.splice(i, 1)">
-            x
-          </button>
-        </li>
-      </ul>
-      <input v-model="notificationEmailInput"><button @click="addNotificationEmail">
-        Add
-      </button>
-      <hr>
-      <button :disabled="isLoading" @click="onSubmit">
-        {{ submitButtonText }}
-      </button>
-    </section>
+            </template>
+          </URadio>
+          <URadio v-model="stripeConnectWallet" :value="stripeConnectWalletInput">
+            <template #label>
+              <UFormGroup label="Enter a wallet address with connected account">
+                <UInput
+                  v-if="stripeConnectWallet !== classOwnerWallet?.value?.ownerWallet"
+                  v-model="stripeConnectWalletInput"
+                  class="font-mono"
+                  placeholder="like1..."
+                  @input="onStripeConnectWalletInput"
+                />
+              </UFormGroup>
+            </template>
+          </URadio>
+        </template>
+      </UCard>
+
+      <UCard :ui="{ body: { base: 'space-y-8' } }">
+        <template #header>
+          <h3 class="font-bold font-mono">
+            Other Settings
+          </h3>
+        </template>
+
+        <UCard
+          :ui="{
+            header: { base: 'flex justify-between items-center' },
+            body: { padding: '', base: 'space-y-8' }
+          }"
+        >
+          <template #header>
+            <h4 class="text-sm font-bold font-mono">Share sales data to wallets</h4>
+            <div class="flex gap-2">
+              <UInput
+                v-model="moderatorWalletInput"
+                class="font-mono"
+                placeholder="like1..."
+              />
+
+              <UButton
+                label="Add"
+                :variant="moderatorWalletInput ? 'outline' : 'solid'"
+                :color="moderatorWalletInput ? 'primary' : 'gray'"
+                :disabled="!moderatorWalletInput"
+                @click="addModeratorWallet"
+              />
+            </div>
+          </template>
+
+          <UTable
+            :columns="moderatorWalletsTableColumns"
+            :rows="moderatorWalletsTableRows"
+          >
+            <template #wallet-data="{ row }">
+              <UButton
+                class="font-mono"
+                :label="row.wallet"
+                :to="row.walletLink"
+                variant="link"
+                :padded="false"
+              />
+            </template>
+            <template #authz-data="{ row }">
+              <UButton
+                :label="row.grantLabel"
+                :to="row.grantRoute"
+                :variant="row.isGranted ? 'outline' : 'solid'"
+                color="green"
+              />
+            </template>
+            <template #remove-data="{ row }">
+              <div class="flex justify-end items-center">
+                <UButton
+                  icon="i-heroicons-x-mark"
+                  variant="soft"
+                  color="red"
+                  @click="() => moderatorWallets.splice(row.index, 1)"
+                />
+              </div>
+            </template>
+          </UTable>
+        </UCard>
+
+        <UCard
+          :ui="{
+            header: { base: 'flex justify-between items-center' },
+            body: { padding: '' }
+          }"
+        >
+          <template #header>
+            <h4 class="text-sm font-bold font-mono">Email to receive sales notifications</h4>
+
+            <div class="flex gap-2">
+              <UInput
+                v-model="notificationEmailInput"
+                placeholder="abc@example.com"
+              />
+
+              <UButton
+                label="Add"
+                :variant="notificationEmailInput ? 'outline' : 'solid'"
+                :color="notificationEmailInput ? 'primary' : 'gray'"
+                :disabled="!notificationEmailInput"
+                @click="addNotificationEmail"
+              />
+            </div>
+          </template>
+
+          <UTable
+            :columns="[{ key: 'email', label: 'Email', sortable: true }, { key: 'action' }]"
+            :rows="notificationEmailsTableRows"
+          >
+            <template #email-data="{ row }">
+              <UButton
+                :label="row.email"
+                :to="`mailto:${row.email}`"
+                variant="link"
+                :padded="false"
+              />
+            </template>
+
+            <template #action-data="{ row }">
+              <div class="flex justify-end items-center">
+                <UButton
+                  icon="i-heroicons-x-mark"
+                  variant="soft"
+                  color="red"
+                  @click="() => notificationEmails.splice(row.index, 1)"
+                />
+              </div>
+            </template>
+          </UTable>
+        </UCard>
+      </UCard>
+
+      <UButton
+        :label="submitButtonText"
+        :loading="isLoading"
+        size="lg"
+        :disabled="isLoading"
+        @click="onSubmit"
+      />
+    </template>
   </div>
 </template>
 
@@ -161,6 +343,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { LCD_URL, LIKE_CO_API } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
+import { getPortfolioURL } from '~/utils'
 import { getNFTAuthzGrants } from '~/utils/cosmos'
 
 const walletStore = useWalletStore()
@@ -237,6 +420,34 @@ const pageTitle = computed(() => isEditMode.value ? 'Edit Current Edition' : 'Ne
 const submitButtonText = computed(() => isEditMode.value ? 'Save Changes' : 'Submit')
 const editionInfo = ref<any>({})
 const classOwnerWallet = ref<any>({})
+
+const moderatorWalletsTableColumns = computed(() => [
+  { key: 'wallet', label: 'Wallet', sortable: true },
+  { key: 'authz', label: 'Send NFT Grant', sortable: false },
+  { key: 'remove', label: '', sortable: false }
+])
+
+const moderatorWalletsTableRows = computed(() => moderatorWallets.value.map((wallet, index) => {
+  const isGranted = !!moderatorWalletsGrants.value[wallet]
+  return {
+    index,
+    wallet,
+    walletLink: getPortfolioURL(wallet),
+    isGranted,
+    grantLabel: isGranted ? 'Granted' : 'Grant',
+    grantRoute: {
+      name: 'authz',
+      query: {
+        grantee: wallet
+      }
+    }
+  }
+}))
+
+const notificationEmailsTableRows = computed(() => notificationEmails.value.map((email, index) => ({
+  index,
+  email
+})))
 
 config({
   markdownItConfig (mdit: any) {
@@ -317,7 +528,7 @@ watch(isLoading, (newIsLoading) => {
 })
 
 watch(moderatorWallets, (newModeratorWallets) => {
-  newModeratorWallets.forEach(async (m) => {
+  newModeratorWallets?.forEach(async (m) => {
     if (!moderatorWalletsGrants.value[m]) {
       try {
         moderatorWalletsGrants.value[m] = await getNFTAuthzGrants(wallet.value, m)
@@ -361,11 +572,13 @@ function addMoreShippingRate () {
 }
 
 function addModeratorWallet () {
+  if (!moderatorWalletInput.value) { return }
   moderatorWallets.value.push(moderatorWalletInput.value)
   moderatorWalletInput.value = ''
 }
 
 function addNotificationEmail () {
+  if (!notificationEmailInput.value) { return }
   notificationEmails.value.push(notificationEmailInput.value)
   notificationEmailInput.value = ''
 }

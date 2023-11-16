@@ -1,24 +1,44 @@
 <template>
-  <div style="display:flex; flex-wrap:wrap; justify-content: center; align-items: center; gap: 10px;">
+  <div class="flex flex-wrap items-center gap-2">
     <template v-if="wallet">
-      <span>{{ wallet }}</span>
-      <button @click="onClickDisconnect">
-        Logout
-      </button>
+      <UTooltip :text="wallet">
+        <UButton
+          class="text-xs font-mono"
+          :label="shortenWalletAddress(wallet)"
+          :to="portfolioURL"
+          variant="soft"
+          target="_blank"
+        />
+      </UTooltip>
+      <UButton
+        label="Disconnect Wallet"
+        icon="i-heroicons-arrow-left-on-rectangle"
+        color="primary"
+        variant="outline"
+        @click="onClickDisconnect"
+      />
     </template>
-    <button v-if="!wallet" @click="connect">
-      Connect
-    </button>
+    <UButton
+      v-else
+      label="Connect Wallet"
+      icon="i-heroicons-arrow-right-on-rectangle"
+      color="primary"
+      @click="connect"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useWalletStore } from '~/stores/wallet'
+import { getPortfolioURL } from '~/utils'
+import { shortenWalletAddress } from '~/utils/cosmos'
 
 const store = useWalletStore()
 const { wallet } = storeToRefs(store)
 const { connect, disconnect } = store
+
+const portfolioURL = computed(() => getPortfolioURL(wallet.value))
 
 function onClickDisconnect () {
   disconnect()

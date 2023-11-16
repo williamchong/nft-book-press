@@ -1,3 +1,5 @@
+import { LIKER_LAND_HOST } from '~/constant'
+
 export function addParamToUrl (url: string, params: { [key: string]: string }) {
   const urlObject = new URL(url)
   const urlParams = new URLSearchParams(urlObject.search)
@@ -89,4 +91,8 @@ function convertArrayOfObjectsToCSV (data: Record<string, any>[]): string {
   })
 
   return csv.join('\n')
+}
+
+export function getPortfolioURL (wallet: string) {
+  return `https://${LIKER_LAND_HOST}/${wallet}`
 }

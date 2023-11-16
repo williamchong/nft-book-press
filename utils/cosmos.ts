@@ -312,3 +312,8 @@ export async function signRevokeNFTSendAuthz (
   const res = await signingClient.revokeGenericGrant(address, grantee, '/cosmos.nft.v1beta1.MsgSend', { memo })
   return res
 }
+
+export function shortenWalletAddress (address: string) {
+  if (!address) { return '-' }
+  return `${address.slice(0, 10)}...${address.slice(-6)}`
+}

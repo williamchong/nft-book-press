@@ -1,74 +1,144 @@
 <template>
-  <div>
-    <h1>Send NFT Authz Grants management page</h1>
-    <div v-if="error" style="color: red">
-      {{ error }}
-    </div>
-    <div v-if="isLoading" style="color: green">
-      Loading...
-    </div>
-    <hr>
-    <section v-if="!wallet">
-      <h2>Connect your wallet</h2>
-      <div>
-        <button :disabled="isLoading" @click="onClickConnect">
-          Connect
-        </button>
-      </div>
-    </section>
+  <div class="space-y-4">
+    <h1 class="text-xl font-bold font-mono">Send NFT Authz Grants Management Page</h1>
+
+    <UAlert
+      v-if="error"
+      icon="i-heroicons-exclamation-triangle"
+      color="red"
+      variant="soft"
+      :title="`${error}`"
+      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      @close="error = ''"
+    />
+
+    <UProgress v-if="isLoading" animation="carousel">
+      <template #indicator>
+        Loading...
+      </template>
+    </UProgress>
+
+    <UContainer
+      v-if="!wallet"
+      class="flex justify-center items-center py-8"
+    >
+      <UCard :ui="{ body: { base: 'flex justify-center items-center' } }">
+        <template #header>
+          <h2 class="font-bold font-mono">Connect your wallet</h2>
+        </template>
+
+        <UButton
+          label="Connect"
+          :loading="isLoading"
+          :disabled="isLoading"
+          @click="onClickConnect"
+        />
+      </UCard>
+    </UContainer>
+
     <template v-else>
-      <h2>*Warning*</h2>
-      <p style="color: red">
-        Granting other wallet send NFT authz permission allows them to send away *ANY* NFT you own, not limited to NFT books or NFT you created.
-      </p>
-      <p style="color: red">
-        Use with CAUTION and ONLY grant to those you absolutely trust!
-      </p>
-      <hr>
-      <h2>Current grants</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Wallet</th>
-            <th>Expiration</th>
-            <th>Renew</th>
-            <th>Revoke</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="grant in grants" :key="grant.grantee">
-            <td>{{ grant.grantee }}</td>
-            <td>{{ new Date(grant.expiration.seconds.toNumber() * 1000) }}</td>
-            <td>
-              <button @click="onClickRenewGrant(grant.grantee)">
-                Renew
-              </button>
-            </td>
-            <td>
-              <button @click="onClickRevokeGrant(grant.grantee)">
-                Revoke
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <hr>
-      <h2>Grant new send NFT authz</h2>
-      <input v-model="newGrantee" placeholder="like1...">
-      <button :disabled="isLoading" @click="onNewGrant()">
-        Submit
-      </button>
+      <UAlert
+        icon="i-heroicons-exclamation-triangle"
+        color="amber"
+        variant="soft"
+        title="Warning"
+        :ui="{ title: 'font-bold font-mono', description: 'leading-5' }"
+      >
+        <template #description>
+          Granting other wallet send NFT Authz permission allows them to send away <b>ANY</b> NFT you own,
+          not limited to NFT books or NFT you created. Use with <b>CAUTION</b> and <b>ONLY</b> grant to those you absolutely trust!
+        </template>
+      </UAlert>
+
+      <UCard>
+        <template #header>
+          <h2 class="font-bold font-mono">Current Grants</h2>
+        </template>
+
+        <UCard :ui="{ body: { padding: '' } }">
+          <UTable
+            :columns="[
+              {
+                key: 'wallet',
+                label: 'Wallet',
+                sortable: true
+              },
+              {
+                key: 'expiration',
+                label: 'Expiration',
+                sortable: true
+              },
+              { key: 'actions' },
+            ]"
+            :rows="tableRows"
+            :sort="{ column: 'expiration', direction: 'desc' }"
+          >
+            <template #wallet-data="{ row }">
+              <UTooltip :text="row.wallet">
+                <UButton
+                  class="font-mono"
+                  :label="row.shortenWallet"
+                  :to="getPortfolioURL(row.wallet)"
+                  variant="link"
+                  :padded="false"
+                  size="xs"
+                  target="_blank"
+                />
+              </UTooltip>
+            </template>
+            <template #actions-data="{ row }">
+              <div class="flex items-center gap-2">
+                <UButton
+                  label="Renew"
+                  variant="outline"
+                  :disabled="isLoading"
+                  @click="onClickRenewGrant(row.wallet)"
+                />
+                <UButton
+                  label="Revoke"
+                  variant="outline"
+                  :disabled="isLoading"
+                  @click="onClickRevokeGrant(row.wallet)"
+                />
+              </div>
+            </template>
+          </UTable>
+        </UCard>
+      </UCard>
+
+      <UCard>
+        <template #header>
+          <h2 class="font-bold font-mono">Grant new send NFT Authz</h2>
+        </template>
+
+        <UInput
+          v-model="newGrantee"
+          class="font-mono"
+          placeholder="like1..."
+        />
+
+        <template #footer>
+          <UButton
+            label="Submit"
+            :loading="isLoading"
+            :disabled="!newGrantee || isLoading"
+            @click="onNewGrant()"
+          />
+        </template>
+      </UCard>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { getPortfolioURL } from '~/utils'
 import { useWalletStore } from '~/stores/wallet'
 import {
   getNFTAuthzGranterGrants,
   signGrantNFTSendAuthz,
-  signRevokeNFTSendAuthz
+  signRevokeNFTSendAuthz,
+  shortenWalletAddress
 } from '~/utils/cosmos'
 
 const walletStore = useWalletStore()
@@ -80,6 +150,12 @@ const error = ref('')
 const newGrantee = ref(route.query.grantee as string || '')
 const grants = ref([] as any)
 const isLoading = ref(false)
+
+const tableRows = computed(() => grants.value.map((grant: any) => ({
+  wallet: grant.grantee,
+  shortenWallet: shortenWalletAddress(grant.grantee),
+  expiration: new Date(grant.expiration.seconds.toNumber() * 1000)
+})))
 
 watch(wallet, async (wallet) => {
   if (wallet) {
@@ -154,11 +230,3 @@ async function onClickConnect () {
 }
 
 </script>
-<style>
-table,
-th,
-td {
-  border: 1px solid black;
-  border-collapse: collapse;
-}
-</style>

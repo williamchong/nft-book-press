@@ -1,23 +1,27 @@
 <template>
-  <div>
-    <h1>NFT Book Store management page</h1>
-    <div v-if="error" style="color: red">
-      {{ error }}
-    </div>
-    <div v-if="isLoading" style="color: green">
-      Loading...
-    </div>
-    <hr>
-    <section v-if="!bookStoreApiStore.isAuthenticated">
-      <h2>Verify your wallet address</h2>
-      <div>
-        <button :disabled="isLoading" @click="onClickAuth">
-          Sign
-        </button>
-      </div>
-    </section>
+  <main :key="route.path">
+    <h1 class="text-xl font-bold font-mono mb-4">NFT Book Store Management Page</h1>
+
+    <UContainer
+      v-if="!bookStoreApiStore.isAuthenticated"
+      class="flex justify-center items-center py-8"
+    >
+      <UCard :ui="{ body: { base: 'flex justify-center items-center' } }">
+        <template #header>
+          <h2 class="font-bold font-mono">Verify your wallet address</h2>
+        </template>
+
+        <UButton
+          label="Sign"
+          :loading="isLoading"
+          :disabled="isLoading"
+          @click="onClickAuth"
+        />
+      </UCard>
+    </UContainer>
+
     <NuxtPage v-else />
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">
@@ -25,12 +29,15 @@ import { storeToRefs } from 'pinia'
 import { useWalletStore } from '~/stores/wallet'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 
+const route = useRoute()
+
 const walletStore = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
 const { wallet, signer } = storeToRefs(walletStore)
 const { connect, signMessageMemo } = walletStore
 const { authenticate, restoreSession } = bookStoreApiStore
 const { token, wallet: sessionWallet } = storeToRefs(bookStoreApiStore)
+const toast = useToast()
 
 const error = ref('')
 const isLoading = ref(false)
@@ -64,14 +71,22 @@ async function onClickAuth () {
     } catch (err) {}
   } catch (err) {
     console.error(err)
-    error.value = (err as Error).toString()
+    toast.add({
+      icon: 'i-heroicons-exclamation-circle',
+      title: (err as Error).toString(),
+      timeout: 0,
+      color: 'red',
+      ui: {
+        title: 'text-red-400 dark:text-red-400'
+      }
+    })
   } finally {
     isLoading.value = false
   }
 }
 
 </script>
-<style>
+<style scoped>
 table, th, td {
   border: 1px solid black;
   border-collapse: collapse;

@@ -1,16 +1,34 @@
 <template>
-  <div>
+  <UCard
+    :ui="{
+      body: { padding: '' },
+      footer: { base: 'flex items-center gap-2' }
+    }"
+  >
     <div id="qr-code" ref="qrCodeRef" />
-    <label>
-      <select v-model="extension">
-        <option value="svg">SVG</option>
-        <option value="png">PNG</option>
-        <option value="jpeg">JPEG</option>
-        <option value="webp">WEBP</option>
-      </select>
-      <button @click="download">Download</button>
-    </label>
-  </div>
+    <template #header>
+      <slot name="header" />
+    </template>
+
+    <template #footer>
+      <USelect
+        v-model="extension"
+        :options="[
+          { value: 'svg', label: 'SVG' },
+          { value: 'png', label: 'PNG' },
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'webp', label: 'WEBP' },
+        ]"
+      />
+
+      <UButton
+        label="Download"
+        variant="outline"
+        color="primary"
+        @click="download"
+      />
+    </template>
+  </UCard>
 </template>
 
 <script setup lang="ts">
