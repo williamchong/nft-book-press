@@ -289,6 +289,30 @@
           </h3>
         </template>
 
+        <div class="grid md:grid-cols-2 gap-4">
+          <UFormGroup
+            label="Force NFT claim before view"
+            :ui="{ label: { base: 'font-mono font-bold' } }"
+          >
+            <UCheckbox
+              v-model="mustClaimToView"
+              name="mustClaimToView"
+              label="Must claim NFT to view"
+            />
+          </UFormGroup>
+
+          <UFormGroup
+            label="Disable file download for PDF"
+            :ui="{ label: { base: 'font-mono font-bold' } }"
+          >
+            <UCheckbox
+              v-model="hideDownload"
+              name="hideDownload"
+              label="Disable Download"
+            />
+          </UFormGroup>
+        </div>
+
         <UCard
           :ui="{
             header: { base: 'flex justify-between items-center' },
@@ -537,6 +561,8 @@ const notificationEmailInput = ref('')
 const isStripeConnectChecked = ref(false)
 const stripeConnectWallet = ref('')
 const stripeConnectWalletInput = ref('')
+const mustClaimToView = ref(false)
+const hideDownload = ref(false)
 
 const nftClassName = computed(() => nftStore.getClassMetadataById(classId.value as string)?.name)
 const ownerWallet = computed(() => classListingInfo?.value?.ownerWallet)
@@ -810,7 +836,9 @@ onMounted(async () => {
     const {
       moderatorWallets: classModeratorWallets,
       notificationEmails: classNotificationEmails,
-      connectedWallets: classConnectedWallets
+      connectedWallets: classConnectedWallets,
+      mustClaimToView: classMustClaimToView,
+      hideDownload: classHideDownload
     } = classData.value as any
     moderatorWallets.value = classModeratorWallets
     notificationEmails.value = classNotificationEmails
@@ -819,6 +847,8 @@ onMounted(async () => {
     if (stripeConnectWallet.value !== ownerWallet.value) {
       stripeConnectWalletInput.value = stripeConnectWallet.value
     }
+    mustClaimToView.value = classMustClaimToView
+    hideDownload.value = classHideDownload
     const { data: orders, error: fetchOrdersError } = await useFetch(`${LIKE_CO_API}/likernft/book/purchase/${classId.value}/orders`,
       {
         headers: {
@@ -959,7 +989,9 @@ async function updateSettings () {
     await updateBookListingSetting(classId.value as string, {
       moderatorWallets,
       notificationEmails,
-      connectedWallets
+      connectedWallets,
+      hideDownload,
+      mustClaimToView
     })
   } catch (err) {
     const errorData = (err as any).data || err

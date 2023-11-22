@@ -221,6 +221,30 @@
           </h3>
         </template>
 
+        <div class="grid md:grid-cols-2 gap-4">
+          <UFormGroup
+            label="Force NFT claim before view"
+            :ui="{ label: { base: 'font-mono font-bold' } }"
+          >
+            <UCheckbox
+              v-model="mustClaimToView"
+              name="mustClaimToView"
+              label="Must claim NFT to view"
+            />
+          </UFormGroup>
+
+          <UFormGroup
+            label="Disable file download for PDF"
+            :ui="{ label: { base: 'font-mono font-bold' } }"
+          >
+            <UCheckbox
+              v-model="hideDownload"
+              name="hideDownload"
+              label="Disable Download"
+            />
+          </UFormGroup>
+        </div>
+
         <UCard
           :ui="{
             header: { base: 'flex justify-between items-center' },
@@ -387,6 +411,8 @@ const mdEditorPlaceholder = ref({
 const classIdInput = ref(classId || '')
 const nextPriceIndex = ref(1)
 const defaultPaymentCurrency = ref('USD')
+const mustClaimToView = ref(false)
+const hideDownload = ref(false)
 const prices = ref<any[]>([{
   price: MINIMAL_PRICE,
   stock: Number(route.query.count as string || 1),
@@ -516,13 +542,17 @@ onMounted(async () => {
         moderatorWallets: classModeratorWallets,
         notificationEmails: classNotificationEmails,
         connectedWallets: classConnectedWallets,
-        defaultPaymentCurrency: classDefaultPaymentCurrency
+        defaultPaymentCurrency: classDefaultPaymentCurrency,
+        mustClaimToView: classMustClaimToView,
+        hideDownload: classHideDownload
       } = data as any
       moderatorWallets.value = classModeratorWallets
       notificationEmails.value = classNotificationEmails
       isStripeConnectChecked.value = !!(classConnectedWallets && Object.keys(classConnectedWallets).length)
       stripeConnectWallet.value = classConnectedWallets && Object.keys(classConnectedWallets)[0]
       if (classDefaultPaymentCurrency) { defaultPaymentCurrency.value = classDefaultPaymentCurrency }
+      mustClaimToView.value = classMustClaimToView
+      hideDownload.value = classHideDownload
     }
 
     if (connectStatusData.error?.value && connectStatusData.error?.value?.statusCode !== 404) {
@@ -688,7 +718,9 @@ async function submitNewClass () {
       moderatorWallets,
       notificationEmails,
       prices: p,
-      shippingRates: s
+      shippingRates: s,
+      mustClaimToView,
+      hideDownload
     })
     router.push({ name: 'nft-book-store' })
   } catch (err) {
