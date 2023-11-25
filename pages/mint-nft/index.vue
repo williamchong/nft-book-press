@@ -1,12 +1,11 @@
 <template>
-  <div>
+  <main class="space-y-4">
     <h1 class="text-xl font-bold font-mono">
       Mint LikeCoin NFT/NFT Book
     </h1>
 
     <UAlert
       v-if="error"
-      class="mt-4"
       icon="i-heroicons-exclamation-triangle"
       color="red"
       variant="soft"
@@ -15,16 +14,22 @@
       @close="error = ''"
     />
 
-    <UDivider class="my-4" :label="`Steps ${step} / 4`" />
+    <UDivider :label="`Steps ${step} / 4`" />
 
-    <UCard v-if="step === 1">
+    <UCard
+      v-if="step === 1"
+      :ui="{ body: { base: 'space-y-4' } }"
+    >
       <template #header>
         <h2 class="font-bold font-mono">
           1. Select or Create ISCN
         </h2>
       </template>
 
-      <UCard v-if="!iscnCreateData">
+      <UCard
+        v-if="!iscnCreateData"
+        :ui="{ body: { base: 'space-y-4' } }"
+      >
         <UFormGroup label="Enter ISCN ID or NFT Class ID">
           <UInput
             v-model="iscnIdInput"
@@ -34,7 +39,6 @@
         </UFormGroup>
 
         <UButton
-          class="mt-4"
           type="submit"
           label="Submit"
           :disabled="isLoading || !(iscnIdInput)"
@@ -42,9 +46,9 @@
         />
       </UCard>
 
-      <UDivider class="my-4" label="OR" />
+      <UDivider label="OR" />
 
-      <UCard>
+      <UCard :ui="{ body: { base: 'space-y-4' } }">
         <UFormGroup>
           <template #label>
             Upload ISCN data json file
@@ -78,19 +82,21 @@
           </template>
         </UAlert>
 
-        <UTextarea v-if="iscnCreateData" class="mt-4" cols="100" rows="10" readonly>
+        <UTextarea v-if="iscnCreateData" cols="100" rows="10" readonly>
           {{ JSON.stringify(iscnCreateData, null, 2) }}
         </UTextarea>
 
         <UButton
-          class="mt-4"
           label="Create"
           :disabled="isLoading || !(iscnCreateData)"
           @click="onISCNFileInput"
         />
       </UCard>
     </UCard>
-    <UCard v-else-if="step > 1" class="mb-4">
+    <UCard
+      v-else-if="step > 1"
+      :ui="{ body: { base: 'space-y-4' } }"
+    >
       <template #header>
         <h2 class="font-bold font-mono">
           ISCN Information
@@ -108,7 +114,7 @@
         />
       </UFormGroup>
 
-      <UFormGroup class="mt-4" label="ISCN Owner">
+      <UFormGroup label="ISCN Owner">
         <UButton
           :label="iscnOwner"
           :to="`${likerLandURL}/${encodeURIComponent(iscnOwner)}`"
@@ -118,7 +124,7 @@
         />
       </UFormGroup>
 
-      <UFormGroup class="mt-4" label="ISCN Title">
+      <UFormGroup label="ISCN Title">
         <UInput
           :value="iscnData?.contentMetadata?.name"
           :readonly="true"
@@ -128,7 +134,10 @@
       </UFormGroup>
     </UCard>
 
-    <UCard v-if="step === 2">
+    <UCard
+      v-if="step === 2"
+      :ui="{ body: { base: 'space-y-4' } }"
+    >
       <template #header>
         <h2 class="font-bold font-mono">
           2. Create NFT Class
@@ -143,7 +152,7 @@
         ]"
       >
         <template #upload>
-          <UCard>
+          <UCard :ui="{ body: { base: 'space-y-4' } }">
             <template #header>
               <h3 class="font-bold">
                 Mint NFT by uploading data files
@@ -158,7 +167,7 @@
               />
             </UFormGroup>
 
-            <UFormGroup class="mt-4" label="Number of NFT to mint:">
+            <UFormGroup label="Number of NFT to mint:">
               <UInput
                 v-model="nftMintCount"
                 type="number"
@@ -167,7 +176,7 @@
               />
             </UFormGroup>
 
-            <UFormGroup class="mt-4">
+            <UFormGroup>
               <template #label>
                 Upload NFT Class data JSON file (<UButton
                   label="nft_class.json"
@@ -183,7 +192,7 @@
               </UTextarea>
             </UFormGroup>
 
-            <UFormGroup class="mt-4">
+            <UFormGroup>
               <template #label>
                 Upload NFT default data JSON file<br>(<UButton
                   label="nfts_default.json"
@@ -199,7 +208,7 @@
               </UTextarea>
             </UFormGroup>
 
-            <UFormGroup class="mt-4">
+            <UFormGroup>
               <template #label>
                 Upload NFT CSV file (<UButton
                   label="nfts.csv"
@@ -212,7 +221,7 @@
               <UInput type="file" @change="onMintNFTFileChange" />
             </UFormGroup>
 
-            <UAlert v-if="nftMintListData?.length" class="mt-4">
+            <UAlert v-if="nftMintListData?.length">
               Number of NFT data in CSV: {{ nftMintListData?.length }}
             </UAlert>
 
@@ -233,56 +242,62 @@
         </template>
 
         <template #input>
-          <UCard class="flex-1">
+          <UCard
+            class="flex-1"
+            :ui="{ body: { base: 'space-y-4' } }"
+          >
             <template #header>
               <h3 class="font-bold">
                 Mint NFT by filling required information
               </h3>
             </template>
 
-            <div class="flex flex-col gap-2">
-              <UFormGroup label="NFT ID Prefix:">
-                <UInput v-model="nftIdPrefix" placeholder="English only ex.MoneyVerse" />
-              </UFormGroup>
-              <UFormGroup class="mt-4" label="Number of NFT to mint:">
-                <UInput
-                  v-model="nftMintCount"
-                  placeholder="0-100"
-                  type="number"
-                  :min="0"
-                  :max="classMaxSupply"
+            <UFormGroup label="NFT ID Prefix:">
+              <UInput v-model="nftIdPrefix" placeholder="English only ex.MoneyVerse" />
+            </UFormGroup>
+
+            <UFormGroup label="Number of NFT to mint:">
+              <UInput
+                v-model="nftMintCount"
+                placeholder="0-100"
+                type="number"
+                :min="0"
+                :max="classMaxSupply"
+              />
+            </UFormGroup>
+
+            <UFormGroup label="Image URL:">
+              <UInput v-model="imageUrl" placeholder="ipfs:// ... or ar://...." />
+            </UFormGroup>
+
+            <UFormGroup label="External URL (optional):">
+              <UInput v-model="externalUrl" placeholder="https://" />
+            </UFormGroup>
+
+            <UFormGroup label="URI (optional):">
+              <UInput v-model="uri" placeholder="https://" />
+            </UFormGroup>
+
+            <UFormGroup label="Max number of supply for this NFT Class (optional):">
+              <template
+                v-if="classMaxSupply && classMaxSupply < nftMintCount"
+                #help
+              >
+                <UAlert
+                  class="mt-1"
+                  icon="i-heroicons-exclamation-triangle"
+                  title="Should be more than number of NFT to mint"
+                  color="red"
+                  variant="subtle"
                 />
-              </UFormGroup>
-              <UFormGroup class="mt-4" label="Image URL:">
-                <UInput v-model="imageUrl" placeholder="ipfs:// ... or ar://...." />
-              </UFormGroup>
-              <UFormGroup class="mt-4" label="External URL (optional):">
-                <UInput v-model="externalUrl" placeholder="https://" />
-              </UFormGroup>
-              <UFormGroup class="mt-4" label="URI (optional):">
-                <UInput v-model="uri" placeholder="https://" />
-              </UFormGroup>
-              <UFormGroup class="mt-4" label="Max number of supply for this NFT Class (optional):">
-                <template
-                  v-if="classMaxSupply && classMaxSupply < nftMintCount"
-                  #help
-                >
-                  <UAlert
-                    class="mt-1"
-                    icon="i-heroicons-exclamation-triangle"
-                    title="Should be more than number of NFT to mint"
-                    color="red"
-                    variant="subtle"
-                  />
-                </template>
-                <UInput
-                  v-model="classMaxSupply"
-                  type="number"
-                  :min="nftMintCount"
-                  :placeholder="`> ${nftMintCount}`"
-                />
-              </UFormGroup>
-            </div>
+              </template>
+              <UInput
+                v-model="classMaxSupply"
+                type="number"
+                :min="nftMintCount"
+                :placeholder="`> ${nftMintCount}`"
+              />
+            </UFormGroup>
 
             <template #footer>
               <UButton
@@ -372,7 +387,7 @@
         Loading...
       </template>
     </UProgress>
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">
@@ -754,22 +769,3 @@ function onDownloadNftsCSV (e?: Event) {
 }
 
 </script>
-<style scoped>
- input {
-  display: block;
-  width: 250px;
-  margin-bottom: 8px;
-}
-.button{
-  margin-top: 16px;
-  font-size: 16px;
-  min-width: 68px;
-  background-color: wheat;
-  cursor: pointer;
-}
-.container{
-  border: 1px solid gray;
-  padding: 6px;
-  border-radius: 4px;
-}
-</style>
