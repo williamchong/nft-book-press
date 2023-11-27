@@ -68,7 +68,10 @@ async function onClickAuth () {
       await connect()
     }
     if (!wallet.value || !signer.value) { return }
-    const signature = await signMessageMemo('authorize', ['read:nftbook', 'write:nftbook'])
+    const signature = await signMessageMemo(
+      'authorize',
+      ['read:nftbook', 'write:nftbook', 'read:nftcollection', 'write:nftcollection']
+    )
     await authenticate(wallet.value, signature)
     try {
       window.sessionStorage.setItem('likecoin_nft_book_press_token', JSON.stringify({ wallet: sessionWallet.value, token: token.value }))

@@ -90,6 +90,78 @@ export const useBookStoreApiStore = defineStore('book-api', () => {
     return data
   }
 
+  async function listNFTBookCollections () {
+    const { error, data } = await useFetch(`${LIKE_CO_API}/likernft/collections`, {
+      query: {
+        wallet: sessionWallet.value
+      },
+      headers: token.value
+        ? {
+            authorization: `Bearer ${token.value}`
+          }
+        : undefined
+    })
+    if (error.value) {
+      throw error.value
+    }
+    return data
+  }
+
+  async function getNFTBookCollectionById (collectionId: string) {
+    const { error, data } = await useFetch(`${LIKE_CO_API}/likernft/collections/${collectionId}`, {
+      headers: token.value
+        ? {
+            authorization: `Bearer ${token.value}`
+          }
+        : undefined
+    })
+    if (error.value) {
+      throw error.value
+    }
+    return data
+  }
+
+  async function newNFTBookCollection (payload: any) {
+    const { error, data } = await useFetch(`${LIKE_CO_API}/likernft/collections`, {
+      method: 'POST',
+      body: { type: 'book', ...payload },
+      headers: {
+        authorization: `Bearer ${token.value}`
+      }
+    })
+    if (error.value) {
+      throw error.value
+    }
+    return data
+  }
+
+  async function updateNFTBookCollectionById (collectionId: string, payload: any) {
+    const { error, data } = await useFetch(`${LIKE_CO_API}/likernft/collections/${collectionId}`, {
+      method: 'PATCH',
+      body: payload,
+      headers: {
+        authorization: `Bearer ${token.value}`
+      }
+    })
+    if (error.value) {
+      throw error.value
+    }
+    return data
+  }
+
+  async function deleteNFTBookCollectionById (collectionId: string) {
+    const { error, data } = await useFetch(`${LIKE_CO_API}/likernft/collections/${collectionId}`, {
+      method: 'DELETE',
+      headers: {
+        authorization: `Bearer ${token.value}`
+      }
+    })
+    if (error.value) {
+      throw error.value
+    }
+    return data
+  }
+
   return {
     token,
     wallet: sessionWallet,
@@ -99,6 +171,11 @@ export const useBookStoreApiStore = defineStore('book-api', () => {
     newBookListing,
     updateBookListingSetting,
     updateEditionPrice,
-    addEditionPrice
+    addEditionPrice,
+    listNFTBookCollections,
+    getNFTBookCollectionById,
+    newNFTBookCollection,
+    updateNFTBookCollectionById,
+    deleteNFTBookCollectionById
   }
 })
