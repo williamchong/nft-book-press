@@ -25,6 +25,7 @@ export function downloadBlob (content: string, filename: string, contentType: st
 }
 
 export function parseImageURLFromMetadata (image: string): string {
+  if (!image) { return '' }
   return image.replace('ar://', 'https://arweave.net/').replace('ipfs://', 'https://ipfs.io/ipfs/')
 }
 

@@ -53,13 +53,13 @@
 </template>
 
 <script setup lang="ts">
-import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useNftStore } from '~/stores/nft'
+import { useCollectionStore } from '~/stores/collection'
 
 const router = useRouter()
-const bookStoreApiStore = useBookStoreApiStore()
 const nftStore = useNftStore()
-const { listNFTBookCollections } = bookStoreApiStore
+const collectionStore = useCollectionStore()
+const { listNFTBookCollections } = collectionStore
 const { getClassMetadataById, lazyFetchClassMetadataById } = nftStore
 
 const error = ref('')

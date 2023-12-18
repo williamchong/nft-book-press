@@ -344,13 +344,15 @@ import { useWalletStore } from '~/stores/wallet'
 import { useNftStore } from '~/stores/nft'
 import { getPortfolioURL } from '~/utils'
 import { getNFTAuthzGrants } from '~/utils/cosmos'
+import { useCollectionStore } from '~/stores/collection'
 
 const walletStore = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
+const collectionStore = useCollectionStore()
 const nftStore = useNftStore()
 const { wallet } = storeToRefs(walletStore)
 const { token } = storeToRefs(bookStoreApiStore)
-const { newNFTBookCollection } = bookStoreApiStore
+const { newNFTBookCollection } = collectionStore
 const { getClassMetadataById, lazyFetchClassMetadataById } = nftStore
 
 const router = useRouter()
