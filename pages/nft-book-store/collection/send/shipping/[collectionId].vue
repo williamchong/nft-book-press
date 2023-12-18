@@ -1,0 +1,194 @@
+<template>
+  <main class="space-y-4">
+    <h1 class="text-lg font-bold font-mono">
+      NFT Book Collection Physical Good shipping status "{{ collectionName || collectionId }}"
+    </h1>
+
+    <UAlert
+      v-if="error"
+      icon="i-heroicons-exclamation-triangle"
+      color="red"
+      variant="soft"
+      :title="`${error}`"
+      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      @close="error = ''"
+    />
+
+    <UProgress v-if="isLoading" animation="carousel">
+      <template #indicator>
+        Loading...
+      </template>
+    </UProgress>
+
+    <UCard v-if="bookStoreApiStore.isAuthenticated">
+      <template #header>
+        <h3 class="font-bold font-mono">
+          Order status
+        </h3>
+      </template>
+
+      <UCard :ui="{ body: { padding: '' } }">
+        <table class="divide-y w-full">
+          <tr>
+            <th class="text-left px-4 py-3">
+              Buyer Email
+            </th><td class="text-left px-4 py-3">
+              {{ orderInfo.email }}
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left px-4 py-3">
+              Shipping Status
+            </th><td class="text-left px-4 py-3">
+              {{ orderInfo.shippingStatus }}
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left px-4 py-3">
+              Shipping cost paid
+            </th><td class="text-left px-4 py-3">
+              {{ orderInfo.shippingCost }}
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left px-4 py-3">
+              Buyer Wallet
+            </th><td class="text-left px-4 py-3">
+              {{ orderInfo.wallet }}
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left px-4 py-3">
+              Price
+            </th><td class="text-left px-4 py-3">
+              {{ orderInfo.price }}
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left px-4 py-3">
+              Buyer message
+            </th><td class="text-left px-4 py-3">
+              {{ orderInfo.message }}
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left px-4 py-3">
+              Sales channel
+            </th><td class="text-left px-4 py-3">
+              {{ orderInfo.from }}
+            </td>
+          </tr>
+        </table>
+      </UCard>
+
+      <UCard v-if="orderInfo.shippingDetails?.address">
+        <template #header>
+          <h3 class="text-sm font-bold font-mono">
+            Shipping Details
+          </h3>
+        </template>
+        <table class="divide-y w-full">
+          <tr v-for="[key, value] in Object.entries(orderInfo.shippingDetails?.address)" :key="key">
+            <td class="text-left px-4 py-3">
+              {{ key }}
+            </td>
+            <td class="text-left px-4 py-3">
+              {{ value }}
+            </td>
+          </tr>
+        </table>
+      </UCard>
+
+      <template #footer>
+        <UFormGroup label="Enter shipping information and message emailed to buyer">
+          <UTextarea v-model="message" placeholder="shipping tracking ID, ETA..." />
+        </UFormGroup>
+        <UButton
+          label="Set as Shipped and send email"
+          :disabled="isSendButtonDisabled"
+          @click="onSetShipped"
+        />
+      </template>
+    </UCard>
+  </main>
+</template>
+
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { LIKE_CO_API } from '~/constant'
+import { useBookStoreApiStore } from '~/stores/book-store-api'
+import { useCollectionStore } from '~/stores/collection'
+
+const bookStoreApiStore = useBookStoreApiStore()
+const { token } = storeToRefs(bookStoreApiStore)
+
+const collectionStore = useCollectionStore()
+const { lazyFetchCollectionById } = collectionStore
+
+const route = useRoute()
+const router = useRouter()
+
+const error = ref('')
+const isLoading = ref(false)
+const collectionId = ref(route.params.collectionId as string)
+const paymentId = ref(route.query.payment_id as string)
+const message = ref('')
+const orderInfo = ref<any>({})
+
+const collectionName = computed(() => collectionStore.getCollectionById(collectionId.value as string)?.name)
+const isSendButtonDisabled = computed(() => !message.value || isLoading.value)
+
+watch(isLoading, (newIsLoading) => {
+  if (newIsLoading) { error.value = '' }
+})
+
+onMounted(async () => {
+  const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/collection/purchase/${collectionId.value}/status/${paymentId.value}`,
+    {
+      headers: {
+        authorization: `Bearer ${token.value}`
+      }
+    })
+  if (fetchError.value) {
+    if (fetchError.value.statusCode === 403) {
+      error.value = 'NOT_OWNER_OF_NFT_CLASS'
+    } else {
+      error.value = fetchError.value.toString()
+    }
+  } else {
+    orderInfo.value = (data.value as any)
+  }
+  lazyFetchCollectionById(collectionId.value as string)
+})
+
+async function onSetShipped () {
+  if (isSendButtonDisabled.value) { return }
+  try {
+    isLoading.value = true
+
+    const { error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/collection/purchase/${collectionId.value}/shipping/sent/${paymentId.value}`,
+      {
+        method: 'POST',
+        body: { message: message.value },
+        headers: {
+          authorization: `Bearer ${token.value}`
+        }
+      })
+    if (fetchError.value) {
+      throw fetchError.value
+    }
+    router.push({
+      name: 'nft-book-store-collection-status-collectionId',
+      params: {
+        collectionId: collectionId.value
+      }
+    })
+  } catch (err) {
+    console.error(err)
+    error.value = (err as Error).toString()
+  } finally {
+    isLoading.value = false
+  }
+}
+
+</script>
