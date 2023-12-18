@@ -1,7 +1,7 @@
 <template>
   <main class="space-y-4">
     <h1 class="text-lg font-bold font-mono">
-      Deliver NFT Book "{{ nftClassName || classId }}"
+      Deliver NFT Book Collection "{{ collectionName || collectionId }}"
     </h1>
 
     <UAlert
@@ -52,13 +52,6 @@
           </tr>
           <tr>
             <th class="text-left px-4 py-3">
-              Price Name
-            </th><td class="px-4 py-3">
-              {{ orderInfo.priceName }}
-            </td>
-          </tr>
-          <tr>
-            <th class="text-left px-4 py-3">
               Price
             </th><td class="px-4 py-3">
               {{ orderInfo.price }}
@@ -89,42 +82,46 @@
         label="Specify NFT ID"
         :error="nftIdError"
       >
-        <div class="flex flex-wrap items-center justify-center gap-2">
-          <UInput
-            ref="nftIdInputRef"
-            v-model="nftId"
-            class="font-mono flex-grow"
-            :readonly="!isEditingNFTId"
-            :disabled="!isEditingNFTId"
-            placeholder="Leave empty to auto-fetch NFT ID"
-            :trailing-icon="nftIdError ? 'i-heroicons-exclamation-triangle-20-solid' : undefined"
-          />
-          <UButton
-            :label="isEditingNFTId || (isVerifyingNFTId && !isAutoFetchingNFTId) ? 'Confirm' : 'Edit'"
-            :disabled="isLoading || isVerifyingNFTId"
-            variant="outline"
-            :loading="isVerifyingNFTId && !isAutoFetchingNFTId"
-            color="gray"
-            @click="handleClickEditNFTId"
-          />
-          <UDivider class="text-sm text-gray-600 sm:w-min">OR</UDivider>
-          <UButton
-            label="Auto-fetch NFT ID"
-            :disabled="isLoading || isEditingNFTId"
-            :loading="isAutoFetchingNFTId"
-            variant="outline"
-            @click="fetchNextNFTId"
-          />
+        <div v-for="(classId, index) in classIds" :key="classId">
+          <label>{{ getNftClassName(classId) + ': ' + classId }}</label>
+          <div class="flex flex-wrap items-center justify-center gap-2">
+            <UInput
+              ref="nftIdInputRef"
+              v-model="nftIds[index]"
+              class="font-mono flex-grow"
+              :readonly="!isEditingNFTId"
+              :disabled="!isEditingNFTId"
+              placeholder="Leave empty to auto-fetch NFT ID"
+              :trailing-icon="nftIdError ? 'i-heroicons-exclamation-triangle-20-solid' : undefined"
+            />
+            <UButton
+              :label="isEditingNFTId || (isVerifyingNFTId && !isAutoFetchingNFTId) ? 'Confirm' : 'Edit'"
+              :disabled="isLoading || isVerifyingNFTId"
+              variant="outline"
+              :loading="isVerifyingNFTId && !isAutoFetchingNFTId"
+              color="gray"
+              @click="handleClickEditNFTId"
+            />
+            <UDivider class="text-sm text-gray-600 sm:w-min">
+              OR
+            </UDivider>
+            <UButton
+              label="Auto-fetch NFT ID"
+              :disabled="isLoading || isEditingNFTId"
+              :loading="isAutoFetchingNFTId"
+              variant="outline"
+              @click="fetchNextNFTId"
+            />
+          </div>
+          <PlaceholderCard class="h-[300px]">
+            <img
+              v-if="nftImages[index]"
+              class="max-w-[180px] w-full h-full object-contain"
+              :src="nftImages[index]"
+            >
+          </PlaceholderCard>
         </div>
       </UFormGroup>
-
-      <PlaceholderCard class="h-[300px]">
-        <img
-          v-if="nftImage"
-          class="max-w-[180px] w-full h-full object-contain"
-          :src="nftImage"
-        >
-      </PlaceholderCard>
 
       <template #footer>
         <UButton
@@ -145,8 +142,9 @@ import { LIKE_CO_API, LCD_URL } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
 import { useNftStore } from '~/stores/nft'
+import { useCollectionStore } from '~/stores/collection'
 import { parseImageURLFromMetadata } from '~/utils'
-import { signExecNFTSendAuthz, signSendNFT } from '~/utils/cosmos'
+import { getNFTs, getNFTOwner, signExecNFTSendAuthz, signSendNFTs } from '~/utils/cosmos'
 
 const store = useWalletStore()
 const { wallet, signer } = storeToRefs(store)
@@ -156,19 +154,21 @@ const bookStoreApiStore = useBookStoreApiStore()
 const { token } = storeToRefs(bookStoreApiStore)
 
 const nftStore = useNftStore()
+const collectionStore = useCollectionStore()
 const { lazyFetchClassMetadataById } = nftStore
+const { lazyFetchCollectionById } = collectionStore
 
 const route = useRoute()
 const router = useRouter()
 
 const error = ref('')
 const isLoading = ref(false)
-const classId = ref(route.params.classId as string)
+const collectionId = ref(route.params.collectionId as string)
 const paymentId = ref(route.query.payment_id as string)
 const ownerWallet = ref(route.query.owner_wallet as string || wallet.value)
 const memo = ref('')
 
-const nftId = ref('')
+const nftIds = ref<string[]>([])
 const isVerifyingNFTId = ref(false)
 const isAutoFetchingNFTId = ref(false)
 const nftIdError = ref('')
@@ -176,33 +176,32 @@ const isEditingNFTId = ref(false)
 const nftIdInputRef = ref<any>(undefined)
 
 const orderInfo = ref<any>({})
-const nftImage = ref('')
+const nftImages = ref<string[]>([])
 
 const userIsOwner = computed(() => wallet.value && ownerWallet.value === wallet.value)
 const isSendButtonDisabled = computed(() => isEditingNFTId.value || isLoading.value || isVerifyingNFTId.value || isAutoFetchingNFTId.value || !!nftIdError.value)
 
-const nftClassName = computed(() => nftStore.getClassMetadataById(classId.value as string)?.name)
+const collectionName = computed(() => collectionStore.getCollectionById(collectionId.value as string)?.name)
+const classIds = computed(() => collectionStore.getCollectionById(collectionId.value as string)?.classIds)
 
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
 })
 
-watch(nftId, () => {
-  nftIdError.value = ''
-})
-
-watch(isEditingNFTId, async (isEditing) => {
+watch(isEditingNFTId, (isEditing) => {
   if (isEditing) { return }
 
-  if (nftId.value) {
-    await fetchNFTMetadata()
-  } else {
-    nftImage.value = ''
-  }
+  nftIds.value.forEach(async (nftId, index) => {
+    if (nftId) {
+      nftImages.value[index] = await fetchNFTMetadataImage(classIds.value[index], nftId)
+    } else {
+      nftImages.value[index] = ''
+    }
+  })
 })
 
 onMounted(async () => {
-  const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/purchase/${classId.value}/status/${paymentId.value}`,
+  const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/collection/purchase/${collectionId.value}/status/${paymentId.value}`,
     {
       headers: {
         authorization: `Bearer ${token.value}`
@@ -217,9 +216,14 @@ onMounted(async () => {
   } else {
     orderInfo.value = (data.value as any)
   }
-  lazyFetchClassMetadataById(classId.value as string)
+  await lazyFetchCollectionById(collectionId.value as string)
+  await Promise.all(classIds.value.map(classId => lazyFetchClassMetadataById(classId)))
   fetchNextNFTId()
 })
+
+function getNftClassName (classId) {
+  return nftStore.getClassMetadataById(classId)?.name
+}
 
 function handleClickEditNFTId () {
   isEditingNFTId.value = !isEditingNFTId.value
@@ -231,21 +235,20 @@ function handleClickEditNFTId () {
   })
 }
 
-async function fetchNFTMetadata () {
+async function fetchNFTMetadataImage (classId, nftId) {
   try {
     isVerifyingNFTId.value = true
-    const { data, error: fetchError } = await useFetch(`${LCD_URL}/cosmos/nft/v1beta1/nfts/${classId.value}/${nftId.value}`)
+    const { data, error: fetchError } = await useFetch(`${LCD_URL}/cosmos/nft/v1beta1/nfts/${classId}/${nftId}`)
     if (fetchError.value) {
-      nftImage.value = ''
       if (fetchError.value.data.code === 2) {
         nftIdError.value = 'NFT not found'
       } else {
         nftIdError.value = fetchError.value.toString()
       }
-      return
+      return ''
     }
     const image = (data.value as any)?.nft?.data?.metadata?.image || ''
-    nftImage.value = parseImageURLFromMetadata(image)
+    return parseImageURLFromMetadata(image)
   } catch (err) {
     error.value = (err as Error).toString()
   } finally {
@@ -261,17 +264,21 @@ async function fetchNextNFTId () {
       await connect()
     }
     if (!ownerWallet.value) { return }
-    const { nfts } = await getNFTs({
-      classId: classId.value,
-      owner: ownerWallet.value,
-      needCount: 1
-    })
-    if (nfts.length) {
-      nftId.value = nfts[0].id
-      await fetchNFTMetadata()
-    } else {
-      throw new Error(`${ownerWallet.value} does not hold any NFT of class ${classId.value}`)
-    }
+    await Promise.all(classIds.value.map(async (classId, index) => {
+      if (!nftIds.value[index]) {
+        const { nfts } = await getNFTs({
+          classId,
+          owner: ownerWallet.value,
+          needCount: 1
+        })
+        if (nfts.length) {
+          nftIds.value[index] = nfts[0].id
+          nftImages.value[index] = await fetchNFTMetadataImage(classId, nftIds.value[index])
+        } else {
+          throw new Error(`${ownerWallet.value} does not hold any NFT of class ${classId}`)
+        }
+      }
+    }))
   } catch (err) {
     error.value = (err as Error).toString()
   } finally {
@@ -287,16 +294,23 @@ async function onSendNFTStart () {
       await connect()
     }
     if (!wallet.value || !signer.value) { return }
-    let targetNftId = ''
-    if (nftId.value) {
-      const { owner } = await getNFTOwner(classId.value, nftId.value)
-      if (owner !== ownerWallet.value) {
-        throw new Error(`NFT classId: ${classId} nftId:${nftId} is not owned by sender!`)
+
+    await fetchNextNFTId()
+    Promise.all(classIds.value.map(async (classId, index) => {
+      if (nftIds.value[index]) {
+        const { owner } = await getNFTOwner(classId, nftIds.value[index])
+        if (owner !== ownerWallet.value) {
+          throw new Error(`NFT classId: ${classId} nftId:${nftIds.value[index]} is not owned by sender!`)
+        }
       }
-    } else {
-      await fetchNextNFTId()
+    }))
+
+    if (classIds.value.find(id => !id)) {
+      throw new Error('Please specify NFT class ID')
     }
-    targetNftId = nftId.value
+    if (nftIds.value.find(id => !id)) {
+      throw new Error('Please specify NFT ID')
+    }
 
     const signingClient = await getSigningClientWithSigner(signer.value)
     const client = signingClient.getSigningStargateClient()
@@ -304,10 +318,10 @@ async function onSendNFTStart () {
 
     let res: DeliverTxResponse | undefined
     if (userIsOwner.value) {
-      res = await signSendNFT(
+      res = await signSendNFTs(
         orderInfo.value.wallet,
-        classId.value,
-        targetNftId,
+        classIds.value,
+        nftIds.value,
         signer.value,
         wallet.value,
         memo.value
@@ -316,8 +330,8 @@ async function onSendNFTStart () {
       res = await signExecNFTSendAuthz(
         orderInfo.value.wallet,
         ownerWallet.value,
-        [classId.value],
-        [targetNftId],
+        classIds.value,
+        nftIds.value,
         signer.value,
         wallet.value,
         memo.value
@@ -325,7 +339,7 @@ async function onSendNFTStart () {
     }
 
     if (res.transactionHash && res.code === 0) {
-      const { error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/purchase/${classId.value}/sent/${paymentId.value}`,
+      const { error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/collection/purchase/${collectionId.value}/sent/${paymentId.value}`,
         {
           method: 'POST',
           body: { txHash: res.transactionHash },
@@ -337,9 +351,9 @@ async function onSendNFTStart () {
         throw fetchError.value
       }
       router.push({
-        name: 'nft-book-store-status-classId',
+        name: 'nft-book-store-collection-status-collectionId',
         params: {
-          classId: classId.value
+          collectionId: collectionId.value
         }
       })
     }
