@@ -138,9 +138,14 @@
                 </ul>
               </template>
               <template #className-data="{ row }">
-                <div class="max-w-xs truncate">
-                  {{ row.className || '-' }}
-                </div>
+                <NFTClassMetadataLoader :class-id="row.classId">
+                  <template #default="{ isLoading: isLoadingMetadata }">
+                    <UProgress v-if="isLoadingMetadata || !row.className" />
+                    <div v-else class="max-w-xs truncate">
+                      {{ row.className }}
+                    </div>
+                  </template>
+                </NFTClassMetadataLoader>
               </template>
             </UTable>
           </UCard>
@@ -289,31 +294,57 @@ watch(tableRowsPerPage, () => {
   tablePage.value = 1
 })
 
-onMounted(async () => {
-  let { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/store/list?wallet=${wallet.value}`,
+async function fetchBookList (params: { key?: number, limit?: number } = {}) {
+  const qsPayload: any = {
+    wallet: wallet.value,
+    limit: params.limit || 100
+  }
+  if (params.key) {
+    qsPayload.key = params.key
+  }
+  const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/store/list?${Object.entries(qsPayload).map(([key, value]) => `${key}=${value}`).join('&')}`,
     {
       headers: {
         authorization: token.value ? `Bearer ${token.value}` : ''
       }
     })
+
   if (fetchError.value) {
     error.value = fetchError.value.toString()
   }
-  bookList.value = (data.value as any)?.list
 
-  if (token.value) {
-    ({ data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/store/list/moderated?wallet=${wallet.value}`,
-      {
-        headers: {
-          authorization: `Bearer ${token.value}`
-        }
-      }
-    ))
-    if (fetchError.value) {
-      error.value = fetchError.value.toString()
-    }
-    moderatedBookList.value = (data.value as any)?.list || []
+  const { nextKey, list = [] } = (data.value as any) || {}
+  if (params) {
+    bookList.value.push(...list)
+  } else {
+    bookList.value = list
   }
+
+  if (nextKey) {
+    return fetchBookList({ key: nextKey })
+  }
+}
+
+async function fetchModeratedBookList () {
+  const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/store/list/moderated?wallet=${wallet.value}`,
+    {
+      headers: {
+        authorization: `Bearer ${token.value}`
+      }
+    }
+  )
+  if (fetchError.value) {
+    error.value = fetchError.value.toString()
+  }
+  moderatedBookList.value = (data.value as any)?.list || []
+}
+
+onMounted(async () => {
+  const promises = [fetchBookList()]
+  if (token.value) {
+    promises.push(fetchModeratedBookList())
+  }
+  await Promise.all(promises)
 
   const classIds: Set<string> = new Set(bookList.value.map(b => b.classId).concat(moderatedBookList.value.map(m => m.classId)))
   classIds.forEach(classId => lazyFetchClassMetadataById(classId))
