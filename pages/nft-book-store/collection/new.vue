@@ -627,7 +627,7 @@ async function submitNewCollection () {
         en: escapeHtml(descriptionEn.value),
         zh: escapeHtml(descriptionZh.value)
       },
-      image,
+      image: image.value,
       ...formatPrice(price.value)
     })
     router.push({ name: 'nft-book-store-collection' })
