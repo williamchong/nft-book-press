@@ -755,7 +755,7 @@ const ordersTableRows = computed(() => purchaseList.value?.map((p: any, index: n
   statusLabel: getStatusLabel(p),
   statusLabelColor: getStatusLabelColor(p),
   orderDate: p.formattedDate,
-  shippingStatus: p.shippingStatus,
+  shippingStatus: p.shippingStatus || '',
   wallet: p.wallet || '',
   walletLink: getPortfolioURL(p.wallet),
   shortenWallet: shortenWalletAddress(p.wallet),
