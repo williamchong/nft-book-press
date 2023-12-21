@@ -1,8 +1,18 @@
 <template>
   <main class="space-y-4">
-    <h1 class="text-lg font-bold font-mono">
-      NFT Book Status "{{ nftClassName || classId }}"
-    </h1>
+    <div class="flex justify-between gap-4">
+      <h1 class="text-lg font-bold font-mono">
+        NFT Book Status "{{ nftClassName || classId }}"
+      </h1>
+
+      <UButton
+        label="View in liker.land"
+        icon="i-heroicons-arrow-top-right-on-square"
+        variant="outline"
+        :to="`${LIKER_LAND_URL}/nft/class/${classId}`"
+        target="_blank"
+      />
+    </div>
 
     <UAlert
       v-if="error"
@@ -536,7 +546,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import Draggable from 'vuedraggable'
-import { CHAIN_EXPLORER_URL, IS_TESTNET, LIKE_CO_API } from '~/constant'
+import { CHAIN_EXPLORER_URL, IS_TESTNET, LIKE_CO_API, LIKER_LAND_URL } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useNftStore } from '~/stores/nft'
 import { useWalletStore } from '~/stores/wallet'
