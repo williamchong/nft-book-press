@@ -48,6 +48,18 @@
         </UFormGroup>
 
         <UFormGroup
+          :label="`Image of this book collection`"
+          :ui="{ container: 'space-y-2' }"
+        >
+          <UInput
+            v-model="image"
+            class="font-mono"
+            placeholder="https://, ar://, ipfs://...."
+          />
+          <img v-if="image" :src="parseImageURLFromMetadata(image)" class="w-1/2">
+        </UFormGroup>
+
+        <UFormGroup
           :label="`Description of this book collection`"
           :ui="{ container: 'space-y-2' }"
         >
@@ -373,6 +385,7 @@ const nameEn = ref('New Book Collection Name')
 const nameZh = ref('新書集名稱')
 const descriptionEn = ref('')
 const descriptionZh = ref('')
+const image = ref('')
 
 const classIdInput = ref('')
 const classIds = ref<string[]>([])
@@ -614,6 +627,7 @@ async function submitNewCollection () {
         en: escapeHtml(descriptionEn.value),
         zh: escapeHtml(descriptionZh.value)
       },
+      image,
       ...formatPrice(price.value)
     })
     router.push({ name: 'nft-book-store-collection' })
