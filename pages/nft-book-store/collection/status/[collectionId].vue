@@ -34,12 +34,26 @@
               <th class="px-3 py-4 text-right">
                 Price (USD)
               </th>
+              <th class="px-3 py-4 text-right">
+                Edit
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td class="px-3 py-4 text-right">
                 {{ collectionListingInfo.priceInDecimal / 100 }}
+              </td>
+              <td class="text-center">
+                <UButton
+                  icon="i-heroicons-document-magnifying-glass"
+                  :to="{
+                    name: 'nft-book-store-collection-status-collectionId-edit',
+                    params: { collectionId }
+                  }"
+                  variant="soft"
+                  color="gray"
+                />
               </td>
             </tr>
           </tbody>
