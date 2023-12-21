@@ -22,6 +22,12 @@
 
     <template v-if="bookStoreApiStore.isAuthenticated">
       <UCard :ui="{ body: { padding: '' } }">
+        <UFormGroup label="Books in Collection">
+          <UTable
+            :columns="[{ key: 'classId', label: 'Class ID' }, { key: 'name', label: 'Book Name'}]"
+            :rows="collectionListingInfo?.classIds?.map((classId, index) => ({ index, classId, name: getClassMetadataById(classId)?.name }))"
+          />
+        </UFormGroup>
         <table class="w-full divide-y text-sm">
           <thead class="border-b-2">
             <tr class="text-left">
@@ -433,7 +439,7 @@ const collectionStore = useCollectionStore()
 const { token } = storeToRefs(bookStoreApiStore)
 const { wallet } = storeToRefs(store)
 const { updateNFTBookCollectionById } = collectionStore
-const { lazyFetchClassMetadataById } = nftStore
+const { getClassMetadataById, lazyFetchClassMetadataById } = nftStore
 
 const route = useRoute()
 const toast = useToast()
