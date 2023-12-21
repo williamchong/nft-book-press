@@ -687,7 +687,7 @@ function getOrdersTableActionItems (purchaseListItem: any) {
     }])
   }
 
-  if (purchaseListItem.status === 'pendingNFT') {
+  if (['pendingNFT', 'paid'].includes(purchaseListItem.status)) {
     actionItems.push([{
       label: 'Mark Complete',
       icon: 'i-heroicons-check-circle',
