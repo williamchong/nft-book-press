@@ -687,6 +687,22 @@ function getOrdersTableActionItems (purchaseListItem: any) {
     }])
   }
 
+  if (purchaseListItem.shippingStatus === 'pending') {
+    actionItems.push([{
+      label: 'Handle Shipping',
+      icon: 'i-heroicons-truck',
+      to: {
+        name: 'nft-book-store-send-shipping-classId',
+        params: {
+          classId: purchaseListItem.classId
+        },
+        query: {
+          payment_id: purchaseListItem.id
+        }
+      }
+    }])
+  }
+
   if (['pendingNFT', 'paid'].includes(purchaseListItem.status)) {
     actionItems.push([{
       label: 'Mark Complete',
