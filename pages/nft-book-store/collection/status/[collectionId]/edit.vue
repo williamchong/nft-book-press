@@ -99,22 +99,6 @@
 
             <UCheckbox v-model="hasShipping" label="Includes physical good that requires shipping" />
           </template>
-
-          <UCard
-            v-if="hasShipping"
-            :ui="{
-              header: { base: 'flex flex-wrap justify-between items-center gap-2' },
-              rounded: 'rounded-t-none',
-            }"
-          >
-            <template #header>
-              <h4 class="text-sm font-bold font-mono">
-                Shipping Options and Prices
-              </h4>
-
-              <UButton label="Add Option" variant="outline" @click="addMoreShippingRate" />
-            </template>
-          </UCard>
         </UCard>
 
         <template #footer>
