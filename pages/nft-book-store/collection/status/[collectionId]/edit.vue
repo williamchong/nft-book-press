@@ -180,11 +180,11 @@ onMounted(async () => {
     classIds.value = collectionListingInfo.value.classIds || []
     price.value = collectionListingInfo.value.priceInDecimal / 100 || 0
     stock.value = collectionListingInfo.value.stock || 0
-    nameEn.value = collectionListingInfo.value.name?.en || collectionListingInfo.value.name || ''
-    nameZh.value = collectionListingInfo.value.name?.zh || collectionListingInfo.value.name || ''
+    nameEn.value = collectionListingInfo.value.name?.en || ''
+    nameZh.value = collectionListingInfo.value.name?.zh || ''
     image.value = collectionListingInfo.value.image || ''
-    descriptionEn.value = collectionListingInfo.value.description?.en || collectionListingInfo.value.description || ''
-    descriptionZh.value = collectionListingInfo.value.description?.zh || collectionListingInfo.value.description || ''
+    descriptionEn.value = collectionListingInfo.value.description?.en || ' '
+    descriptionZh.value = collectionListingInfo.value.description?.zh || ' '
     hasShipping.value = collectionListingInfo.value.hasShipping || false
   } catch (error) {
     // eslint-disable-next-line no-console
