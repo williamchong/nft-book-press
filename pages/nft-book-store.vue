@@ -52,7 +52,7 @@ watch(isLoading, (newIsLoading) => {
 
 onMounted(async () => {
   try {
-    const payload = window.sessionStorage.getItem('likecoin_nft_book_press_token')
+    const payload = window.localStorage.getItem('likecoin_nft_book_press_token')
     if (payload) {
       const { wallet: storedWallet, token } = JSON.parse(payload)
       restoreSession(storedWallet, token)
@@ -71,7 +71,7 @@ async function onClickAuth () {
     const signature = await signMessageMemo('authorize', ['read:nftbook', 'write:nftbook'])
     await authenticate(wallet.value, signature)
     try {
-      window.sessionStorage.setItem('likecoin_nft_book_press_token', JSON.stringify({ wallet: sessionWallet.value, token: token.value }))
+      window.localStorage.setItem('likecoin_nft_book_press_token', JSON.stringify({ wallet: sessionWallet.value, token: token.value }))
     } catch (err) {}
   } catch (err) {
     console.error(err)

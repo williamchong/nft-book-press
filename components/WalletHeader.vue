@@ -42,6 +42,6 @@ const portfolioURL = computed(() => getPortfolioURL(wallet.value))
 
 function onClickDisconnect () {
   disconnect()
-  window.sessionStorage.removeItem('likecoin_nft_book_press_token')
+  window.localStorage.removeItem('likecoin_nft_book_press_token')
 }
 </script>
