@@ -53,6 +53,12 @@ const items = [
         exact: true
       },
       {
+        label: 'Manage Book Collection',
+        icon: 'i-heroicons-rectangle-stack',
+        to: { name: 'nft-book-store-collection' },
+        exact: true
+      },
+      {
         label: 'Manage Stripe Account',
         icon: 'i-heroicons-user-group',
         to: { name: 'nft-book-store-user' },
