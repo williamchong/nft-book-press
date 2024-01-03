@@ -7,6 +7,7 @@ import { DeliverTxResponse } from '@cosmjs/stargate'
 import { PageRequest } from 'cosmjs-types/cosmos/base/query/v1beta1/pagination'
 import { parseAuthzGrant } from '@likecoin/iscn-js/dist/messages/parsing'
 import { GenericAuthorization } from 'cosmjs-types/cosmos/authz/v1beta1/authz'
+import { formatMsgSend } from '@likecoin/iscn-js/dist/messages/likenft'
 import { addParamToUrl } from '.'
 import { RPC_URL, LIKER_NFT_FEE_WALLET } from '~/constant'
 import network from '~/constant/network'
@@ -252,6 +253,30 @@ export async function signSendNFT (
   return res
 }
 
+export async function signSendNFTs (
+  targetAddress: string,
+  classIds: string[],
+  nftIds: string[],
+  signer: OfflineSigner,
+  address: string,
+  memo?: string
+) {
+  const signingClient = await getSigningClient()
+  await signingClient.connectWithSigner(RPC_URL, signer)
+  const messages = classIds.map((classId, index) => formatMsgSend(
+    address,
+    targetAddress,
+    classId,
+    nftIds[index]
+  ))
+  const res = await signingClient.sendMessages(
+    address,
+    messages,
+    { memo }
+  ) as DeliverTxResponse
+  return res
+}
+
 export async function signGrantNFTSendAuthz (
   grantee: string,
   signer: OfflineSigner,
@@ -268,8 +293,8 @@ export async function signGrantNFTSendAuthz (
 export async function signExecNFTSendAuthz (
   targetAddress: string,
   ownerAddress: string,
-  classId: string,
-  nftId: string,
+  classIds: string[],
+  nftIds: string[],
   signer: OfflineSigner,
   address: string,
   memo?: string
@@ -280,19 +305,17 @@ export async function signExecNFTSendAuthz (
     typeUrl: '/cosmos.authz.v1beta1.MsgExec',
     value: {
       grantee: address,
-      msgs: [
-        {
-          typeUrl: '/cosmos.nft.v1beta1.MsgSend',
-          value: MsgSend.encode(
-            MsgSend.fromPartial({
-              sender: ownerAddress,
-              receiver: targetAddress,
-              classId,
-              id: nftId
-            })
-          ).finish()
-        }
-      ]
+      msgs: classIds.map((classId, index) => ({
+        typeUrl: '/cosmos.nft.v1beta1.MsgSend',
+        value: MsgSend.encode(
+          MsgSend.fromPartial({
+            sender: ownerAddress,
+            receiver: targetAddress,
+            classId,
+            id: nftIds[index]
+          })
+        ).finish()
+      }))
     }
   }]
   const res = await signingClient.sendMessages(

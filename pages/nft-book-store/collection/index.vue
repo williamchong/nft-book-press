@@ -112,9 +112,9 @@ const tableRows = computed(() => collectionList.value.map(b => ({
   priceInUSD: b.typePayload?.priceInDecimal / 100,
   classIds: b.classIds,
   classNames: b.classIds?.map((classId :string) => getClassMetadataById(classId)?.name),
-  pendingAction: b.typePayload?.pendingNFTCount,
-  sold: b.typePayload?.sold,
-  stock: b.typePayload?.stock
+  pendingAction: b.typePayload?.pendingNFTCount || 0,
+  sold: b.typePayload?.sold || 0,
+  stock: b.typePayload?.stock || 0
 })))
 
 function selectTableRow (row: any) {
