@@ -82,16 +82,16 @@
           </UFormGroup>
 
           <URadioGroup
-            v-model="p.deliverMethod"
-            :legend="`Deliver method of this ${priceItemLabel}`"
+            v-model="p.deliveryMethod"
+            :legend="`Delivery method of this ${priceItemLabel}`"
             :options="deliverMethodOptions"
           />
 
           <UFormGroup
-            v-if="p.deliverMethod === 'auto'"
+            v-if="p.deliveryMethod === 'auto'"
             :label="`Memo of this ${priceItemLabel}`"
           >
-            <UInput placeholder="Thank you! 謝謝你的支持!" :value="p.autoMemo" @input="e => updatePrice(e, 'autoMemo', index)" />
+            <UInput :value="p.autoMemo" @input="e => updatePrice(e, 'autoMemo', index)" />
           </UFormGroup>
 
           <UFormGroup
@@ -429,8 +429,8 @@ const mustClaimToView = ref(false)
 const hideDownload = ref(false)
 const prices = ref<any[]>([{
   price: MINIMAL_PRICE,
-  deliverMethod: 'auto',
-  autoMemo: '',
+  deliveryMethod: 'auto',
+  autoMemo: 'Thanks for purchasing this NFT ebook.',
   stock: Number(route.query.count as string || 1),
   nameEn: 'Standard Edition',
   nameZh: '標準版',
@@ -606,7 +606,7 @@ function addMorePrice () {
   prices.value.push({
     index: uuidv4(),
     price: MINIMAL_PRICE,
-    deliverMethod: 'auto',
+    deliveryMethod: 'auto',
     autoMemo: '',
     stock: 1,
     nameEn: `Tier ${nextPriceIndex.value}`,
@@ -673,8 +673,8 @@ function mapPrices (prices:any) {
       priceInDecimal: Math.round(Number(p.price) * 100),
       price: Number(p.price),
       stock: Number(p.stock),
-      isAutoDeliver: p.deliverMethod === 'auto',
-      autoMemo: p.deliverMethod === 'auto' ? (p.autoMemo || '') : '',
+      isAutoDeliver: p.deliveryMethod === 'auto',
+      autoMemo: p.deliveryMethod === 'auto' ? (p.autoMemo || '') : '',
       hasShipping: p.hasShipping || false
     }))
 }
@@ -732,11 +732,16 @@ async function submitNewClass () {
         }))
       : undefined
 
+    if (p.some(price => price.isAutoDeliver)) {
+      const ok = confirm('NFT Book Press - Reminder\nOnce you choose automatic delivery, you can\'t switch it back to manual delivery.  Are you sure?')
+      if (!ok) { return }
+    }
+
     const autoDeliverCount = p
       .filter(price => price.isAutoDeliver)
       .reduce((acc, price) => acc + price.stock, 0)
 
-    let autoDeliverNFTsTxHash = ''
+    let autoDeliverNFTsTxHash
     if (autoDeliverCount > 0) {
       if (!wallet.value || !signer.value) {
         await connect()

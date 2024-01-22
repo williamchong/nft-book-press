@@ -49,16 +49,16 @@
         </UFormGroup>
 
         <URadioGroup
-          v-model="deliverMethod"
-          :legend="`Deliver method of this ${priceItemLabel}`"
+          v-model="deliveryMethod"
+          :legend="`Delivery method of this ${priceItemLabel}`"
           :options="deliverMethodOptions"
         />
 
         <UFormGroup
-          v-if="deliverMethod === 'auto'"
+          v-if="deliveryMethod === 'auto'"
           :label="`Memo of this ${priceItemLabel}`"
         >
-          <UInput v-model="autoMemo" placeholder="Thank you! 謝謝你的支持!" />
+          <UInput v-model="autoMemo" />
         </UFormGroup>
 
         <UFormGroup
@@ -229,8 +229,8 @@ const hasMultiplePrices = computed(() => classData?.value?.prices?.length > 1)
 
 const price = ref(MINIMAL_PRICE)
 const stock = ref(1)
-const deliverMethod = ref('auto')
-const autoMemo = ref('')
+const deliveryMethod = ref('auto')
+const autoMemo = ref('Thanks for purchasing this NFT ebook.')
 const nameEn = ref('Standard Edition')
 const nameZh = ref('標準版')
 const descriptionEn = ref('')
@@ -356,8 +356,8 @@ async function handleSubmit () {
       priceInDecimal: Math.round(Number(price.value) * 100),
       price: Number(price.value),
       stock: Number(stock.value),
-      isAutoDeliver: deliverMethod.value === 'auto',
-      autoMemo: deliverMethod.value === 'auto' ? (autoMemo.value || '') : '',
+      isAutoDeliver: deliveryMethod.value === 'auto',
+      autoMemo: deliveryMethod.value === 'auto' ? (autoMemo.value || '') : '',
       hasShipping: hasShipping.value || false
     }
 
@@ -380,9 +380,14 @@ async function handleSubmit () {
       throw new Error('Please input product name')
     }
 
+    if (editedPrice.isAutoDeliver) {
+      const ok = confirm('NFT Book Press - Reminder\nOnce you choose automatic delivery, you can\'t switch it back to manual delivery.  Are you sure?')
+      if (!ok) { return }
+    }
+
     isLoading.value = true
 
-    let autoDeliverNFTsTxHash = ''
+    let autoDeliverNFTsTxHash
     if (editedPrice.isAutoDeliver && editedPrice.stock > 0) {
       if (!wallet.value || !signer.value) {
         await connect()
