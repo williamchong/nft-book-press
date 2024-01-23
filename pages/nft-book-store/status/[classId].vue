@@ -496,6 +496,27 @@
       >
         <template #header>
           <h3 class="font-bold font-mono">
+            Gift Books
+          </h3>
+        </template>
+        <UButton
+          class="font-mono break-all"
+          label="Gift NFT Books"
+          :to="{
+            name: 'nft-book-store-gift-classId',
+            params: { classId }
+          }"
+          variant="outline"
+          color="gray"
+          target="_blank"
+        />
+      </UCard>
+
+      <UCard
+        :ui="{ body: { base: 'space-y-4' } }"
+      >
+        <template #header>
+          <h3 class="font-bold font-mono">
             Copy Purchase Link
           </h3>
         </template>
