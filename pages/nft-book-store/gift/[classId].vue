@@ -31,21 +31,21 @@
         footer: { base: 'flex justify-center gap-2' }
       }"
     >
-      <UFormGroup label="Enter gifter name" hint="optional">
-        <UTextarea v-model="defaultToName" placeholder="Santa Claus" />
-      </UFormGroup>
-
-      <UFormGroup label="Enter default receiver name" hint="optional">
+      <UFormGroup label="Default Recipient Name" hint="Required">
         <UTextarea v-model="defaultFromName" placeholder="Fellow Reader" />
       </UFormGroup>
 
-      <UFormGroup label="Enter default gift message" hint="optional">
+      <UFormGroup label="Default Gift Message" hint="Required">
         <UTextarea v-model="defaultMessage" placeholder="Thank you for your support" />
+      </UFormGroup>
+
+      <UFormGroup label="Gift Giver’s Name" hint="Required">
+        <UTextarea v-model="defaultToName" placeholder="Your name" />
       </UFormGroup>
 
       <UFormGroup>
         <template #label>
-          Upload Receiver List CSV file (<UButton
+          Upload Recipient List CSV file (<UButton
             label="Download CSV Template"
             size="xs"
             @click="downloadTemplateCSV"
@@ -116,10 +116,24 @@ watch(isLoading, (newIsLoading) => {
 })
 
 const csvColumns = ['wallet', 'email', 'toName', 'message']
-const tableColumns = computed(() => csvColumns.map(c => ({
-  label: c,
-  key: c
-})))
+const tableColumns = [
+  {
+    label: 'email (required)',
+    key: 'email'
+  },
+  {
+    label: 'wallet (optional)',
+    key: 'wallet'
+  },
+  {
+    label: 'Recipient name (optional)',
+    key: 'toName'
+  },
+  {
+    label: 'message (optional)',
+    key: 'message'
+  }
+]
 
 onMounted(async () => {
   isLoading.value = true
