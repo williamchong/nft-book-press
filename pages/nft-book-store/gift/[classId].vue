@@ -51,7 +51,7 @@
             @click="downloadTemplateCSV"
           />)
         </template>
-        <UInput type="file" @change="onReceiverFileChange" />
+        <UInput type="file" accept=".csv" @change="onReceiverFileChange" />
       </UFormGroup>
 
       <p>Total count {{ receiverCount }}</p>
