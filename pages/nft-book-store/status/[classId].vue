@@ -1,17 +1,32 @@
 <template>
   <main class="space-y-4">
-    <div class="flex justify-between gap-4">
+    <div class="flex justify-between gap-4 flex-wrap">
       <h1 class="text-lg font-bold font-mono">
         NFT Book Status "{{ nftClassName || classId }}"
       </h1>
 
-      <UButton
-        label="View in liker.land"
-        icon="i-heroicons-arrow-top-right-on-square"
-        variant="outline"
-        :to="`${LIKER_LAND_URL}/nft/class/${classId}`"
-        target="_blank"
-      />
+      <div class="flex justify-center items-center gap-2 flex-wrap">
+        <UButton
+          class="font-mono break-all"
+          label="Gift Books"
+          icon="i-heroicons-gift"
+          :to="{
+            name: 'nft-book-store-gift-classId',
+            params: { classId }
+          }"
+          color="pink"
+          variant="outline"
+          target="_blank"
+        />
+
+        <UButton
+          label="View in liker.land"
+          icon="i-heroicons-arrow-top-right-on-square"
+          variant="outline"
+          :to="`${LIKER_LAND_URL}/nft/class/${classId}`"
+          target="_blank"
+        />
+      </div>
     </div>
 
     <UAlert
@@ -489,27 +504,6 @@
             />
           </template>
         </UTable>
-      </UCard>
-
-      <UCard
-        :ui="{ body: { base: 'space-y-4' } }"
-      >
-        <template #header>
-          <h3 class="font-bold font-mono">
-            Gift Books
-          </h3>
-        </template>
-        <UButton
-          class="font-mono break-all"
-          label="Gift NFT Books"
-          :to="{
-            name: 'nft-book-store-gift-classId',
-            params: { classId }
-          }"
-          variant="outline"
-          color="gray"
-          target="_blank"
-        />
       </UCard>
 
       <UCard

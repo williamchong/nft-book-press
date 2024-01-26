@@ -31,15 +31,15 @@
         footer: { base: 'flex justify-center gap-2' }
       }"
     >
-      <UFormGroup label="Default Recipient Name" hint="Required">
+      <UFormGroup label="Default Recipient Name" :required="true">
         <UTextarea v-model="defaultFromName" placeholder="Fellow Reader" />
       </UFormGroup>
 
-      <UFormGroup label="Default Gift Message" hint="Required">
+      <UFormGroup label="Default Gift Message" :required="true">
         <UTextarea v-model="defaultMessage" placeholder="Thank you for your support" />
       </UFormGroup>
 
-      <UFormGroup label="Gift Giver’s Name" hint="Required">
+      <UFormGroup label="Gift Giver’s Name" :required="true">
         <UTextarea v-model="defaultToName" placeholder="Your name" />
       </UFormGroup>
 
@@ -47,18 +47,32 @@
         <template #label>
           Upload Recipient List CSV file (<UButton
             label="Download CSV Template"
+            variant="link"
+            :padded="false"
             size="xs"
             @click="downloadTemplateCSV"
           />)
         </template>
-        <UInput type="file" accept=".csv" @change="onReceiverFileChange" />
+        <UInput class="mt-1" type="file" accept=".csv" @change="onReceiverFileChange" />
       </UFormGroup>
 
-      <p>Total count {{ receiverCount }}</p>
-      <UTable
-        :columns="tableColumns"
-        :rows="receiverList"
-      />
+      <UCard
+        :ui="{
+          header: { base: 'flex gap-4 items-center' },
+          body: { padding: '' },
+        }"
+      >
+        <template #header>
+          <h2 class="text-lg font-bold font-mono">
+            Recipients
+          </h2>
+          <UBadge :label="`${receiverCount}`" :ui="{ rounded: 'rounded-full' }" />
+        </template>
+        <UTable
+          :columns="tableColumns"
+          :rows="receiverList"
+        />
+      </UCard>
 
       <template #footer>
         <UButton label="Confirm" :disabled="!isAllFieldsFilled" size="xl" @click="onSendGift" />
@@ -106,8 +120,8 @@ const defaultMessage = ref('')
 
 const isAllFieldsFilled = computed(() => !!defaultToName.value && !!defaultFromName.value && !!defaultMessage.value && !!receiverList.value.length)
 
-const receiverList = ref<any>({})
-const receiverCount = computed(() => receiverList.value.length)
+const receiverList = ref<any>([])
+const receiverCount = computed(() => receiverList.value?.length || 0)
 
 const nftClassName = computed(() => nftStore.getClassMetadataById(classId.value as string)?.name)
 
@@ -118,11 +132,11 @@ watch(isLoading, (newIsLoading) => {
 const csvColumns = ['wallet', 'email', 'toName', 'message']
 const tableColumns = [
   {
-    label: 'email (required)',
+    label: 'Email (required)',
     key: 'email'
   },
   {
-    label: 'wallet (optional)',
+    label: 'Wallet (optional)',
     key: 'wallet'
   },
   {
@@ -130,7 +144,7 @@ const tableColumns = [
     key: 'toName'
   },
   {
-    label: 'message (optional)',
+    label: 'Message (optional)',
     key: 'message'
   }
 ]
