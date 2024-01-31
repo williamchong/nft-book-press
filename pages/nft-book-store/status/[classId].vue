@@ -320,6 +320,64 @@
         </template>
       </UCard>
 
+      <UCard
+        :ui="{
+          header: { base: 'flex justify-between items-center' },
+          body: { padding: '' }
+        }"
+      >
+        <template #header>
+          <h4 class="text-sm font-bold font-mono">
+            Coupon codes
+          </h4>
+        </template>
+
+        <UTable
+          :columns="[
+            { key: 'id', label: 'code', sortable: true },
+            { key: 'discount', label: 'discount multiplier' },
+            { key: 'expireTs', label: 'expireTs' },
+          ]"
+          :rows="couponsTableRows"
+        />
+        <h5>New Coupon</h5>
+        <UFormGroup
+          label="New coupon code"
+          :ui="{ label: { base: 'font-mono font-bold' } }"
+        >
+          <UInput
+            v-model="newCoupon.id"
+            placeholder="coupon_code"
+          />
+        </UFormGroup>
+        <UFormGroup
+          label="Coupon discount multiplier, 0.01x - 1x"
+          :ui="{ label: { base: 'font-mono font-bold' } }"
+        >
+          <UInput
+            v-model="newCoupon.discount"
+            type="number"
+            min="0.01"
+            max="1"
+          />
+        </UFormGroup>
+        <UFormGroup
+          label="Coupon expire date"
+          :ui="{ label: { base: 'font-mono font-bold' } }"
+        >
+          <UInput
+            v-model="newCoupon.expireTs"
+            type="date"
+          />
+        </UFormGroup>
+
+        <UButton
+          label="Add"
+          :disabled="!(newCoupon.id && newCoupon.discount)"
+          @click="addCouponCode"
+        />
+      </UCard>
+
       <UCard :ui="{ body: { base: 'space-y-8' } }">
         <template #header>
           <h3 class="font-bold font-mono">
@@ -528,6 +586,10 @@
           <UInput v-model="fromChannel" placeholder="Channel ID" />
         </UFormGroup>
 
+        <UFormGroup v-if="Object.keys(coupons).length" label="Active coupon" hint="Optional">
+          <USelect v-model="activeCoupon" :options="[''].concat(Object.keys(coupons))" />
+        </UFormGroup>
+
         <UButton
           class="font-mono break-all"
           :label="`${purchaseLink}`"
@@ -589,6 +651,7 @@ const isLoading = ref(false)
 const classId = ref(route.params.classId)
 const fromChannel = ref<string | undefined>(undefined)
 const priceIndex = ref(0)
+const activeCoupon = ref('')
 const classListingInfo = ref<any>({})
 const prices = ref<any[]>([])
 const isUpdatingPricesOrder = ref(false)
@@ -600,6 +663,12 @@ const searchInput = ref('')
 
 const moderatorWallets = ref<string[]>([])
 const moderatorWalletsGrants = ref<any>({})
+const coupons = ref<any>({})
+const newCoupon = ref<any>({
+  id: '',
+  discount: 1.0,
+  expireTs: ''
+})
 const notificationEmails = ref<string[]>([])
 const moderatorWalletInput = ref('')
 const notificationEmailInput = ref('')
@@ -620,6 +689,7 @@ const purchaseLink = computed(() => {
     from: fromChannel.value || '',
     price_index: priceIndex.value.toString()
   }
+  if (activeCoupon.value) { payload.coupon = activeCoupon.value }
   const queryString = `?${new URLSearchParams(payload).toString()}`
   const apiLink = `https://api.${IS_TESTNET ? 'rinkeby.' : ''}like.co/likernft/book/purchase/${classId.value}/new${queryString}`
   const likerLandLink = `https://${IS_TESTNET ? 'rinkeby.' : ''}liker.land/nft/class/${classId.value}${queryString}`
@@ -661,6 +731,17 @@ const purchaseList = computed(() => {
   return []
 })
 
+const couponsTableRows = computed(() => {
+  if (!coupons.value) {
+    return []
+  }
+  return Object.entries(coupons.value).map(([id, value]) => ({
+    id,
+    expireTs: (value as any).expireTs ? new Date((value as any).expireTs) : '',
+    discount: (value as any).discount
+  }))
+})
+
 const shippingRatesTableRows = computed(() => {
   if (!classListingInfo.value.shippingRates) {
     return []
@@ -685,6 +766,7 @@ const orderTableColumns = computed(() => {
     { key: 'from', label: 'Sales Channel', sortable: true },
     { key: 'price', label: 'Price', sortable: true },
     { key: 'priceName', label: 'Price Name', sortable: false },
+    { key: 'coupon', label: 'Coupon Applied', sortable: false },
     { key: 'email', label: 'Buyer Email', sortable: true },
     { key: 'wallet', label: 'Buyer Wallet', sortable: true },
     { key: 'message', label: 'Buyer Message', sortable: false }
@@ -794,6 +876,7 @@ const ordersTableRows = computed(() => purchaseList.value?.map((p: any, index: n
   shortenWallet: shortenWalletAddress(p.wallet),
   priceName: p.priceName,
   price: p.price || 0,
+  coupon: p.coupon || '',
   message: p.message || '',
   from: p.from || '',
   actions: getOrdersTableActionItems(p)
@@ -902,7 +985,8 @@ onMounted(async () => {
       notificationEmails: classNotificationEmails,
       connectedWallets: classConnectedWallets,
       mustClaimToView: classMustClaimToView,
-      hideDownload: classHideDownload
+      hideDownload: classHideDownload,
+      coupons: classCoupons
     } = classData.value as any
     moderatorWallets.value = classModeratorWallets
     notificationEmails.value = classNotificationEmails
@@ -913,6 +997,7 @@ onMounted(async () => {
     }
     mustClaimToView.value = classMustClaimToView
     hideDownload.value = classHideDownload
+    coupons.value = classCoupons || {}
     const { data: orders, error: fetchOrdersError } = await useFetch(`${LIKE_CO_API}/likernft/book/purchase/${classId.value}/orders`,
       {
         headers: {
@@ -1018,6 +1103,20 @@ async function hardSetStatusToCompleted (purchase: any) {
   classListingInfo.value.pendingNFTCount -= 1
 }
 
+function addCouponCode () {
+  coupons.value[newCoupon.value.id] = {
+    discount: newCoupon.value.discount,
+    expireTs: newCoupon.value.expireTs ? new Date(newCoupon.value.expireTs).getTime() : null,
+    email: newCoupon.value.email
+  }
+  newCoupon.value = {
+    id: '',
+    discount: 1.0,
+    expireTs: ''
+  }
+  updateSettings()
+}
+
 function addModeratorWallet () {
   if (!moderatorWalletInput.value) { return }
   moderatorWallets.value.push(moderatorWalletInput.value)
@@ -1065,7 +1164,8 @@ async function updateSettings () {
       notificationEmails,
       connectedWallets,
       hideDownload,
-      mustClaimToView
+      mustClaimToView,
+      coupons
     })
   } catch (err) {
     const errorData = (err as any).data || err
