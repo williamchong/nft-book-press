@@ -89,25 +89,13 @@
           :sanitize="sanitizeHtml"
         />
 
-        <UCard
-          :ui="{
-            divide: '',
-            header: { base: 'flex flex-wrap justify-between items-center gap-2' },
-            body: { padding: '' },
-            footer: { base: 'grid lg:grid-cols-2 gap-4' },
-          }"
-        >
-          <template #header>
-            <h3 class="font-bold font-mono">
-              Physical Goods
-            </h3>
-
-            <UCheckbox
-              v-model="hasShipping"
-              label="Includes physical good that requires shipping"
-            />
-          </template>
-        </UCard>
+        <ShippingRates
+          v-model="hasShipping"
+          :read-only="true"
+          :shipping-info="shippingRates"
+          :is-loading="isUpdatingShippingRates"
+          @on-update-shipping-rates="updateShippingRates"
+        />
 
         <template #footer>
           <UButton
@@ -141,6 +129,7 @@ const bookStoreApiStore = useBookStoreApiStore()
 const { connect } = walletStore
 const { wallet, signer } = storeToRefs(walletStore)
 const { token } = storeToRefs(bookStoreApiStore)
+const { updateBookListingSetting } = bookStoreApiStore
 
 const router = useRouter()
 const route = useRoute()
@@ -165,6 +154,9 @@ const nameZh = ref('標準版')
 const descriptionEn = ref('')
 const descriptionZh = ref('')
 const hasShipping = ref(false)
+const shippingRates = ref<any[]>([])
+const isUpdatingShippingRates = ref(false)
+
 const priceItemLabel = computed(() => hasMultiplePrices.value ? 'edition' : 'book')
 
 const toolbarOptions = [
@@ -207,6 +199,7 @@ onMounted(async () => {
 
     const classResData = classRes?.data?.value
     if (classResData) {
+      shippingRates.value = classResData.shippingRates
       if (classResData?.ownerWallet !== wallet.value) {
         throw new Error('NOT_OWNER_OF_NFT_CLASS')
       }
@@ -245,6 +238,29 @@ function handleClickBack () {
     name: 'nft-book-store-status-classId',
     params: { classId: classId.value }
   })
+}
+
+async function updateShippingRates (value: any) {
+  isUpdatingShippingRates.value = true
+  try {
+    await updateBookListingSetting(classId.value as string, {
+      shippingRates: value
+    })
+    const { data: classData } = await useFetch(
+      `${LIKE_CO_API}/likernft/book/store/${classId.value}`,
+      {
+        headers: {
+          authorization: `Bearer ${token.value}`
+        }
+      }
+    )
+    shippingRates.value = classData.value?.shippingRates || []
+  } catch (err) {
+    const errorData = (err as any).data || err
+    error.value = errorData
+  } finally {
+    isUpdatingShippingRates.value = false
+  }
 }
 
 async function handleSubmit () {

@@ -55,7 +55,7 @@
             <div class="flex justify-center">
               <UButton
                 icon="i-heroicons-plus-circle"
-                label="New Listing"
+                label="New Edition"
                 :to="{
                   name: 'nft-book-store-status-classId-edit-new',
                   params: { classId },
@@ -154,29 +154,12 @@
         </table>
       </UCard>
 
-      <UCard
-        v-if="classListingInfo.shippingRates"
-        :ui="{ body: { padding: '' } }"
-      >
-        <template #header>
-          <h3 class="font-bold font-mono">
-            Shipping Options
-          </h3>
-        </template>
-
-        <UTable
-          :columns="[
-            { key: 'index', },
-            { key: 'name', label: 'Name' },
-            { key: 'price', label: 'Price (USD)' },
-          ]"
-          :rows="shippingRatesTableRows"
-        >
-          <template #price-data="{ row }">
-            <span class="text-right">{{ row.price }}</span>
-          </template>
-        </UTable>
-      </UCard>
+      <ShippingRates
+        :read-only="false"
+        :is-loading="isUpdatingShippingRates"
+        :shipping-info="classListingInfo.shippingRates"
+        @on-update-shipping-rates="updateShippingRates"
+      />
 
       <UCard :ui="{ body: { padding: '' } }">
         <template #header>
@@ -594,7 +577,6 @@
         </QRCode>
       </UCard>
     </template>
-
     <NuxtPage :transition="false" />
   </main>
 </template>
@@ -631,6 +613,7 @@ const prices = ref<any[]>([])
 const isUpdatingPricesOrder = ref(false)
 const ordersData = ref<any>({})
 const connectStatus = ref<any>({})
+const isUpdatingShippingRates = ref(false)
 
 // Search
 const searchInput = ref('')
@@ -711,18 +694,6 @@ const couponsTableRows = computed(() => {
     discount: (value as any).discount
   }))
 })
-
-const shippingRatesTableRows = computed(() => {
-  if (!classListingInfo.value.shippingRates) {
-    return []
-  }
-  return classListingInfo.value.shippingRates.map((r: any, index: number) => ({
-    index: index + 1,
-    name: r.name,
-    price: r.priceInDecimal / 100
-  }))
-})
-
 const orderTableColumns = computed(() => {
   const columns = [
     { key: 'actions', label: 'Actions', sortable: false },
@@ -1137,6 +1108,29 @@ async function updateSettings () {
     error.value = errorData
   } finally {
     isLoading.value = false
+  }
+}
+
+async function updateShippingRates (value: any) {
+  isUpdatingShippingRates.value = true
+  try {
+    await updateBookListingSetting(classId.value as string, {
+      shippingRates: value
+    })
+    const { data: classData } = await useFetch(
+      `${LIKE_CO_API}/likernft/book/store/${classId.value}`,
+      {
+        headers: {
+          authorization: `Bearer ${token.value}`
+        }
+      }
+    )
+    classListingInfo.value = classData.value
+  } catch (err) {
+    const errorData = (err as any).data || err
+    error.value = errorData
+  } finally {
+    isUpdatingShippingRates.value = false
   }
 }
 
