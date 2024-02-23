@@ -137,6 +137,28 @@
             :shipping-info="shippingRates"
           />
 
+          <UFormGroup
+            label="Is Physical only good"
+            :ui="{ label: { base: 'font-mono font-bold' } }"
+          >
+            <UCheckbox
+              v-model="p.isPhysicalOnly"
+              name="isPhysicalOnly"
+              label="This edition does not contain digital file/NFT"
+            />
+          </UFormGroup>
+
+          <UFormGroup
+            label="Allow custom price"
+            :ui="{ label: { base: 'font-mono font-bold' } }"
+          >
+            <UCheckbox
+              v-model="p.isAllowCustomPrice"
+              name="isAllowCustomPrice"
+              label="Allow user to pay more than defined price"
+            />
+          </UFormGroup>
+
           <UButton v-if="hasMultiplePrices" label="Delete" color="red" @click="deletePrice(index)" />
         </component>
       </component>
@@ -403,7 +425,9 @@ const prices = ref<any[]>([{
   nameZh: '標準版',
   descriptionEn: '',
   descriptionZh: '',
-  hasShipping: false
+  hasShipping: false,
+  isPhysicalOnly: false,
+  isAllowCustomPrice: false
 }])
 const shippingRates = ref<any[]>([])
 const hasMultiplePrices = computed(() => prices.value.length > 1)
@@ -575,7 +599,9 @@ function addMorePrice () {
     nameZh: `級別 ${nextPriceIndex.value}`,
     descriptionEn: '',
     descriptionZh: '',
-    hasShipping: false
+    hasShipping: false,
+    isPhysicalOnly: false,
+    isAllowCustomPrice: false
   })
 }
 
@@ -628,6 +654,7 @@ function mapPrices (prices:any) {
       price: Number(p.price),
       stock: Number(p.stock),
       isAutoDeliver: p.deliveryMethod === 'auto',
+      isAllowCustomPrice: p.isAllowCustomPrice || false,
       autoMemo: p.deliveryMethod === 'auto' ? (p.autoMemo || '') : '',
       hasShipping: p.hasShipping || false,
       isPhysicalOnly: p.isPhysicalOnly || false
