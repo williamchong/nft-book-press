@@ -428,7 +428,7 @@ const step = ref(1)
 const error = ref('')
 const isLoading = ref(false)
 
-const iscnIdInput = ref(route.query.class_id || route.query.iscn_id || '')
+const iscnIdInput = ref(route.query.class_id as string || route.query.iscn_id as string || '')
 const iscnOwner = ref('')
 const iscnCreateData = ref<any>(null)
 const iscnData = ref<any>(null)

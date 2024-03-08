@@ -158,7 +158,7 @@ const route = useRoute()
 const toast = useToast()
 
 const classId = ref(route.params.classId)
-const priceIndex = ref(route.query.priceIndex)
+const priceIndex = ref(route.query.priceIndex as string)
 
 const MINIMAL_PRICE = 0.9
 

@@ -76,7 +76,7 @@ export const useBookStoreApiStore = defineStore('book-api', () => {
     return data
   }
 
-  async function addEditionPrice (classId: string, priceIndex: any, payload: any) {
+  async function addEditionPrice (classId: string, priceIndex: string, payload: any) {
     const { error, data } = await useFetch(`${LIKE_CO_API}/likernft/book/store/${classId}/price/${priceIndex}`, {
       method: 'POST',
       body: payload,
