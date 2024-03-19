@@ -1,12 +1,17 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 mb-[40px]">
     <UAlert
       v-if="error"
       icon="i-heroicons-exclamation-triangle"
       color="red"
       variant="soft"
       :title="`${error}`"
-      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      :close-button="{
+        icon: 'i-heroicons-x-mark-20-solid',
+        color: 'red',
+        variant: 'link',
+        padded: false,
+      }"
       @close="error = ''"
     />
 
@@ -31,154 +36,251 @@
             class="font-mono"
             placeholder="likenft...."
           />
-          <UInput
-            v-else
-            :value="classId"
-            :readonly="true"
-          />
+          <UInput v-else :value="classId" :readonly="true" />
         </UFormGroup>
 
         <UFormGroup label="Total number of NFT for sale">
-          <UInput
-            :value="`${totalStock}`"
-            :readonly="true"
-            disabled
-          />
+          <UInput :value="`${totalStock}`" :readonly="true" disabled />
         </UFormGroup>
       </UCard>
 
-      <ShippingRatesRateTable
-        :read-only="false"
-        :is-new-listing-page="true"
-        :shipping-info="shippingRates"
-        @on-update-shipping-rates="updateShippingRate"
-      />
-
-      <UCard :ui="{ header: { base: 'flex justify-between items-center gap-2' } }">
-        <template #header>
-          <h3 class="font-bold font-mono">
-            Pricing and Availability
-          </h3>
-
-          <UButton
-            v-if="!isEditMode"
-            icon="i-heroicons-plus-circle"
-            label="Add Edition"
-            @click="addMorePrice"
-          />
-        </template>
-
-        <UFormGroup
-          label="Default display currency when user checkout"
-          help="note that prices setting are always in USD"
+      <component
+        :is="hasMultiplePrices ? 'ul' : 'div'"
+        class="flex flex-col gap-[12px]"
+      >
+        <component
+          :is="hasMultiplePrices ? 'li' : 'div'"
+          v-for="(p, index) in prices"
+          :key="p.index"
         >
-          <URadio v-model="defaultPaymentCurrency" label="USD" name="USD" value="USD" />
-          <URadio v-model="defaultPaymentCurrency" label="HKD" name="HKD" value="HKD" />
-        </UFormGroup>
-      </UCard>
-
-      <component :is="hasMultiplePrices ? 'ul' : 'div'">
-        <component :is="hasMultiplePrices ? 'li' : 'div'" v-for="p, index in prices" :key="p.index" class="space-y-4">
-          <UDivider v-if="index > 0" />
-
-          <UFormGroup :label="`Price(USD) of this ${priceItemLabel} (Minimal ${MINIMAL_PRICE} or $0 (free))`">
-            <UInput :value="p.price" type="number" step="0.01" :min="0" @input="e => updatePrice(e, 'price', index)" />
-          </UFormGroup>
-
-          <UFormGroup :label="`Total number of NFT for sale of this ${priceItemLabel}`">
-            <UInput :value="p.stock" type="number" step="1" :min="0" @input="e => updatePrice(e, 'stock', index)" />
-          </UFormGroup>
-
-          <URadioGroup
-            v-model="p.deliveryMethod"
-            :legend="`Delivery method of this ${priceItemLabel}`"
-            :options="deliverMethodOptions"
-          />
-
-          <UFormGroup
-            v-if="p.deliveryMethod === 'auto'"
-            :label="`Memo of this ${priceItemLabel}`"
+          <UCard
+            :ui="{
+              body: { base: 'space-y-5 border-[4px] relative' },
+              base: 'overflow-visible border-[2px]',
+            }"
           >
-            <UInput :value="p.autoMemo" @input="e => updatePrice(e, 'autoMemo', index)" />
-          </UFormGroup>
+            <UCard
+              :ui="{
+                body: {
+                  base: 'flex flex-col gap-[20px]',
+                },
+                base: 'overflow-visible'
+              }"
+            >
+              <template #header>
+                <h3 class="font-bold font-mono">
+                  Pricing and Availability
+                </h3>
+              </template>
+              <UFormGroup
+                :label="`Unit Price in USD (Minimum ${MINIMAL_PRICE}, or 0 for free)`"
+              >
+                <UInput
+                  :value="p.price"
+                  type="number"
+                  step="0.01"
+                  :min="0"
+                  @input="(e) => updatePrice(e, 'price', index)"
+                />
+              </UFormGroup>
+              <UFormGroup
+                :label="`Total number of NFT ${hasMultiplePrices ? 'edition' : 'ebook'} for sale`"
+              >
+                <UInput
+                  :value="p.stock"
+                  type="number"
+                  step="1"
+                  :min="0"
+                  @input="(e) => updatePrice(e, 'stock', index)"
+                />
+              </UFormGroup>
+              <URadioGroup
+                v-model="p.deliveryMethod"
+                :legend="`Delivery method of this ${priceItemLabel}`"
+                :options="deliverMethodOptions"
+              />
+              <UFormGroup v-if="p.deliveryMethod === 'auto'">
+                <template #label>
+                  {{ `Memo of this ${priceItemLabel}` }}
+                  <ToolTips>
+                    <template #image>
+                      <img
+                        src="~/assets/images/hint/memo.png"
+                        class="object-cover"
+                        alt=""
+                      >
+                    </template>
+                    <UIcon name="i-heroicons-question-mark-circle" />
+                  </ToolTips>
+                </template>
+                <UInput
+                  :value="p.autoMemo"
+                  @input="(e) => updatePrice(e, 'autoMemo', index)"
+                />
+              </UFormGroup>
+              <UFormGroup
+                v-else
+                label="Is Physical only good"
+              >
+                <UCheckbox
+                  v-model="p.isPhysicalOnly"
+                  name="isPhysicalOnly"
+                  label="This edition does not contain digital file/NFT"
+                />
+              </UFormGroup>
 
-          <UFormGroup
-            :label="`Product name of this ${priceItemLabel}`"
-            :ui="{ container: 'space-y-2' }"
-          >
-            <UInput placeholder="Product name in English" :value="p.nameEn" @input="e => updatePrice(e, 'nameEn', index)" />
-            <UInput placeholder="產品中文名字" :value="p.nameZh" @input="e => updatePrice(e, 'nameZh', index)" />
-          </UFormGroup>
+              <UFormGroup>
+                <template #label>
+                  Allow custom price
+                  <ToolTips :image-style="{ width: '300px' }">
+                    <template #image>
+                      <img
+                        src="~/assets/images/hint/tipping.png"
+                        class="object-cover"
+                        alt=""
+                      >
+                    </template>
+                    <UIcon name="i-heroicons-question-mark-circle" />
+                  </ToolTips>
+                </template>
+                <UCheckbox
+                  v-model="p.isAllowCustomPrice"
+                  name="isAllowCustomPrice"
+                  label="Allow user to pay more than defined price"
+                />
+              </UFormGroup>
+            </UCard>
 
-          <h5 class="font-bold font-mono">
-            Product description of this {{ priceItemLabel }}
-          </h5>
-          <md-editor
-            v-model="p.descriptionEn"
-            language="en-US"
-            :editor-id="`en-${index}`"
-            :placeholder="mdEditorPlaceholder.en"
-            :toolbars="toolbarOptions"
-            :sanitize="sanitizeHtml"
-          />
-          <md-editor
-            v-model="p.descriptionZh"
-            language="en-US"
-            :editor-id="`zh-${index}`"
-            :placeholder="mdEditorPlaceholder.zh"
-            :toolbars="toolbarOptions"
-            :sanitize="sanitizeHtml"
-          />
+            <UCard
+              :ui="{
+                body: {
+                  base: 'flex flex-col gap-[20px]',
+                },
+                base: 'overflow-visible'
+              }"
+            >
+              <template #header>
+                <h3 class="font-bold font-mono">
+                  Product Information
+                </h3>
+              </template>
+              <UFormGroup label="Product Name" :ui="{ container: 'space-y-2' }">
+                <template #label>
+                  Product Name
+                  <ToolTips :image-style="{ width: '250px' }">
+                    <template #image>
+                      <img
+                        src="~/assets/images/hint/editionInfo-en.png"
+                        class="object-cover"
+                        alt=""
+                      >
+                    </template>
+                    <UIcon name="i-heroicons-question-mark-circle" />
+                  </ToolTips>
+                </template>
+                <UInput
+                  placeholder="Product name in English"
+                  :value="p.nameEn"
+                  @input="(e) => updatePrice(e, 'nameEn', index)"
+                />
+                <span class="block text-[14px] text-[#374151] mt-[8px]">Description (Optional)</span>
+                <md-editor
+                  v-model="p.descriptionEn"
+                  language="en-US"
+                  :editor-id="`en-${index}`"
+                  :placeholder="mdEditorPlaceholder.en"
+                  :toolbars="toolbarOptions"
+                  :sanitize="sanitizeHtml"
+                  :style="{ height: '200px', width: '100%', marginTop: '0px' }"
+                />
+              </UFormGroup>
+              <UFormGroup :ui="{ container: 'space-y-2 my-[20px]' }">
+                <template #label>
+                  產品名稱
+                  <ToolTips :image-style="{ width: '250px' }">
+                    <template #image>
+                      <img
+                        src="~/assets/images/hint/editionInfo-zh.png"
+                        class="object-cover"
+                        alt=""
+                      >
+                    </template>
+                    <UIcon name="i-heroicons-question-mark-circle" />
+                  </ToolTips>
+                </template>
+                <UInput
+                  placeholder="產品中文名字"
+                  :value="p.nameZh"
+                  @input="(e) => updatePrice(e, 'nameZh', index)"
+                />
+                <span class="block text-[14px] text-[#374151] mt-[8px]">描述 (選填)</span>
+                <md-editor
+                  v-model="p.descriptionZh"
+                  language="en-US"
+                  :editor-id="`zh-${index}`"
+                  :placeholder="mdEditorPlaceholder.zh"
+                  :toolbars="toolbarOptions"
+                  :sanitize="sanitizeHtml"
+                  :style="{ height: '200px', width: '100%', marginTop: '0px' }"
+                />
+              </UFormGroup>
+            </UCard>
 
-          <ShippingRatesRateTable
-            v-model="p.hasShipping"
-            :read-only="true"
-            :is-new-listing-page="true"
-            :shipping-info="shippingRates"
-          />
-
-          <UFormGroup
-            label="Is Physical only good"
-            :ui="{ label: { base: 'font-mono font-bold' } }"
-          >
-            <UCheckbox
-              v-model="p.isPhysicalOnly"
-              name="isPhysicalOnly"
-              label="This edition does not contain digital file/NFT"
+            <ShippingRatesRateTable
+              v-model="p.hasShipping"
+              :read-only="true"
+              :is-new-listing-page="true"
+              :shipping-info="shippingRates"
             />
-          </UFormGroup>
-
-          <UFormGroup
-            label="Allow custom price"
-            :ui="{ label: { base: 'font-mono font-bold' } }"
-          >
-            <UCheckbox
-              v-model="p.isAllowCustomPrice"
-              name="isAllowCustomPrice"
-              label="Allow user to pay more than defined price"
-            />
-          </UFormGroup>
-
-          <UButton v-if="hasMultiplePrices" label="Delete" color="red" @click="deletePrice(index)" />
+            <div class="flex justify-center items-center">
+              <UButton
+                v-if="hasMultiplePrices"
+                label="Delete"
+                color="red"
+                @click="deletePrice(index)"
+              />
+            </div>
+          </UCard>
         </component>
       </component>
+      <div class="flex justify-center items-center">
+        <UButton
+          v-if="!isEditMode"
+          :ui="{ rounded: 'rounded-full' }"
+          color="gray"
+          icon="i-heroicons-plus-solid"
+          label="Add Edition"
+          @click="addMorePrice"
+        />
+      </div>
 
       <UCard
         :ui="{
           divide: isStripeConnectChecked ? undefined : '',
           header: { base: 'flex flex-wrap justify-between items-center gap-2' },
-          body: { padding: isStripeConnectChecked ? undefined : '', base: 'grid lg:grid-cols-2 gap-4' }
+          body: {
+            padding: isStripeConnectChecked ? undefined : '',
+            base: 'grid lg:grid-cols-2 gap-4',
+          },
         }"
       >
         <template #header>
           <h3 class="font-bold font-mono">
-            Connect to your own Stripe Account
+            Stripe Connect Settings
           </h3>
-          <UToggle v-model="isStripeConnectChecked" name="stripe" label="Use a Stripe Connect account for receiving all payment" />
+          <UToggle
+            v-model="isStripeConnectChecked"
+            name="stripe"
+            label="Use a Stripe Connect account for receiving all payment"
+          />
         </template>
 
         <template v-if="isStripeConnectChecked">
-          <URadio v-model="stripeConnectWallet" :disabled="!(connectStatus?.isReady)" :value="classOwnerWallet?.value?.ownerWallet">
+          <URadio
+            v-model="stripeConnectWallet"
+            :disabled="!connectStatus?.isReady"
+            :value="classOwnerWallet?.value?.ownerWallet"
+          >
             <template #label>
               <span v-if="connectStatus?.isReady">Use my account</span>
               <span v-else>
@@ -193,11 +295,16 @@
               </span>
             </template>
           </URadio>
-          <URadio v-model="stripeConnectWallet" :value="stripeConnectWalletInput">
+          <URadio
+            v-model="stripeConnectWallet"
+            :value="stripeConnectWalletInput"
+          >
             <template #label>
               <UFormGroup label="Enter a wallet address with connected account">
                 <UInput
-                  v-if="stripeConnectWallet !== classOwnerWallet?.value?.ownerWallet"
+                  v-if="
+                    stripeConnectWallet !== classOwnerWallet?.value?.ownerWallet
+                  "
                   v-model="stripeConnectWalletInput"
                   class="font-mono"
                   placeholder="like1..."
@@ -212,106 +319,13 @@
       <UCard :ui="{ body: { base: 'space-y-8' } }">
         <template #header>
           <h3 class="font-bold font-mono">
-            DRM Options
-          </h3>
-        </template>
-
-        <div class="grid md:grid-cols-2 gap-4">
-          <UFormGroup
-            label="Force NFT claim before view"
-            :ui="{ label: { base: 'font-mono font-bold' } }"
-          >
-            <UCheckbox
-              v-model="mustClaimToView"
-              name="mustClaimToView"
-              label="Must claim NFT to view"
-            />
-          </UFormGroup>
-
-          <UFormGroup
-            label="Disable File Download"
-            :ui="{ label: { base: 'font-mono font-bold' } }"
-          >
-            <UCheckbox
-              v-model="hideDownload"
-              name="hideDownload"
-              label="Disable Download"
-            />
-          </UFormGroup>
-        </div>
-      </UCard>
-
-      <UCard :ui="{ body: { base: 'space-y-8' } }">
-        <template #header>
-          <h3 class="font-bold font-mono">
             Other Settings
           </h3>
         </template>
         <UCard
           :ui="{
             header: { base: 'flex justify-between items-center' },
-            body: { padding: '', base: 'space-y-8' }
-          }"
-        >
-          <template #header>
-            <h4 class="text-sm font-bold font-mono">
-              Share sales data to wallets
-            </h4>
-            <div class="flex gap-2">
-              <UInput
-                v-model="moderatorWalletInput"
-                class="font-mono"
-                placeholder="like1..."
-              />
-
-              <UButton
-                label="Add"
-                :variant="moderatorWalletInput ? 'outline' : 'solid'"
-                :color="moderatorWalletInput ? 'primary' : 'gray'"
-                :disabled="!moderatorWalletInput"
-                @click="addModeratorWallet"
-              />
-            </div>
-          </template>
-
-          <UTable
-            :columns="moderatorWalletsTableColumns"
-            :rows="moderatorWalletsTableRows"
-          >
-            <template #wallet-data="{ row }">
-              <UButton
-                class="font-mono"
-                :label="row.wallet"
-                :to="row.walletLink"
-                variant="link"
-                :padded="false"
-              />
-            </template>
-            <template #authz-data="{ row }">
-              <UButton
-                :label="row.grantLabel"
-                :to="row.grantRoute"
-                :variant="row.isGranted ? 'outline' : 'solid'"
-                color="green"
-              />
-            </template>
-            <template #remove-data="{ row }">
-              <div class="flex justify-end items-center">
-                <UButton
-                  icon="i-heroicons-x-mark"
-                  variant="soft"
-                  color="red"
-                  @click="() => moderatorWallets.splice(row.index, 1)"
-                />
-              </div>
-            </template>
-          </UTable>
-        </UCard>
-
-        <UCard
-          :ui="{
-            header: { base: 'flex justify-between items-center' },
-            body: { padding: '' }
+            body: { padding: '' },
           }"
         >
           <template #header>
@@ -336,7 +350,10 @@
           </template>
 
           <UTable
-            :columns="[{ key: 'email', label: 'Email', sortable: true }, { key: 'action' }]"
+            :columns="[
+              { key: 'email', label: 'Email', sortable: true },
+              { key: 'action' },
+            ]"
             :rows="notificationEmailsTableRows"
           >
             <template #email-data="{ row }">
@@ -360,6 +377,167 @@
             </template>
           </UTable>
         </UCard>
+      </UCard>
+
+      <UCard
+        :ui="{
+          header: { base: 'flex justify-between items-center' },
+          body: { padding: '12px' },
+        }"
+      >
+        <div class="flex justify-between items-center w-full">
+          <h3 class="font-bold font-mono">
+            Advance Settings
+          </h3>
+          <UButton
+            color="gray"
+            variant="ghost"
+            :icon="
+              shouldShowAdvanceSettings
+                ? 'i-heroicons-chevron-up'
+                : 'i-heroicons-chevron-down'
+            "
+            @click="
+              () => {
+                shouldShowAdvanceSettings = !shouldShowAdvanceSettings;
+              }
+            "
+          />
+        </div>
+        <template v-if="shouldShowAdvanceSettings">
+          <div class="mt-[24px] flex flex-col gap-[12px]">
+            <!-- Default Currency -->
+            <UCard
+              :ui="{ header: { base: 'flex justify-between items-center gap-2' } }"
+            >
+              <template #header>
+                <h3 class="font-bold font-mono">
+                  Default Currency
+                </h3>
+              </template>
+
+              <UFormGroup
+                label="Default Display Currency at Checkout"
+                help="Note that price setting is always in USD "
+              >
+                <URadio
+                  v-model="defaultPaymentCurrency"
+                  label="USD"
+                  name="USD"
+                  value="USD"
+                />
+                <URadio
+                  v-model="defaultPaymentCurrency"
+                  label="HKD"
+                  name="HKD"
+                  value="HKD"
+                />
+              </UFormGroup>
+            </UCard>
+
+            <!-- Shipping Rates -->
+            <ShippingRatesRateTable
+              :read-only="false"
+              :is-new-listing-page="true"
+              :shipping-info="shippingRates"
+              @on-update-shipping-rates="updateShippingRate"
+            />
+
+            <!-- Share sales data -->
+            <UCard
+              :ui="{
+                header: { base: 'flex justify-between items-center' },
+                body: { padding: '', base: 'space-y-8' },
+              }"
+            >
+              <template #header>
+                <h4 class="text-sm font-bold font-mono">
+                  Share sales data to wallets
+                </h4>
+                <div class="flex gap-2">
+                  <UInput
+                    v-model="moderatorWalletInput"
+                    class="font-mono"
+                    placeholder="like1..."
+                  />
+
+                  <UButton
+                    label="Add"
+                    :variant="moderatorWalletInput ? 'outline' : 'solid'"
+                    :color="moderatorWalletInput ? 'primary' : 'gray'"
+                    :disabled="!moderatorWalletInput"
+                    @click="addModeratorWallet"
+                  />
+                </div>
+              </template>
+              <UTable
+                :columns="moderatorWalletsTableColumns"
+                :rows="moderatorWalletsTableRows"
+              >
+                <template #wallet-data="{ row }">
+                  <UButton
+                    class="font-mono"
+                    :label="row.wallet"
+                    :to="row.walletLink"
+                    variant="link"
+                    :padded="false"
+                  />
+                </template>
+                <template #authz-data="{ row }">
+                  <UButton
+                    :label="row.grantLabel"
+                    :to="row.grantRoute"
+                    :variant="row.isGranted ? 'outline' : 'solid'"
+                    color="green"
+                  />
+                </template>
+                <template #remove-data="{ row }">
+                  <div class="flex justify-end items-center">
+                    <UButton
+                      icon="i-heroicons-x-mark"
+                      variant="soft"
+                      color="red"
+                      @click="() => moderatorWallets.splice(row.index, 1)"
+                    />
+                  </div>
+                </template>
+              </UTable>
+            </UCard>
+
+            <!-- DRM -->
+            <UCard :ui="{ body: { base: 'space-y-8' } }">
+              <template #header>
+                <h3 class="font-bold font-mono">
+                  DRM Options
+                </h3>
+              </template>
+
+              <div class="grid md:grid-cols-2 gap-4">
+                <UFormGroup
+                  label="Force NFT claim before view"
+                  :ui="{ label: { base: 'font-mono font-bold' } }"
+                >
+                  <UCheckbox
+                    v-model="mustClaimToView"
+                    name="mustClaimToView"
+                    label="Must claim NFT to view"
+                  />
+                </UFormGroup>
+
+                <UFormGroup
+                  label="Disable File Download"
+                  :ui="{ label: { base: 'font-mono font-bold' } }"
+                >
+                  <UCheckbox
+                    v-model="hideDownload"
+                    name="hideDownload"
+                    label="Disable Download"
+                  />
+                </UFormGroup>
+              </div>
+            </UCard>
+          </div>
+        </template>
       </UCard>
 
       <UButton
@@ -397,7 +575,9 @@ const router = useRouter()
 const route = useRoute()
 // params.editingClassId and params.editionIndex is only available when editing an existing class
 // query.class_id is only available when creating a new class
-const classId = ref(route.params.editingClassId || route.query.class_id as string)
+const classId = ref(
+  route.params.editingClassId || (route.query.class_id as string)
+)
 const editionIndex = ref(route.params.editionIndex as string)
 
 const error = ref('')
@@ -405,8 +585,8 @@ const isLoading = ref(false)
 const connectStatus = ref<any>({})
 
 const mdEditorPlaceholder = ref({
-  en: 'Product description in English...',
-  zh: '產品中文描述...'
+  en: 'e.g.: This edition includes EPUB and PDF ebook files.',
+  zh: '例：此版本包含 EPUB 及 PDF 電子書檔'
 })
 
 const classIdInput = ref(classId || '')
@@ -414,23 +594,29 @@ const nextPriceIndex = ref(1)
 const defaultPaymentCurrency = ref('USD')
 const mustClaimToView = ref(true)
 const hideDownload = ref(false)
-const prices = ref<any[]>([{
-  price: DEFAULT_PRICE,
-  deliveryMethod: 'auto',
-  autoMemo: 'Thanks for purchasing this NFT ebook.',
-  stock: Number(route.query.count as string || 1),
-  nameEn: 'Standard Edition',
-  nameZh: '標準版',
-  descriptionEn: '',
-  descriptionZh: '',
-  hasShipping: false,
-  isPhysicalOnly: false,
-  isAllowCustomPrice: false
-}])
+const prices = ref<any[]>([
+  {
+    price: DEFAULT_PRICE,
+    deliveryMethod: 'auto',
+    autoMemo: 'Thank you for your support. It means a lot to me.',
+    stock: Number((route.query.count as string) || 1),
+    nameEn: 'Standard Edition',
+    nameZh: '標準版',
+    descriptionEn: '',
+    descriptionZh: '',
+    hasShipping: false,
+    isPhysicalOnly: false,
+    isAllowCustomPrice: false
+  }
+])
 const shippingRates = ref<any[]>([])
 const hasMultiplePrices = computed(() => prices.value.length > 1)
-const priceItemLabel = computed(() => hasMultiplePrices.value ? 'edition' : 'book')
-const moderatorWallets = ref<string[]>([])
+const priceItemLabel = computed(() =>
+  hasMultiplePrices.value ? 'edition' : 'book'
+)
+const moderatorWallets = ref<string[]>([
+  'like1rclg677y2jqt8x4ylj0kjlqjjmnn6w63uflpgr'
+])
 const moderatorWalletsGrants = ref<any>({})
 const notificationEmails = ref<string[]>([])
 const moderatorWalletInput = ref('')
@@ -438,7 +624,9 @@ const notificationEmailInput = ref('')
 const isStripeConnectChecked = ref(false)
 const stripeConnectWallet = ref('')
 const stripeConnectWalletInput = ref('')
-const totalStock = computed(() => prices.value.reduce((acc, p) => acc + Number(p.stock), 0))
+const totalStock = computed(() =>
+  prices.value.reduce((acc, p) => acc + Number(p.stock), 0)
+)
 
 const toolbarOptions = ref<string[]>([
   'bold',
@@ -455,11 +643,18 @@ const toolbarOptions = ref<string[]>([
   'preview'
 ])
 
-const isEditMode = computed(() => Boolean(route.params.editingClassId && editionIndex.value))
-const pageTitle = computed(() => isEditMode.value ? 'Edit Current Edition' : 'New NFT Book Listing')
-const submitButtonText = computed(() => isEditMode.value ? 'Save Changes' : 'Submit')
+const isEditMode = computed(() =>
+  Boolean(route.params.editingClassId && editionIndex.value)
+)
+const pageTitle = computed(() =>
+  isEditMode.value ? 'Edit Current Edition' : 'New NFT Book Listing'
+)
+const submitButtonText = computed(() =>
+  isEditMode.value ? 'Save Changes' : 'Submit'
+)
 const editionInfo = ref<any>({})
 const classOwnerWallet = ref<any>({})
+const shouldShowAdvanceSettings = ref<boolean>(false)
 
 const moderatorWalletsTableColumns = computed(() => [
   { key: 'wallet', label: 'Wallet', sortable: true },
@@ -467,27 +662,31 @@ const moderatorWalletsTableColumns = computed(() => [
   { key: 'remove', label: '', sortable: false }
 ])
 
-const moderatorWalletsTableRows = computed(() => moderatorWallets.value.map((wallet, index) => {
-  const isGranted = !!moderatorWalletsGrants.value[wallet]
-  return {
-    index,
-    wallet,
-    walletLink: getPortfolioURL(wallet),
-    isGranted,
-    grantLabel: isGranted ? 'Granted' : 'Grant',
-    grantRoute: {
-      name: 'authz',
-      query: {
-        grantee: wallet
+const moderatorWalletsTableRows = computed(() =>
+  moderatorWallets.value.map((wallet, index) => {
+    const isGranted = !!moderatorWalletsGrants.value[wallet]
+    return {
+      index,
+      wallet,
+      walletLink: getPortfolioURL(wallet),
+      isGranted,
+      grantLabel: isGranted ? 'Granted' : 'Grant',
+      grantRoute: {
+        name: 'authz',
+        query: {
+          grantee: wallet
+        }
       }
     }
-  }
-}))
+  })
+)
 
-const notificationEmailsTableRows = computed(() => notificationEmails.value.map((email, index) => ({
-  index,
-  email
-})))
+const notificationEmailsTableRows = computed(() =>
+  notificationEmails.value.map((email, index) => ({
+    index,
+    email
+  }))
+)
 
 config({
   markdownItConfig (mdit: any) {
@@ -507,14 +706,19 @@ onMounted(async () => {
       })
       : Promise.resolve({ data: null })
 
-    const fetchConnectStatusPromise =
-        useFetch(`${LIKE_CO_API}/likernft/book/user/connect/status?wallet=${wallet.value}`, {
-          headers: {
-            authorization: `Bearer ${token.value}`
-          }
-        })
+    const fetchConnectStatusPromise = useFetch(
+      `${LIKE_CO_API}/likernft/book/user/connect/status?wallet=${wallet.value}`,
+      {
+        headers: {
+          authorization: `Bearer ${token.value}`
+        }
+      }
+    )
 
-    const [classData, connectStatusData] = await Promise.all([fetchClassDataPromise, fetchConnectStatusPromise])
+    const [classData, connectStatusData] = await Promise.all([
+      fetchClassDataPromise,
+      fetchConnectStatusPromise
+    ])
 
     if (classData?.data?.value) {
       const data = classData.data?.value
@@ -525,7 +729,9 @@ onMounted(async () => {
       }
 
       editionInfo.value = data
-      const currentEdition = editionInfo.value.prices.filter(e => e.index.toString() === editionIndex.value)[0]
+      const currentEdition = editionInfo.value.prices.filter(
+        e => e.index.toString() === editionIndex.value
+      )[0]
       if (currentEdition) {
         prices.value = [
           {
@@ -548,14 +754,22 @@ onMounted(async () => {
       } = data as any
       moderatorWallets.value = classModeratorWallets
       notificationEmails.value = classNotificationEmails
-      isStripeConnectChecked.value = !!(classConnectedWallets && Object.keys(classConnectedWallets).length)
-      stripeConnectWallet.value = classConnectedWallets && Object.keys(classConnectedWallets)[0]
-      if (classDefaultPaymentCurrency) { defaultPaymentCurrency.value = classDefaultPaymentCurrency }
+      isStripeConnectChecked.value = !!(
+        classConnectedWallets && Object.keys(classConnectedWallets).length
+      )
+      stripeConnectWallet.value =
+        classConnectedWallets && Object.keys(classConnectedWallets)[0]
+      if (classDefaultPaymentCurrency) {
+        defaultPaymentCurrency.value = classDefaultPaymentCurrency
+      }
       mustClaimToView.value = classMustClaimToView
       hideDownload.value = classHideDownload
     }
 
-    if (connectStatusData.error?.value && connectStatusData.error?.value?.statusCode !== 404) {
+    if (
+      connectStatusData.error?.value &&
+      connectStatusData.error?.value?.statusCode !== 404
+    ) {
       throw new Error(connectStatusData.error.value.toString())
     }
     connectStatus.value = (connectStatusData?.data?.value as any) || {}
@@ -568,14 +782,19 @@ onMounted(async () => {
 })
 
 watch(isLoading, (newIsLoading) => {
-  if (newIsLoading) { error.value = '' }
+  if (newIsLoading) {
+    error.value = ''
+  }
 })
 
 watch(moderatorWallets, (newModeratorWallets) => {
   newModeratorWallets?.forEach(async (m) => {
     if (!moderatorWalletsGrants.value[m]) {
       try {
-        moderatorWalletsGrants.value[m] = await getNFTAuthzGrants(wallet.value, m)
+        moderatorWalletsGrants.value[m] = await getNFTAuthzGrants(
+          wallet.value,
+          m
+        )
       } catch {}
     }
   })
@@ -612,13 +831,17 @@ function updateShippingRate (options: any) {
 }
 
 function addModeratorWallet () {
-  if (!moderatorWalletInput.value) { return }
+  if (!moderatorWalletInput.value) {
+    return
+  }
   moderatorWallets.value.push(moderatorWalletInput.value)
   moderatorWalletInput.value = ''
 }
 
 function addNotificationEmail () {
-  if (!notificationEmailInput.value) { return }
+  if (!notificationEmailInput.value) {
+    return
+  }
   notificationEmails.value.push(notificationEmailInput.value)
   notificationEmailInput.value = ''
 }
@@ -640,28 +863,29 @@ function sanitizeHtml (html: string) {
   return DOMPurify.sanitize(html)
 }
 
-function mapPrices (prices:any) {
-  return prices
-    .map((p: any) => ({
-      name: { en: p.nameEn, zh: p.nameZh },
-      description: {
-        en: escapeHtml(p.descriptionEn),
-        zh: escapeHtml(p.descriptionZh)
-      },
-      priceInDecimal: Math.round(Number(p.price) * 100),
-      price: Number(p.price),
-      stock: Number(p.stock),
-      isAutoDeliver: p.deliveryMethod === 'auto',
-      isAllowCustomPrice: p.isAllowCustomPrice || false,
-      autoMemo: p.deliveryMethod === 'auto' ? (p.autoMemo || '') : '',
-      hasShipping: p.hasShipping || false,
-      isPhysicalOnly: p.isPhysicalOnly || false
-    }))
+function mapPrices (prices: any) {
+  return prices.map((p: any) => ({
+    name: { en: p.nameEn, zh: p.nameZh },
+    description: {
+      en: escapeHtml(p.descriptionEn),
+      zh: escapeHtml(p.descriptionZh)
+    },
+    priceInDecimal: Math.round(Number(p.price) * 100),
+    price: Number(p.price),
+    stock: Number(p.stock),
+    isAutoDeliver: p.deliveryMethod === 'auto',
+    isAllowCustomPrice: p.isAllowCustomPrice || false,
+    autoMemo: p.deliveryMethod === 'auto' ? p.autoMemo || '' : '',
+    hasShipping: p.hasShipping || false,
+    isPhysicalOnly: p.isPhysicalOnly || false
+  }))
 }
 
 async function checkStripeConnect () {
   if (isStripeConnectChecked.value && stripeConnectWallet.value) {
-    const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/user/connect/status?wallet=${stripeConnectWallet.value}`)
+    const { data, error: fetchError } = await useFetch(
+      `${LIKE_CO_API}/likernft/book/user/connect/status?wallet=${stripeConnectWallet.value}`
+    )
     if (fetchError.value && fetchError.value?.statusCode !== 404) {
       throw new Error(fetchError.value.toString())
     }
@@ -683,38 +907,52 @@ async function submitNewClass () {
       throw new Error('Please press "Add" button to add notification email')
     }
 
-    const { data, error: fetchError } = await useFetch(`${LCD_URL}/cosmos/nft/v1beta1/classes/${classIdInput.value}`)
+    const { data, error: fetchError } = await useFetch(
+      `${LCD_URL}/cosmos/nft/v1beta1/classes/${classIdInput.value}`
+    )
     if (fetchError.value && fetchError.value?.statusCode !== 404) {
       throw new Error(fetchError.value.toString())
     }
-    const collectionId = (data?.value as any)?.class?.data?.metadata?.nft_meta_collection_id || ''
-    if (!collectionId.includes('nft_book') && !collectionId.includes('book_nft')) {
+    const collectionId =
+      (data?.value as any)?.class?.data?.metadata?.nft_meta_collection_id || ''
+    if (
+      !collectionId.includes('nft_book') &&
+      !collectionId.includes('book_nft')
+    ) {
       throw new Error('NFT Class not in NFT BOOK meta collection')
     }
 
     const p = mapPrices(prices.value)
-    if (p.find((price: any) => price.price !== 0 && price.price < MINIMAL_PRICE)) {
-      throw new Error(`Price of each edition must be at least $${MINIMAL_PRICE} or $0 (free)`)
+    if (
+      p.find((price: any) => price.price !== 0 && price.price < MINIMAL_PRICE)
+    ) {
+      throw new Error(
+        `Price of each edition must be at least $${MINIMAL_PRICE} or $0 (free)`
+      )
     }
     await checkStripeConnect()
 
-    const connectedWallets = (isStripeConnectChecked.value && stripeConnectWallet.value)
-      ? {
-          [stripeConnectWallet.value]: 100
-        }
-      : null
+    const connectedWallets =
+      isStripeConnectChecked.value && stripeConnectWallet.value
+        ? {
+            [stripeConnectWallet.value]: 100
+          }
+        : null
     const s = shippingRates.value.length
-      ? shippingRates.value
-        .map(rate => ({
-          name: { en: rate.name.en, zh: rate.name.zh },
-          priceInDecimal: rate.priceInDecimal,
-          price: rate.priceInDecimal / 100
-        }))
+      ? shippingRates.value.map(rate => ({
+        name: { en: rate.name.en, zh: rate.name.zh },
+        priceInDecimal: rate.priceInDecimal,
+        price: rate.priceInDecimal / 100
+      }))
       : undefined
 
     if (p.some(price => price.isAutoDeliver)) {
-      const ok = confirm('NFT Book Press - Reminder\nOnce you choose automatic delivery, you can\'t switch it back to manual delivery.  Are you sure?')
-      if (!ok) { return }
+      const ok = confirm(
+        "NFT Book Press - Reminder\nOnce you choose automatic delivery, you can't switch it back to manual delivery.  Are you sure?"
+      )
+      if (!ok) {
+        return
+      }
     }
 
     const autoDeliverCount = p
@@ -761,7 +999,9 @@ async function submitNewClass () {
 async function submitEditedClass () {
   try {
     if (!isEditMode.value) {
-      throw new Error('Unable to submit edit: Missing edition index or class ID')
+      throw new Error(
+        'Unable to submit edit: Missing edition index or class ID'
+      )
     }
     const p = mapPrices(prices.value)
     const price = p[0]
@@ -770,7 +1010,9 @@ async function submitEditedClass () {
       throw new Error('Please input price of edition')
     }
     if (price.price !== 0 && price.price < MINIMAL_PRICE) {
-      throw new Error(`Price of each edition must be at least $${MINIMAL_PRICE} or $0 (free)`)
+      throw new Error(
+        `Price of each edition must be at least $${MINIMAL_PRICE} or $0 (free)`
+      )
     }
 
     if (!price.stock && price.stock !== 0) {
@@ -804,11 +1046,10 @@ async function submitEditedClass () {
 function onSubmit () {
   return isEditMode.value ? submitEditedClass() : submitNewClass()
 }
-
 </script>
 <style scoped>
 .classIdInput {
-   width: 450px;
+  width: 450px;
 }
 .md-editor {
   width: 60vw;
