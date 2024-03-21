@@ -65,8 +65,8 @@
       v-model="isShippingModalOpened"
       :read-only="isModalReadOnly"
       :shipping-info="shippingInfo"
-      @on-update-shipping-rates="
-        (value) => emit('on-update-shipping-rates', value)"
+      @update-shipping-rates="
+        (value) => emit('update-shipping-rates', value)"
     />
   </UCard>
 </template>
@@ -78,7 +78,7 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  readOnly: {
+  isShowPhysicalGoodsCheckbox: {
     type: Boolean,
     default: false
   },
@@ -89,25 +89,26 @@ const props = defineProps({
   modelValue: {
     type: Boolean
   },
-  isNewListingPage: {
+  isShowSettingModalButton: {
     type: Boolean,
     default: false
   }
 })
-const emit = defineEmits(['update:modelValue', 'on-update-shipping-rates'])
+const emit = defineEmits(['update:modelValue', 'update-shipping-rates'])
 const isShippingModalOpened = ref<Boolean>(false)
 
 const hasShipping = ref(props.modelValue)
-const isModalReadOnly = ref(props.readOnly)
+const isModalReadOnly = ref(props.isShowPhysicalGoodsCheckbox)
+
 watch(() => props.modelValue, (newValue) => {
   hasShipping.value = newValue
 })
 watch(hasShipping, (hasShipping) => {
   emit('update:modelValue', hasShipping)
 })
-const isEditMode = computed(() => !(props.readOnly))
-const isViewMode = computed(() => (props.readOnly))
-const shouldHideViewButtonOnViewMode = computed(() => Boolean(isViewMode.value && props.isNewListingPage))
+const isEditMode = computed(() => !(props.isShowPhysicalGoodsCheckbox))
+const isViewMode = computed(() => (props.isShowPhysicalGoodsCheckbox))
+const shouldHideViewButtonOnViewMode = computed(() => Boolean(isViewMode.value && props.isShowSettingModalButton))
 const buttonConfig = computed(() => {
   if (isEditMode.value) {
     if (props.shippingInfo.length) {

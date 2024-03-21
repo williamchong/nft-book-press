@@ -258,10 +258,10 @@
       </UCard>
 
       <ShippingRatesRateTable
-        :read-only="false"
+        :is-show-physical-goods-checkbox="false"
         :is-loading="isUpdatingShippingRates"
         :shipping-info="classListingInfo.shippingRates"
-        @on-update-shipping-rates="updateShippingRates"
+        @update-shipping-rates="updateShippingRates"
       />
 
       <UCard

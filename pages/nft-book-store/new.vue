@@ -228,8 +228,8 @@
 
             <ShippingRatesRateTable
               v-model="p.hasShipping"
-              :read-only="true"
-              :is-new-listing-page="true"
+              :is-show-physical-goods-checkbox="true"
+              :is-show-setting-modal-button="true"
               :shipping-info="shippingRates"
             />
             <div class="flex justify-center items-center">
@@ -437,10 +437,10 @@
 
             <!-- Shipping Rates -->
             <ShippingRatesRateTable
-              :read-only="false"
-              :is-new-listing-page="true"
+              :is-show-physical-goods-checkbox="false"
+              :is-show-setting-modal-button="true"
               :shipping-info="shippingRates"
-              @on-update-shipping-rates="updateShippingRate"
+              @update-shipping-rates="updateShippingRate"
             />
 
             <!-- Share sales data -->

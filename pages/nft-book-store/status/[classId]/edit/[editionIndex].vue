@@ -92,10 +92,10 @@
 
         <ShippingRatesRateTable
           v-model="hasShipping"
-          :read-only="true"
+          :is-show-physical-goods-checkbox="true"
           :shipping-info="shippingRates"
           :is-loading="isUpdatingShippingRates"
-          @on-update-shipping-rates="updateShippingRates"
+          @update-shipping-rates="updateShippingRates"
         />
 
         <UFormGroup
