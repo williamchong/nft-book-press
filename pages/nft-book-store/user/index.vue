@@ -101,7 +101,7 @@
             <UBadge v-else label="No" color="red" variant="outline" />
           </template>
           <template #completed-data="{ row }">
-            <UBadge v-if="row.completed" :label="connectStatus?.email || 'Yes'" color="green" variant="outline" />
+            <UBadge v-if="row.completed" :label="connectStatus?.notificationEmail || 'Yes'" color="green" variant="outline" />
             <UBadge v-else label="No" color="red" variant="outline" />
           </template>
         </UTable>
@@ -125,6 +125,61 @@
             label="Setup Stripe Payment Recipient Account"
             size="lg"
             @click="onSetupStripe"
+          />
+        </template>
+      </UCard>
+
+      <UCard
+        :ui="{
+          header: { base: 'flex justify-between items-center' },
+          body: { padding: '' },
+          footer: { base: 'text-center' },
+        }"
+      >
+        <template #header>
+          <h1 class="text-center font-bold font-mono">
+            User Setting
+          </h1>
+        </template>
+
+        <UFormGroup label="Liker ID Email">
+          <UInput
+            :value="bookUser?.notificationEmail"
+            label="Liker ID Email"
+            disabled
+            :ui="{ base: 'font-mono' }"
+          />
+        </UFormGroup>
+        <UFormGroup label="Is Liker ID Email verified">
+          <UCheckbox
+            :value="bookUser?.isEmailVerified"
+            label="Is Liker ID Email verified"
+            disabled
+            :ui="{ base: 'font-mono' }"
+          />
+        </UFormGroup>
+        <UFormGroup label="Email Notification Settings">
+          <UAlert
+            v-if="!(bookUser?.notificationEmail && bookUser?.isEmailVerified)"
+            icon="i-heroicons-exclamation-circle"
+            color="orange"
+            variant="soft"
+            title="Please setup email in Liker ID."
+            description="To enable email notifications, setup and verify your Liker ID email"
+          />
+
+          <UCheckbox
+            v-model="isEnableNotificationEmails"
+            name="isEnalbeNotificationEmails"
+            label="Enable email notifications about commissions"
+            :disabled="!(bookUser?.notificationEmail && bookUser?.isEmailVerified)"
+          />
+        </UFormGroup>
+        <template #footer>
+          <UButton
+            label="Update"
+            color="gray"
+            @click="updateUserProfile"
           />
         </template>
       </UCard>
@@ -183,6 +238,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { useUserStore } from '~/stores/user'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
 import { useNftStore } from '~/stores/nft'
@@ -193,14 +249,21 @@ const nftStore = useNftStore()
 const walletStore = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
 const collectionStore = useCollectionStore()
+const userStore = useUserStore()
 const { wallet } = storeToRefs(walletStore)
 const { token } = storeToRefs(bookStoreApiStore)
+const { bookUser } = storeToRefs(userStore)
 
 const error = ref('')
 const isLoading = ref(false)
 const connectStatus = ref<any>({})
 const likerIdInfo = ref<any>({})
 const commissionHistory = ref<any>([])
+const isEnableNotificationEmails = ref(true)
+
+watch(bookUser, (user) => {
+  isEnableNotificationEmails.value = user?.isEnableNotificationEmails || false
+})
 
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
@@ -210,7 +273,8 @@ onMounted(async () => {
   await Promise.all([
     loadCommissionHistory(),
     loadLikerId(),
-    loadStripeConnectStatus()
+    loadStripeConnectStatus(),
+    userStore.lazyFetchBookUserProfile()
   ])
 })
 
@@ -347,6 +411,12 @@ async function onSetupStripe () {
   } finally {
     isLoading.value = false
   }
+}
+
+async function updateUserProfile () {
+  await userStore.updateBookUserProfile({
+    isEnableNotificationEmails: isEnableNotificationEmails.value
+  })
 }
 
 </script>

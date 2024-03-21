@@ -59,7 +59,7 @@ const items = [
         exact: true
       },
       {
-        label: 'Manage Stripe Account',
+        label: 'Manage User Setting',
         icon: 'i-heroicons-user-group',
         to: { name: 'nft-book-store-user' },
         exact: true
