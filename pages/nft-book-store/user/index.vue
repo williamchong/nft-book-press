@@ -36,6 +36,8 @@
         </UTooltip>
       </template>
 
+      <p>Note: You need to have a Stripe Express account to use the auto-payout service of Liker Land Bookstore. A Stripe Express account is separated from any full-featured Stripe account. If you have a full-featured Stripe account, you must also register again here to create a Stripe Express account under Liker Land.</p>
+
       <UTable
         :columns="[
           { key: 'initiated', label: 'Setup Initiated' },
