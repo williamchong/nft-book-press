@@ -1,5 +1,7 @@
 export const IS_TESTNET = false
 
+export const SITE_URL = IS_TESTNET ? 'https://likecoin-nft-book-press-testnet.netlify.app' : 'https://likecoin.github.io/nft-book-press'
+
 export const CHAIN_ID = IS_TESTNET
   ? 'likecoin-public-testnet-5'
   : 'likecoin-chain-2'
