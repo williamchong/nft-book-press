@@ -8,10 +8,12 @@ import {
 } from '@keplr-wallet/types'
 import type {
   LikeCoinWalletConnector,
-  LikeCoinWalletConnectorConnectionResult
+  LikeCoinWalletConnectorConnectionResult,
+  LikeCoinWalletConnectorMethodType
 } from '@likecoin/wallet-connector'
 
 import network from '@/constant/network'
+import { IS_TESTNET, SITE_URL } from '~/constant'
 
 declare global {
   interface Window extends KeplrWindow {}
@@ -25,7 +27,7 @@ export const useWalletStore = defineStore('wallet', () => {
   const isConnected = computed(() => !!wallet.value)
   const connector = ref(null as (LikeCoinWalletConnector | null) | null)
 
-  async function connect () {
+  async function initConnector () {
     const {
       chainId,
       chainName,
@@ -34,7 +36,7 @@ export const useWalletStore = defineStore('wallet', () => {
     } = network
     const likecoinWalletLib = await import('@likecoin/wallet-connector')
     const { LikeCoinWalletConnector, LikeCoinWalletConnectorMethodType } = likecoinWalletLib
-    connector.value = new LikeCoinWalletConnector({
+    const con = new LikeCoinWalletConnector({
       chainId,
       chainName,
       rpcURL: rpc,
@@ -51,8 +53,9 @@ export const useWalletStore = defineStore('wallet', () => {
       bech32PrefixConsAddr: network.bech32Config.bech32PrefixConsAddr,
       bech32PrefixConsPub: network.bech32Config.bech32PrefixConsPub,
       availableMethods: [
+        LikeCoinWalletConnectorMethodType.LikerId,
         LikeCoinWalletConnectorMethodType.Keplr,
-        [LikeCoinWalletConnectorMethodType.KeplrMobile, { tier: 1, isRecommended: true }],
+        LikeCoinWalletConnectorMethodType.KeplrMobile,
         LikeCoinWalletConnectorMethodType.Cosmostation,
         LikeCoinWalletConnectorMethodType.LikerLandApp,
         LikeCoinWalletConnectorMethodType.Leap,
@@ -69,8 +72,19 @@ export const useWalletStore = defineStore('wallet', () => {
       cosmostationDirectSignEnabled: true,
       connectWalletTitle: 'Login',
       connectWalletMobileWarning: 'Mobile Warning',
-      language: 'en'
+      language: 'en',
+      authcoreApiHost: IS_TESTNET
+        ? 'https://likecoin-integration-test.authcore.io'
+        : 'https://authcore.like.co',
+      authcoreRedirectUrl: `${SITE_URL}/auth/redirect?method=${LikeCoinWalletConnectorMethodType.LikerId}`
     })
+    return con
+  }
+
+  async function connect () {
+    if (!connector.value) {
+      connector.value = await initConnector()
+    }
     const session = connector.value.restoreSession()
     let connection: LikeCoinWalletConnectorConnectionResult | null = null
     if (session) {
@@ -88,6 +102,16 @@ export const useWalletStore = defineStore('wallet', () => {
     if (!connection) { return }
     accounts.value = connection.accounts
     signer.value = connection.offlineSigner as (OfflineAminoSigner & OfflineDirectSigner)
+  }
+
+  async function handleConnectorRedirect (
+    { method, params }: { method: string, params: string }
+  ) {
+    if (!connector.value) {
+      connector.value = await initConnector()
+    }
+    const connection = await connector.value.handleRedirect(method as LikeCoinWalletConnectorMethodType, params)
+    if (connection) { await handleConnection(connection as LikeCoinWalletConnectorConnectionResult) }
   }
 
   async function signMessageMemo (action: string, permissions?: string[]) {
@@ -145,6 +169,7 @@ export const useWalletStore = defineStore('wallet', () => {
     isConnected,
     connect,
     disconnect,
+    handleConnectorRedirect,
     signMessageMemo
   }
 })
