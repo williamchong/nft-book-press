@@ -1,8 +1,13 @@
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
+const LikeCoinWalletConnectorCSSPath = '@likecoin/wallet-connector/dist/style.css'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  css: ['@/assets/styles/global.css'],
+  css: [
+    LikeCoinWalletConnectorCSSPath,
+    '@/assets/styles/global.css'
+  ],
   modules: [
     '@pinia/nuxt',
     '@nuxtjs/eslint-module',
@@ -24,5 +29,9 @@ export default defineNuxtConfig({
   },
   colorMode: {
     preference: 'light'
+  },
+  tailwindcss: {
+    injectPosition: { after: LikeCoinWalletConnectorCSSPath },
+    cssPath: '~/assets/css/tailwind.css',
   }
 })
