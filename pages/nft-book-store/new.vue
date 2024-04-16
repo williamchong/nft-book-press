@@ -38,10 +38,6 @@
           />
           <UInput v-else :value="classId" :readonly="true" />
         </UFormGroup>
-
-        <UFormGroup label="Total number of NFT for sale">
-          <UInput :value="`${totalStock}`" :readonly="true" disabled />
-        </UFormGroup>
       </UCard>
 
       <component
@@ -316,67 +312,60 @@
         </template>
       </UCard>
 
-      <UCard :ui="{ body: { base: 'space-y-8' } }">
+      <UCard
+        :ui="{
+          header: { base: 'flex justify-between items-center' },
+          body: { padding: '' },
+        }"
+      >
         <template #header>
-          <h3 class="font-bold font-mono">
-            Other Settings
-          </h3>
+          <h4 class="text-sm font-bold font-mono">
+            Email to receive sales notifications
+          </h4>
+
+          <div class="flex gap-2">
+            <UInput
+              v-model="notificationEmailInput"
+              placeholder="abc@example.com"
+            />
+
+            <UButton
+              label="Add"
+              :variant="notificationEmailInput ? 'outline' : 'solid'"
+              :color="notificationEmailInput ? 'primary' : 'gray'"
+              :disabled="!notificationEmailInput"
+              @click="addNotificationEmail"
+            />
+          </div>
         </template>
-        <UCard
-          :ui="{
-            header: { base: 'flex justify-between items-center' },
-            body: { padding: '' },
-          }"
+
+        <UTable
+          :columns="[
+            { key: 'email', label: 'Email', sortable: true },
+            { key: 'action' },
+          ]"
+          :rows="notificationEmailsTableRows"
         >
-          <template #header>
-            <h4 class="text-sm font-bold font-mono">
-              Email to receive sales notifications
-            </h4>
+          <template #email-data="{ row }">
+            <UButton
+              :label="row.email"
+              :to="`mailto:${row.email}`"
+              variant="link"
+              :padded="false"
+            />
+          </template>
 
-            <div class="flex gap-2">
-              <UInput
-                v-model="notificationEmailInput"
-                placeholder="abc@example.com"
-              />
-
+          <template #action-data="{ row }">
+            <div class="flex justify-end items-center">
               <UButton
-                label="Add"
-                :variant="notificationEmailInput ? 'outline' : 'solid'"
-                :color="notificationEmailInput ? 'primary' : 'gray'"
-                :disabled="!notificationEmailInput"
-                @click="addNotificationEmail"
+                icon="i-heroicons-x-mark"
+                variant="soft"
+                color="red"
+                @click="() => notificationEmails.splice(row.index, 1)"
               />
             </div>
           </template>
-
-          <UTable
-            :columns="[
-              { key: 'email', label: 'Email', sortable: true },
-              { key: 'action' },
-            ]"
-            :rows="notificationEmailsTableRows"
-          >
-            <template #email-data="{ row }">
-              <UButton
-                :label="row.email"
-                :to="`mailto:${row.email}`"
-                variant="link"
-                :padded="false"
-              />
-            </template>
-
-            <template #action-data="{ row }">
-              <div class="flex justify-end items-center">
-                <UButton
-                  icon="i-heroicons-x-mark"
-                  variant="soft"
-                  color="red"
-                  @click="() => notificationEmails.splice(row.index, 1)"
-                />
-              </div>
-            </template>
-          </UTable>
-        </UCard>
+        </UTable>
       </UCard>
 
       <UCard
@@ -558,7 +547,7 @@ import 'md-editor-v3/lib/style.css'
 import DOMPurify from 'dompurify'
 
 import { v4 as uuidv4 } from 'uuid'
-import { DEFAULT_PRICE, MINIMAL_PRICE, LCD_URL, LIKE_CO_API } from '~/constant'
+import { DEFAULT_PRICE, MINIMAL_PRICE, LCD_URL, LIKE_CO_API, SUPPORT_CURRENCY } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
 import { getPortfolioURL, deliverMethodOptions } from '~/utils'
@@ -591,7 +580,7 @@ const mdEditorPlaceholder = ref({
 
 const classIdInput = ref(classId || '')
 const nextPriceIndex = ref(1)
-const defaultPaymentCurrency = ref('USD')
+const defaultPaymentCurrency = ref<string>(SUPPORT_CURRENCY.USD)
 const mustClaimToView = ref(true)
 const hideDownload = ref(false)
 const prices = ref<any[]>([
@@ -624,9 +613,6 @@ const notificationEmailInput = ref('')
 const isStripeConnectChecked = ref(false)
 const stripeConnectWallet = ref('')
 const stripeConnectWalletInput = ref('')
-const totalStock = computed(() =>
-  prices.value.reduce((acc, p) => acc + Number(p.stock), 0)
-)
 
 const toolbarOptions = ref<string[]>([
   'bold',
