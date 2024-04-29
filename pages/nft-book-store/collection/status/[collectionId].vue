@@ -169,52 +169,17 @@
         </UFormGroup>
       </UCard>
 
-      <UCard
+      <StripeConnectCard
         v-if="userIsOwner"
-        :ui="{
-          divide: isStripeConnectChecked ? undefined : '',
-          header: { base: 'flex flex-wrap justify-between items-center gap-2' },
-          body: { padding: isStripeConnectChecked ? undefined : '', base: 'grid lg:grid-cols-2 gap-4' }
-        }"
-      >
-        <template #header>
-          <h3 class="font-bold font-mono">
-            Stripe Connect Settings
-          </h3>
-          <UToggle v-model="isStripeConnectChecked" name="stripe" label="Use a Stripe Connect account for receiving all payment" />
-        </template>
+        v-model:is-stripe-connect-checked="isStripeConnectChecked"
+        v-model:is-using-default-account="isUsingDefaultAccount"
+        :stripe-connect-wallet="stripeConnectWallet"
+        :stripe-connect-status-wallet-map="stripeConnectStatusWalletMap"
+        :should-disable-setting="shouldDisableStripeConnectSetting"
+        :login-address="wallet"
 
-        <template v-if="isStripeConnectChecked">
-          <URadio v-model="stripeConnectWallet" :disabled="!(connectStatus?.isReady)" :value="ownerWallet">
-            <template #label>
-              <span v-if="connectStatus?.isReady">Use my account</span>
-              <span v-else>
-                No stripe account connected yet.<br>
-                <UButton
-                  class="mt-2"
-                  label="Create one here"
-                  :to="{ name: 'nft-book-store-user' }"
-                  target="_blank"
-                  variant="outline"
-                />
-              </span>
-            </template>
-          </URadio>
-          <URadio v-model="stripeConnectWallet" :value="stripeConnectWalletInput">
-            <template #label>
-              <UFormGroup label="Enter a wallet address with connected account">
-                <UInput
-                  v-if="stripeConnectWallet !== ownerWallet"
-                  v-model="stripeConnectWalletInput"
-                  class="font-mono"
-                  placeholder="like1..."
-                  @input="onStripeConnectWalletInput"
-                />
-              </UFormGroup>
-            </template>
-          </URadio>
-        </template>
-      </UCard>
+        @save="handleSaveStripeConnectWallet"
+      />
 
       <UCard
         :ui="{
@@ -538,6 +503,7 @@ import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useNftStore } from '~/stores/nft'
 import { useCollectionStore } from '~/stores/collection'
 import { useWalletStore } from '~/stores/wallet'
+import { useStripeStore } from '~/stores/stripe'
 import { getPortfolioURL, formatShippingAddress } from '~/utils'
 import { getNFTAuthzGrants, shortenWalletAddress } from '~/utils/cosmos'
 
@@ -545,10 +511,12 @@ const store = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
 const nftStore = useNftStore()
 const collectionStore = useCollectionStore()
+const stripeStore = useStripeStore()
 const { token } = storeToRefs(bookStoreApiStore)
 const { wallet } = storeToRefs(store)
 const { updateNFTBookCollectionById } = collectionStore
 const { getClassMetadataById, lazyFetchClassMetadataById } = nftStore
+const { fetchStripeConnectStatus, stripeConnectStatusWalletMap } = stripeStore
 
 const route = useRoute()
 const router = useRouter()
@@ -561,7 +529,6 @@ const fromChannel = ref<string | undefined>(undefined)
 const activeCoupon = ref('')
 const collectionListingInfo = ref<any>({})
 const ordersData = ref<any>({})
-const connectStatus = ref<any>({})
 const isUpdatingShippingRates = ref(false)
 
 // Search
@@ -575,11 +542,13 @@ const moderatorWalletInput = ref('')
 const notificationEmailInput = ref('')
 const isStripeConnectChecked = ref(false)
 const stripeConnectWallet = ref('')
-const stripeConnectWalletInput = ref('')
 const useLikerLandPurchaseLink = ref(true)
 const isShowNewCouponModal = ref(false)
 const shouldShowAdvanceSettings = ref<boolean>(false)
 const defaultPaymentCurrency = ref<string>(SUPPORT_CURRENCY.USD)
+const shouldDisableStripeConnectSetting = ref(false)
+const isUsingDefaultAccount = ref(true)
+const isUpdatingStripeConnect = ref(false)
 
 const collectionName = computed(() => collectionStore.getCollectionById(collectionId.value as string)?.name)
 const ownerWallet = computed(() => collectionListingInfo?.value?.ownerWallet)
@@ -885,10 +854,14 @@ onMounted(async () => {
     moderatorWallets.value = classModeratorWallets
     notificationEmails.value = classNotificationEmails
     isStripeConnectChecked.value = !!(classConnectedWallets && Object.keys(classConnectedWallets).length)
-    stripeConnectWallet.value = classConnectedWallets && Object.keys(classConnectedWallets)[0]
-    if (stripeConnectWallet.value !== ownerWallet.value) {
-      stripeConnectWalletInput.value = stripeConnectWallet.value
+
+    const classStripeWallet = classConnectedWallets && Object.keys(classConnectedWallets)[0]
+    if (classStripeWallet !== wallet.value) {
+      stripeConnectWallet.value = classStripeWallet
+      isUsingDefaultAccount.value = false
+      await fetchStripeConnectStatus(classStripeWallet)
     }
+
     if (classDefaultPaymentCurrency) {
       defaultPaymentCurrency.value = classDefaultPaymentCurrency
     }
@@ -909,17 +882,7 @@ onMounted(async () => {
 
     ordersData.value = orders.value
 
-    const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/user/connect/status?wallet=${wallet.value}`,
-      {
-        headers: {
-          authorization: `Bearer ${token.value}`
-        }
-      }
-    )
-    if (fetchError.value && fetchError.value?.statusCode !== 404) {
-      throw new Error(fetchError.value.toString())
-    }
-    connectStatus.value = (data.value as any) || {}
+    await fetchStripeConnectStatus(wallet.value)
     collectionListingInfo.value.classIds.forEach((classId: string) => lazyFetchClassMetadataById(classId))
   } catch (err) {
     console.error(err)
@@ -977,9 +940,22 @@ function addNotificationEmail () {
   notificationEmailInput.value = ''
 }
 
-function onStripeConnectWalletInput () {
-  // force stripeConnectWallet to update when stripeConnectWalletInput is updated
-  stripeConnectWallet.value = stripeConnectWalletInput.value.trim()
+async function handleSaveStripeConnectWallet (wallet: any) {
+  stripeConnectWallet.value = wallet
+  isUpdatingStripeConnect.value = true
+  try {
+    await updateNFTBookCollectionById(collectionId.value as string, {
+      connectedWallets: {
+        [stripeConnectWallet.value]: 100
+      }
+    })
+  } catch (err) {
+    const errorData = (err as any).data || err
+    error.value = errorData
+  } finally {
+    isUpdatingStripeConnect.value = false
+    shouldDisableStripeConnectSetting.value = true
+  }
 }
 
 async function updateSettings () {
@@ -991,16 +967,6 @@ async function updateSettings () {
       throw new Error('Please press "Add" button to add notification email')
     }
     isLoading.value = true
-
-    if (isStripeConnectChecked.value && stripeConnectWallet.value) {
-      const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/user/connect/status?wallet=${stripeConnectWallet.value}`)
-      if (fetchError.value && fetchError.value?.statusCode !== 404) {
-        throw new Error(fetchError.value.toString())
-      }
-      if (!(data?.value as any)?.isReady) {
-        throw new Error('CONNECTED_WALLET_STRIPE_ACCOUNT_NOT_READY')
-      }
-    }
 
     const connectedWallets = (isStripeConnectChecked.value && stripeConnectWallet.value)
       ? {
@@ -1023,6 +989,7 @@ async function updateSettings () {
     error.value = errorData
   } finally {
     isLoading.value = false
+    shouldDisableStripeConnectSetting.value = false
   }
 }
 
