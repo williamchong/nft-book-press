@@ -153,6 +153,7 @@
         <UFormGroup label="Is Liker ID Email verified">
           <UCheckbox
             :value="bookUser?.isEmailVerified"
+            :checked="bookUser?.notificationEmail"
             label="Is Liker ID Email verified"
             disabled
             :ui="{ base: 'font-mono' }"
