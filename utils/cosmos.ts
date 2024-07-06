@@ -95,7 +95,7 @@ export async function getNFTs ({ classId = '', owner = '', needCount = 0 }) {
   const needPages = Math.ceil(needCount / 100)
   const c = (await getSigningClient()).getISCNQueryClient()
   const client = await c.getQueryClient()
-  const nfts = []
+  let nfts = []
   let next: Uint8Array | undefined = new Uint8Array([0x00])
   let pageCounts = 0
   do {
@@ -109,6 +109,9 @@ export async function getNFTs ({ classId = '', owner = '', needCount = 0 }) {
     if (needPages && pageCounts > needPages) { break }
     pageCounts += 1
   } while (next && next.length)
+  if (needCount && nfts.length > needCount) {
+    nfts = nfts.slice(0, needCount)
+  }
   return { nfts }
 }
 

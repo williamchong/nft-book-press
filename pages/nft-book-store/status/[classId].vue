@@ -760,6 +760,7 @@ const orderTableColumns = computed(() => {
     { key: 'from', label: 'Sales Channel', sortable: true },
     { key: 'price', label: 'Price', sortable: true },
     { key: 'priceName', label: 'Price Name', sortable: false },
+    { key: 'quantity', label: 'Quantity', sortable: true },
     { key: 'coupon', label: 'Coupon Applied', sortable: false },
     { key: 'buyerEmail', label: 'Buyer Email', sortable: true },
     { key: 'readerEmail', label: 'Reader Email', sortable: true },
@@ -885,6 +886,7 @@ const ordersTableRows = computed(() => purchaseList.value?.map((p: any, index: n
   coupon: p.coupon || '',
   message: p.message || '',
   from: p.from || '',
+  quantity: p.quantity || 1,
   actions: getOrdersTableActionItems(p)
 })).filter((p: any) => {
   if (!searchInput.value) { return true }
