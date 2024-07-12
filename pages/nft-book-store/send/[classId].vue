@@ -346,7 +346,10 @@ async function onSendNFTStart () {
       const { error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/purchase/${classId.value}/sent/${paymentId.value}`,
         {
           method: 'POST',
-          body: { txHash: res.transactionHash },
+          body: {
+            txHash: res.transactionHash,
+            quantity: orderInfo.value.quantity || 1
+          },
           headers: {
             authorization: `Bearer ${token.value}`
           }
