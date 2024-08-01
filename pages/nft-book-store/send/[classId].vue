@@ -73,6 +73,13 @@
           </tr>
           <tr>
             <th class="text-left px-4 py-3">
+              Quantity
+            </th><td class="px-4 py-3">
+              {{ orderInfo.quantity }}
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left px-4 py-3">
               Buyer message
             </th><td class="px-4 py-3">
               {{ orderInfo.message }}
@@ -97,28 +104,30 @@
         :error="nftIdError"
       >
         <div class="flex flex-wrap items-center justify-center gap-2">
-          <UInput
-            ref="nftIdInputRef"
-            v-model="nftId"
-            class="font-mono flex-grow"
-            :readonly="!isEditingNFTId"
-            :disabled="!isEditingNFTId"
-            placeholder="Leave empty to auto-fetch NFT ID"
-            :trailing-icon="nftIdError ? 'i-heroicons-exclamation-triangle-20-solid' : undefined"
-          />
+          <template v-if="orderInfo.quantity === 1">
+            <UInput
+              ref="nftIdInputRef"
+              v-model="nftId"
+              class="font-mono flex-grow"
+              :readonly="!isEditingNFTId"
+              :disabled="!isEditingNFTId"
+              placeholder="Leave empty to auto-fetch NFT ID"
+              :trailing-icon="nftIdError ? 'i-heroicons-exclamation-triangle-20-solid' : undefined"
+            />
+            <UButton
+              :label="isEditingNFTId || (isVerifyingNFTId && !isAutoFetchingNFTId) ? 'Confirm' : 'Edit'"
+              :disabled="isLoading || isVerifyingNFTId"
+              variant="outline"
+              :loading="isVerifyingNFTId && !isAutoFetchingNFTId"
+              color="gray"
+              @click="handleClickEditNFTId"
+            />
+            <UDivider class="text-sm text-gray-600 sm:w-min">
+              OR
+            </UDivider>
+          </template>
           <UButton
-            :label="isEditingNFTId || (isVerifyingNFTId && !isAutoFetchingNFTId) ? 'Confirm' : 'Edit'"
-            :disabled="isLoading || isVerifyingNFTId"
-            variant="outline"
-            :loading="isVerifyingNFTId && !isAutoFetchingNFTId"
-            color="gray"
-            @click="handleClickEditNFTId"
-          />
-          <UDivider class="text-sm text-gray-600 sm:w-min">
-            OR
-          </UDivider>
-          <UButton
-            label="Auto-fetch NFT ID"
+            :label="`Auto-fetch NFT ID for ${orderInfo.quantity} NFTs`"
             :disabled="isLoading || isEditingNFTId"
             :loading="isAutoFetchingNFTId"
             variant="outline"
@@ -178,6 +187,7 @@ const ownerWallet = ref(route.query.owner_wallet as string || wallet.value)
 const memo = ref('')
 
 const nftId = ref('')
+const nftIds = ref([] as string[])
 const isVerifyingNFTId = ref(false)
 const isAutoFetchingNFTId = ref(false)
 const nftIdError = ref('')
@@ -227,7 +237,7 @@ onMounted(async () => {
     orderInfo.value = (data.value as any)
   }
   lazyFetchClassMetadataById(classId.value as string)
-  fetchNextNFTId()
+  fetchNextNFTId(orderInfo.value.quantity)
 })
 
 function handleClickEditNFTId () {
@@ -262,7 +272,7 @@ async function fetchNFTMetadata () {
   }
 }
 
-async function fetchNextNFTId () {
+async function fetchNextNFTId (count = 1) {
   try {
     nftIdError.value = ''
     isAutoFetchingNFTId.value = true
@@ -273,10 +283,11 @@ async function fetchNextNFTId () {
     const { nfts } = await getNFTs({
       classId: classId.value,
       owner: ownerWallet.value,
-      needCount: 1
+      needCount: count
     })
     if (nfts.length) {
-      nftId.value = nfts[0].id
+      nftIds.value = nfts.map(nft => nft.id)
+      nftId.value = nftIds.value[0]
       await fetchNFTMetadata()
     } else {
       throw new Error(`${ownerWallet.value} does not hold any NFT of class ${classId.value}`)
@@ -296,16 +307,14 @@ async function onSendNFTStart () {
       await connect()
     }
     if (!wallet.value || !signer.value) { return }
-    let targetNftId = ''
     if (nftId.value) {
       const { owner } = await getNFTOwner(classId.value, nftId.value)
       if (owner !== ownerWallet.value) {
         throw new Error(`NFT classId: ${classId} nftId:${nftId} is not owned by sender!`)
       }
     } else {
-      await fetchNextNFTId()
+      await fetchNextNFTId(orderInfo.quantity)
     }
-    targetNftId = nftId.value
 
     const signingClient = await getSigningClientWithSigner(signer.value)
     const client = signingClient.getSigningStargateClient()
@@ -315,8 +324,8 @@ async function onSendNFTStart () {
     if (userIsOwner.value) {
       res = await signSendNFTs(
         orderInfo.value.wallet,
-        [classId.value],
-        [targetNftId],
+        Array(nftIds.value.length).fill(classId.value),
+        nftIds.value,
         signer.value,
         wallet.value,
         memo.value
@@ -325,8 +334,8 @@ async function onSendNFTStart () {
       res = await signExecNFTSendAuthz(
         orderInfo.value.wallet,
         ownerWallet.value,
-        [classId.value],
-        [targetNftId],
+        Array(nftIds.value.length).fill(classId.value),
+        nftIds.value,
         signer.value,
         wallet.value,
         memo.value
@@ -337,7 +346,10 @@ async function onSendNFTStart () {
       const { error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/purchase/${classId.value}/sent/${paymentId.value}`,
         {
           method: 'POST',
-          body: { txHash: res.transactionHash },
+          body: {
+            txHash: res.transactionHash,
+            quantity: orderInfo.value.quantity || 1
+          },
           headers: {
             authorization: `Bearer ${token.value}`
           }

@@ -623,6 +623,7 @@ const orderTableColumns = computed(() => {
   columns.push(
     { key: 'from', label: 'Sales Channel', sortable: true },
     { key: 'price', label: 'Price', sortable: true },
+    { key: 'quantity', label: 'Quantity', sortable: true },
     { key: 'coupon', label: 'Coupon Applied', sortable: false },
     { key: 'buyerEmail', label: 'Buyer Email', sortable: true },
     { key: 'readerEmail', label: 'Reader Email', sortable: true },
@@ -729,6 +730,7 @@ const ordersTableRows = computed(() => purchaseList.value?.map((p: any, index: n
   shortenWallet: shortenWalletAddress(p.wallet),
   priceName: p.priceName,
   price: p.price || 0,
+  quantity: p.quantity || 1,
   coupon: p.coupon || '',
   message: p.message || '',
   from: p.from || '',

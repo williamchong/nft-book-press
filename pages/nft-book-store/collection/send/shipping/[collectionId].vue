@@ -80,6 +80,14 @@
           </tr>
           <tr>
             <th class="text-left px-4 py-3">
+              Quantity
+            </th>
+            <td class="text-left px-4 py-3">
+              {{ orderInfo.quantity }}
+            </td>
+          </tr>
+          <tr>
+            <th class="text-left px-4 py-3">
               Buyer message
             </th><td class="text-left px-4 py-3">
               {{ orderInfo.message }}
