@@ -480,7 +480,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { CHAIN_EXPLORER_URL, IS_TESTNET, LIKE_CO_API, SUPPORT_CURRENCY } from '~/constant'
+import { CHAIN_EXPLORER_URL, IS_TESTNET, LIKE_CO_API } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useNftStore } from '~/stores/nft'
 import { useCollectionStore } from '~/stores/collection'
