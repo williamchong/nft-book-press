@@ -253,7 +253,7 @@
       >
         <div class="flex justify-between items-center w-full">
           <h3 class="font-bold font-mono">
-            Advance Settings
+            Advanced Settings
           </h3>
           <UButton
             color="gray"
