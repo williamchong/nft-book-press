@@ -23,6 +23,7 @@
     "buffer": "^6.0.3",
     "cosmjs-types": "^0.8.0",
     "csv": "^6.2.2",
+    "csv-stringify": "^6.5.1",
     "dompurify": "^3.0.5",
     "fast-json-stable-stringify": "^2.1.0",
     "jsonwebtoken": "^9.0.1",

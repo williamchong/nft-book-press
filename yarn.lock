@@ -4924,6 +4924,11 @@ csv-stringify@^6.3.2:
   resolved "https://registry.npmjs.org/csv-stringify/-/csv-stringify-6.3.2.tgz"
   integrity sha512-dD9gfbxNKa5v90NHiE2Qd6F9I52GtJjGTfowwzqiNDZD/+NPW3h19d2Nvv311a8QUW11rYRobco27nvVAnCrLw==
 
+csv-stringify@^6.5.1:
+  version "6.5.1"
+  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.5.1.tgz#a31837dd35e34787e3c248159c982a21af964d94"
+  integrity sha512-+9lpZfwpLntpTIEpFbwQyWuW/hmI/eHuJZD1XzeZpfZTqkf1fyvBbBLXTJJMsBuuS11uTShMqPwzx4A6ffXgRQ==
+
 csv@^6.2.2:
   version "6.2.10"
   resolved "https://registry.npmjs.org/csv/-/csv-6.2.10.tgz"

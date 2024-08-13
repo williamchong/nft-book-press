@@ -1,3 +1,5 @@
+import { stringify as csvStringify } from 'csv-stringify/sync'
+
 import { LIKE_CO_API, LIKER_LAND_URL } from '~/constant'
 
 export function addParamToUrl (url: string, params: { [key: string]: string }) {
@@ -62,34 +64,7 @@ export function convertArrayOfObjectsToCSV (data: Record<string, any>[]): string
   if (data.length === 0) {
     return ''
   }
-
-  const headers: string[] = Array.from(
-    new Set(data.flatMap(obj => Object.keys(obj)))
-  )
-
-  const csv: string[] = []
-
-  csv.push(headers.join(','))
-
-  data.forEach((obj: Record<string, any>) => {
-    const row: string = headers.map((header) => {
-      // Convert null or undefined to an empty string
-      let value = obj[header] == null ? '' : obj[header].toString()
-
-      // Add double quotes if the value contains a comma, newline or double quote
-      if (value.includes(',') || value.includes('\n') || value.includes('"')) {
-        // Escape double quotes with another double quote
-        value = value.replace(/"/g, '""')
-        value = `"${value}"`
-      }
-
-      return value
-    }).join(',')
-
-    csv.push(row)
-  })
-
-  return csv.join('\n')
+  return csvStringify(data, { header: true })
 }
 
 export function getPortfolioURL (wallet: string) {
