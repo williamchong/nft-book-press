@@ -206,8 +206,11 @@ watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
 })
 
-watch(nftId, () => {
+watch(nftId, (newNftId) => {
   nftIdError.value = ''
+  if (nftIds.value[0]) {
+    nftIds.value[0] = newNftId
+  }
 })
 
 watch(isEditingNFTId, async (isEditing) => {
