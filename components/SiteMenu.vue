@@ -63,6 +63,12 @@ const items = [
         icon: 'i-heroicons-user-group',
         to: { name: 'nft-book-store-user' },
         exact: true
+      },
+      {
+        label: 'Affiliation Link',
+        icon: 'i-heroicons-user-group',
+        to: { name: 'affiliation-link' },
+        exact: true
       }
     ]
   },
