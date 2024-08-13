@@ -1,4 +1,4 @@
-import { LIKER_LAND_HOST } from '~/constant'
+import { LIKE_CO_API, LIKER_LAND_URL } from '~/constant'
 
 export function addParamToUrl (url: string, params: { [key: string]: string }) {
   const urlObject = new URL(url)
@@ -54,42 +54,38 @@ export function downloadFile ({ data, fileName, fileType }:{data:any, fileName:s
   document.body.removeChild(fileLink)
 }
 
-export function generateCsvData ({
-  prefix,
-  nftExisitngCount = 0,
-  nftMintCount,
-  imgUrl,
-  uri
-}: {
-  prefix: string;
-  nftMintCount: number;
-  nftExisitngCount?: number;
-  imgUrl: string;
-  uri: string ;
-}) {
-  const csvData = []
-  csvData.push('"nftId","uri","image","metadata"')
-  for (let i = nftExisitngCount; i <= nftExisitngCount + nftMintCount - 1; i++) {
-    const nftId = `${prefix}-${i.toString().padStart(4, '0')}`
-    csvData.push(`"${nftId}","${uri}","${imgUrl}",""`)
-  }
-  return csvData.join('\n')
-}
-
 export function sleep (time: number) {
   return new Promise((resolve) => { setTimeout(resolve, time) })
 }
 
-function convertArrayOfObjectsToCSV (data: Record<string, any>[]): string {
-  const csv: string[] = []
-  const headers: string = Array.from(
-    new Set(data.flatMap(obj => Object.keys(obj)))
-  ).join(',')
+export function convertArrayOfObjectsToCSV (data: Record<string, any>[]): string {
+  if (data.length === 0) {
+    return ''
+  }
 
-  csv.push(headers)
+  const headers: string[] = Array.from(
+    new Set(data.flatMap(obj => Object.keys(obj)))
+  )
+
+  const csv: string[] = []
+
+  csv.push(headers.join(','))
 
   data.forEach((obj: Record<string, any>) => {
-    const row: string = Object.keys(obj).map(key => obj[key]).join(',')
+    const row: string = headers.map((header) => {
+      // Convert null or undefined to an empty string
+      let value = obj[header] == null ? '' : obj[header].toString()
+
+      // Add double quotes if the value contains a comma, newline or double quote
+      if (value.includes(',') || value.includes('\n') || value.includes('"')) {
+        // Escape double quotes with another double quote
+        value = value.replace(/"/g, '""')
+        value = `"${value}"`
+      }
+
+      return value
+    }).join(',')
+
     csv.push(row)
   })
 
@@ -97,7 +93,7 @@ function convertArrayOfObjectsToCSV (data: Record<string, any>[]): string {
 }
 
 export function getPortfolioURL (wallet: string) {
-  return `https://${LIKER_LAND_HOST}/${wallet}`
+  return `${LIKER_LAND_URL}/${wallet}`
 }
 
 export const deliverMethodOptions = [
@@ -132,4 +128,47 @@ export const formatShippingAddress = function (shippingDetails: any) {
     country
   ]
   return parts.filter(p => !!p).join(', ')
+}
+
+export function getPurchaseLink ({
+  classId,
+  collectionId,
+  priceIndex = 0,
+  channel,
+  coupon,
+  customLink,
+  isUseLikerLandLink
+}:{
+  classId?: string
+  collectionId?: string
+  priceIndex?: number
+  channel?: string
+  coupon?: string
+  customLink?: string
+  isUseLikerLandLink?: boolean
+}) {
+  const payload: Record<string, string> = {
+    from: channel || ''
+  }
+  if (classId) {
+    payload.price_index = priceIndex.toString()
+  }
+  if (coupon) { payload.coupon = coupon }
+  if (customLink) {
+    const url = new URL(customLink)
+    Object.entries(payload).forEach(([key, value]) => {
+      url.searchParams.set(key, value)
+    })
+    return url.toString()
+  }
+
+  const queryString = `?${new URLSearchParams(payload).toString()}`
+  if (collectionId) {
+    return isUseLikerLandLink
+      ? `${LIKER_LAND_URL}/nft/collection/${collectionId}${queryString}`
+      : `${LIKE_CO_API}/likernft/book/collection/purchase/${collectionId}/new${queryString}`
+  }
+  return isUseLikerLandLink
+    ? `${LIKER_LAND_URL}/nft/class/${classId}${queryString}`
+    : `${LIKE_CO_API}/likernft/book/purchase/${classId}/new${queryString}`
 }

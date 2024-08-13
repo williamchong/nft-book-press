@@ -480,13 +480,13 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { CHAIN_EXPLORER_URL, IS_TESTNET, LIKE_CO_API } from '~/constant'
+import { CHAIN_EXPLORER_URL, LIKE_CO_API } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useNftStore } from '~/stores/nft'
 import { useCollectionStore } from '~/stores/collection'
 import { useWalletStore } from '~/stores/wallet'
 import { useStripeStore } from '~/stores/stripe'
-import { getPortfolioURL, formatShippingAddress } from '~/utils'
+import { getPortfolioURL, formatShippingAddress, getPurchaseLink } from '~/utils'
 import { getNFTAuthzGrants, shortenWalletAddress } from '~/utils/cosmos'
 
 const store = useWalletStore()
@@ -535,16 +535,12 @@ const ownerWallet = computed(() => collectionListingInfo?.value?.ownerWallet)
 const orderHasShipping = computed(() => purchaseList.value.find((p: any) => !!p.shippingStatus))
 const userIsOwner = computed(() => wallet.value && ownerWallet.value === wallet.value)
 const userCanSendNFT = computed(() => userIsOwner.value || (wallet.value && moderatorWalletsGrants.value[wallet.value]))
-const purchaseLink = computed(() => {
-  const payload: Record<string, string> = {
-    from: fromChannel.value || ''
-  }
-  if (activeCoupon.value) { payload.coupon = activeCoupon.value }
-  const queryString = `?${new URLSearchParams(payload).toString()}`
-  const likerLandLink = `https://${IS_TESTNET ? 'rinkeby.' : ''}liker.land/nft/collection/${collectionId.value}${queryString}`
-  const apiLink = `https://api.${IS_TESTNET ? 'rinkeby.' : ''}like.co/likernft/book/collection/purchase/${collectionId.value}/new${queryString}`
-  return useLikerLandPurchaseLink.value ? likerLandLink : apiLink
-})
+const purchaseLink = computed(() => getPurchaseLink({
+  collectionId: collectionId.value as string,
+  channel: fromChannel.value,
+  coupon: activeCoupon.value,
+  isUseLikerLandLink: useLikerLandPurchaseLink.value
+}))
 const salesChannelMap = computed(() => {
   if (!purchaseList.value.length) {
     return {}

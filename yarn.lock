@@ -1786,6 +1786,13 @@
     nanoassert "^1.1.0"
     tweetnacl "^1.0.1"
 
+"@likecoin/qr-code-styling@^1.6.4":
+  version "1.6.4"
+  resolved "https://registry.yarnpkg.com/@likecoin/qr-code-styling/-/qr-code-styling-1.6.4.tgz#7600a16c8d61114a8675adbb069529e43c29ae9c"
+  integrity sha512-N9bUkGLxGVijKcfppJUl0atDwnfMyN3mkOUXNT+d3u21RRV2pI1UnxJEt47eXR4OWDnplhUxSw7/cH92CtmEXQ==
+  dependencies:
+    qrcode-generator "^1.4.3"
+
 "@likecoin/secretd-js@^0.4.4":
   version "0.4.4"
   resolved "https://registry.yarnpkg.com/@likecoin/secretd-js/-/secretd-js-0.4.4.tgz#93d55f236af7b47b5ba84584d8e3ea32269c8ebe"
@@ -9254,13 +9261,6 @@ punycode@^2.1.0, punycode@^2.3.0:
   version "2.3.0"
   resolved "https://registry.npmjs.org/punycode/-/punycode-2.3.0.tgz"
   integrity sha512-rRV+zQD8tVFys26lAGR9WUuS4iUAngJScM+ZRSKtvl5tKeZ2t5bvdNFdNHBW9FWR4guGHlgmsZ1G7BSm2wTbuA==
-
-qr-code-styling@^1.6.0-rc.1:
-  version "1.6.0-rc.1"
-  resolved "https://registry.npmjs.org/qr-code-styling/-/qr-code-styling-1.6.0-rc.1.tgz"
-  integrity sha512-ModRIiW6oUnsP18QzrRYZSc/CFKFKIdj7pUs57AEVH20ajlglRpN3HukjHk0UbNMTlKGuaYl7Gt6/O5Gg2NU2Q==
-  dependencies:
-    qrcode-generator "^1.4.3"
 
 qrcode-generator@^1.4.3:
   version "1.4.4"
