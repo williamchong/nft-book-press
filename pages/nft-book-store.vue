@@ -5,10 +5,23 @@
     </h1>
 
     <UContainer
-      v-if="!signer || !bookStoreApiStore.isAuthenticated"
-      class="flex justify-center items-center py-8 text-lg font-medium"
+      v-if="!bookStoreApiStore.isAuthenticated"
+      class="flex justify-center items-center py-8"
     >
-      <h2>Please sign in to continue</h2>
+      <UCard :ui="{ body: { base: 'flex justify-center items-center' } }">
+        <template #header>
+          <h2 class="font-bold font-mono">
+            Verify your wallet address
+          </h2>
+        </template>
+
+        <UButton
+          label="Sign in"
+          :loading="isLoading"
+          :disabled="isLoading"
+          @click="onClickAuth"
+        />
+      </UCard>
     </UContainer>
 
     <NuxtPage v-else />
@@ -17,13 +30,66 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
+import { useBookStoreApiStore } from '~/stores/book-store-api'
 
 const route = useRoute()
+
+const walletStore = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
-const store = useWalletStore()
-const { signer } = storeToRefs(store)
+const { wallet, signer } = storeToRefs(walletStore)
+const { connect, signMessageMemo } = walletStore
+const { authenticate, restoreSession } = bookStoreApiStore
+const { token, wallet: sessionWallet } = storeToRefs(bookStoreApiStore)
+const toast = useToast()
+
+const error = ref('')
+const isLoading = ref(false)
+
+watch(isLoading, (newIsLoading) => {
+  if (newIsLoading) { error.value = '' }
+})
+
+onMounted(() => {
+  try {
+    const payload = window.localStorage.getItem('likecoin_nft_book_press_token')
+    if (payload) {
+      const { wallet: storedWallet, token } = JSON.parse(payload)
+      restoreSession(storedWallet, token)
+    }
+  } catch {}
+})
+
+async function onClickAuth () {
+  try {
+    isLoading.value = true
+    if (!wallet.value || !signer.value) {
+      await connect()
+    }
+    if (!wallet.value || !signer.value) { return }
+    const signature = await signMessageMemo(
+      'authorize',
+      ['read:nftbook', 'write:nftbook', 'read:nftcollection', 'write:nftcollection']
+    )
+    await authenticate(wallet.value, signature)
+    try {
+      window.localStorage.setItem('likecoin_nft_book_press_token', JSON.stringify({ wallet: sessionWallet.value, token: token.value }))
+    } catch (err) {}
+  } catch (err) {
+    console.error(err)
+    toast.add({
+      icon: 'i-heroicons-exclamation-circle',
+      title: (err as Error).toString(),
+      timeout: 0,
+      color: 'red',
+      ui: {
+        title: 'text-red-400 dark:text-red-400'
+      }
+    })
+  } finally {
+    isLoading.value = false
+  }
+}
 
 </script>
 <style scoped>
