@@ -67,7 +67,7 @@
             <UInput v-model="price" type="number" step="0.01" :min="MINIMAL_PRICE" />
           </UFormGroup>
           <UFormGroup :label="`Total number of NFT for sale of this collection`">
-            <UInput v-model="stock" type="number" step="0.01" :min="minStock" />
+            <UInput v-model="stock" type="number" step="1" :min="minStock" />
           </UFormGroup>
 
           <URadioGroup

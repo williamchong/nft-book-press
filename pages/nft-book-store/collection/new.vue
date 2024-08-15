@@ -687,7 +687,7 @@ async function submitNewCollection () {
     let autoDeliverNFTsTxHash
     if (formattedPrice.isAutoDeliver) {
       const ok = confirm(
-        "NFT Book Press - Reminder\nOnce you choose automatic delivery, you can't switch it back to manual delivery.  Are you sure?"
+        "NFT Book Press - Reminder\nOnce you choose automatic delivery, you can't switch it back to manual delivery. Are you sure?"
       )
       if (!ok) {
         return
