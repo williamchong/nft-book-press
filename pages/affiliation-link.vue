@@ -30,7 +30,7 @@
         <UInput
           v-model="customLinkInput"
           class="font-mono"
-          placeholder="https:/books.liker.land"
+          placeholder="https://books.liker.land"
           :required="true"
         />
       </UFormGroup>

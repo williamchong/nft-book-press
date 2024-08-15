@@ -35,7 +35,7 @@
       <QRCodeGenerator
         v-model:icon="selectedQRCodeIcon"
         v-model:color="selectedQRCodeColor"
-        data="https:/books.liker.land"
+        data="https://books.liker.land"
         :width="500"
         :height="500"
         mode="config"
