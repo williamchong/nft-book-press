@@ -111,7 +111,6 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios'
 import { parse as csvParse } from 'csv-parse/sync'
 
 import { convertArrayOfObjectsToCSV } from '~/utils'
@@ -143,19 +142,24 @@ onMounted(() => {
 
 async function shortenURL ({ url, key }: { url: string, key: string }) {
   try {
-    const response = await axios.post('https://api-ssl.bitly.com/v4/bitlinks', {
-      long_url: url,
-      domain: 'bit.ly',
-      title: [titlePrefix.value, key].join(' - '),
-      tags: [
-        'nft-book-press'
-      ]
-    }, {
+    const { data, error } = await useFetch<{ link: string }>('https://api-ssl.bitly.com/v4/bitlinks', {
+      method: 'POST',
       headers: {
         Authorization: `Bearer ${bitlyToken.value}`
+      },
+      body: {
+        long_url: url,
+        domain: 'bit.ly',
+        title: [titlePrefix.value, key].join(' - '),
+        tags: [
+          'nft-book-press'
+        ]
       }
     })
-    return response.data.link
+    if (error) {
+      throw error.value
+    }
+    return data.value?.link
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
