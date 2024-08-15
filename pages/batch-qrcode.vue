@@ -57,7 +57,7 @@
 
     <nav class="flex justify-center items-center gap-2 print:hidden">
       <UButton
-        v-if="urlItems.length <= 0"
+        v-if="!urlItems?.length"
         label="Generate"
         size="lg"
         :disabled="!csvInput"
@@ -84,7 +84,7 @@
         >
           <figure ref="qrCodeRef" class="qrcode">
             <figcaption class="text-xs text-center font-mono">
-              {{ item.key }}
+              {{ item.key || item.url }}
             </figcaption>
           </figure>
         </li>
