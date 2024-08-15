@@ -188,12 +188,12 @@ const isCollection = computed(() => productId.value?.startsWith('col_'))
 
 const linkSettings = ref([
   {
-    name: 'Direct Link (Stripe)',
-    value: 'direct'
-  },
-  {
     name: 'Use Liker Land Link (Product page)',
     value: 'liker_land'
+  },
+  {
+    name: 'Direct Link (Stripe)',
+    value: 'direct'
   },
   {
     name: 'Custom Link',
