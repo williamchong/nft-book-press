@@ -108,7 +108,7 @@ example01,https://example01.com
 example02,https://example02.com`
 
 const selectedQRCodeIcon = ref(DEFAULT_QR_CODE_ICON)
-const selectedQRCodeColor = ref(DEFAULT_QR_CODE_ICON)
+const selectedQRCodeColor = ref(DEFAULT_QR_CODE_COLOR)
 const isEditingQRCodeConfig = ref(false)
 
 const qrCodeRef = ref<HTMLElement[] | undefined>(undefined)
