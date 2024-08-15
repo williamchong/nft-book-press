@@ -626,7 +626,8 @@
                         icon="i-heroicons-document-duplicate"
                         size="xs"
                         variant="outline"
-                        @click="copyPurchaseLink(row.url || '')"
+                        :disabled="!row.url"
+                        @click="copyPurchaseLink(row.url)"
                       />
                       <UButton
                         class="font-mono break-all"
@@ -652,7 +653,8 @@
                   icon="i-heroicons-document-duplicate"
                   size="xs"
                   variant="outline"
-                  @click="copyPurchaseLink(purchaseLinks[0].url || '')"
+                  :disabled="!purchaseLinks[0]?.url"
+                  @click="copyPurchaseLink(purchaseLinks[0]?.url)"
                 />
                 <UButton
                   icon="i-heroicons-arrow-top-right-on-square"
