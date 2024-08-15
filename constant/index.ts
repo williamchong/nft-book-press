@@ -42,13 +42,14 @@ export const DEFAULT_PRICE = 4.99
 export const LIKE_ADDRESS_REGEX = /^like1[ac-hj-np-z02-9]{38}$/
 
 export const AFFILIATION_CHANNELS = [
-  { name: '一拳書店', id: '@bookpunch' },
-  { name: '界限書店', id: '@boundarybooks' },
-  { name: '突破書廊', id: '@breakthrough_publish' },
-  { name: '香港文學生活館', id: '@hkhouseofliterature' },
-  { name: '序言書室', id: '@hkreaders' },
-  { name: '獵人書店', id: '@hunterbookstore' },
-  { name: '飛地書店', id: 'nowhere' },
-  { name: '森記圖書公司', id: '@samkeebook' },
-  { name: '留下書店', id: 'stay' }
+  { id: '@bookpunch', name: '一拳書店' },
+  { id: '@boundarybooks', name: '界限書店' },
+  { id: '@breakthrough_publish', name: '突破書廊' },
+  { id: '@hansbookstore', name: '留下書店' },
+  { id: '@hkhouseofliterature', name: '香港文學生活館' },
+  { id: '@hkreaders', name: '序言書室' },
+  { id: '@hunterbookstore', name: '獵人書店' },
+  { id: '@kubrick_hk', name: 'Kubrick' },
+  { id: '@nowherebooks', name: '飛地書店' },
+  { id: '@samkeebook', name: '森記圖書公司' }
 ]
