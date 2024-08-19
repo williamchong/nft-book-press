@@ -307,7 +307,7 @@ async function createAffiliationLink () {
 }
 
 function getQRCodeFilename (channel = '') {
-  const filenameParts = [`${productName || productId.value}`]
+  const filenameParts = [`${productName.value || productId.value}`]
   if (!isCollection.value) {
     filenameParts.push(`price_${priceIndex.value}`)
   }
