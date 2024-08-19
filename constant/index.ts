@@ -42,6 +42,7 @@ export const DEFAULT_PRICE = 4.99
 export const LIKE_ADDRESS_REGEX = /^like1[ac-hj-np-z02-9]{38}$/
 
 export const AFFILIATION_CHANNELS = [
+  { id: 'liker_land', name: 'Liker Land' },
   { id: '@bookpunch', name: '一拳書店' },
   { id: '@boundarybooks', name: '界限書店' },
   { id: '@breakthrough_publish', name: '突破書廊' },
