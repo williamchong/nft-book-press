@@ -84,6 +84,11 @@
                 click: printAllQRCodes,
               },
               {
+                label: 'Download QR Codes',
+                icon: 'i-heroicons-arrow-down-on-square-stack',
+                click: downloadAllQRCodes,
+              },
+              {
                 label: 'Download All Links',
                 icon: 'i-heroicons-arrow-down-on-square-stack',
                 click: downloadAllPurchaseLinks,
@@ -168,6 +173,7 @@
 </template>
 
 <script setup lang="ts">
+import { type FileExtension } from '@likecoin/qr-code-styling'
 import { AFFILIATION_CHANNELS, LIKE_CO_API } from '~/constant'
 import { useCollectionStore } from '~/stores/collection'
 import { getPurchaseLink } from '~/utils'
@@ -400,6 +406,62 @@ function shortenAllLinks () {
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: 'Failed to shorten links',
+      timeout: 0,
+      color: 'red',
+      ui: {
+        title: 'text-red-400 dark:text-red-400'
+      }
+    })
+  }
+}
+
+// TODO: UI for file types selection
+const DOWNLOAD_QRCODE_FILE_TYPES: {
+  value: FileExtension
+  label: string
+}[] = [
+  { value: 'svg', label: 'SVG' },
+  { value: 'png', label: 'PNG' }
+]
+
+async function downloadAllQRCodes () {
+  try {
+    const { default: QRCodeStyling } = await import('@likecoin/qr-code-styling')
+    const qrCodeResults = await Promise.all(tableRows.value.map(async (link) => {
+      const qrCode = new QRCodeStyling(getQRCodeOptions({ data: link.url }))
+      const dataResults = await Promise.all(DOWNLOAD_QRCODE_FILE_TYPES.map(type => qrCode.getRawData(type.value)))
+      const filename = getQRCodeFilename(link.channel)
+      return DOWNLOAD_QRCODE_FILE_TYPES.map(({ value: ext }, index) => {
+        const data = dataResults[index]
+        if (!data) {
+          throw new Error(`Failed to generate QR code for ${filename}.${ext}`)
+        }
+        return {
+          filename: `${filename}.${ext}`,
+          data
+        }
+      })
+    }))
+
+    const { default: JSZip } = await import('jszip')
+    const zip = new JSZip().folder(productId.value)
+    if (!zip) {
+      throw new Error('Failed to create zip file')
+    }
+    qrCodeResults.flat().forEach((qrCode) => {
+      zip.file(qrCode.filename, qrCode.data)
+    })
+
+    const { saveAs } = await import('file-saver')
+    await zip.generateAsync({ type: 'blob' }).then((content) => {
+      saveAs(content, `${productName.value || productId.value}_qrcodes.zip`)
+    })
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error)
+    toast.add({
+      icon: 'i-heroicons-exclamation-circle',
+      title: 'Failed to download QR codes',
       timeout: 0,
       color: 'red',
       ui: {
