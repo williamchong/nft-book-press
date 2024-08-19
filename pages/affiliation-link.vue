@@ -35,6 +35,14 @@
         />
       </UFormGroup>
 
+      <UFormGroup label="Custom Channels" hint="Optional">
+        <UInput
+          v-model="customChannelInput"
+          class="font-mono"
+          placeholder="Channel ID(s), separated by commas (e.g. store01, store02)"
+        />
+      </UFormGroup>
+
       <template #footer>
         <UButton
           label="Generate"
@@ -204,6 +212,18 @@ const linkSetting = ref(linkSettings.value[0].value)
 const isCustomLink = computed(() => linkSetting.value === 'custom')
 const customLinkInput = ref(route.query.custom_link as string || '')
 
+const customChannelInput = ref('')
+const customChannels = computed(
+  () => customChannelInput.value
+    .split(',')
+    .map(channel => channel.trim())
+    .filter(Boolean)
+    .map(channel => ({
+      id: channel,
+      name: channel
+    }))
+)
+
 const error = ref('')
 
 const isLoadingProductData = ref(false)
@@ -246,7 +266,17 @@ const tableRows = computed(() => {
   if (!productData.value) {
     return []
   }
-  return AFFILIATION_CHANNELS.map(channel => ({
+  const channels = [...AFFILIATION_CHANNELS, ...customChannels.value]
+  channels.sort((a, b) => {
+    if (a.id === 'liker_land') {
+      return -1
+    }
+    if (b.id === 'liker_land') {
+      return 1
+    }
+    return a.id.replace('@', '').localeCompare(b.id.replace('@', ''))
+  })
+  return channels.map(channel => ({
     id: channel.id,
     channel: channel.name,
     url: getPurchaseLink({
