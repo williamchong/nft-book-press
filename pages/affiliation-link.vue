@@ -254,7 +254,7 @@ const tableRows = computed(() => {
       channel: channel.id,
       priceIndex: priceIndex.value,
       customLink: isCustomLink.value ? customLinkInput.value : undefined,
-      isUseLikerLandLink: false
+      isUseLikerLandLink: linkSetting.value === 'liker_land'
     })
   }))
 })
