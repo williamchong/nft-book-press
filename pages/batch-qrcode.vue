@@ -176,7 +176,7 @@ async function drawQRCodes () {
     const qrcode = new QRCodeStyling(getQRCodeOptions({
       margin: 0,
       data: item.url,
-      image: getQRCodeIcon(selectedQRCodeIcon.value),
+      image: selectedQRCodeIcon.value === 'none' ? undefined : getQRCodeIcon(selectedQRCodeIcon.value),
       fillColor: selectedQRCodeColor.value
     }))
     const element = qrCodeRef.value?.[index]

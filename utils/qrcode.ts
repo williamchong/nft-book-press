@@ -16,6 +16,10 @@ export const iconOptions = [
   {
     value: 'nfc',
     label: 'NFC'
+  },
+  {
+    value: 'none',
+    label: 'None'
   }
 ]
 
@@ -38,7 +42,7 @@ export function getQRCodeOptions ({
   fillColor = DEFAULT_QR_CODE_COLOR,
   bgColor = '#ffffff',
   margin = 10,
-  image = getQRCodeIcon()
+  image = undefined as string | undefined
 }) {
   return {
     width,

@@ -117,7 +117,7 @@ const options = computed(() => getQRCodeOptions({
   height: props.height,
   data: props.data,
   fillColor: selectedColor.value,
-  image: getQRCodeIcon(selectedIcon.value)
+  image: selectedIcon.value === 'none' ? undefined : getQRCodeIcon(selectedIcon.value)
 }))
 const qrCode = ref<QRCodeStyling | null>(null)
 const qrCodeRef = ref(null)
