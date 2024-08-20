@@ -43,6 +43,14 @@
         />
       </UFormGroup>
 
+      <UFormGroup label="Query Parameters" hint="Optional">
+        <UInput
+          v-model="linkQueryInput"
+          class="font-mono"
+          placeholder="utm_source=instagram&utm_medium=social"
+        />
+      </UFormGroup>
+
       <template #footer>
         <UButton
           label="Generate"
@@ -117,6 +125,30 @@
             :options="priceIndexOptions"
           />
         </UFormGroup>
+      </div>
+
+      <div
+        v-if="linkQueryTableRows.length"
+        class="px-4 py-5 sm:p-6"
+      >
+        <UCard
+          :ui="{ body: { padding: '' } }"
+        >
+          <template #header>
+            <h3 class="text-sm font-bold">
+              Link Query Parameters
+            </h3>
+          </template>
+
+          <UTable
+            :columns="[
+              { key: 'key', label: 'Key' },
+              { key: 'value', label: 'Value' }
+            ]"
+            :rows="linkQueryTableRows"
+            :ui="{ td: { font: 'font-mono' } }"
+          />
+        </UCard>
       </div>
 
       <UTable :columns="tableColumns" :rows="tableRows">
@@ -198,6 +230,23 @@ const productId = computed(() => {
   }
   return input
 })
+
+const linkQueryInput = ref('')
+const linkQuery = computed(() => {
+  if (linkQueryInput.value) {
+    return Object.fromEntries(new URLSearchParams(linkQueryInput.value.trim()))
+  }
+  const input = productIdInput.value?.trim() || ''
+  if (input.startsWith('http')) {
+    return Object.fromEntries(new URL(input).searchParams)
+  }
+  return {}
+})
+const linkQueryTableRows = computed(() => Object.entries(linkQuery.value).map(([key, value]) => ({
+  key,
+  value
+})))
+
 const isCollection = computed(() => productId.value?.startsWith('col_'))
 
 const linkSettings = ref([
@@ -290,7 +339,8 @@ const tableRows = computed(() => {
       channel: channel.id,
       priceIndex: priceIndex.value,
       customLink: isCustomLink.value ? customLinkInput.value : undefined,
-      isUseLikerLandLink: linkSetting.value === 'liker_land'
+      isUseLikerLandLink: linkSetting.value === 'liker_land',
+      query: linkQuery.value
     })
   }))
 })

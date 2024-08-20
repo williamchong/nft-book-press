@@ -112,7 +112,8 @@ export function getPurchaseLink ({
   channel,
   coupon,
   customLink,
-  isUseLikerLandLink
+  isUseLikerLandLink,
+  query
 }:{
   classId?: string
   collectionId?: string
@@ -121,6 +122,7 @@ export function getPurchaseLink ({
   coupon?: string
   customLink?: string
   isUseLikerLandLink?: boolean
+  query?: Record<string, string>
 }) {
   const payload: Record<string, string> = {
     from: channel || ''
@@ -137,7 +139,7 @@ export function getPurchaseLink ({
     return url.toString()
   }
 
-  const queryString = `?${new URLSearchParams(payload).toString()}`
+  const queryString = `?${new URLSearchParams({ ...query, ...payload }).toString()}`
   if (collectionId) {
     return isUseLikerLandLink
       ? `${LIKER_LAND_URL}/nft/collection/${collectionId}${queryString}`
