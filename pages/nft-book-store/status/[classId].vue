@@ -556,42 +556,122 @@
                 <USelect v-model="priceIndex" :options="priceIndexOptions" />
               </UFormGroup>
 
-              <UFormGroup label="Sales channel for this link" hint="Optional">
-                <UInput v-model="fromChannel" placeholder="Channel ID" />
+              <UFormGroup label="Sales channel for the link(s)" hint="Optional">
+                <UInput v-model="fromChannelInput" placeholder="Channel ID(s), separated by commas (e.g. store01, store02)" />
               </UFormGroup>
 
-              <UFormGroup v-if="Object.keys(coupons).length" label="Active coupon" hint="Optional">
-                <USelect v-model="activeCoupon" :options="[''].concat(Object.keys(coupons))" />
-              </UFormGroup>
-
-              <UButton
-                class="font-mono break-all"
-                :label="`${purchaseLink}`"
-                :to="purchaseLink"
-                variant="outline"
-                color="gray"
-                target="_blank"
-              />
-              <br>
-              <UButton
-                label="Copy Purchase Link"
-                variant="outline"
-                color="primary"
-                @click="copyPurchaseLink"
-              />
-
-              <QRCode
-                :data="purchaseLink"
-                :file-name="`${nftClassName || classId}-price_${priceIndex}-channel_${fromChannel || ''}`"
-                :width="500"
-                :height="500"
+              <UCard
+                v-if="purchaseLinks.length > 1"
+                :ui="{
+                  header: { base: 'flex justify-between items-center' },
+                  body: { padding: '' },
+                }"
               >
                 <template #header>
-                  <h3 class="font-bold font-mono">
-                    Purchase Link QR Code
-                  </h3>
+                  <h4 class="text-sm font-bold font-mono">
+                    All Purchase Links
+                  </h4>
+
+                  <UDropdown
+                    :items="[
+                      [
+                        {
+                          label: 'Print All QR Codes',
+                          icon: 'i-heroicons-qr-code',
+                          click: printAllQRCodes,
+                        },
+                        {
+                          label: 'Download All Links',
+                          icon: 'i-heroicons-arrow-down-on-square-stack',
+                          click: downloadAllPurchaseLinks,
+                        },
+                        {
+                          label: 'Shorten All Links',
+                          icon: 'i-heroicons-sparkles',
+                          click: shortenAllLinks,
+                        },
+                      ]
+                    ]"
+                    :popper="{ placement: 'top-end' }"
+                  >
+                    <UButton
+                      icon="i-heroicons-ellipsis-horizontal-20-solid"
+                      color="gray"
+                      variant="soft"
+                    />
+                  </UDropdown>
                 </template>
-              </QRCode>
+
+                <UTable
+                  :columns="[
+                    { key: 'index', label: '#' },
+                    { key: 'channel', label: 'Channel ID' },
+                    { key: 'link', label: 'Purchase Link' },
+                  ]"
+                  :rows="purchaseLinks"
+                  :ui="{ thead: 'whitespace-nowrap' }"
+                >
+                  <template #index-data="{ index }">
+                    {{ index + 1 }}
+                  </template>
+                  <template #link-data="{ row }">
+                    <div class="flex items-center gap-2">
+                      <UButton
+                        icon="i-heroicons-qr-code"
+                        variant="outline"
+                        size="xs"
+                        @click="selectedPurchaseLink = row"
+                      />
+                      <UButton
+                        icon="i-heroicons-document-duplicate"
+                        size="xs"
+                        variant="outline"
+                        :disabled="!row.url"
+                        @click="copyPurchaseLink(row.url)"
+                      />
+                      <UButton
+                        class="font-mono break-all"
+                        :label="row.url"
+                        :to="row.url"
+                        color="gray"
+                        variant="outline"
+                        size="xs"
+                        target="_blank"
+                      />
+                    </div>
+                  </template>
+                </UTable>
+              </UCard>
+              <div v-else-if="purchaseLinks[0]" class="flex items-center gap-2">
+                <UButton
+                  icon="i-heroicons-qr-code"
+                  variant="outline"
+                  size="xs"
+                  @click="selectedPurchaseLink = purchaseLinks[0]"
+                />
+                <UButton
+                  icon="i-heroicons-document-duplicate"
+                  size="xs"
+                  variant="outline"
+                  :disabled="!purchaseLinks[0]?.url"
+                  @click="copyPurchaseLink(purchaseLinks[0]?.url)"
+                />
+                <UButton
+                  icon="i-heroicons-arrow-top-right-on-square"
+                  :to="purchaseLinks[0].url"
+                  target="_blank"
+                  size="xs"
+                  variant="outline"
+                />
+                <UInput
+                  class="grow font-mono"
+                  :model-value="purchaseLinks[0].url"
+                  :disabled="true"
+                  color="gray"
+                  variant="outline"
+                  size="xs"
+                />
+              </div>
             </UCard>
           </div>
         </template>
@@ -604,6 +684,29 @@
         @click="updateSettings"
       />
     </template>
+
+    <UModal v-model="isOpenQRCodeModal">
+      <QRCodeGenerator
+        v-if="selectedPurchaseLink"
+        :data="selectedPurchaseLink.url"
+        :file-name="getQRCodeFilename(selectedPurchaseLink.channel)"
+        :width="500"
+        :height="500"
+      >
+        <template #header>
+          <h3 class="font-bold font-mono">
+            Download QR Code
+          </h3>
+          <UButton
+            icon="i-heroicons-x-mark"
+            color="gray"
+            variant="ghost"
+            @click="isOpenQRCodeModal = false"
+          />
+        </template>
+      </QRCodeGenerator>
+    </UModal>
+
     <NuxtPage :transition="false" />
   </main>
 </template>
@@ -611,12 +714,12 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import Draggable from 'vuedraggable'
-import { CHAIN_EXPLORER_URL, IS_TESTNET, LIKE_CO_API, LIKER_LAND_URL } from '~/constant'
+import { CHAIN_EXPLORER_URL, LIKE_CO_API, LIKER_LAND_URL } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useNftStore } from '~/stores/nft'
 import { useWalletStore } from '~/stores/wallet'
 import { useStripeStore } from '~/stores/stripe'
-import { getPortfolioURL, formatShippingAddress } from '~/utils'
+import { getPortfolioURL, downloadFile, convertArrayOfObjectsToCSV, getPurchaseLink, formatShippingAddress } from '~/utils'
 import { getNFTAuthzGrants, shortenWalletAddress } from '~/utils/cosmos'
 
 const store = useWalletStore()
@@ -635,8 +738,8 @@ const toast = useToast()
 
 const error = ref('')
 const isLoading = ref(false)
-const classId = ref(route.params.classId)
-const fromChannel = ref<string | undefined>(undefined)
+const classId = ref<string>(route.params.classId as string)
+const fromChannelInput = ref('')
 const priceIndex = ref(0)
 const activeCoupon = ref('')
 const classListingInfo = ref<any>({})
@@ -670,17 +773,37 @@ const ownerWallet = computed(() => classListingInfo?.value?.ownerWallet)
 const orderHasShipping = computed(() => purchaseList.value.find((p: any) => !!p.shippingStatus))
 const userIsOwner = computed(() => wallet.value && ownerWallet.value === wallet.value)
 const userCanSendNFT = computed(() => userIsOwner.value || (wallet.value && moderatorWalletsGrants.value[wallet.value]))
-const purchaseLink = computed(() => {
-  const payload: Record<string, string> = {
-    from: fromChannel.value || '',
-    price_index: priceIndex.value.toString()
+const purchaseLinks = computed(() =>
+  fromChannelInput.value
+    .split(',')
+    .filter((c, index) => !!c || index === 0)
+    .map(c => c.trim())
+    .map(channel => ({
+      channel,
+      url: getPurchaseLink({
+        classId: classId.value,
+        priceIndex: priceIndex.value,
+        channel,
+        coupon: activeCoupon.value,
+        isUseLikerLandLink: useLikerLandPurchaseLink.value
+      })
+    }))
+)
+
+const selectedPurchaseLink = ref<{
+  channel: string,
+  url: string,
+} | undefined>(undefined)
+
+const isOpenQRCodeModal = computed({
+  get: () => !!selectedPurchaseLink.value,
+  set: (value) => {
+    if (!value) {
+      selectedPurchaseLink.value = undefined
+    }
   }
-  if (activeCoupon.value) { payload.coupon = activeCoupon.value }
-  const queryString = `?${new URLSearchParams(payload).toString()}`
-  const apiLink = `https://api.${IS_TESTNET ? 'rinkeby.' : ''}like.co/likernft/book/purchase/${classId.value}/new${queryString}`
-  const likerLandLink = `https://${IS_TESTNET ? 'rinkeby.' : ''}liker.land/nft/class/${classId.value}${queryString}`
-  return useLikerLandPurchaseLink.value ? likerLandLink : apiLink
 })
+
 const salesChannelMap = computed(() => {
   if (!purchaseList.value.length) {
     return {}
@@ -756,6 +879,14 @@ const orderTableColumns = computed(() => {
 
   return columns
 })
+
+function getQRCodeFilename (channel = '') {
+  const filenameParts = [`${nftClassName.value || classId.value}`, `price_${priceIndex.value}`]
+  if (channel) {
+    filenameParts.push(`channel_${channel}`)
+  }
+  return filenameParts.join('_')
+}
 
 function getOrdersTableActionItems (purchaseListItem: any) {
   const actionItems = []
@@ -1185,8 +1316,8 @@ async function updateShippingRates (value: any) {
   }
 }
 
-async function copyPurchaseLink () {
-  await navigator.clipboard.writeText(purchaseLink.value)
+async function copyPurchaseLink (text = '') {
+  await navigator.clipboard.writeText(text)
   toast.add({
     icon: 'i-heroicons-check-circle',
     title: 'Copied purchase link to clipboard',
@@ -1195,4 +1326,55 @@ async function copyPurchaseLink () {
   })
 }
 
+function downloadAllPurchaseLinks () {
+  downloadFile({
+    data: purchaseLinks.value,
+    fileName: `${classId.value}_purchase_links.csv`,
+    fileType: 'csv'
+  })
+}
+
+function printAllQRCodes () {
+  try {
+    sessionStorage.setItem(
+      'nft_book_press_batch_qrcode',
+      convertArrayOfObjectsToCSV(purchaseLinks.value.map(({ channel, ...link }) => ({ key: channel, ...link })))
+    )
+    window.open('/batch-qrcode?print=1', 'batch_qrcode', 'popup,menubar=no,location=no,status=no')
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error)
+    toast.add({
+      icon: 'i-heroicons-exclamation-circle',
+      title: 'Failed to print QR codes',
+      timeout: 0,
+      color: 'red',
+      ui: {
+        title: 'text-red-400 dark:text-red-400'
+      }
+    })
+  }
+}
+
+function shortenAllLinks () {
+  try {
+    sessionStorage.setItem(
+      'nft_book_press_batch_shorten_url',
+      convertArrayOfObjectsToCSV(purchaseLinks.value.map(({ channel, ...link }) => ({ key: channel, ...link })))
+    )
+    router.push({ name: 'batch-bitly', query: { print: 1 } })
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error)
+    toast.add({
+      icon: 'i-heroicons-exclamation-circle',
+      title: 'Failed to shorten links',
+      timeout: 0,
+      color: 'red',
+      ui: {
+        title: 'text-red-400 dark:text-red-400'
+      }
+    })
+  }
+}
 </script>

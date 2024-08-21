@@ -63,6 +63,12 @@ const items = [
         icon: 'i-heroicons-user-group',
         to: { name: 'nft-book-store-user' },
         exact: true
+      },
+      {
+        label: 'Affiliation Link',
+        icon: 'i-heroicons-user-group',
+        to: { name: 'affiliation-link' },
+        exact: true
       }
     ]
   },
@@ -79,6 +85,16 @@ const items = [
   {
     label: 'More Tools',
     links: [
+      {
+        label: 'Batch Create QR Codes',
+        icon: 'i-heroicons-qr-code',
+        to: { name: 'batch-qrcode' }
+      },
+      {
+        label: 'Batch Create Bitly Links',
+        icon: 'i-heroicons-sparkles',
+        to: { name: 'batch-bitly' }
+      },
       {
         label: 'LikeCoin ISCN/NFT Tools',
         icon: 'i-heroicons-arrow-top-right-on-square',

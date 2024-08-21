@@ -413,7 +413,7 @@ import type { FormError } from '#ui/types'
 
 import { useWalletStore } from '~/stores/wallet'
 import { LCD_URL, APP_LIKE_CO_URL, LIKER_LAND_URL } from '~/constant'
-import { downloadFile, generateCsvData, sleep } from '~/utils'
+import { downloadFile, convertArrayOfObjectsToCSV, sleep } from '~/utils'
 
 const router = useRouter()
 const route = useRoute()
@@ -573,6 +573,32 @@ function onISCNFileChange (event: Event) {
   reader.readAsText(file)
 }
 
+function generateNFTMintListCSVData ({
+  prefix,
+  nftExisitngCount = 0,
+  nftMintCount,
+  imgUrl,
+  uri
+}: {
+  prefix: string;
+  nftExisitngCount?: number;
+  nftMintCount: number;
+  imgUrl: string;
+  uri: string ;
+}) {
+  const csvRows = []
+  for (let i = nftExisitngCount; i <= nftExisitngCount + nftMintCount - 1; i++) {
+    const nftId = `${prefix}-${i.toString().padStart(4, '0')}`
+    csvRows.push({
+      nftId,
+      uri,
+      image: imgUrl,
+      metadata: ''
+    })
+  }
+  return convertArrayOfObjectsToCSV(csvRows)
+}
+
 async function onClickMintByInputting () {
   isLoading.value = true
   const { contentMetadata } = iscnData.value
@@ -606,7 +632,7 @@ async function onClickMintByInputting () {
   if (typeof nftMintCount.value !== 'number') {
     nftMintCount.value = Number(nftMintCount.value)
   }
-  const csvDataString = generateCsvData({
+  const csvDataString = generateNFTMintListCSVData({
     prefix: state.nftIdPrefix,
     nftMintCount: nftMintCount.value,
     nftExisitngCount: existingNftCount.value,

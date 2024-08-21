@@ -1,6 +1,15 @@
 <template>
   <main :key="route.path">
-    <h1 class="text-xl font-bold font-mono mb-4">
+    <h1
+      :class="[
+        'text-xl',
+        'font-bold',
+        'font-mono',
+        'mb-4',
+        'print:hidden',
+        { hidden: isHeaderHidden },
+      ]"
+    >
       NFT Book Store Management Page
     </h1>
 
@@ -25,6 +34,7 @@ const bookStoreApiStore = useBookStoreApiStore()
 const store = useWalletStore()
 const { signer } = storeToRefs(store)
 
+const isHeaderHidden = computed(() => route.query.print === '1')
 </script>
 <style scoped>
 table, th, td {
