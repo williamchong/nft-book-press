@@ -231,7 +231,7 @@ const productId = computed(() => {
   return input
 })
 
-const linkQueryInput = ref('')
+const linkQueryInput = ref('utm_medium=qrcode')
 const linkQuery = computed(() => {
   if (linkQueryInput.value) {
     return Object.fromEntries(new URLSearchParams(linkQueryInput.value.trim()))
