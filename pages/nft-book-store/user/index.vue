@@ -271,6 +271,42 @@
             </template>
           </UTable>
         </UCard>
+        <UCard
+          :ui="{
+            header: { base: 'flex justify-between items-center' },
+            body: { padding: '' },
+            footer: { base: 'text-center' },
+          }"
+        >
+          <template #header>
+            <h1 class="text-center font-bold font-mono">
+              Commission Payout History
+            </h1>
+
+            <UTooltip
+              text="Refresh Status"
+              :popper="{ placement: 'left' }"
+            >
+              <UButton
+                icon="i-heroicons-arrow-path"
+                variant="outline"
+                :disabled="isLoading"
+                @click="loadPayoutHistory"
+              />
+            </UTooltip>
+          </template>
+
+          <UTable
+            :columns="[
+              { key: 'createdTs', label: 'Created' },
+              { key: 'amount', label: 'Payout Amount' },
+              { key: 'status', label: 'Status' },
+              { key: 'arrivalTs', label: 'Arrived' },
+            ]"
+            :rows="payoutHistoryRows"
+            :ui="{ th: { base: 'text-center' }, td: { base: 'text-center' } }"
+          />
+        </UCard>
       </template>
     </template>
   </PageBody>
@@ -301,6 +337,7 @@ const isLoading = ref(false)
 const connectStatus = ref<any>({})
 const likerIdInfo = ref<any>({})
 const commissionHistory = ref<any>([])
+const payoutHistory = ref<any>([])
 const isEnableNotificationEmails = ref(true)
 const isLikerIdLoading = ref(false)
 
@@ -319,6 +356,7 @@ const isAllowChangingNotificationEmailSettings = computed(() =>
 onMounted(async () => {
   await Promise.all([
     loadCommissionHistory(),
+    loadPayoutHistory(),
     loadLikerId(),
     refreshStripeConnectStatus(),
     userStore.lazyFetchBookUserProfile()
@@ -346,6 +384,25 @@ const commissionHistoryRows = computed(() => {
   })
 })
 
+const payoutHistoryRows = computed(() => {
+  return payoutHistory.value.map((row: any) => {
+    const {
+      amount,
+      currency,
+      // id,
+      status,
+      arrivalTs,
+      createdTs
+    } = row
+    return {
+      amount: `${currency}${amount / 100}`,
+      status,
+      createdTs: new Date(createdTs * 1000).toLocaleString(),
+      arrivalTs: arrivalTs ? new Date(arrivalTs * 1000).toLocaleString() : ''
+    }
+  })
+})
+
 async function loadCommissionHistory () {
   try {
     isLoading.value = true
@@ -368,6 +425,26 @@ async function loadCommissionHistory () {
       .filter((row: any) => row.collectionId)
       .map((row: any) => row.collectionId))
     collectionIds.forEach((collectionId: string) => collectionStore.lazyFetchCollectionById(collectionId))
+  } catch (e) {
+    console.error(e)
+    error.value = (e as Error).toString()
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function loadPayoutHistory () {
+  try {
+    isLoading.value = true
+    const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/user/payouts/list`, {
+      headers: {
+        authorization: `Bearer ${token.value}`
+      }
+    })
+    if (fetchError.value && fetchError.value?.statusCode !== 404) {
+      throw new Error(fetchError.value.toString())
+    }
+    payoutHistory.value = (data.value as any)?.payouts || []
   } catch (e) {
     console.error(e)
     error.value = (e as Error).toString()
