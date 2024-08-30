@@ -302,10 +302,25 @@
               { key: 'amount', label: 'Payout Amount' },
               { key: 'status', label: 'Status' },
               { key: 'arrivalTs', label: 'Arrived' },
+              { key: 'details', label: 'Payout Detail' },
             ]"
             :rows="payoutHistoryRows"
             :ui="{ th: { base: 'text-center' }, td: { base: 'text-center' } }"
-          />
+          >
+            <template #details-data="{ row }">
+              <UButton
+                label="Details"
+                size="sm"
+                color="gray"
+                :to="{
+                  name: 'nft-book-store-user-payouts-payoutId',
+                  params: {
+                    payoutId: row.id
+                  }
+                }"
+              />
+            </template>
+          </UTable>
         </UCard>
       </template>
     </template>
@@ -387,14 +402,15 @@ const commissionHistoryRows = computed(() => {
 const payoutHistoryRows = computed(() => {
   return payoutHistory.value.map((row: any) => {
     const {
+      id,
       amount,
       currency,
-      // id,
       status,
       arrivalTs,
       createdTs
     } = row
     return {
+      id,
       amount: `${currency}${amount / 100}`,
       status,
       createdTs: new Date(createdTs * 1000).toLocaleString(),
