@@ -8,6 +8,7 @@ export const useBookStoreApiStore = defineStore('book-api', () => {
   const { wallet: storeWallet } = storeToRefs(walletStore)
   const token = ref('')
   const sessionWallet = ref('')
+  const isRestoringSession = ref(false)
 
   const isAuthenticated = computed(() => {
     const isWalletMatch = storeWallet.value === sessionWallet.value
@@ -18,9 +19,26 @@ export const useBookStoreApiStore = defineStore('book-api', () => {
     return decoded.exp && (decoded.exp > (Date.now() / 1000))
   })
 
-  function restoreSession (inputWallet: string, inputToken: string) {
-    token.value = inputToken
-    sessionWallet.value = inputWallet
+  function clearSession () {
+    token.value = ''
+    sessionWallet.value = ''
+    clearAuthSession()
+  }
+
+  async function restoreSession () {
+    try {
+      isRestoringSession.value = true
+      const session = loadAuthSession()
+      if (session) {
+        token.value = session.token
+        sessionWallet.value = session.wallet
+        if (session.wallet) {
+          await walletStore.connect()
+        }
+      }
+    } finally {
+      isRestoringSession.value = false
+    }
   }
 
   async function authenticate (inputWallet: string, signature: any) {
@@ -35,6 +53,7 @@ export const useBookStoreApiStore = defineStore('book-api', () => {
     if ((!data?.value as any)?.token) { throw new Error('INVALID_SIGNATURE') }
     token.value = (data.value as any).token
     sessionWallet.value = inputWallet
+    saveAuthSession({ wallet: inputWallet, token: token.value })
   }
 
   async function newBookListing (classId: string, payload: any) {
@@ -97,6 +116,8 @@ export const useBookStoreApiStore = defineStore('book-api', () => {
     token,
     wallet: sessionWallet,
     isAuthenticated,
+    isRestoringSession,
+    clearSession,
     restoreSession,
     authenticate,
     newBookListing,

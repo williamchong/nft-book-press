@@ -20,6 +20,15 @@
       <SiteNavigation />
     </USlideover>
 
+    <UModal
+      :model-value="isRestoringSession"
+      :prevent-close="true"
+      :ui="{ base: 'p-4 items-center gap-2' }"
+    >
+      <span>Restoring session ...</span>
+      <UProgress animation="carousel" />
+    </UModal>
+
     <NuxtLoadingIndicator />
 
     <UNotifications />
@@ -27,14 +36,14 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
+
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useUIStore } from '~/stores/ui'
-import { useWalletStore } from '~/stores/wallet'
 
 const bookStoreApiStore = useBookStoreApiStore()
-const walletStore = useWalletStore()
-const { connect } = walletStore
 const { restoreSession } = bookStoreApiStore
+const { isRestoringSession } = storeToRefs(bookStoreApiStore)
 const uiStore = useUIStore()
 
 const isMobileMenuOpen = computed({
@@ -62,14 +71,7 @@ useHead({
 })
 
 onMounted(async () => {
-  try {
-    const payload = window.localStorage.getItem('likecoin_nft_book_press_token')
-    if (payload) {
-      const { wallet: storedWallet, token } = JSON.parse(payload)
-      restoreSession(storedWallet, token)
-      if (storedWallet) { await connect() }
-    }
-  } catch {}
+  await restoreSession()
 })
 
 </script>
