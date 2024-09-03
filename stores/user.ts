@@ -8,6 +8,7 @@ export const useUserStore = defineStore('user', () => {
   const { token } = storeToRefs(bookStoreApiStore)
 
   const bookUser = ref(null as any)
+  const isUpdatingBookUserProfile = ref(false)
 
   async function fetchBookUserProfile () {
     const { error, data } = await useFetch(
@@ -33,18 +34,23 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function updateBookUserProfile (payload: any) {
-    const { error } = await useFetch(`${LIKE_CO_API}/likernft/book/user/profile`, {
-      method: 'POST',
-      body: payload,
-      headers: {
-        authorization: `Bearer ${token.value}`
+    try {
+      isUpdatingBookUserProfile.value = true
+      const { error } = await useFetch(`${LIKE_CO_API}/likernft/book/user/profile`, {
+        method: 'POST',
+        body: payload,
+        headers: {
+          authorization: `Bearer ${token.value}`
+        }
+      })
+      if (error.value) {
+        throw error.value
       }
-    })
-    if (error.value) {
-      throw error.value
+      bookUser.value = { ...bookUser.value, ...payload }
+      return bookUser.value
+    } finally {
+      isUpdatingBookUserProfile.value = false
     }
-    bookUser.value = { ...bookUser.value, ...payload }
-    return bookUser.value
   }
 
   return {

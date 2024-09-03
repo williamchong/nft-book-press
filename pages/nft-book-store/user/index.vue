@@ -141,7 +141,7 @@
         <UCard
           :ui="{
             header: { base: 'flex justify-between items-center' },
-            body: { padding: '' },
+            body: { base: 'flex flex-col gap-6' },
             footer: { base: 'text-center' },
           }"
         >
@@ -157,38 +157,65 @@
               label="Liker ID Email"
               disabled
               :ui="{ base: 'font-mono' }"
-            />
+            >
+              <template v-if="bookUser?.notificationEmail" #trailing>
+                <UBadge
+                  v-if="bookUser?.isEmailVerified"
+                  label="Verified"
+                  color="green"
+                  size="xs"
+                  :ui="{ rounded: 'rounded-full' }"
+                />
+                <UBadge
+                  v-else
+                  label="Unverified"
+                  color="amber"
+                  variant="outline"
+                  size="xs"
+                  :ui="{ rounded: 'rounded-full' }"
+                />
+              </template>
+            </UInput>
           </UFormGroup>
-          <UFormGroup label="Is Liker ID Email verified">
-            <UCheckbox
-              :value="bookUser?.isEmailVerified"
-              :checked="bookUser?.notificationEmail"
-              label="Is Liker ID Email verified"
-              disabled
-              :ui="{ base: 'font-mono' }"
-            />
-          </UFormGroup>
-          <UFormGroup label="Email Notification Settings">
-            <UAlert
-              v-if="!(bookUser?.notificationEmail && bookUser?.isEmailVerified)"
-              icon="i-heroicons-exclamation-circle"
-              color="orange"
-              variant="soft"
-              title="Please setup email in Liker ID."
-              description="To enable email notifications, setup and verify your Liker ID email"
-            />
 
-            <UCheckbox
-              v-model="isEnableNotificationEmails"
-              name="isEnalbeNotificationEmails"
-              label="Enable email notifications about commissions"
-              :disabled="!(bookUser?.notificationEmail && bookUser?.isEmailVerified)"
-            />
+          <UFormGroup label="Email Notification Settings">
+            <div class="flex items-center gap-2">
+              <UToggle
+                v-if="isAllowChangingNotificationEmailSettings"
+                v-model="isEnableNotificationEmails"
+              />
+              <UToggle v-else :model-value="false" :disabled="true" />
+
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-200">
+                Receive email notifications about commissions
+              </span>
+            </div>
+
+            <template v-if="!bookUser?.notificationEmail || !bookUser?.isEmailVerified" #help>
+              <UAlert
+                v-if="!bookUser?.notificationEmail"
+                icon="i-heroicons-exclamation-circle"
+                color="orange"
+                variant="subtle"
+                title="Email is not setup yet."
+                description="To enable email notifications, please setup your Liker ID email."
+              />
+              <UAlert
+                v-else-if="!bookUser?.isEmailVerified"
+                icon="i-heroicons-exclamation-circle"
+                color="orange"
+                variant="subtle"
+                title="Email is not verified."
+                description="To enable email notifications, please verify your Liker ID email."
+              />
+            </template>
           </UFormGroup>
-          <template #footer>
+
+          <template v-if="isAllowChangingNotificationEmailSettings" #footer>
             <UButton
               label="Update"
-              color="gray"
+              :disabled="bookUser?.isEnableNotificationEmails === isEnableNotificationEmails"
+              :loading="isUpdatingBookUserProfile"
               @click="updateUserProfile"
             />
           </template>
@@ -266,7 +293,8 @@ const collectionStore = useCollectionStore()
 const userStore = useUserStore()
 const { wallet } = storeToRefs(walletStore)
 const { token } = storeToRefs(bookStoreApiStore)
-const { bookUser } = storeToRefs(userStore)
+const { bookUser, isUpdatingBookUserProfile } = storeToRefs(userStore)
+const toast = useToast()
 
 const error = ref('')
 const isLoading = ref(false)
@@ -283,6 +311,10 @@ watch(bookUser, (user) => {
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
 })
+
+const isAllowChangingNotificationEmailSettings = computed(() =>
+  !!(bookUser.value?.notificationEmail && bookUser.value?.isEmailVerified)
+)
 
 onMounted(async () => {
   await Promise.all([
@@ -471,9 +503,32 @@ async function onSetupStripe () {
 }
 
 async function updateUserProfile () {
-  await userStore.updateBookUserProfile({
-    isEnableNotificationEmails: isEnableNotificationEmails.value
-  })
+  if (!isAllowChangingNotificationEmailSettings.value) {
+    return
+  }
+
+  try {
+    await userStore.updateBookUserProfile({
+      isEnableNotificationEmails: isEnableNotificationEmails.value
+    })
+    toast.add({
+      icon: 'i-heroicons-check-circle',
+      title: 'User profile updated'
+    })
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(e)
+    toast.add({
+      icon: 'i-heroicons-exclamation-circle',
+      title: 'Unable to update user profile',
+      description: (e as Error).toString(),
+      timeout: 0,
+      color: 'red',
+      ui: {
+        title: 'text-red-400 dark:text-red-400'
+      }
+    })
+  }
 }
 
 async function refreshLikerIdInfo () {
