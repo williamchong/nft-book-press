@@ -319,7 +319,7 @@ const priceIndexOptions = computed(() => {
   }))
 })
 
-const tableTitle = computed(() => `${productName.value} Affiliation Links`)
+const tableTitle = computed(() => `${productName.value ? `${productName.value} ` : ''}Affiliation Links`)
 const tableColumns = [
   {
     key: 'channel',
