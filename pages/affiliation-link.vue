@@ -7,7 +7,7 @@
         <UFormGroup
           label="Product ID/URL"
           :required="true"
-          :error="error"
+          :error="productIdError"
         >
           <UInput
             v-model="productIdInput"
@@ -291,7 +291,10 @@ const customChannels = computed(
     }))
 )
 
-const error = ref('')
+const productIdError = ref('')
+watch(productId, () => {
+  productIdError.value = ''
+})
 
 const isLoadingProductData = ref(false)
 const productData = ref<any>(undefined)
@@ -385,19 +388,19 @@ async function fetchProductData () {
     } else {
       const { data: classData, error: classFetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/store/${productId.value}`)
       if (classFetchError.value) {
-        error.value = 'Cannot fetch class data.'
+        productIdError.value = 'Cannot fetch class data.'
       } else {
         return classData.value
       }
     }
   } catch {
-    error.value = 'Cannot fetch product data.'
+    productIdError.value = 'Cannot fetch product data.'
   }
   return undefined
 }
 
 async function createAffiliationLink () {
-  error.value = ''
+  productIdError.value = ''
   productData.value = undefined
 
   if (!productId.value) {
