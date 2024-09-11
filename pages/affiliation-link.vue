@@ -17,13 +17,13 @@
           />
         </UFormGroup>
 
-        <UFormGroup label="Link Settings">
+        <UFormGroup label="Landing Page">
           <USelect v-model="linkSetting" :options="linkSettings" option-attribute="name" />
         </UFormGroup>
 
         <UFormGroup
           v-if="isCustomLink"
-          label="Custom Link"
+          label="Custom Page Link"
           :required="true"
         >
           <UInput
@@ -270,15 +270,15 @@ const isCollection = computed(() => productId.value?.startsWith('col_'))
 
 const linkSettings = ref([
   {
-    name: 'Use Liker Land Link (Product page)',
+    name: 'Liker Land Product Page',
     value: 'liker_land'
   },
   {
-    name: 'Direct Link (Stripe)',
+    name: 'Stripe Checkout Page',
     value: 'direct'
   },
   {
-    name: 'Custom Link',
+    name: 'Custom Page',
     value: 'custom'
   }
 ])
