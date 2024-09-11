@@ -134,9 +134,10 @@
             :ui="{ body: { padding: '' } }"
           >
             <template #header>
-              <h3 class="text-sm font-bold">
-                Link Query Parameters
-              </h3>
+              <h3
+                class="text-sm font-bold"
+                v-text="'Common Link Query Parameters'"
+              />
             </template>
 
             <UTable
@@ -206,7 +207,9 @@
 
 <script setup lang="ts">
 import { type FileExtension } from '@likecoin/qr-code-styling'
-import { AFFILIATION_CHANNELS } from '~/constant'
+
+import { AFFILIATION_CHANNEL_DEFAULT, AFFILIATION_CHANNELS } from '~/constant'
+
 import { useCollectionStore } from '~/stores/collection'
 import { getPurchaseLink } from '~/utils'
 
@@ -331,6 +334,10 @@ const tableColumns = [
     sortable: true
   },
   {
+    key: 'utmCampaign',
+    label: 'UTM Campaign'
+  },
+  {
     key: 'link',
     label: 'Link',
     sortable: false
@@ -342,30 +349,29 @@ const tableRows = computed(() => {
   }
   const channels = [...customChannels.value, ...AFFILIATION_CHANNELS]
   return channels.map((channel) => {
-    const utmCampaignQuery = {
-      utm_campaign: `${channel.id}_bookpress`
-    }
-    const qrUtmSourceQuery: Record<string, string> = {}
-    if (linkQuery.value.utm_source === linkQueryDefault.value.utm_source) {
-      qrUtmSourceQuery.utm_source = `${linkQueryDefault.value.utm_source}-qr`
+    let utmCampaign = 'bookpress'
+    if (channel.id !== AFFILIATION_CHANNEL_DEFAULT) {
+      utmCampaign = `${convertChannelIdToLikerId(channel.id)}_${utmCampaign}`
     }
     const urlConfig = {
       [isCollection.value ? 'collectionId' : 'classId']: productId.value,
       channel: channel.id,
       priceIndex: priceIndex.value,
       customLink: isCustomLink.value ? customLinkInput.value : undefined,
-      isUseLikerLandLink: linkSetting.value === 'liker_land'
+      isUseLikerLandLink: linkSetting.value === 'liker_land',
+      query: {
+        utm_campaign: utmCampaign,
+        ...linkQuery.value
+      }
     }
     return {
       id: channel.id,
       channel: channel.name,
-      url: getPurchaseLink({
-        ...urlConfig,
-        query: { ...utmCampaignQuery, ...linkQuery.value }
-      }),
+      utmCampaign,
+      url: getPurchaseLink(urlConfig),
       qrCodeUrl: getPurchaseLink({
         ...urlConfig,
-        query: { ...utmCampaignQuery, ...linkQuery.value, ...qrUtmSourceQuery }
+        isForQRCode: linkQuery.value.utm_source === linkQueryDefault.value.utm_source
       })
     }
   })

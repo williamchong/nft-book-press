@@ -9,8 +9,10 @@ export const NFT_DEFAULT_MINT_AMOUNT = 50
 
 export const LIKE_ADDRESS_REGEX = /^like1[ac-hj-np-z02-9]{38}$/
 
+export const AFFILIATION_CHANNEL_DEFAULT = 'liker_land'
+
 export const AFFILIATION_CHANNELS = [
-  { id: 'liker_land', name: 'Liker Land' },
+  { id: AFFILIATION_CHANNEL_DEFAULT, name: 'Liker Land' },
   { id: '@bookpunch', name: '一拳書店' },
   { id: '@boundarybooks', name: '界限書店' },
   { id: '@breakthrough_publish', name: '突破書廊' },

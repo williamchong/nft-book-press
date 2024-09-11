@@ -117,7 +117,8 @@ export function getPurchaseLink ({
   coupon,
   customLink,
   isUseLikerLandLink,
-  query
+  isForQRCode,
+  query: queryInput
 }:{
   classId?: string
   collectionId?: string
@@ -126,25 +127,29 @@ export function getPurchaseLink ({
   coupon?: string
   customLink?: string
   isUseLikerLandLink?: boolean
+  isForQRCode?: boolean
   query?: Record<string, string>
 }) {
-  const payload: Record<string, string> = {
+  const query: Record<string, string> = {
     from: channel || ''
   }
   if (classId) {
-    payload.price_index = priceIndex.toString()
+    query.price_index = priceIndex.toString()
   }
-  if (coupon) { payload.coupon = coupon }
+  if (coupon) { query.coupon = coupon }
   if (customLink) {
     const url = new URL(customLink)
-    Object.entries(payload).forEach(([key, value]) => {
+    Object.entries(query).forEach(([key, value]) => {
       url.searchParams.set(key, value)
     })
     return url.toString()
   }
+  if (isForQRCode && queryInput?.utm_medium) {
+    query.utm_medium = `${queryInput.utm_medium}-qr`
+  }
 
   const { LIKE_CO_API, LIKER_LAND_URL } = useRuntimeConfig().public
-  const queryString = `?${new URLSearchParams({ ...query, ...payload }).toString()}`
+  const queryString = `?${new URLSearchParams({ ...queryInput, ...query }).toString()}`
   if (collectionId) {
     return isUseLikerLandLink
       ? `${LIKER_LAND_URL}/nft/collection/${collectionId}${queryString}`
