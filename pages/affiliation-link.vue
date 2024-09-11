@@ -245,14 +245,18 @@ const linkQueryDefault = computed(() => {
   }
 })
 const linkQuery = computed(() => {
-  if (linkQueryInput.value) {
-    return { ...linkQueryDefault.value, ...Object.fromEntries(new URLSearchParams(linkQueryInput.value.trim())) }
-  }
+  const mergedQuery = { ...linkQueryDefault.value }
+
   const input = productIdInput.value?.trim() || ''
   if (input.startsWith('http')) {
-    return { ...linkQueryDefault.value, ...Object.fromEntries(new URL(input).searchParams) }
+    Object.assign(mergedQuery, Object.fromEntries(new URL(input).searchParams))
   }
-  return linkQueryDefault.value
+
+  if (linkQueryInput.value) {
+    Object.assign(mergedQuery, Object.fromEntries(new URLSearchParams(linkQueryInput.value)))
+  }
+
+  return mergedQuery
 })
 const linkQueryTableRows = computed(() => Object.entries(linkQuery.value).map(([key, value]) => ({
   key,
