@@ -233,7 +233,7 @@ const productId = computed(() => {
 })
 
 const linkQueryInput = ref('')
-const defaultQuery = computed(() => {
+const linkQueryDefault = computed(() => {
   const isUseLikerLandLink = linkSetting.value === 'liker_land'
   let utmSource = isUseLikerLandLink ? 'likerland' : 'stripe'
   if (isCustomLink.value) {
@@ -246,13 +246,13 @@ const defaultQuery = computed(() => {
 })
 const linkQuery = computed(() => {
   if (linkQueryInput.value) {
-    return { ...defaultQuery.value, ...Object.fromEntries(new URLSearchParams(linkQueryInput.value.trim())) }
+    return { ...linkQueryDefault.value, ...Object.fromEntries(new URLSearchParams(linkQueryInput.value.trim())) }
   }
   const input = productIdInput.value?.trim() || ''
   if (input.startsWith('http')) {
-    return { ...defaultQuery.value, ...Object.fromEntries(new URL(input).searchParams) }
+    return { ...linkQueryDefault.value, ...Object.fromEntries(new URL(input).searchParams) }
   }
-  return defaultQuery.value
+  return linkQueryDefault.value
 })
 const linkQueryTableRows = computed(() => Object.entries(linkQuery.value).map(([key, value]) => ({
   key,
@@ -342,8 +342,8 @@ const tableRows = computed(() => {
       utm_campaign: `${channel.id}_bookpress`
     }
     const qrUtmSourceQuery: Record<string, string> = {}
-    if (linkQuery.value.utm_source === defaultQuery.value.utm_source) {
-      qrUtmSourceQuery.utm_source = `${defaultQuery.value.utm_source}-qr`
+    if (linkQuery.value.utm_source === linkQueryDefault.value.utm_source) {
+      qrUtmSourceQuery.utm_source = `${linkQueryDefault.value.utm_source}-qr`
     }
     const urlConfig = {
       [isCollection.value ? 'collectionId' : 'classId']: productId.value,
