@@ -80,7 +80,7 @@ watch(isLoading, (newIsLoading) => {
 })
 
 const payoutDataRows = computed(() => {
-  if (!payoutData.value) return []
+  if (!payoutData.value) { return [] }
   const {
     id,
     createdTs,
@@ -96,7 +96,7 @@ const payoutDataRows = computed(() => {
       amount: `${currency}${amount / 100}`,
       status,
       currency,
-      arrivalTs: arrivalTs ? new Date(arrivalTs * 1000).toLocaleString() : '',
+      arrivalTs: arrivalTs ? new Date(arrivalTs * 1000).toLocaleString() : ''
     }
   ]
 })
