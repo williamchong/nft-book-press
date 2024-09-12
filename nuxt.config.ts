@@ -6,7 +6,7 @@ const {
   SENTRY_ORG,
   SENTRY_PROJECT,
   SENTRY_AUTH_TOKEN,
-  GA_TRACKING_ID,
+  GA_TRACKING_ID
 } = process.env
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
