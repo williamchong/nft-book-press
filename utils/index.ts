@@ -144,8 +144,8 @@ export function getPurchaseLink ({
     })
     return url.toString()
   }
-  if (isForQRCode && queryInput?.utm_medium) {
-    query.utm_medium = `${queryInput.utm_medium}-qr`
+  if (isForQRCode) {
+    query.utm_medium = queryInput?.utm_medium ? `${queryInput.utm_medium}-qr` : 'qrcode'
   }
 
   const { LIKE_CO_API, LIKER_LAND_URL } = useRuntimeConfig().public
