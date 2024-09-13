@@ -55,7 +55,7 @@
               color="gray"
               variant="outline"
               size="2xs"
-              @click="prefillChannelIdIfNecessary"
+              @click="prefillChannelIdIfPossible"
             />
           </div>
         </UFormGroup>
@@ -243,7 +243,6 @@ import { AFFILIATION_CHANNEL_DEFAULT, AFFILIATION_CHANNELS } from '~/constant'
 import { useCollectionStore } from '~/stores/collection'
 import { useStaticDataStore } from '~/stores/static-data'
 import { useUserStore } from '~/stores/user'
-import { useWalletStore } from '~/stores/wallet'
 
 import { getPurchaseLink } from '~/utils'
 
@@ -252,8 +251,6 @@ const collectionStore = useCollectionStore()
 const staticDataStore = useStaticDataStore()
 const userStore = useUserStore()
 const { likerInfo } = storeToRefs(userStore)
-const walletStore = useWalletStore()
-const { wallet } = storeToRefs(walletStore)
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
@@ -623,15 +620,9 @@ async function downloadAllQRCodes () {
   }
 }
 
-async function prefillChannelIdIfNecessary () {
-  try {
-    await userStore.lazyFetchUserLikerInfo()
-    if (!customChannelInput.value) {
-      customChannelInput.value = convertLikerIdToChannelId(likerInfo.value.user)
-    }
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error)
+function prefillChannelIdIfPossible () {
+  if (!customChannelInput.value && likerInfo.value) {
+    customChannelInput.value = convertLikerIdToChannelId(likerInfo.value.user)
   }
 }
 
@@ -640,12 +631,12 @@ onMounted(() => {
     nextTick(createAffiliationLink)
   }
 
-  prefillChannelIdIfNecessary()
+  prefillChannelIdIfPossible()
 })
 
-watch(wallet, () => {
-  if (wallet.value) {
-    prefillChannelIdIfNecessary()
+watch(likerInfo, () => {
+  if (likerInfo.value) {
+    prefillChannelIdIfPossible()
   }
 })
 </script>

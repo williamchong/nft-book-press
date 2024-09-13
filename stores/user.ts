@@ -1,16 +1,12 @@
 import { defineStore, storeToRefs } from 'pinia'
 
 import { useBookStoreApiStore } from './book-store-api'
-import { useWalletStore } from './wallet'
 
 export const useUserStore = defineStore('user', () => {
   const { LIKE_CO_API } = useRuntimeConfig().public
 
   const bookStoreApiStore = useBookStoreApiStore()
-  const { token } = storeToRefs(bookStoreApiStore)
-
-  const walletStore = useWalletStore()
-  const { wallet } = storeToRefs(walletStore)
+  const { token, isAuthenticated, wallet } = storeToRefs(bookStoreApiStore)
 
   const bookUser = ref<any>(null)
   const isUpdatingBookUserProfile = ref(false)
@@ -70,7 +66,7 @@ export const useUserStore = defineStore('user', () => {
       if (fetchError.value && fetchError.value?.statusCode !== 404) {
         throw new Error(fetchError.value.toString())
       }
-      likerInfo.value = (data.value as any) || {}
+      likerInfo.value = (data.value as any) || null
       return likerInfo.value
     } finally {
       isFetchingUserLikerInfo.value = false
@@ -78,11 +74,21 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function lazyFetchUserLikerInfo () {
-    if (!likerInfo.value && wallet.value) {
+    if (isAuthenticated.value && !likerInfo.value) {
       await fetchUserLikerInfo()
     }
     return likerInfo.value
   }
+
+  watch(isAuthenticated, () => {
+    if (isAuthenticated.value) {
+      lazyFetchUserLikerInfo()
+      lazyFetchBookUserProfile()
+    } else {
+      bookUser.value = null
+      likerInfo.value = null
+    }
+  })
 
   return {
     bookUser,

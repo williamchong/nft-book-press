@@ -280,19 +280,16 @@
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '~/stores/user'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
-import { useWalletStore } from '~/stores/wallet'
 import { useNftStore } from '~/stores/nft'
 import { useCollectionStore } from '~/stores/collection'
 
 const { LIKER_LAND_URL, LIKE_CO_API, LIKE_CO_HOST } = useRuntimeConfig().public
 
 const nftStore = useNftStore()
-const walletStore = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
 const collectionStore = useCollectionStore()
 const userStore = useUserStore()
-const { wallet } = storeToRefs(walletStore)
-const { token } = storeToRefs(bookStoreApiStore)
+const { token, wallet } = storeToRefs(bookStoreApiStore)
 const { bookUser, isUpdatingBookUserProfile, likerInfo, isFetchingUserLikerInfo } = storeToRefs(userStore)
 const toast = useToast()
 
