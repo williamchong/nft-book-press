@@ -49,7 +49,7 @@
               name="channel_ids"
             />
             <UButton
-              v-show="!customChannelInput && likerInfo"
+              v-show="!customChannelInput && userLikerInfo"
               class="relative"
               label="Prefill from Account"
               color="gray"
@@ -250,7 +250,7 @@ const { LIKE_CO_API } = useRuntimeConfig().public
 const collectionStore = useCollectionStore()
 const likerStore = useLikerStore()
 const userStore = useUserStore()
-const { likerInfo } = storeToRefs(userStore)
+const { userLikerInfo } = storeToRefs(userStore)
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
@@ -621,8 +621,8 @@ async function downloadAllQRCodes () {
 }
 
 function prefillChannelIdIfPossible () {
-  if (!customChannelInput.value && likerInfo.value) {
-    customChannelInput.value = convertLikerIdToChannelId(likerInfo.value.user)
+  if (!customChannelInput.value && userLikerInfo.value) {
+    customChannelInput.value = convertLikerIdToChannelId(userLikerInfo.value.user)
   }
 }
 
@@ -634,8 +634,8 @@ onMounted(() => {
   prefillChannelIdIfPossible()
 })
 
-watch(likerInfo, () => {
-  if (likerInfo.value) {
+watch(userLikerInfo, () => {
+  if (userLikerInfo.value) {
     prefillChannelIdIfPossible()
   }
 })

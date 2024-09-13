@@ -43,7 +43,7 @@
           </utooltip>
         </template>
 
-        <UFormGroup v-if="likerInfo?.user" label="Your affiliation channel ID" size="xl">
+        <UFormGroup v-if="userLikerInfo?.user" label="Your affiliation channel ID" size="xl">
           <UInput placeholder="Affiliation ID" :value="channelId" disabled />
           <template v-if="!connectStatus.isReady" #help>
             Please setup your stripe account below to participate in the book affiliation program.
@@ -58,7 +58,7 @@
         <p v-else>
           You have not setup your channel ID yet.
         </p>
-        <template v-if="!likerInfo?.user" #footer>
+        <template v-if="!userLikerInfo?.user" #footer>
           <UButton
             label="Setup your ID"
             size="lg"
@@ -290,7 +290,7 @@ const bookStoreApiStore = useBookStoreApiStore()
 const collectionStore = useCollectionStore()
 const userStore = useUserStore()
 const { token, wallet } = storeToRefs(bookStoreApiStore)
-const { bookUser, isUpdatingBookUserProfile, likerInfo, isFetchingUserLikerInfo } = storeToRefs(userStore)
+const { bookUser, isUpdatingBookUserProfile, userLikerInfo, isFetchingUserLikerInfo } = storeToRefs(userStore)
 const toast = useToast()
 
 const error = ref('')
@@ -300,8 +300,8 @@ const commissionHistory = ref<any>([])
 const isEnableNotificationEmails = ref(true)
 
 const channelId = computed(() => {
-  if (likerInfo.value?.user) {
-    return convertLikerIdToChannelId(likerInfo.value?.user)
+  if (userLikerInfo.value?.user) {
+    return convertLikerIdToChannelId(userLikerInfo.value?.user)
   }
   return ''
 })

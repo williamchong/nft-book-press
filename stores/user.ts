@@ -1,16 +1,23 @@
 import { defineStore, storeToRefs } from 'pinia'
 
 import { useBookStoreApiStore } from './book-store-api'
+import { useLikerStore } from './liker'
 
 export const useUserStore = defineStore('user', () => {
   const { LIKE_CO_API } = useRuntimeConfig().public
 
   const bookStoreApiStore = useBookStoreApiStore()
   const { token, isAuthenticated, wallet } = storeToRefs(bookStoreApiStore)
+  const likerStore = useLikerStore()
 
   const bookUser = ref<any>(null)
   const isUpdatingBookUserProfile = ref(false)
-  const likerInfo = ref<any>(null)
+  const userLikerInfo = computed(() => {
+    if (isAuthenticated.value && wallet.value) {
+      return likerStore.getLikerInfoByWallet(wallet.value)
+    }
+    return null
+  })
   const isFetchingUserLikerInfo = ref(false)
 
   async function fetchBookUserProfile () {
@@ -57,27 +64,27 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function fetchUserLikerInfo ({ nocache = false } = {}) {
+    if (!isAuthenticated.value) {
+      return null
+    }
     try {
       isFetchingUserLikerInfo.value = true
-      const timestamp = nocache ? `?ts=${Math.round(new Date().getTime() / 1000)}` : ''
-      const url = `${LIKE_CO_API}/users/addr/${wallet.value}/min${timestamp}`
-      const { data, error: fetchError } = await useFetch(url)
-
-      if (fetchError.value && fetchError.value?.statusCode !== 404) {
-        throw new Error(fetchError.value.toString())
-      }
-      likerInfo.value = (data.value as any) || null
-      return likerInfo.value
+      const likerInfo = await likerStore.fetchLikerInfoByWallet(wallet.value, { nocache })
+      return likerInfo
     } finally {
       isFetchingUserLikerInfo.value = false
     }
   }
 
   async function lazyFetchUserLikerInfo () {
-    if (isAuthenticated.value && !likerInfo.value) {
-      await fetchUserLikerInfo()
+    if (!isAuthenticated.value) {
+      return null
     }
-    return likerInfo.value
+    if (userLikerInfo.value) {
+      return userLikerInfo.value
+    }
+    const likerInfo = await fetchUserLikerInfo()
+    return likerInfo
   }
 
   watch(isAuthenticated, () => {
@@ -86,14 +93,13 @@ export const useUserStore = defineStore('user', () => {
       lazyFetchBookUserProfile()
     } else {
       bookUser.value = null
-      likerInfo.value = null
     }
   })
 
   return {
     bookUser,
     isUpdatingBookUserProfile,
-    likerInfo,
+    userLikerInfo,
     isFetchingUserLikerInfo,
     fetchBookUserProfile,
     lazyFetchBookUserProfile,
