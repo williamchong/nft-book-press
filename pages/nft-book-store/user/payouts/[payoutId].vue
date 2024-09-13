@@ -26,7 +26,7 @@
         :columns="[
           { key: 'id', label: 'ID' },
           { key: 'createdTs', label: 'Created' },
-          { key: 'currency', label: 'currency' },
+          { key: 'currency', label: 'Currency' },
           { key: 'amount', label: 'Payout Amount' },
           { key: 'status', label: 'Status' },
           { key: 'arrivalTs', label: 'Arrived' },

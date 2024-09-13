@@ -302,7 +302,7 @@
               { key: 'amount', label: 'Payout Amount' },
               { key: 'status', label: 'Status' },
               { key: 'arrivalTs', label: 'Arrived' },
-              { key: 'details', label: 'Payout Detail' },
+              { key: 'details', label: 'Payout Details' },
             ]"
             :rows="payoutHistoryRows"
             :ui="{ th: { base: 'text-center' }, td: { base: 'text-center' } }"
@@ -411,7 +411,7 @@ const payoutHistoryRows = computed(() => {
     } = row
     return {
       id,
-      amount: `${currency}${amount / 100}`,
+      amount: `${currency} ${amount / 100}`,
       status,
       createdTs: new Date(createdTs * 1000).toLocaleString(),
       arrivalTs: arrivalTs ? new Date(arrivalTs * 1000).toLocaleString() : ''
