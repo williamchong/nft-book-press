@@ -11,7 +11,7 @@
     />
 
     <UAlert
-      v-if="!connectStatus?.isReady"
+      v-if="!isStripeConnectReady"
       icon="i-heroicons-exclamation-circle"
       color="orange"
       variant="soft"
@@ -45,7 +45,7 @@
 
         <UFormGroup v-if="likerIdInfo?.user" label="Your affiliation channel ID" size="xl">
           <UInput placeholder="Affiliation ID" :value="`@${likerIdInfo?.user}`" disabled />
-          <template v-if="!connectStatus.isReady" #help>
+          <template v-if="!isStripeConnectReady" #help>
             Please setup your stripe account below to participate in the book affiliation program.
           </template>
           <template v-else #help>
@@ -100,7 +100,7 @@
           ]"
           :rows="[{
             initiated: connectStatus?.hasAccount || false,
-            completed: connectStatus?.isReady || false
+            completed: isStripeConnectReady || false
           }]"
           :ui="{ th: { base: 'text-center' }, td: { base: 'text-center' } }"
         >
@@ -123,7 +123,7 @@
             @click="onLoginToStripe"
           />
           <UButton
-            v-else-if="connectStatus?.isReady"
+            v-else-if="isStripeConnectReady"
             label="Login to Stripe account"
             size="lg"
             @click="onLoginToStripe"
@@ -137,7 +137,7 @@
         </template>
       </UCard>
 
-      <template v-if="connectStatus?.isReady">
+      <template v-if="isStripeConnectReady">
         <UCard
           :ui="{
             header: { base: 'flex justify-between items-center' },
@@ -371,12 +371,14 @@ const isAllowChangingNotificationEmailSettings = computed(() =>
 onMounted(async () => {
   await Promise.all([
     loadCommissionHistory(),
-    loadPayoutHistory(),
     loadLikerId(),
     refreshStripeConnectStatus(),
     userStore.lazyFetchBookUserProfile()
   ])
+  if (isStripeConnectReady.value) { await loadPayoutHistory() }
 })
+
+const isStripeConnectReady = computed(() => connectStatus.value?.isReady)
 
 const commissionHistoryRows = computed(() => {
   return commissionHistory.value.map((row: any) => {
@@ -492,7 +494,7 @@ async function refreshStripeConnectStatus () {
   try {
     await loadStripeConnectStatus()
 
-    if (connectStatus.value?.hasAccount && !connectStatus.value?.isReady) {
+    if (connectStatus.value?.hasAccount && !isStripeConnectReady.value) {
       const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/user/connect/refresh`,
         {
           method: 'POST',
