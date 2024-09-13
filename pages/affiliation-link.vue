@@ -644,6 +644,8 @@ onMounted(() => {
 })
 
 watch(wallet, () => {
-  prefillChannelIdIfNecessary()
+  if (wallet.value) {
+    prefillChannelIdIfNecessary()
+  }
 })
 </script>
