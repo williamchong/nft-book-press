@@ -241,14 +241,14 @@ import { type FileExtension } from '@likecoin/qr-code-styling'
 import { AFFILIATION_CHANNEL_DEFAULT, AFFILIATION_CHANNELS } from '~/constant'
 
 import { useCollectionStore } from '~/stores/collection'
-import { useStaticDataStore } from '~/stores/static-data'
+import { useLikerStore } from '~/stores/liker'
 import { useUserStore } from '~/stores/user'
 
 import { getPurchaseLink } from '~/utils'
 
 const { LIKE_CO_API } = useRuntimeConfig().public
 const collectionStore = useCollectionStore()
-const staticDataStore = useStaticDataStore()
+const likerStore = useLikerStore()
 const userStore = useUserStore()
 const { likerInfo } = storeToRefs(userStore)
 const route = useRoute()
@@ -329,7 +329,7 @@ const customChannels = computed(
     .map(channelId => channelId.trim())
     .filter(Boolean)
     .map((channelId) => {
-      const channelInfo = staticDataStore.getChannelInfoById(channelId)
+      const channelInfo = likerStore.getChannelInfoById(channelId)
       return {
         id: channelId,
         name: channelInfo?.displayName || channelId
@@ -470,7 +470,7 @@ async function createAffiliationLink () {
     }
 
     const results = await Promise.all(customChannels.value.map(async (channel) => {
-      const channelInfo = await staticDataStore.lazyFetchChannelInfoById(channel.id)
+      const channelInfo = await likerStore.lazyFetchChannelInfoById(channel.id)
       return {
         ...channel,
         isRegistered: !!channelInfo

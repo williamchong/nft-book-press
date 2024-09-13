@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 import { FetchLikerInfoByIdResult } from 'utils/api'
 
-export const useStaticDataStore = defineStore('static-data', () => {
+export const useLikerStore = defineStore('liker', () => {
   const likerUserInfoMap = ref({} as Record<string, FetchLikerInfoByIdResult>)
 
   const getLikerInfoById = computed(() => (likerId: string) => {
