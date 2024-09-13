@@ -13,6 +13,7 @@
             v-model="productIdInput"
             class="font-mono"
             placeholder="https://liker.land/nft/class/likenft1ku4ra0e7dgknhd0wckrkxspuultynl4mgkxa3j08xeshfr2l0ujqmmvy83"
+            name="product_id"
             :required="true"
           />
         </UFormGroup>
@@ -30,15 +31,21 @@
             v-model="customLinkInput"
             class="font-mono"
             placeholder="https://books.liker.land"
+            name="custom_link"
             :required="true"
           />
         </UFormGroup>
 
-        <UFormGroup label="Custom Channels" hint="Optional">
+        <UFormGroup
+          label="Channel ID(s)"
+          hint="Optional"
+          :error="customChannelInputError"
+        >
           <UInput
             v-model="customChannelInput"
             class="font-mono"
-            placeholder="Channel ID(s), separated by commas (e.g. store01, store02)"
+            placeholder="Channel ID(s), separated by commas (e.g. @store01, @store02)"
+            name="channel_ids"
           />
         </UFormGroup>
 
@@ -47,6 +54,7 @@
             v-model="linkQueryInput"
             class="font-mono"
             placeholder="utm_source=instagram&utm_medium=social"
+            name="query_params"
           />
         </UFormGroup>
 
@@ -152,6 +160,13 @@
         </div>
 
         <UTable :columns="tableColumns" :rows="tableRows">
+          <template #channelId-data="{ row }">
+            <div v-text="row.channelName" />
+            <div
+              class="text-gray-400 dark:text-gray-700 text-xs font-mono"
+              v-text="row.channelId"
+            />
+          </template>
           <template #link-data="{ row }">
             <div class="flex items-center gap-2">
               <UButton
@@ -211,10 +226,13 @@ import { type FileExtension } from '@likecoin/qr-code-styling'
 import { AFFILIATION_CHANNEL_DEFAULT, AFFILIATION_CHANNELS } from '~/constant'
 
 import { useCollectionStore } from '~/stores/collection'
+import { useStaticDataStore } from '~/stores/static-data'
+
 import { getPurchaseLink } from '~/utils'
 
 const { LIKE_CO_API } = useRuntimeConfig().public
 const collectionStore = useCollectionStore()
+const staticDataStore = useStaticDataStore()
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
@@ -290,17 +308,24 @@ const customChannelInput = ref('')
 const customChannels = computed(
   () => customChannelInput.value
     .split(',')
-    .map(channel => channel.trim())
+    .map(channelId => channelId.trim())
     .filter(Boolean)
-    .map(channel => ({
-      id: channel,
-      name: channel
-    }))
+    .map((channelId) => {
+      const channelInfo = staticDataStore.getChannelInfoById(channelId)
+      return {
+        id: channelId,
+        name: channelInfo?.displayName || channelId
+      }
+    })
 )
 
 const productIdError = ref('')
 watch(productId, () => {
   productIdError.value = ''
+})
+const customChannelInputError = ref('')
+watch(customChannelInput, () => {
+  customChannelInputError.value = ''
 })
 
 const isLoadingProductData = ref(false)
@@ -329,7 +354,7 @@ const priceIndexOptions = computed(() => {
 const tableTitle = computed(() => `${productName.value ? `${productName.value} ` : ''}Affiliation Links`)
 const tableColumns = [
   {
-    key: 'channel',
+    key: 'channelId',
     label: 'Channel',
     sortable: true
   },
@@ -365,8 +390,8 @@ const tableRows = computed(() => {
       }
     }
     return {
-      id: channel.id,
-      channel: channel.name,
+      channelId: channel.id,
+      channelName: channel.name,
       utmCampaign,
       url: getPurchaseLink(urlConfig),
       qrCodeUrl: getPurchaseLink({
@@ -412,9 +437,32 @@ async function fetchProductData () {
 async function createAffiliationLink () {
   productIdError.value = ''
   productData.value = undefined
+  customChannelInputError.value = ''
 
   if (!productId.value) {
     return
+  }
+
+  // Validate custom channels
+  if (customChannels.value.length) {
+    const invalidChannel = customChannels.value.find(channel => !validateChannelId(channel.id))
+    if (invalidChannel) {
+      customChannelInputError.value = `Invalid channel "${invalidChannel.id}", please enter a valid channel ID starting with "@"`
+      return
+    }
+
+    const results = await Promise.all(customChannels.value.map(async (channel) => {
+      const channelInfo = await staticDataStore.lazyFetchChannelInfoById(channel.id)
+      return {
+        ...channel,
+        isRegistered: !!channelInfo
+      }
+    }))
+    const unregisteredChannel = results.find(channel => !channel.isRegistered)
+    if (unregisteredChannel) {
+      customChannelInputError.value = `Channel ID "${unregisteredChannel.id}" is not registered`
+      return
+    }
   }
 
   isLoadingProductData.value = true
@@ -458,7 +506,7 @@ function printAllQRCodes () {
   try {
     sessionStorage.setItem(
       'nft_book_press_batch_qrcode',
-      convertArrayOfObjectsToCSV(tableRows.value.map(({ channel, qrCodeUrl, ...link }) => ({ key: channel, ...link, url: qrCodeUrl })))
+      convertArrayOfObjectsToCSV(tableRows.value.map(({ channelId, qrCodeUrl, ...link }) => ({ key: channelId, ...link, url: qrCodeUrl })))
     )
     window.open('/batch-qrcode?print=1', 'batch_qrcode', 'popup,menubar=no,location=no,status=no')
   } catch (error) {
@@ -480,7 +528,7 @@ function shortenAllLinks () {
   try {
     sessionStorage.setItem(
       'nft_book_press_batch_shorten_url',
-      convertArrayOfObjectsToCSV(tableRows.value.map(({ channel, ...link }) => ({ key: channel, ...link })))
+      convertArrayOfObjectsToCSV(tableRows.value.map(({ channelId, ...link }) => ({ key: channelId, ...link })))
     )
     router.push({ name: 'batch-bitly', query: { print: 1 } })
   } catch (error) {
@@ -513,7 +561,7 @@ async function downloadAllQRCodes () {
     const qrCodeResults = await Promise.all(tableRows.value.map(async (link) => {
       const qrCode = new QRCodeStyling(getQRCodeOptions({ data: link.qrCodeUrl }))
       const dataResults = await Promise.all(DOWNLOAD_QRCODE_FILE_TYPES.map(type => qrCode.getRawData(type.value)))
-      const filename = getQRCodeFilename(link.channel)
+      const filename = getQRCodeFilename(link.channelId)
       return DOWNLOAD_QRCODE_FILE_TYPES.map(({ value: ext }, index) => {
         const data = dataResults[index]
         if (!data) {

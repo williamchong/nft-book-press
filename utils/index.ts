@@ -159,3 +159,11 @@ export function getPurchaseLink ({
     ? `${LIKER_LAND_URL}/nft/class/${classId}${queryString}`
     : `${LIKE_CO_API}/likernft/book/purchase/${classId}/new${queryString}`
 }
+
+export function validateChannelId (channelId: string) {
+  return channelId.startsWith('@')
+}
+
+export function convertChannelIdToLikerId (channelId: string) {
+  return channelId.replace(/^@/, '')
+}
