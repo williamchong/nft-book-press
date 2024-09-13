@@ -625,7 +625,7 @@ async function downloadAllQRCodes () {
 
 async function prefillChannelIdIfNecessary () {
   try {
-    await userStore.lazyFetchLikerInfo()
+    await userStore.lazyFetchUserLikerInfo()
     if (!customChannelInput.value) {
       customChannelInput.value = convertLikerIdToChannelId(likerInfo.value.user)
     }

@@ -37,8 +37,8 @@
             <UButton
               icon="i-heroicons-arrow-path"
               variant="outline"
-              :disabled="isFetchingLikerInfo"
-              @click="refreshLikerIdInfo"
+              :disabled="isFetchingUserLikerInfo"
+              @click="refreshUserLikerInfo"
             />
           </utooltip>
         </template>
@@ -293,7 +293,7 @@ const collectionStore = useCollectionStore()
 const userStore = useUserStore()
 const { wallet } = storeToRefs(walletStore)
 const { token } = storeToRefs(bookStoreApiStore)
-const { bookUser, isUpdatingBookUserProfile, likerInfo, isFetchingLikerInfo } = storeToRefs(userStore)
+const { bookUser, isUpdatingBookUserProfile, likerInfo, isFetchingUserLikerInfo } = storeToRefs(userStore)
 const toast = useToast()
 
 const error = ref('')
@@ -324,7 +324,7 @@ const isAllowChangingNotificationEmailSettings = computed(() =>
 onMounted(async () => {
   await Promise.all([
     loadCommissionHistory(),
-    fetchLikerInfo(),
+    fetchUserLikerInfo(),
     refreshStripeConnectStatus(),
     userStore.lazyFetchBookUserProfile()
   ])
@@ -381,9 +381,9 @@ async function loadCommissionHistory () {
   }
 }
 
-async function fetchLikerInfo ({ nocache = false } = {}) {
+async function fetchUserLikerInfo ({ nocache = false } = {}) {
   try {
-    await userStore.fetchLikerInfo({ nocache })
+    await userStore.fetchUserLikerInfo({ nocache })
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e)
@@ -527,8 +527,8 @@ async function updateUserProfile () {
   }
 }
 
-async function refreshLikerIdInfo () {
-  await fetchLikerInfo({ nocache: true })
+async function refreshUserLikerInfo () {
+  await fetchUserLikerInfo({ nocache: true })
 }
 
 </script>

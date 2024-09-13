@@ -5,16 +5,16 @@ import { FetchLikerInfoByIdResult } from 'utils/api'
 export const useStaticDataStore = defineStore('static-data', () => {
   const likerUserInfoMap = ref({} as Record<string, FetchLikerInfoByIdResult>)
 
-  const getLikerUserInfoById = computed(() => (likerId: string) => {
+  const getLikerInfoById = computed(() => (likerId: string) => {
     return likerUserInfoMap.value[likerId]
   })
 
   const getChannelInfoById = computed(() => (channelId: string) => {
     const likerId = convertChannelIdToLikerId(channelId)
-    return getLikerUserInfoById.value(likerId)
+    return getLikerInfoById.value(likerId)
   })
 
-  async function lazyFetchLikerUserInfoById (likerId: string) {
+  async function lazyFetchLikerInfoById (likerId: string) {
     if (likerUserInfoMap.value[likerId]) {
       return likerUserInfoMap.value[likerId]
     }
@@ -37,14 +37,14 @@ export const useStaticDataStore = defineStore('static-data', () => {
 
   async function lazyFetchChannelInfoById (channelId: string) {
     const likerId = convertChannelIdToLikerId(channelId)
-    const result = await lazyFetchLikerUserInfoById(likerId)
+    const result = await lazyFetchLikerInfoById(likerId)
     return result
   }
 
   return {
-    getLikerUserInfoById,
+    getLikerInfoById,
     getChannelInfoById,
-    lazyFetchLikerUserInfoById,
+    lazyFetchLikerInfoById,
     lazyFetchChannelInfoById
   }
 })

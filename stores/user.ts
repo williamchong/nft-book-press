@@ -15,7 +15,7 @@ export const useUserStore = defineStore('user', () => {
   const bookUser = ref<any>(null)
   const isUpdatingBookUserProfile = ref(false)
   const likerInfo = ref<any>(null)
-  const isFetchingLikerInfo = ref(false)
+  const isFetchingUserLikerInfo = ref(false)
 
   async function fetchBookUserProfile () {
     const { error, data } = await useFetch(
@@ -60,9 +60,9 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  async function fetchLikerInfo ({ nocache = false } = {}) {
+  async function fetchUserLikerInfo ({ nocache = false } = {}) {
     try {
-      isFetchingLikerInfo.value = true
+      isFetchingUserLikerInfo.value = true
       const timestamp = nocache ? `?ts=${Math.round(new Date().getTime() / 1000)}` : ''
       const url = `${LIKE_CO_API}/users/addr/${wallet.value}/min${timestamp}`
       const { data, error: fetchError } = await useFetch(url)
@@ -73,13 +73,13 @@ export const useUserStore = defineStore('user', () => {
       likerInfo.value = (data.value as any) || {}
       return likerInfo.value
     } finally {
-      isFetchingLikerInfo.value = false
+      isFetchingUserLikerInfo.value = false
     }
   }
 
-  async function lazyFetchLikerInfo () {
+  async function lazyFetchUserLikerInfo () {
     if (!likerInfo.value && wallet.value) {
-      await fetchLikerInfo()
+      await fetchUserLikerInfo()
     }
     return likerInfo.value
   }
@@ -88,11 +88,11 @@ export const useUserStore = defineStore('user', () => {
     bookUser,
     isUpdatingBookUserProfile,
     likerInfo,
-    isFetchingLikerInfo,
+    isFetchingUserLikerInfo,
     fetchBookUserProfile,
     lazyFetchBookUserProfile,
     updateBookUserProfile,
-    fetchLikerInfo,
-    lazyFetchLikerInfo
+    fetchUserLikerInfo,
+    lazyFetchUserLikerInfo
   }
 })
