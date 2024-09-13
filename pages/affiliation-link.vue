@@ -41,12 +41,23 @@
           hint="Optional"
           :error="customChannelInputError"
         >
-          <UInput
-            v-model="customChannelInput"
-            class="font-mono"
-            placeholder="Channel ID(s), separated by commas (e.g. @store01, @store02)"
-            name="channel_ids"
-          />
+          <div class="flex gap-2">
+            <UInput
+              v-model="customChannelInput"
+              class="grow font-mono"
+              placeholder="Channel ID(s), separated by commas (e.g. @store01, @store02)"
+              name="channel_ids"
+            />
+            <UButton
+              v-show="!customChannelInput && likerInfo"
+              class="relative"
+              label="Prefill from Account"
+              color="gray"
+              variant="outline"
+              size="2xs"
+              @click="prefillChannelIdIfNecessary"
+            />
+          </div>
         </UFormGroup>
 
         <UFormGroup label="Query Parameters" hint="Optional">
@@ -167,6 +178,9 @@
               v-text="row.channelId"
             />
           </template>
+          <template #utmCampaign-data="{ row }">
+            <UKbd class="font-mono" :value="row.utmCampaign" />
+          </template>
           <template #link-data="{ row }">
             <div class="flex items-center gap-2">
               <UButton
@@ -221,18 +235,25 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import { type FileExtension } from '@likecoin/qr-code-styling'
 
 import { AFFILIATION_CHANNEL_DEFAULT, AFFILIATION_CHANNELS } from '~/constant'
 
 import { useCollectionStore } from '~/stores/collection'
 import { useStaticDataStore } from '~/stores/static-data'
+import { useUserStore } from '~/stores/user'
+import { useWalletStore } from '~/stores/wallet'
 
 import { getPurchaseLink } from '~/utils'
 
 const { LIKE_CO_API } = useRuntimeConfig().public
 const collectionStore = useCollectionStore()
 const staticDataStore = useStaticDataStore()
+const userStore = useUserStore()
+const { likerInfo } = storeToRefs(userStore)
+const walletStore = useWalletStore()
+const { wallet } = storeToRefs(walletStore)
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
@@ -602,9 +623,27 @@ async function downloadAllQRCodes () {
   }
 }
 
+async function prefillChannelIdIfNecessary () {
+  try {
+    await userStore.lazyFetchLikerInfo()
+    if (!customChannelInput.value) {
+      customChannelInput.value = convertLikerIdToChannelId(likerInfo.value.user)
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error)
+  }
+}
+
 onMounted(() => {
   if (productId.value) {
     nextTick(createAffiliationLink)
   }
+
+  prefillChannelIdIfNecessary()
+})
+
+watch(wallet, () => {
+  prefillChannelIdIfNecessary()
 })
 </script>

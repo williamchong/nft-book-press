@@ -167,3 +167,7 @@ export function validateChannelId (channelId: string) {
 export function convertChannelIdToLikerId (channelId: string) {
   return channelId.replace(/^@/, '')
 }
+
+export function convertLikerIdToChannelId (likerId: string) {
+  return `@${likerId}`
+}

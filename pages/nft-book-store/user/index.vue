@@ -37,20 +37,20 @@
             <UButton
               icon="i-heroicons-arrow-path"
               variant="outline"
-              :disabled="isLikerIdLoading"
+              :disabled="isFetchingLikerInfo"
               @click="refreshLikerIdInfo"
             />
           </utooltip>
         </template>
 
-        <UFormGroup v-if="likerIdInfo?.user" label="Your affiliation channel ID" size="xl">
-          <UInput placeholder="Affiliation ID" :value="`@${likerIdInfo?.user}`" disabled />
+        <UFormGroup v-if="likerInfo?.user" label="Your affiliation channel ID" size="xl">
+          <UInput placeholder="Affiliation ID" :value="channelId" disabled />
           <template v-if="!connectStatus.isReady" #help>
             Please setup your stripe account below to participate in the book affiliation program.
           </template>
           <template v-else #help>
             Append <UKbd class="font-mono">
-              ?from=@{{ likerIdInfo?.user }}
+              ?from={{ channelId }}
             </UKbd> in any book store page to earn commission from book sales.
           </template>
         </UFormGroup>
@@ -58,7 +58,7 @@
         <p v-else>
           You have not setup your channel ID yet.
         </p>
-        <template v-if="!likerIdInfo?.user" #footer>
+        <template v-if="!likerInfo?.user" #footer>
           <UButton
             label="Setup your ID"
             size="lg"
@@ -293,16 +293,21 @@ const collectionStore = useCollectionStore()
 const userStore = useUserStore()
 const { wallet } = storeToRefs(walletStore)
 const { token } = storeToRefs(bookStoreApiStore)
-const { bookUser, isUpdatingBookUserProfile } = storeToRefs(userStore)
+const { bookUser, isUpdatingBookUserProfile, likerInfo, isFetchingLikerInfo } = storeToRefs(userStore)
 const toast = useToast()
 
 const error = ref('')
 const isLoading = ref(false)
 const connectStatus = ref<any>({})
-const likerIdInfo = ref<any>({})
 const commissionHistory = ref<any>([])
 const isEnableNotificationEmails = ref(true)
-const isLikerIdLoading = ref(false)
+
+const channelId = computed(() => {
+  if (likerInfo.value?.user) {
+    return convertLikerIdToChannelId(likerInfo.value?.user)
+  }
+  return ''
+})
 
 watch(bookUser, (user) => {
   isEnableNotificationEmails.value = user?.isEnableNotificationEmails || false
@@ -319,7 +324,7 @@ const isAllowChangingNotificationEmailSettings = computed(() =>
 onMounted(async () => {
   await Promise.all([
     loadCommissionHistory(),
-    loadLikerId(),
+    fetchLikerInfo(),
     refreshStripeConnectStatus(),
     userStore.lazyFetchBookUserProfile()
   ])
@@ -376,22 +381,13 @@ async function loadCommissionHistory () {
   }
 }
 
-async function loadLikerId ({ nocache = false } = {}) {
+async function fetchLikerInfo ({ nocache = false } = {}) {
   try {
-    isLikerIdLoading.value = true
-    const timestamp = nocache ? `?ts=${Math.round(new Date().getTime() / 1000)}` : ''
-    const url = `${LIKE_CO_API}/users/addr/${wallet.value}/min${timestamp}`
-    const { data, error: fetchError } = await useFetch(url)
-
-    if (fetchError.value && fetchError.value?.statusCode !== 404) {
-      throw new Error(fetchError.value.toString())
-    }
-    likerIdInfo.value = (data.value as any) || {}
+    await userStore.fetchLikerInfo({ nocache })
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error(e)
     error.value = (e as Error).toString()
-  } finally {
-    isLikerIdLoading.value = false
   }
 }
 
@@ -532,7 +528,7 @@ async function updateUserProfile () {
 }
 
 async function refreshLikerIdInfo () {
-  await loadLikerId({ nocache: true })
+  await fetchLikerInfo({ nocache: true })
 }
 
 </script>
