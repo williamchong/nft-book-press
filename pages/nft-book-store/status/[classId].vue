@@ -727,7 +727,7 @@ const { token } = storeToRefs(bookStoreApiStore)
 const { wallet } = storeToRefs(store)
 const { updateBookListingSetting } = bookStoreApiStore
 const { lazyFetchClassMetadataById } = nftStore
-const { fetchStripeConnectStatus, stripeConnectStatusWalletMap } = stripeStore
+const { fetchStripeConnectStatusByWallet, stripeConnectStatusWalletMap } = stripeStore
 
 const route = useRoute()
 const router = useRouter()
@@ -1116,7 +1116,7 @@ onMounted(async () => {
       stripeConnectWallet.value = classStripeWallet
       if (classStripeWallet !== wallet.value) {
         isUsingDefaultAccount.value = false
-        await fetchStripeConnectStatus(classStripeWallet)
+        await fetchStripeConnectStatusByWallet(classStripeWallet)
       }
     }
     mustClaimToView.value = classMustClaimToView
@@ -1139,7 +1139,7 @@ onMounted(async () => {
 
     ordersData.value = orders.value
 
-    await fetchStripeConnectStatus(wallet.value)
+    await fetchStripeConnectStatusByWallet(wallet.value)
     lazyFetchClassMetadataById(classId.value as string)
   } catch (err) {
     console.error(err)

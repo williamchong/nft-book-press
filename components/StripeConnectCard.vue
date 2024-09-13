@@ -148,7 +148,7 @@ const { LIKE_CO_API } = useRuntimeConfig().public
 
 const stripeStore = useStripeStore()
 
-const { fetchStripeConnectStatus } = stripeStore
+const { fetchStripeConnectStatusByWallet } = stripeStore
 const isStripeConnectChecked = defineModel('isStripeConnectChecked')
 const isUsingDefaultAccount = defineModel('isUsingDefaultAccount')
 
@@ -220,7 +220,7 @@ async function onStripeConnectWalletInput (input: any) {
     await useFetch(
       `${LIKE_CO_API}/likernft/book/user/connect/status?wallet=${inputValue}`
     )
-    await fetchStripeConnectStatus(inputValue)
+    await fetchStripeConnectStatusByWallet(inputValue)
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)

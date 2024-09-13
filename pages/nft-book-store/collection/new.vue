@@ -444,7 +444,7 @@ const { wallet, signer } = storeToRefs(walletStore)
 const { connect } = walletStore
 const { newNFTBookCollection } = collectionStore
 const { getClassMetadataById, lazyFetchClassMetadataById } = nftStore
-const { fetchStripeConnectStatus, stripeConnectStatusWalletMap } = stripeStore
+const { fetchStripeConnectStatusByWallet, stripeConnectStatusWalletMap } = stripeStore
 
 const router = useRouter()
 const route = useRoute()
@@ -543,7 +543,7 @@ config({
 onMounted(async () => {
   try {
     isLoading.value = true
-    await fetchStripeConnectStatus(wallet.value)
+    await fetchStripeConnectStatusByWallet(wallet.value)
 
     if (stripeConnectStatusWalletMap[wallet.value]?.isReady) {
       isStripeConnectChecked.value = true

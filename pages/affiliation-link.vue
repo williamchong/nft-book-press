@@ -242,6 +242,7 @@ import { AFFILIATION_CHANNEL_DEFAULT, AFFILIATION_CHANNELS } from '~/constant'
 
 import { useCollectionStore } from '~/stores/collection'
 import { useLikerStore } from '~/stores/liker'
+import { useStripeStore } from '~/stores/stripe'
 import { useUserStore } from '~/stores/user'
 
 import { getPurchaseLink } from '~/utils'
@@ -249,6 +250,7 @@ import { getPurchaseLink } from '~/utils'
 const { LIKE_CO_API } = useRuntimeConfig().public
 const collectionStore = useCollectionStore()
 const likerStore = useLikerStore()
+const stripeStore = useStripeStore()
 const userStore = useUserStore()
 const { userLikerInfo } = storeToRefs(userStore)
 const route = useRoute()
@@ -469,16 +471,23 @@ async function createAffiliationLink () {
       return
     }
 
-    const results = await Promise.all(customChannels.value.map(async (channel) => {
-      const channelInfo = await likerStore.lazyFetchChannelInfoById(channel.id)
-      return {
-        ...channel,
-        isRegistered: !!channelInfo
-      }
-    }))
-    const unregisteredChannel = results.find(channel => !channel.isRegistered)
-    if (unregisteredChannel) {
-      customChannelInputError.value = `Channel ID "${unregisteredChannel.id}" is not registered`
+    try {
+      await Promise.all(customChannels.value.map(async (channel) => {
+        const channelInfo = await likerStore.lazyFetchChannelInfoById(channel.id)
+        if (!channelInfo) {
+          throw new Error(`Channel ID "${channel.id}" has not registered for Liker ID`)
+        }
+
+        const stripeConnectStatus = await stripeStore.fetchStripeConnectStatusByWallet(channelInfo.likeWallet)
+        if (!stripeConnectStatus?.hasAccount) {
+          throw new Error(`Channel ID "${channel.id}" has not connected to Stripe`)
+        }
+        if (!stripeConnectStatus?.isReady) {
+          throw new Error(`Channel ID "${channel.id}" has not completed Stripe Connect setup`)
+        }
+      }))
+    } catch (error) {
+      customChannelInputError.value = (error as Error).message
       return
     }
   }
