@@ -321,7 +321,7 @@ const isAllowChangingNotificationEmailSettings = computed(() =>
 onMounted(async () => {
   await Promise.all([
     loadCommissionHistory(),
-    fetchUserLikerInfo(),
+    refreshUserLikerInfo(),
     refreshStripeConnectStatus(),
     userStore.lazyFetchBookUserProfile()
   ])
@@ -378,9 +378,9 @@ async function loadCommissionHistory () {
   }
 }
 
-async function fetchUserLikerInfo ({ nocache = false } = {}) {
+async function refreshUserLikerInfo () {
   try {
-    await userStore.fetchUserLikerInfo({ nocache })
+    await userStore.fetchUserLikerInfo({ nocache: true })
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e)
@@ -522,10 +522,6 @@ async function updateUserProfile () {
       }
     })
   }
-}
-
-async function refreshUserLikerInfo () {
-  await fetchUserLikerInfo({ nocache: true })
 }
 
 </script>
