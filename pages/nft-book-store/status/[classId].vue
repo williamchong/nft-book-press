@@ -262,7 +262,6 @@
         v-model:is-stripe-connect-checked="isStripeConnectChecked"
         v-model:is-using-default-account="isUsingDefaultAccount"
         :stripe-connect-wallet="stripeConnectWallet"
-        :stripe-connect-status-wallet-map="stripeConnectStatusWalletMap"
         :should-disable-setting="shouldDisableStripeConnectSetting"
         :login-address="wallet"
 
@@ -727,7 +726,7 @@ const { token } = storeToRefs(bookStoreApiStore)
 const { wallet } = storeToRefs(store)
 const { updateBookListingSetting } = bookStoreApiStore
 const { lazyFetchClassMetadataById } = nftStore
-const { fetchStripeConnectStatusByWallet, stripeConnectStatusWalletMap } = stripeStore
+const { fetchStripeConnectStatusByWallet } = stripeStore
 
 const route = useRoute()
 const router = useRouter()

@@ -26,6 +26,10 @@ export const useStripeStore = defineStore('stripe-connect', () => {
 
   const stripeConnectStatusWalletMap = ref({} as Record<string, StripeConnectStatus>)
 
+  const getStripeConnectStatusByWallet = computed(() => (wallet: string) => {
+    return stripeConnectStatusWalletMap.value[wallet] || getStripeConnectStatusDefault()
+  })
+
   async function fetchStripeConnectStatusByWallet (wallet: string) {
     if (!stripeConnectStatusWalletMap.value[wallet]) {
       stripeConnectStatusWalletMap.value[wallet] = getStripeConnectStatusDefault()
@@ -50,6 +54,7 @@ export const useStripeStore = defineStore('stripe-connect', () => {
 
   return {
     stripeConnectStatusWalletMap,
+    getStripeConnectStatusByWallet,
     fetchStripeConnectStatusByWallet
   }
 })
