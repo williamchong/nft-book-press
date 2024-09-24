@@ -174,7 +174,6 @@
         v-model:is-stripe-connect-checked="isStripeConnectChecked"
         v-model:is-using-default-account="isUsingDefaultAccount"
         :stripe-connect-wallet="stripeConnectWallet"
-        :stripe-connect-status-wallet-map="stripeConnectStatusWalletMap"
         :should-disable-setting="shouldDisableStripeConnectSetting"
         :login-address="wallet"
 
@@ -491,7 +490,7 @@ const { token } = storeToRefs(bookStoreApiStore)
 const { wallet } = storeToRefs(store)
 const { updateNFTBookCollectionById } = collectionStore
 const { getClassMetadataById, lazyFetchClassMetadataById } = nftStore
-const { fetchStripeConnectStatus, stripeConnectStatusWalletMap } = stripeStore
+const { fetchStripeConnectStatusByWallet } = stripeStore
 
 const route = useRoute()
 const router = useRouter()
@@ -830,7 +829,7 @@ onMounted(async () => {
       stripeConnectWallet.value = classStripeWallet
       if (classStripeWallet !== wallet.value) {
         isUsingDefaultAccount.value = false
-        await fetchStripeConnectStatus(classStripeWallet)
+        await fetchStripeConnectStatusByWallet(classStripeWallet)
       }
     }
     coupons.value = classCoupons || {}
@@ -850,7 +849,7 @@ onMounted(async () => {
 
     ordersData.value = orders.value
 
-    await fetchStripeConnectStatus(wallet.value)
+    await fetchStripeConnectStatusByWallet(wallet.value)
     collectionListingInfo.value.classIds.forEach((classId: string) => lazyFetchClassMetadataById(classId))
   } catch (err) {
     console.error(err)
