@@ -4,14 +4,20 @@ import { FetchLikerInfoResult } from 'utils/api'
 
 export const useLikerStore = defineStore('liker', () => {
   const likerInfoMapById = ref({} as Record<string, FetchLikerInfoResult>)
-  const likerInfoMapByWallet = ref({} as Record<string, FetchLikerInfoResult>)
+
+  const likerIdMapByWallet = computed(() => {
+    return Object.entries(likerInfoMapById.value).reduce((acc, [likerId, likerInfo]) => {
+      acc[likerInfo.likeWallet] = likerId
+      return acc
+    }, {} as Record<string, string>)
+  })
 
   const getLikerInfoById = computed(() => (likerId: string) => {
     return likerInfoMapById.value[likerId] || null
   })
 
   const getLikerInfoByWallet = computed(() => (wallet: string) => {
-    return likerInfoMapByWallet.value[wallet] || null
+    return getLikerInfoById.value(likerIdMapByWallet.value[wallet])
   })
 
   const getChannelInfoById = computed(() => (channelId: string) => {
@@ -30,7 +36,6 @@ export const useLikerStore = defineStore('liker', () => {
         throw new Error('Missing data in `fetchLikerInfoById`')
       }
       likerInfoMapById.value[likerId] = likerInfo
-      likerInfoMapByWallet.value[likerInfo.likeWallet] = likerInfo
       return likerInfo
     } catch {
       return null
@@ -56,7 +61,6 @@ export const useLikerStore = defineStore('liker', () => {
       if (!likerInfo) {
         throw new Error('Missing data in `fetchLikerInfoByWallet`')
       }
-      likerInfoMapByWallet.value[wallet] = likerInfo
       likerInfoMapById.value[likerInfo.user] = likerInfo
       return likerInfo
     } catch {
@@ -65,8 +69,9 @@ export const useLikerStore = defineStore('liker', () => {
   }
 
   async function lazyFetchLikerInfoByWallet (wallet: string) {
-    if (likerInfoMapByWallet.value[wallet]) {
-      return likerInfoMapByWallet.value[wallet]
+    const likerId = likerIdMapByWallet.value[wallet]
+    if (likerId) {
+      return lazyFetchLikerInfoById(likerId)
     }
 
     const likerInfo = await fetchLikerInfoByWallet(wallet)
@@ -80,6 +85,8 @@ export const useLikerStore = defineStore('liker', () => {
   }
 
   return {
+    likerInfoMapById,
+    likerIdMapByWallet,
     getLikerInfoById,
     getLikerInfoByWallet,
     getChannelInfoById,
