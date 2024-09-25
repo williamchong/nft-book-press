@@ -236,7 +236,6 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { type FileExtension } from '@likecoin/qr-code-styling'
 
 import { AFFILIATION_CHANNEL_DEFAULT, AFFILIATION_CHANNELS } from '~/constant'
 
@@ -573,60 +572,14 @@ function shortenAllLinks () {
   }
 }
 
-// TODO: UI for file types selection
-const DOWNLOAD_QRCODE_FILE_TYPES: {
-  value: FileExtension
-  label: string
-}[] = [
-  { value: 'svg', label: 'SVG' },
-  { value: 'png', label: 'PNG' }
-]
-
 async function downloadAllQRCodes () {
-  try {
-    const { default: QRCodeStyling } = await import('@likecoin/qr-code-styling')
-    const qrCodeResults = await Promise.all(tableRows.value.map(async (link) => {
-      const qrCode = new QRCodeStyling(getQRCodeOptions({ data: link.qrCodeUrl }))
-      const dataResults = await Promise.all(DOWNLOAD_QRCODE_FILE_TYPES.map(type => qrCode.getRawData(type.value)))
-      const filename = getQRCodeFilename(link.channelId)
-      return DOWNLOAD_QRCODE_FILE_TYPES.map(({ value: ext }, index) => {
-        const data = dataResults[index]
-        if (!data) {
-          throw new Error(`Failed to generate QR code for ${filename}.${ext}`)
-        }
-        return {
-          filename: `${filename}.${ext}`,
-          data
-        }
-      })
-    }))
-
-    const { default: JSZip } = await import('jszip')
-    const zip = new JSZip().folder(productId.value)
-    if (!zip) {
-      throw new Error('Failed to create zip file')
-    }
-    qrCodeResults.flat().forEach((qrCode) => {
-      zip.file(qrCode.filename, qrCode.data)
-    })
-
-    const { saveAs } = await import('file-saver')
-    await zip.generateAsync({ type: 'blob' }).then((content) => {
-      saveAs(content, `${productName.value || productId.value}_qrcodes.zip`)
-    })
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error)
-    toast.add({
-      icon: 'i-heroicons-exclamation-circle',
-      title: 'Failed to download QR codes',
-      timeout: 0,
-      color: 'red',
-      ui: {
-        title: 'text-red-400 dark:text-red-400'
-      }
-    })
-  }
+  const items = tableRows.value.map(link => ({
+    url: link.qrCodeUrl,
+    filename: getQRCodeFilename(link.channelId)
+  }))
+  await downloadQRCodes(items, {
+    zipFilename: `${productName.value || productId.value}_QR Codes`
+  })
 }
 
 function prefillChannelIdIfPossible () {
