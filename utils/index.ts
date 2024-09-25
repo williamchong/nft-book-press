@@ -115,7 +115,6 @@ export function getPurchaseLink ({
   collectionId,
   priceIndex = 0,
   channel,
-  coupon,
   customLink,
   isUseLikerLandLink,
   isForQRCode,
@@ -125,7 +124,6 @@ export function getPurchaseLink ({
   collectionId?: string
   priceIndex?: number
   channel?: string
-  coupon?: string
   customLink?: string
   isUseLikerLandLink?: boolean
   isForQRCode?: boolean
@@ -137,7 +135,6 @@ export function getPurchaseLink ({
   if (classId) {
     query.price_index = priceIndex.toString()
   }
-  if (coupon) { query.coupon = coupon }
   if (customLink) {
     const url = new URL(customLink)
     Object.entries(query).forEach(([key, value]) => {
