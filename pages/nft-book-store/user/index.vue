@@ -11,7 +11,7 @@
     />
 
     <UAlert
-      v-if="!connectStatus?.isReady"
+      v-if="!isStripeConnectReady"
       icon="i-heroicons-exclamation-circle"
       color="orange"
       variant="soft"
@@ -45,7 +45,7 @@
 
         <UFormGroup v-if="userLikerInfo?.user" label="Your affiliation channel ID" size="xl">
           <UInput placeholder="Affiliation ID" :value="channelId" disabled />
-          <template v-if="!connectStatus.isReady" #help>
+          <template v-if="!isStripeConnectReady" #help>
             Please setup your stripe account below to participate in the book affiliation program.
           </template>
           <template v-else #help>
@@ -100,7 +100,7 @@
           ]"
           :rows="[{
             initiated: connectStatus?.hasAccount || false,
-            completed: connectStatus?.isReady || false
+            completed: isStripeConnectReady || false
           }]"
           :ui="{ th: { base: 'text-center' }, td: { base: 'text-center' } }"
         >
@@ -123,7 +123,7 @@
             @click="onLoginToStripe"
           />
           <UButton
-            v-else-if="connectStatus?.isReady"
+            v-else-if="isStripeConnectReady"
             label="Login to Stripe account"
             size="lg"
             @click="onLoginToStripe"
@@ -137,7 +137,7 @@
         </template>
       </UCard>
 
-      <template v-if="connectStatus?.isReady">
+      <template v-if="isStripeConnectReady">
         <UCard
           :ui="{
             header: { base: 'flex justify-between items-center' },
@@ -271,6 +271,57 @@
             </template>
           </UTable>
         </UCard>
+        <UCard
+          :ui="{
+            header: { base: 'flex justify-between items-center' },
+            body: { padding: '' },
+            footer: { base: 'text-center' },
+          }"
+        >
+          <template #header>
+            <h1 class="text-center font-bold font-mono">
+              Commission Payout History
+            </h1>
+
+            <UTooltip
+              text="Refresh Status"
+              :popper="{ placement: 'left' }"
+            >
+              <UButton
+                icon="i-heroicons-arrow-path"
+                variant="outline"
+                :disabled="isLoading"
+                @click="loadPayoutHistory"
+              />
+            </UTooltip>
+          </template>
+
+          <UTable
+            :columns="[
+              { key: 'createdTs', label: 'Created' },
+              { key: 'amount', label: 'Payout Amount' },
+              { key: 'status', label: 'Status' },
+              { key: 'arrivalTs', label: 'Arrived' },
+              { key: 'details', label: 'Payout Details' },
+            ]"
+            :rows="payoutHistoryRows"
+            :ui="{ th: { base: 'text-center' }, td: { base: 'text-center' } }"
+          >
+            <template #details-data="{ row }">
+              <UButton
+                label="Details"
+                size="sm"
+                color="gray"
+                :to="{
+                  name: 'nft-book-store-user-payouts-payoutId',
+                  params: {
+                    payoutId: row.id
+                  }
+                }"
+              />
+            </template>
+          </UTable>
+        </UCard>
       </template>
     </template>
   </PageBody>
@@ -297,6 +348,7 @@ const error = ref('')
 const isLoading = ref(false)
 const connectStatus = ref<any>({})
 const commissionHistory = ref<any>([])
+const payoutHistory = ref<any>([])
 const isEnableNotificationEmails = ref(true)
 
 const channelId = computed(() => {
@@ -325,7 +377,10 @@ onMounted(async () => {
     refreshStripeConnectStatus(),
     userStore.lazyFetchBookUserProfile()
   ])
+  if (isStripeConnectReady.value) { await loadPayoutHistory() }
 })
+
+const isStripeConnectReady = computed(() => connectStatus.value?.isReady)
 
 const commissionHistoryRows = computed(() => {
   return commissionHistory.value.map((row: any) => {
@@ -341,10 +396,30 @@ const commissionHistoryRows = computed(() => {
     return {
       ...row,
       type,
-      amount: row.amount / 100,
-      amountTotal: row.amountTotal / 100,
-      currency: row.currency || 'usd',
+      amount: formatNumberWithCurrency(row.amount, row.currency),
+      amountTotal: formatNumberWithCurrency(row.amountTotal, row.currency),
+      currency: formatCurrency(row.currency),
       timestamp: new Date(row.timestamp).toLocaleString()
+    }
+  })
+})
+
+const payoutHistoryRows = computed(() => {
+  return payoutHistory.value.map((row: any) => {
+    const {
+      id,
+      amount,
+      currency,
+      status,
+      arrivalTs,
+      createdTs
+    } = row
+    return {
+      id,
+      amount: formatNumberWithCurrency(amount, currency),
+      status,
+      createdTs: new Date(createdTs * 1000).toLocaleString(),
+      arrivalTs: arrivalTs ? new Date(arrivalTs * 1000).toLocaleString() : ''
     }
   })
 })
@@ -379,6 +454,26 @@ async function loadCommissionHistory () {
   }
 }
 
+async function loadPayoutHistory () {
+  try {
+    isLoading.value = true
+    const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/user/payouts/list`, {
+      headers: {
+        authorization: `Bearer ${token.value}`
+      }
+    })
+    if (fetchError.value && fetchError.value?.statusCode !== 404) {
+      throw new Error(fetchError.value.toString())
+    }
+    payoutHistory.value = (data.value as any)?.payouts || []
+  } catch (e) {
+    console.error(e)
+    error.value = (e as Error).toString()
+  } finally {
+    isLoading.value = false
+  }
+}
+
 async function refreshUserLikerInfo () {
   try {
     await userStore.fetchUserLikerInfo({ nocache: true })
@@ -393,7 +488,7 @@ async function refreshStripeConnectStatus () {
   try {
     await loadStripeConnectStatus()
 
-    if (connectStatus.value?.hasAccount && !connectStatus.value?.isReady) {
+    if (connectStatus.value?.hasAccount && !isStripeConnectReady.value) {
       const { data, error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/user/connect/refresh`,
         {
           method: 'POST',
