@@ -1,6 +1,6 @@
 <template>
   <PageContainer>
-    <PageHeader title="Batch Create Bitly Links" />
+    <PageHeader title="Batch Create Short Links" />
 
     <PageBody>
       <UFormGroup

@@ -1358,7 +1358,7 @@ function shortenAllLinks () {
       'nft_book_press_batch_shorten_url',
       convertArrayOfObjectsToCSV(purchaseLinks.value.map(({ channel, ...link }) => ({ key: channel, ...link })))
     )
-    router.push({ name: 'batch-bitly', query: { print: 1 } })
+    router.push({ name: 'batch-short-links', query: { print: 1 } })
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
