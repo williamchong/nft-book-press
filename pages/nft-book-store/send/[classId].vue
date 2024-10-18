@@ -95,8 +95,15 @@
         </table>
       </UCard>
 
-      <UFormGroup label="Enter Author's Message" hint="optional">
-        <UTextarea v-model="memo" placeholder="default memo" />
+      <UFormGroup
+        label="Enter Author's Message"
+        :error="isLimitReached"
+        :hint="`${messageCharCount} / ${AUTHOR_MESSAGE_LIMIT}`"
+      >
+        <UTextarea
+          v-model="memo"
+          placeholder="default memo"
+        />
       </UFormGroup>
 
       <UFormGroup
@@ -164,6 +171,8 @@ import { useWalletStore } from '~/stores/wallet'
 import { useNftStore } from '~/stores/nft'
 import { parseImageURLFromMetadata } from '~/utils'
 import { signExecNFTSendAuthz, signSendNFTs } from '~/utils/cosmos'
+import { useMessageCharCount } from '~/composables/useMessageCharCount'
+import { AUTHOR_MESSAGE_LIMIT } from '~/constant'
 
 const { LIKE_CO_API, LCD_URL } = useRuntimeConfig().public
 
@@ -186,6 +195,7 @@ const classId = ref(route.params.classId as string)
 const paymentId = ref(route.query.payment_id as string)
 const ownerWallet = ref(route.query.owner_wallet as string || wallet.value)
 const memo = ref('')
+const { messageCharCount, isLimitReached } = useMessageCharCount(memo, AUTHOR_MESSAGE_LIMIT)
 
 const nftId = ref('')
 const nftIds = ref([] as string[])
@@ -199,7 +209,7 @@ const orderInfo = ref<any>({})
 const nftImage = ref('')
 
 const userIsOwner = computed(() => wallet.value && ownerWallet.value === wallet.value)
-const isSendButtonDisabled = computed(() => isEditingNFTId.value || isLoading.value || isVerifyingNFTId.value || isAutoFetchingNFTId.value || !!nftIdError.value)
+const isSendButtonDisabled = computed(() => isEditingNFTId.value || isLoading.value || isVerifyingNFTId.value || isAutoFetchingNFTId.value || !!nftIdError.value || isLimitReached.value)
 
 const nftClassName = computed(() => nftStore.getClassMetadataById(classId.value as string)?.name)
 
