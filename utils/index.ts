@@ -132,7 +132,7 @@ export function getPurchaseLink ({
   const query: Record<string, string> = {
     from: channel || ''
   }
-  if (classId) {
+  if (classId && !customLink) {
     query.price_index = priceIndex.toString()
   }
   if (isForQRCode) {
@@ -140,10 +140,16 @@ export function getPurchaseLink ({
   }
 
   const { LIKE_CO_API, LIKER_LAND_URL } = useRuntimeConfig().public
-  const queryString = `?${new URLSearchParams({ ...queryInput, ...query }).toString()}`
+  const searchParams = new URLSearchParams({ ...queryInput, ...query })
   if (customLink) {
-    return `${customLink}${queryString}`
+    const url = new URL(customLink)
+    searchParams.forEach((value, key) => {
+      url.searchParams.set(key, value)
+    })
+    return url.toString()
   }
+
+  const queryString = `?${searchParams.toString()}`
   if (collectionId) {
     return isUseLikerLandLink
       ? `${LIKER_LAND_URL}/nft/collection/${collectionId}${queryString}`
