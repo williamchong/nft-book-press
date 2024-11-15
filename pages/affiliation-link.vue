@@ -305,6 +305,11 @@
                       icon: 'i-heroicons-sparkles',
                       click: shortenLinksByChannelId(channel.id),
                     },
+                    {
+                      label: 'Share Table',
+                      icon: 'i-heroicons-document-duplicate',
+                      click: shareTableLinkByChannelId(channel.id),
+                    },
                   ]
                 ]"
                 :popper="{ placement: 'top-end' }"
@@ -402,7 +407,7 @@ import { useLikerStore } from '~/stores/liker'
 import { useStripeStore } from '~/stores/stripe'
 import { useUserStore } from '~/stores/user'
 
-const { LIKE_CO_API } = useRuntimeConfig().public
+const { LIKE_CO_API, SITE_URL } = useRuntimeConfig().public
 const collectionStore = useCollectionStore()
 const likerStore = useLikerStore()
 const stripeStore = useStripeStore()
@@ -544,7 +549,9 @@ const mergedQueryStringObject = computed<Record<string, string>>(() => {
 
   const input = productIdInput.value?.trim() || ''
   if (input.startsWith('http')) {
-    Object.assign(mergedObject, Object.fromEntries(new URL(input).searchParams))
+    const { searchParams } = new URL(input)
+    searchParams.delete('from')
+    Object.assign(mergedObject, Object.fromEntries(searchParams))
   }
 
   if (additionalQueryStringInput.value) {
@@ -761,7 +768,9 @@ const linkTableRowsMapByChannel = computed(() => {
         productName: data.name?.zh || data.name?.en || data.name,
         isCollection,
         selectedEditionIndex: priceIndex,
-        selectedEditionLabel: productEditionOptionsMap.value?.[id]?.[priceIndex]?.label || '',
+        selectedEditionLabel: isCollection
+          ? `$${(data?.typePayload?.priceInDecimal || 0) / 100}`
+          : productEditionOptionsMap.value?.[id]?.[priceIndex]?.label || '',
         channelId: channel.id,
         channelName: channel.name,
         utmCampaign,
@@ -997,6 +1006,20 @@ function shortenAllLinks () {
 
 function shortenLinksByChannelId (channelId: string) {
   return () => shortenLinksByTableRows(getLinkTableRowsMapByChannel(channelId))
+}
+
+function shareTableLinkByChannelId (channelId: string) {
+  return () => {
+    const url = new URL(`${SITE_URL}/affiliation-link`)
+    url.searchParams.set('from', channelId)
+    url.searchParams.set('share', '1')
+    url.searchParams.set('nav', '0')
+    const tableRows = getLinkTableRowsMapByChannel(channelId)
+    tableRows.forEach((row) => {
+      url.searchParams.append('product_id', row.productId)
+    })
+    copyLink(url.toString())
+  }
 }
 
 async function downloadQRCodesByTableRows (rows: AffiliationLink[] = [], channelId?: string) {
