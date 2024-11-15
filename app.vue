@@ -41,6 +41,7 @@ import { storeToRefs } from 'pinia'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useUIStore } from '~/stores/ui'
 
+const { SITE_URL } = useRuntimeConfig().public
 const bookStoreApiStore = useBookStoreApiStore()
 const { restoreSession } = bookStoreApiStore
 const { isRestoringSession } = storeToRefs(bookStoreApiStore)
@@ -67,7 +68,14 @@ useHead({
   },
   bodyAttrs: {
     class: 'h-dvh text-gray-700 dark:text-gray-200 dark:bg-gray-900'
-  }
+  },
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/x-icon',
+      href: `${SITE_URL}/favicon.ico`
+    }
+  ]
 })
 
 onMounted(async () => {
