@@ -11,3 +11,10 @@
     </PageBody>
   </PageContainer>
 </template>
+<script setup lang="ts">
+const router = useRouter()
+
+onMounted(() => {
+  router.replace({ name: 'latest-books' })
+})
+</script>s

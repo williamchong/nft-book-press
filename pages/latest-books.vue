@@ -11,14 +11,14 @@
     />
     <UCard>
       <template
-        v-if="!isStripeConnectReady || !channelId"
+        v-if="!isAffiliationReady"
       >
         <UAlert
           icon="i-heroicons-exclamation-circle"
           color="orange"
           variant="soft"
-          title="Please Setup Affiliation Account"
-          description="Both Liker ID and Stripe Connect Account are needed to participate in sales affiliation program on Liker Land Bookstore."
+          title="Join Our Affiliation Program!"
+          description="Setup your Liker ID and Stripe Connect Account to participate in sales affiliation program on Liker Land Bookstore."
         />
         <UButton @click="OnClickAffiliationSetup">
           Go to Affiliation Setup
@@ -96,6 +96,8 @@ const channelId = computed(() => {
   return ''
 })
 
+const isAffiliationReady = computed(() => isStripeConnectReady.value && channelId.value)
+
 const tableColumns = [
   {
     key: 'image',
@@ -118,7 +120,7 @@ const tableColumns = [
     sortable: true
   }, {
     key: 'url',
-    label: 'Affiliation Link',
+    label: isAffiliationReady.value ? 'Affiliation Link' : 'Link',
     sortable: false
   }
 ]
@@ -132,8 +134,8 @@ const tableRows = computed(() => bookList.value.map((b: any) => ({
 })))
 
 onMounted(async () => {
+  await fetchBookList()
   if (bookStoreApiStore.isAuthenticated) {
-    await fetchBookList()
     await fetchUserStripeInfo()
   }
 })
@@ -147,6 +149,9 @@ async function fetchBookList () {
 }
 
 async function fetchUserStripeInfo () {
+  if (!wallet.value) {
+    return
+  }
   const stripeConnectStatus = await stripeStore.fetchStripeConnectStatusByWallet(wallet.value)
   isStripeConnectReady.value = !stripeConnectStatus?.isReady
 }

@@ -86,7 +86,7 @@ const items = [
       {
         label: 'Latest Books',
         icon: 'i-heroicons-user-group',
-        to: { name: 'nft-book-store-books' },
+        to: { name: 'latest-books' },
         exact: true
       },
       {
