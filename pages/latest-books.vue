@@ -98,7 +98,7 @@ const channelId = computed(() => {
 
 const isAffiliationReady = computed(() => isStripeConnectReady.value && channelId.value)
 
-const tableColumns = [
+const tableColumns = computed(() => [
   {
     key: 'image',
     label: 'Cover',
@@ -123,7 +123,7 @@ const tableColumns = [
     label: isAffiliationReady.value ? 'Affiliation Link' : 'Link',
     sortable: false
   }
-]
+])
 
 const tableRows = computed(() => bookList.value.map((b: any) => ({
   className: b.name,
