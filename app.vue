@@ -69,6 +69,9 @@ useHead({
   bodyAttrs: {
     class: 'h-dvh text-gray-700 dark:text-gray-200 dark:bg-gray-900'
   },
+  titleTemplate: (titleChunk) => {
+    return titleChunk ? `${titleChunk} - Liker Land Book Press` : 'Liker Land Book Press'
+  },
   link: [
     {
       rel: 'icon',
