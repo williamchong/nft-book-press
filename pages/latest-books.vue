@@ -84,6 +84,7 @@ const router = useRouter()
 
 const { wallet } = storeToRefs(walletStore)
 const { userLikerInfo } = storeToRefs(userStore)
+const { isAuthenticated } = storeToRefs(bookStoreApiStore)
 
 const error = ref('')
 const isStripeConnectReady = ref(false)
@@ -133,27 +134,30 @@ const tableRows = computed(() => bookList.value.map((b: any) => ({
   url: `${LIKER_LAND_URL}/nft/class/${b.classId}?from=${channelId.value}`
 })))
 
-onMounted(async () => {
-  await fetchBookList()
-  if (bookStoreApiStore.isAuthenticated) {
-    await fetchUserStripeInfo()
-  }
+onMounted(() => {
+  nextTick(async () => {
+    await fetchBookList()
+    if (isAuthenticated.value) {
+      await fetchUserStripeInfo()
+    }
+  })
 })
 
 async function fetchBookList () {
   const { data, error } = await useFetch(`${LIKE_CO_API}/likernft/book/store/list?limit=100`)
   if (error.value) {
-    throw new Error(error.value)
+    throw error.value
   }
   bookList.value = (data.value as any)?.list || []
 }
 
 async function fetchUserStripeInfo () {
   if (!wallet.value) {
+    isStripeConnectReady.value = false
     return
   }
   const stripeConnectStatus = await stripeStore.fetchStripeConnectStatusByWallet(wallet.value)
-  isStripeConnectReady.value = !stripeConnectStatus?.isReady
+  isStripeConnectReady.value = stripeConnectStatus?.isReady
 }
 
 function OnClickAffiliationSetup () {
@@ -174,5 +178,13 @@ function copyToClipboard (e: MouseEvent, text: string) {
     timeout: 3000
   })
 }
+
+watch(isAuthenticated, () => {
+  if (isAuthenticated.value) {
+    nextTick(() => {
+      fetchUserStripeInfo()
+    })
+  }
+})
 
 </script>
