@@ -4,7 +4,7 @@
       <UButton
         class="font-bold"
         variant="ghost"
-        label="LikeCoin NFT Book Press"
+        label="Liker Land Book Press"
         :to="{ name: 'index' }"
       />
       <UBadge

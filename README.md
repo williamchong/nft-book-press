@@ -1,4 +1,4 @@
-# LikeCoin NFT Book Press
+# Liker Land NFT Book Press
 
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
