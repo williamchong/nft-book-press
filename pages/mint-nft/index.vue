@@ -12,7 +12,25 @@
         :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
         @close="error = ''"
       />
-
+      <UAlert
+        v-else
+        icon="i-heroicons-exclamation-circle"
+        color="green"
+        variant="soft"
+        title="First time? 新用戶請看這裏"
+        description="Read our guide to learn how to publish NFT Book."
+        :actions="[{
+          label: 'Read our guide',
+          color: 'green',
+          variant: 'outline',
+          click: onClickHelpEn,
+        }, {
+          label: '打開教學',
+          color: 'green',
+          variant: 'outline',
+          click: onClickHelpZh,
+        }]"
+      />
       <UDivider :label="`Steps ${step} / 4`" />
 
       <UCard
@@ -497,6 +515,14 @@ const validate = (state: any): FormError[] => {
     errors.push({ path: 'prefix', message: 'NFT ID cannot contain spaces' })
   }
   return errors
+}
+
+function onClickHelpEn () {
+  window.open('https://docs.like.co/depub/nft-book-press', '_blank')
+}
+
+function onClickHelpZh () {
+  window.open('https://docs.like.co/zh/depub/nft-book-press', '_blank')
 }
 
 async function onISCNIDInput () {
