@@ -53,74 +53,58 @@ function handleLinkClick () {
 
 const items = [
   {
-    label: 'Mint NFT',
+    label: 'Publish NFT Book',
     links: [
       {
-        label: 'Mint NFT',
+        label: 'Print New Books',
         icon: 'i-heroicons-sparkles',
         to: { name: 'mint-nft' }
       }
     ]
   },
   {
-    label: 'NFT Book Press',
+    label: 'Bookstore & Listing',
     links: [
       {
-        label: 'Manage NFT Books',
+        label: 'Latest Books',
+        icon: 'i-heroicons-book-open',
+        to: { name: 'latest-books' },
+        exact: true
+      },
+      {
+        label: 'Manage Book',
         icon: 'i-heroicons-rectangle-stack',
         to: { name: 'nft-book-store' },
         exact: true
       },
       {
-        label: 'Manage Book Collection',
+        label: 'Manage Collection',
         icon: 'i-heroicons-rectangle-stack',
         to: { name: 'nft-book-store-collection' },
-        exact: true
-      },
-      {
-        label: 'User Setting',
-        icon: 'i-heroicons-user-group',
-        to: { name: 'nft-book-store-user' },
-        exact: true
-      },
-      {
-        label: 'Latest Books',
-        icon: 'i-heroicons-user-group',
-        to: { name: 'latest-books' },
-        exact: true
-      },
-      {
-        label: 'Affiliation Link',
-        icon: 'i-heroicons-user-group',
-        to: { name: 'affiliation-link' },
         exact: true
       }
     ]
   },
   {
-    label: 'Sales',
+    label: 'Authors & Affiliates',
+    links: [
+      {
+        label: 'User Setting',
+        icon: 'i-heroicons-user-group',
+        to: { name: 'nft-book-store-user' },
+        exact: true
+      }
+    ]
+  },
+  {
+    label: 'Sales Tools',
     links: [
       {
         label: 'Bookstore POS',
         icon: 'i-heroicons-shopping-cart',
         to: { name: 'sales-pos' },
         exact: true
-      }
-    ]
-  },
-  {
-    label: 'Others',
-    links: [
-      {
-        label: 'NFT Authz Grants',
-        icon: 'i-heroicons-user-plus',
-        to: { name: 'authz' }
-      }
-    ]
-  },
-  {
-    label: 'More Tools',
-    links: [
+      },
       {
         label: 'Batch Create QR Codes',
         icon: 'i-heroicons-qr-code',
@@ -131,6 +115,38 @@ const items = [
         label: 'Batch Create Short Links',
         icon: 'i-heroicons-sparkles',
         to: { name: 'batch-short-links' }
+      }
+    ]
+  }, {
+    label: 'Help 幫助',
+    links: [
+      {
+        label: 'Publisher Guide',
+        icon: 'i-heroicons-document-text',
+        to: 'https://docs.like.co/depub/nft-book-press',
+        target: '_blank'
+      },
+      {
+        label: '出版教學',
+        icon: 'i-heroicons-document-text',
+        to: 'https://docs.like.co/zh/depub/nft-book-press',
+        target: '_blank'
+      },
+      {
+        label: 'Chat with Us 聯絡我們',
+        icon: 'i-heroicons-chat-bubble-bottom-center',
+        to: 'https://go.crisp.chat/chat/embed/?website_id=5c009125-5863-4059-ba65-43f177ca33f7',
+        target: '_blank'
+      }
+    ]
+  },
+  {
+    label: 'Misc Tools',
+    links: [
+      {
+        label: 'NFT Authz Grants',
+        icon: 'i-heroicons-user-plus',
+        to: { name: 'authz' }
       },
       {
         label: 'LikeCoin ISCN/NFT Tools',
