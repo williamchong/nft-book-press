@@ -84,6 +84,12 @@ const items = [
         exact: true
       },
       {
+        label: 'Latest Books',
+        icon: 'i-heroicons-user-group',
+        to: { name: 'latest-books' },
+        exact: true
+      },
+      {
         label: 'Affiliation Link',
         icon: 'i-heroicons-user-group',
         to: { name: 'affiliation-link' },
