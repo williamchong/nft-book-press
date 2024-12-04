@@ -100,6 +100,12 @@ const items = [
     label: 'Sales Tools',
     links: [
       {
+        label: 'Create Purchase Link',
+        icon: 'i-heroicons-link',
+        to: { name: 'purchase-link' },
+        exact: true
+      },
+      {
         label: 'Bookstore POS',
         icon: 'i-heroicons-shopping-cart',
         to: { name: 'sales-pos' },
@@ -113,7 +119,7 @@ const items = [
       },
       {
         label: 'Batch Create Short Links',
-        icon: 'i-heroicons-sparkles',
+        icon: 'i-heroicons-link',
         to: { name: 'batch-short-links' }
       }
     ]
