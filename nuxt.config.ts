@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     LikeCoinWalletConnectorCSSPath,
     '@/assets/styles/global.css'
   ],
+
   modules: [
     '@sentry/nuxt/module',
     '@pinia/nuxt',
@@ -21,9 +22,11 @@ export default defineNuxtConfig({
     'nuxt-gtag',
     'nuxt-security'
   ],
+
   gtag: {
     id: GA_TRACKING_ID
   },
+
   sentry: {
     sourceMapsUploadOptions: SENTRY_AUTH_TOKEN
       ? {
@@ -33,6 +36,7 @@ export default defineNuxtConfig({
         }
       : undefined
   },
+
   security: {
     headers: {
       contentSecurityPolicy: {
@@ -41,7 +45,9 @@ export default defineNuxtConfig({
     },
     removeLoggers: false
   },
+
   plugins: ['~/plugins/buffer.ts'],
+
   vite: {
     vue: {
       script: {
@@ -50,6 +56,7 @@ export default defineNuxtConfig({
       }
     }
   },
+
   runtimeConfig: {
     public: {
       IS_TESTNET: process.env.IS_TESTNET,
@@ -79,15 +86,20 @@ export default defineNuxtConfig({
       ARWEAVE_ENDPOINT: process.env.ARWEAVE_ENDPOINT
     }
   },
+
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
     layoutTransition: { name: 'page', mode: 'out-in' }
   },
+
   colorMode: {
     preference: 'light'
   },
+
   tailwindcss: {
     injectPosition: { after: LikeCoinWalletConnectorCSSPath },
     cssPath: '~/assets/css/tailwind.css'
-  }
+  },
+
+  compatibilityDate: '2024-12-06'
 })
