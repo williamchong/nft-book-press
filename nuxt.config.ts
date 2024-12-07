@@ -45,8 +45,17 @@ export default defineNuxtConfig({
   },
   plugins: ['~/plugins/buffer.ts'],
   vite: {
+    define: {
+      global: 'globalThis'
+    },
     plugins: [
-      nodePolyfills()
+      nodePolyfills({
+        globals: {
+          process: false,
+          Buffer: false,
+          global: false
+        }
+      })
     ],
     vue: {
       script: {
@@ -94,5 +103,6 @@ export default defineNuxtConfig({
   tailwindcss: {
     injectPosition: { after: LikeCoinWalletConnectorCSSPath },
     cssPath: '~/assets/css/tailwind.css'
-  }
+  },
+  compatibilityDate: '2024-12-06'
 })
