@@ -45,8 +45,16 @@ export default defineNuxtConfig({
     },
     removeLoggers: false
   },
-
   plugins: ['~/plugins/buffer.ts'],
+
+  experimental: {
+    clientNodeCompat: true
+  },
+
+  alias: {
+    // mitigate inherits polyfill doesn't work with require issue
+    inherits: 'inherits'
+  },
 
   vite: {
     vue: {
