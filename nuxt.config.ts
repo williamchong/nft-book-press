@@ -41,9 +41,20 @@ export default defineNuxtConfig({
 
   security: {
     headers: {
+      crossOriginEmbedderPolicy: 'unsafe-none',
+      crossOriginOpenerPolicy: 'same-origin-allow-popups',
       contentSecurityPolicy: {
+        'script-src': [
+          "'self'",
+          'https:',
+          "'unsafe-inline'",
+          "'wasm-unsafe-eval'",
+          "'nonce-{{nonce}}'"
+        ],
+        'worker-src': ["'self'", 'blob:'],
         'img-src': ["'self'", 'data:', '*']
-      }
+      },
+      referrerPolicy: 'strict-origin'
     },
     removeLoggers: false
   },
