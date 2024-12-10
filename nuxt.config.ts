@@ -1,4 +1,5 @@
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import { replaceCodePlugin } from 'vite-plugin-replace'
 
 const LikeCoinWalletConnectorCSSPath = '@likecoin/wallet-connector/dist/style.css'
 
@@ -72,6 +73,22 @@ export default defineNuxtConfig({
           Buffer: false,
           global: false
         }
+      }),
+      // https://github.com/davidmyersdev/vite-plugin-node-polyfills/issues/92
+      replaceCodePlugin({
+        replacements: [
+          {
+            from: `if ((crypto && crypto.getRandomValues) || !process.browser) {
+  exports.randomFill = randomFill
+  exports.randomFillSync = randomFillSync
+} else {
+  exports.randomFill = oldBrowser
+  exports.randomFillSync = oldBrowser
+}`,
+            to: `exports.randomFill = randomFill
+exports.randomFillSync = randomFillSync`
+          }
+        ]
       })
     ],
     vue: {
