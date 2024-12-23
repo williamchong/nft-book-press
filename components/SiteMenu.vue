@@ -168,7 +168,7 @@ const items = [
   ...item,
   links: item.links.map(link => ({
     ...link,
-    click: handleLinkClick({ label: link.label })
+    click: () => handleLinkClick({ label: link.label })
   }))
 }))
 </script>
