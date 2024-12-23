@@ -468,16 +468,20 @@ const productIdInput = computed(() => {
 })
 
 const productIds = computed(() => {
-  return productIdInputs.value.map((input) => {
+  return productIdInputs.value.map((productIdInput: string) => {
+    let input: string | undefined = productIdInput.trim()
+
     if (input.startsWith('http')) {
       const url = new URL(input)
-      const id = url.pathname.split('/').pop()
-      if (id?.startsWith('col_') || id?.startsWith('likenft')) {
-        return id
-      }
+      input = url.pathname.split('/').pop()
     }
-    return input
-  })
+
+    if (input?.startsWith('col_') || input?.startsWith('likenft')) {
+      return input
+    }
+
+    return ''
+  }).filter(Boolean)
 })
 const productId = computed(() => {
   return productIds.value[0] || ''
