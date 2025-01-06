@@ -7,19 +7,19 @@ export function useAuth () {
   const bookStoreApiStore = useBookStoreApiStore()
   const store = useWalletStore()
   const { wallet, signer } = storeToRefs(store)
-  const { connect, disconnect, signMessageMemo } = store
+  const { connect, signMessageMemo } = store
   const { authenticate, clearSession } = bookStoreApiStore
   const toast = useToast()
 
   const isAuthenticating = ref(false)
 
-  async function onAuthenticate () {
+  const onAuthenticate = async () => {
     try {
       isAuthenticating.value = true
       setupPostAuthRedirect()
 
       if (!wallet.value || !signer.value) {
-        await connect()
+        connect()
       }
       if (!wallet.value || !signer.value) {
         return
@@ -36,7 +36,7 @@ export function useAuth () {
 
       await authenticate(wallet.value, signature)
     } catch (err) {
-      disconnect()
+      // disconnect()
       clearSession()
       // eslint-disable-next-line no-console
       console.error(err)
