@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-stretch gap-4">
-    <template v-if="bookStoreApiStore.isAuthenticated">
+    <template v-if="wallet">
       <div class="w-full flex items-center gap-[8px] justify-between">
         <UTooltip class="flex w-full" :text="wallet">
           <UButton
