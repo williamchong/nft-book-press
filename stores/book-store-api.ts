@@ -44,11 +44,11 @@ export const useBookStoreApiStore = defineStore('book-api', () => {
     }
   }
 
+  // eslint-disable-next-line require-await
   async function authenticate (inputWallet: string, signature: any) {
     const { error, data } = await useFetch(`${LIKE_CO_API}/wallet/authorize`, {
       method: 'POST',
       body: {
-        expiresIn: '7d',
         ...signature
       }
     })
