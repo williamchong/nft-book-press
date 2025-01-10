@@ -135,16 +135,6 @@
           />
         </UFormGroup>
 
-        <UFormGroup label="ISCN Owner">
-          <UButton
-            :label="iscnOwner"
-            :to="`${likerLandURL}/${encodeURIComponent(iscnOwner)}`"
-            target="_blank"
-            variant="link"
-            :padded="false"
-          />
-        </UFormGroup>
-
         <UFormGroup label="ISCN Title">
           <UInput
             :value="iscnData?.contentMetadata?.name"
@@ -428,19 +418,20 @@ import { storeToRefs } from 'pinia'
 import { v4 as uuidv4 } from 'uuid'
 import { parse } from 'csv-parse/sync'
 import { stringify } from 'csv-stringify/sync'
+import { waitForTransactionReceipt } from '@wagmi/vue/actions'
+import { hexToNumber } from 'viem'
 import type { FormError } from '#ui/types'
 
 import { useWalletStore } from '~/stores/wallet'
-import { downloadFile, convertArrayOfObjectsToCSV, sleep } from '~/utils'
+import { downloadFile, convertArrayOfObjectsToCSV } from '~/utils'
 import { NFT_DEFAULT_MINT_AMOUNT } from '~/constant'
 import { LIKE_NFT_ABI, LIKE_NFT_CONTRACT_ADDRESS } from '~/contracts/likeNFT'
-import { waitForTransactionReceipt } from '@wagmi/vue/actions'
 import { config } from '~/utils/wagmi/config'
 
 const { LCD_URL, APP_LIKE_CO_URL, LIKER_LAND_URL } = useRuntimeConfig().public
 const router = useRouter()
 const route = useRoute()
-const { writeContractAsync, data: hash } = useWriteContract()
+const { writeContractAsync } = useWriteContract()
 
 const store = useWalletStore()
 const { wallet, signer } = storeToRefs(store)
@@ -453,7 +444,7 @@ const error = ref('')
 const isLoading = ref(false)
 
 const iscnIdInput = ref('')
-const iscnOwner = ref('')
+
 const iscnCreateData = ref<any>(null)
 const iscnData = ref<any>(null)
 const state = reactive({
@@ -464,16 +455,13 @@ const imageUrl = ref('')
 const externalUrl = ref('')
 const uri = ref('')
 
-const classData = ref<any>(null)
 const classMaxSupply = ref<number | undefined>(undefined)
 const classCreateData = ref<any>(null)
 
 const nftMintListData = ref<any>([])
 const nftMintDefaultData = ref<any>(null)
 const nftMintCount = ref(NFT_DEFAULT_MINT_AMOUNT)
-const nftData = ref<any>(null)
 const nftCSVData = ref('')
-const existingNftCount = ref(0)
 
 const iscnId = computed(() => iscnData.value?.['@id'])
 const classId = ref('')
@@ -542,20 +530,12 @@ async function onISCNIDInput () {
     isLoading.value = true
     if (iscnIdInput.value.startsWith('iscn://')) {
       const { data, error } = await useFetch(`${LCD_URL}/iscn/records/id?iscn_id=${encodeURIComponent(iscnIdInput.value)}`)
-      if (error.value) { throw new Error(error.value) }
-      const { records, owner } = data.value as any
+      if (error.value) { throw error.value }
+      const { records } = data.value as any
       iscnData.value = records[0].data
-      iscnOwner.value = owner
       step.value = 2
     } else if (iscnIdInput.value.startsWith('likenft')) {
-      const { data } = await useFetch(`${LCD_URL}/cosmos/nft/v1beta1/classes/${encodeURIComponent(iscnIdInput.value)}`)
-      if (!data?.value) { throw new Error('INVALID_NFT_CLASS_ID') }
-      classData.value = (data.value as any).class
-      const parentIscnId = classData.value?.data?.parent?.iscn_id_prefix
-      const { data: resISCN } = await useFetch(`${LCD_URL}/iscn/records/id?iscn_id=${encodeURIComponent(parentIscnId)}`)
-      const { records, owner } = resISCN.value as any
-      iscnData.value = records[0].data
-      iscnOwner.value = owner
+      classId.value = iscnIdInput.value
       step.value = 3
     } else {
       throw new Error('Invalid ISCN ID or NFT Class ID')
@@ -575,15 +555,7 @@ async function onISCNFileInput () {
       await connect()
     }
     if (!wallet.value || !signer.value) { throw new Error('NO_WALLET') }
-    if (!iscnCreateData.value) { throw new Error('NO_ISCN_DATA') }
-    const newIscnId = await signCreateISCNRecord(iscnCreateData.value, signer.value, wallet.value)
-    // HACK: wait 1 block before querying
-    await sleep(6000)
-    const { data } = await useFetch(`${LCD_URL}/iscn/records/id?iscn_id=${encodeURIComponent(newIscnId)}`)
-    if (!data?.value) { throw new Error('INVALID_ISCN_ID') }
-    const { records, owner } = data.value as any
-    iscnData.value = records[0].data
-    iscnOwner.value = owner
+    iscnData.value = iscnCreateData.value
     step.value = 2
   } catch (err) {
     console.error(err)
@@ -613,23 +585,17 @@ function onISCNFileChange (files: FileList) {
 }
 
 function generateNFTMintListCSVData ({
-  prefix,
-  nftExisitngCount = 0,
   nftMintCount,
   imgUrl,
   uri
 }: {
-  prefix: string;
-  nftExisitngCount?: number;
   nftMintCount: number;
   imgUrl: string;
   uri: string ;
 }) {
   const csvRows = []
-  for (let i = nftExisitngCount; i <= nftExisitngCount + nftMintCount - 1; i++) {
-    const nftId = `${prefix}-${i.toString().padStart(4, '0')}`
+  for (let i = 0; i < nftMintCount; i++) {
     csvRows.push({
-      nftId,
       uri,
       image: imgUrl,
       metadata: ''
@@ -663,17 +629,11 @@ async function onClickMintByInputting () {
       external_url: externalUrl.value
     }
   }
-  if (!isCreatingClass.value) {
-    const { nfts } = await getNFTs({ classId: classId.value as string })
-    existingNftCount.value = nfts.length
-  }
   if (typeof nftMintCount.value !== 'number') {
     nftMintCount.value = Number(nftMintCount.value)
   }
   const csvDataString = generateNFTMintListCSVData({
-    prefix: state.nftIdPrefix,
     nftMintCount: nftMintCount.value,
-    nftExisitngCount: existingNftCount.value,
     imgUrl: imageUrl.value,
     uri: uri.value
   })
