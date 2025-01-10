@@ -13,8 +13,11 @@
 </template>
 <script setup lang="ts">
 const router = useRouter()
+const route = useRoute()
 
 onMounted(() => {
-  router.replace({ name: 'latest-books' })
+  if (!route.query.provider) {
+    router.replace({ name: 'latest-books' })
+  }
 })
 </script>
