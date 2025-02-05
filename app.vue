@@ -39,13 +39,16 @@
 import { storeToRefs } from 'pinia'
 
 import { useBookStoreApiStore } from '~/stores/book-store-api'
+import { useCollectionStore } from '~/stores/collection'
 import { useUIStore } from '~/stores/ui'
 
 const { SITE_URL } = useRuntimeConfig().public
 const bookStoreApiStore = useBookStoreApiStore()
+const collectionStore = useCollectionStore()
 
-const { restoreAuthSession } = bookStoreApiStore
-const { isRestoringSession } = storeToRefs(bookStoreApiStore)
+const { restoreAuthSession, fetchBookListing } = bookStoreApiStore
+const { listNFTBookCollections } = collectionStore
+const { isRestoringSession, isAuthenticated } = storeToRefs(bookStoreApiStore)
 const uiStore = useUIStore()
 
 const isMobileMenuOpen = computed({
@@ -93,6 +96,12 @@ useSeoMeta({
 
 onMounted(async () => {
   await restoreAuthSession()
+  if (isAuthenticated.value) {
+    await Promise.all([
+      fetchBookListing(),
+      listNFTBookCollections()
+    ])
+  }
 })
 
 </script>
