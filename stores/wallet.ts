@@ -48,7 +48,7 @@ export const useWalletStore = defineStore('wallet', () => {
   }
 
   function disconnect () {
-    wagmiDisconnect()
+    return wagmiDisconnect()
   }
 
   return {

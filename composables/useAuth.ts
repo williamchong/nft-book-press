@@ -22,7 +22,7 @@ export function useAuth () {
       setupPostAuthRedirect()
 
       if (!wallet.value || !signer.value) {
-        connect()
+        await connect()
       }
       if (!wallet.value || !signer.value) {
         return
