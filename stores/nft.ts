@@ -10,9 +10,15 @@ export const useNftStore = defineStore('nft', () => {
   const getClassListingInfoById = computed(() => (classId: string) => classListingInfoByIdMap.value[classId])
 
   async function fetchClassMetadataById (classId: string) {
-    const { error, data } = await useFetch(`${LCD_URL}/cosmos/nft/v1beta1/classes/${classId}`)
-    if (error.value) { throw error.value }
-    const { class: classData } = data.value as any
+    let classData: any
+    if (classId.startsWith('0x')) {
+      const { getClassMetadata } = useNFTContractReader()
+      classData = await getClassMetadata(classId)
+    } else {
+      const { error, data } = await useFetch(`${LCD_URL}/cosmos/nft/v1beta1/classes/${classId}`)
+      if (error.value) { throw error.value }
+      ({ class: classData } = data.value as any)
+    }
     classMetadataByIdMap.value[classId] = classData
     return classData
   }
