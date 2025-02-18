@@ -39,7 +39,10 @@
             footer: { base: 'text-center' },
           }"
         >
-          <UTable :columns="tableColumns" :rows="tableRows" @select="selectTableRow">
+          <div class="flex px-3 py-3.5 border-b border-gray-200">
+            <UInput v-model="q" placeholder="Filter books by name or author" />
+          </div>
+          <UTable :columns="tableColumns" :rows="filteredRows" @select="selectTableRow">
             <template #image-data="{ row }">
               <img v-if="row.image" :src="row.image" :alt="row.className" class="w-12 h-12 object-cover rounded-lg">
             </template>
@@ -71,6 +74,7 @@ const bookStoreApiStore = useBookStoreApiStore()
 const walletStore = useWalletStore()
 
 const router = useRouter()
+const route = useRoute()
 
 const { wallet } = storeToRefs(walletStore)
 const { userLikerInfo } = storeToRefs(userStore)
@@ -86,6 +90,7 @@ const isStripeConnectReady = ref(false)
 const latestBookList = ref([])
 const bestSellerBookList = ref([] as any[])
 const selectedTabItemIndex = ref(0)
+const q = ref(route.query.q || '')
 
 const channelId = computed(() => {
   if (userLikerInfo.value?.user) {
@@ -122,7 +127,6 @@ const tableColumns = computed(() => [
     sortable: false
   }
 ])
-
 const selectedTabItemKey = computed(() => tabItems[selectedTabItemIndex.value].key)
 const bookList = computed(() => selectedTabItemKey.value === 'latest' ? latestBookList.value : bestSellerBookList.value)
 const tableRows = computed(() => bookList.value.map((b: any) => {
@@ -137,6 +141,18 @@ const tableRows = computed(() => bookList.value.map((b: any) => {
     url: `${LIKER_LAND_URL}/nft/class/${b.classId}?from=${channelId.value}&utm_source=bookpress&utm_medium=list_${selectedTabItemKey.value}`
   }
 }))
+
+const filteredRows = computed(() => {
+  if (!q.value) {
+    return tableRows.value
+  }
+  const query = q.value.toLowerCase()
+  return tableRows.value.filter((row: any) => {
+    return [row.className, row.author].some((value) => {
+      return value && value.toLowerCase().includes(query)
+    })
+  })
+})
 
 useSeoMeta({
   title: 'Latest Books',
