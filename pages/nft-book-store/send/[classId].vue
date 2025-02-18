@@ -167,15 +167,18 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { waitForTransactionReceipt } from '@wagmi/vue/actions'
+import { useWriteContract } from '@wagmi/vue'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
 import { useNftStore } from '~/stores/nft'
 import { parseImageURLFromMetadata } from '~/utils'
-import { signSendNFTs } from '~/utils/cosmos'
 import { useMessageCharCount } from '~/composables/useMessageCharCount'
 import { AUTHOR_MESSAGE_LIMIT } from '~/constant'
+import { LIKE_NFT_CLASS_ABI } from '~/contracts/likeNFT'
+import { config } from '~/utils/wagmi/config'
 
-const { LIKE_CO_API, LCD_URL } = useRuntimeConfig().public
+const { LIKE_CO_API } = useRuntimeConfig().public
 
 const store = useWalletStore()
 const { wallet, signer } = storeToRefs(store)
@@ -190,6 +193,8 @@ const { lazyFetchClassMetadataById } = nftStore
 const route = useRoute()
 const router = useRouter()
 
+const { writeContractAsync } = useWriteContract()
+
 const error = ref('')
 const isLoading = ref(false)
 const classId = ref(route.params.classId as string)
@@ -197,6 +202,7 @@ const paymentId = ref(route.query.payment_id as string)
 const ownerWallet = ref(route.query.owner_wallet as string || wallet.value)
 const memo = ref('')
 const { messageCharCount, isLimitReached } = useMessageCharCount(memo, AUTHOR_MESSAGE_LIMIT)
+const { getNFTMetadata, getNFTOwner } = useNFTContractReader()
 
 const nftId = ref('')
 const nftIds = ref([] as string[])
@@ -209,6 +215,7 @@ const nftIdInputRef = ref<any>(undefined)
 const orderInfo = ref<any>({})
 const nftImage = ref('')
 
+const tokenId = computed(() => parseInt(nftId.value, 10))
 const isSendButtonDisabled = computed(() => isEditingNFTId.value || isLoading.value || isVerifyingNFTId.value || isAutoFetchingNFTId.value || !!nftIdError.value || isLimitReached.value)
 
 const nftClassName = computed(() => nftStore.getClassMetadataById(classId.value as string)?.name)
@@ -267,18 +274,8 @@ function handleClickEditNFTId () {
 async function fetchNFTMetadata () {
   try {
     isVerifyingNFTId.value = true
-    const { data, error: fetchError } = await useFetch(`${LCD_URL}/cosmos/nft/v1beta1/nfts/${classId.value}/${nftId.value}`)
-    if (fetchError.value) {
-      nftImage.value = ''
-      if (fetchError.value.data.code === 2) {
-        nftIdError.value = 'NFT not found'
-      } else {
-        nftIdError.value = fetchError.value.toString()
-      }
-      return
-    }
-    const image = (data.value as any)?.nft?.data?.metadata?.image || ''
-    nftImage.value = parseImageURLFromMetadata(image)
+    const metadata = await getNFTMetadata(classId.value, tokenId.value)
+    nftImage.value = parseImageURLFromMetadata(metadata)
   } catch (err) {
     error.value = (err as Error).toString()
   } finally {
@@ -286,7 +283,7 @@ async function fetchNFTMetadata () {
   }
 }
 
-async function fetchNextNFTId (count = 1) {
+async function fetchNextNFTId (_count = 1) {
   try {
     nftIdError.value = ''
     isAutoFetchingNFTId.value = true
@@ -294,18 +291,8 @@ async function fetchNextNFTId (count = 1) {
       await initIfNecessary()
     }
     if (!ownerWallet.value) { return }
-    const { nfts } = await getNFTs({
-      classId: classId.value,
-      owner: ownerWallet.value,
-      needCount: count
-    })
-    if (nfts.length) {
-      nftIds.value = nfts.map(nft => nft.id)
-      nftId.value = nftIds.value[0]
-      await fetchNFTMetadata()
-    } else {
-      throw new Error(`${ownerWallet.value} does not hold any NFT of class ${classId.value}`)
-    }
+    // TODO fetch nftIds
+    nftId.value = '0'
   } catch (err) {
     error.value = (err as Error).toString()
   } finally {
@@ -322,33 +309,34 @@ async function onSendNFTStart () {
     }
     if (!wallet.value || !signer.value) { return }
     if (nftId.value) {
-      const { owner } = await getNFTOwner(classId.value, nftId.value)
+      const owner = await getNFTOwner(classId.value, tokenId.value)
       if (owner !== ownerWallet.value) {
         throw new Error(`NFT classId: ${classId} nftId:${nftId} is not owned by sender!`)
       }
     } else {
-      await fetchNextNFTId(orderInfo.quantity)
+      await fetchNextNFTId(orderInfo.value.quantity)
     }
 
-    const signingClient = await getSigningClientWithSigner(signer.value)
-    const client = signingClient.getSigningStargateClient()
-    if (!client) { throw new Error('Signing client not exists') }
+    // TODO: support multiple nfts
+    const txHash = await writeContractAsync({
+      address: classId.value as any,
+      abi: LIKE_NFT_CLASS_ABI,
+      functionName: 'transferWithMemo',
+      args: [
+        wallet.value,
+        orderInfo.value.wallet,
+        nftId.value,
+        memo.value
+      ]
+    })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
 
-    const res = await signSendNFTs(
-      orderInfo.value.wallet,
-      Array(nftIds.value.length).fill(classId.value),
-      nftIds.value,
-      signer.value,
-      wallet.value,
-      memo.value
-    )
-
-    if (res.transactionHash && res.code === 0) {
+    if (receipt?.status === 'success') {
       const { error: fetchError } = await useFetch(`${LIKE_CO_API}/likernft/book/purchase/${classId.value}/sent/${paymentId.value}`,
         {
           method: 'POST',
           body: {
-            txHash: res.transactionHash,
+            txHash,
             quantity: orderInfo.value.quantity || 1
           },
           headers: {
