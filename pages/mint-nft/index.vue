@@ -659,7 +659,7 @@ async function onClickMintByInputting () {
       external_url: externalUrl.value,
       nft_meta_collection_id: 'nft_book',
       nft_meta_collection_name: 'NFT Book',
-      nft_meta_collection_descrption: 'NFT Book by Liker Land'
+      nft_meta_collection_description: 'NFT Book by Liker Land'
     }
   }
   const nftsDefaultData = {
