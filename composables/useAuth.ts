@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia'
 import { useWalletStore } from '~/stores/wallet'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useCollectionStore } from '~/stores/collection'
+import { SIGN_AUTHORIZATION_PERMISSIONS } from '~/utils/auth'
 
 export function useAuth () {
   const bookStoreApiStore = useBookStoreApiStore()
@@ -31,7 +32,7 @@ export function useAuth () {
 
       const signature = await signMessageMemo(
         'authorize',
-        ['read:nftbook', 'write:nftbook', 'read:nftcollection', 'write:nftcollection', 'write:iscn', 'read:iscn']
+        SIGN_AUTHORIZATION_PERMISSIONS
       )
 
       if (!signature) {

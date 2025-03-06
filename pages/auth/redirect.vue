@@ -9,6 +9,7 @@
 import { storeToRefs } from 'pinia'
 import { useWalletStore } from '~/stores/wallet'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
+import { SIGN_AUTHORIZATION_PERMISSIONS } from '~/utils/auth'
 
 definePageMeta({ layout: 'page' })
 
@@ -42,7 +43,7 @@ onMounted(async () => {
 
       const signature = await signMessageMemo(
         'authorize',
-        ['read:nftbook', 'write:nftbook', 'read:nftcollection', 'write:nftcollection', 'write:iscn', 'read:iscn']
+        SIGN_AUTHORIZATION_PERMISSIONS
       )
       if (!signature) {
         throw new Error('Failed to authenticate: no signature')
