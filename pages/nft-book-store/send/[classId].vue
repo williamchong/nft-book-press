@@ -243,7 +243,7 @@ onMounted(async () => {
     })
   orderInfo.value = (data as any)
   lazyFetchClassMetadataById(classId.value as string)
-  fetchNextNFTId(orderInfo.value.quantity)
+  fetchNextNFTId(orderInfo.value.quantity || 1)
 })
 
 function handleClickEditNFTId () {
@@ -319,7 +319,7 @@ async function onSendNFTStart () {
         throw new Error(`NFT classId: ${classId} nftId:${nftId} is not owned by sender!`)
       }
     } else {
-      await fetchNextNFTId(orderInfo.value.quantity)
+      await fetchNextNFTId(orderInfo.value.quantity || 1)
     }
 
     if (nftIds.value.length !== orderInfo.value.quantity) {
