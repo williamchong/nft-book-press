@@ -135,7 +135,7 @@
               :disabled="isLoading || isEditingNFTId"
               :loading="isAutoFetchingNFTId"
               variant="outline"
-              @click="fetchNextNFTId"
+              @click="onClickFetchNextNFTId"
             />
           </div>
           <PlaceholderCard class="h-[300px]">
@@ -237,7 +237,7 @@ onMounted(async () => {
   orderInfo.value = (data as any)
   await lazyFetchCollectionById(collectionId.value as string)
   await Promise.all(classIds.value.map(classId => lazyFetchClassMetadataById(classId)))
-  fetchNextNFTId(orderInfo.value.quantity)
+  fetchNextNFTId(orderInfo.value.quantity || 1)
 })
 
 function getNftClassName (classId) {
@@ -296,6 +296,10 @@ async function fetchNextNFTId (count = 1) {
   } finally {
     isAutoFetchingNFTId.value = false
   }
+}
+
+function onClickFetchNextNFTId () {
+  fetchNextNFTId(orderInfo.value.quantity || 1)
 }
 
 async function onSendNFTStart () {

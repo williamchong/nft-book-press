@@ -140,7 +140,7 @@
             :disabled="isLoading || isEditingNFTId"
             :loading="isAutoFetchingNFTId"
             variant="outline"
-            @click="fetchNextNFTId"
+            @click="onClickFetchNextNFTId"
           />
         </div>
       </UFormGroup>
@@ -303,6 +303,10 @@ async function fetchNextNFTId (count = 1) {
   } finally {
     isAutoFetchingNFTId.value = false
   }
+}
+
+function onClickFetchNextNFTId () {
+  fetchNextNFTId(orderInfo.value.quantity || 1)
 }
 
 async function onSendNFTStart () {
