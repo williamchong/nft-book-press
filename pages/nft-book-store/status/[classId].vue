@@ -1053,7 +1053,12 @@ onMounted(async () => {
       stripeConnectWallet.value = classStripeWallet
       if (classStripeWallet !== wallet.value) {
         isUsingDefaultAccount.value = false
-        await fetchStripeConnectStatusByWallet(classStripeWallet)
+        try {
+          await fetchStripeConnectStatusByWallet(classStripeWallet)
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error(err)
+        }
       }
     }
     mustClaimToView.value = classMustClaimToView
