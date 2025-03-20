@@ -100,7 +100,6 @@ import ePub from 'epubjs'
 import { BigNumber } from 'bignumber.js'
 import { encryptDataWithAES } from 'arweavekit/encryption'
 import { fileToArrayBuffer, digestFileSHA256, calculateIPFSHash, sleep } from '~/utils/index'
-import { useFileUpload } from '~/composables/useFileUpload'
 import {
   estimateBundlrFilePrice,
   uploadSingleFileToBundlr
@@ -121,7 +120,6 @@ const { setUploadFileData } = uploadStore
 const { token } = storeToRefs(bookStoreApiStore)
 const toast = useToast()
 
-const { getFileType } = useFileUpload()
 const fileRecords = ref([])
 const isSizeExceeded = ref(false)
 const isDragging = ref(false)
@@ -189,13 +187,11 @@ const getFileInfo = async (file: Blob) => {
   if (!fileBytes) {
     return null
   }
-  const fileType = getFileType(file.type)
   const [fileSHA256, ipfsHash] = await Promise.all([
     digestFileSHA256(fileBytes),
     calculateIPFSHash(Buffer.from(fileBytes))
   ])
   return {
-    fileType,
     fileBytes,
     fileSHA256,
     ipfsHash
@@ -229,17 +225,17 @@ const onFileUpload = async (event: DragEvent) => {
 
           const info = await getFileInfo(file)
           if (info) {
-            const { fileBytes, fileSHA256, ipfsHash, fileType } = info
+            const { fileBytes, fileSHA256, ipfsHash } = info
             fileRecord = {
               ...fileRecord,
               fileName: file.name,
               fileSize: file.size,
-              fileType,
+              fileType: file.type,
               ipfsHash,
               fileSHA256,
               fileBlob: file
             }
-            if (fileType === 'epub') {
+            if (fileRecord.fileType === 'application/epub+zip') {
               await processEPub({ buffer: fileBytes, file })
             }
           }
@@ -312,8 +308,7 @@ const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer; file: File }
         if (coverInfo) {
           const {
             fileSHA256,
-            ipfsHash: ipfsThumbnailHash,
-            fileType
+            ipfsHash: ipfsThumbnailHash
           } = coverInfo
 
           epubMetadata.thumbnailIpfsHash = ipfsThumbnailHash
@@ -321,7 +316,7 @@ const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer; file: File }
           const coverFileRecord: any = {
             fileName: coverFile.name,
             fileSize: coverFile.size,
-            fileType,
+            fileType: coverFile.type,
             fileBlob: coverFile,
             ipfsHash: ipfsThumbnailHash,
             fileSHA256
@@ -357,7 +352,7 @@ const estimateArweaveFee = async (): Promise<void> => {
     const results = []
     for (const record of fileRecords.value) {
       await sleep(100)
-      const isEbook = ['epub', 'pdf'].includes(record.fileType)
+      const isEbook = record.fileType === 'application/epub+zip' || record.fileType === 'application/pdf'
       const priceResult = await estimateBundlrFilePrice({
         fileSize: record.fileBlob?.size || 0,
         ipfsHash: (isEbook && isEncryptEBookData.value) ? undefined : record.ipfsHash
@@ -418,11 +413,13 @@ const submitToArweave = async (record: any): Promise<void> => {
     const arrayBuffer = await record.fileBlob.arrayBuffer()
     let buffer = Buffer.from(arrayBuffer)
     let { ipfsHash } = record
-    if (['epub', 'pdf'].includes(record.fileType) && isEncryptEBookData.value) {
-      const {
-        rawEncryptedKeyAsBase64,
-        combinedArrayBuffer
-      } = await encryptDataWithAES({ data: arrayBuffer })
+    if (
+      (record.fileType === 'application/epub+zip' ||
+        record.fileType === 'application/pdf') &&
+      isEncryptEBookData.value
+    ) {
+      const { rawEncryptedKeyAsBase64, combinedArrayBuffer } =
+        await encryptDataWithAES({ data: arrayBuffer })
       buffer = Buffer.from(combinedArrayBuffer)
       key = rawEncryptedKeyAsBase64
       ipfsHash = await calculateIPFSHash(buffer)
@@ -542,7 +539,7 @@ const setEbookCoverFromImages = async () => {
 
   for (let i = 0; i < fileRecords.value.length; i += 1) {
     const file = fileRecords.value[i]
-    if (file.fileType === 'image') {
+    if (file.fileType.startsWith('image')) {
       const existingData = sentArweaveTransactionInfo.value.get(file.ipfsHash) || {}
       if (existingData.arweaveId) {
         epubMetadataList.value.push({
@@ -607,9 +604,9 @@ const onSubmit = async () => {
   try {
     uploadStatus.value = 'uploading'
     if (
-      fileRecords.value.find(file => file.fileType === 'pdf') &&
+      fileRecords.value.find(file => file.fileType === 'application/pdf') &&
       !fileRecords.value.find(
-        file => file.fileType === 'epub'
+        file => file.fileType === 'application/epub+zip'
       )
     ) {
       await setEbookCoverFromImages()
