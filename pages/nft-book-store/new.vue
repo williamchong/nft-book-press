@@ -418,6 +418,14 @@
                     :padded="false"
                   />
                 </template>
+                <template #authz-data="{ row }">
+                  <UButton
+                    :label="row.grantLabel"
+                    :to="row.grantRoute"
+                    :variant="row.isGranted ? 'outline' : 'solid'"
+                    color="green"
+                  />
+                </template>
                 <template #remove-data="{ row }">
                   <div class="flex justify-end items-center">
                     <UButton
@@ -501,7 +509,7 @@ import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
 import { useStripeStore } from '~/stores/stripe'
 import { getPortfolioURL, deliverMethodOptions } from '~/utils'
-import { sendNFTsToAPIWallet } from '~/utils/cosmos'
+import { getNFTAuthzGrants, sendNFTsToAPIWallet } from '~/utils/cosmos'
 
 const { LCD_URL } = useRuntimeConfig().public
 const walletStore = useWalletStore()
@@ -561,6 +569,7 @@ const priceItemLabel = computed(() =>
 const moderatorWallets = ref<string[]>([
   'like1rclg677y2jqt8x4ylj0kjlqjjmnn6w63uflpgr'
 ])
+const moderatorWalletsGrants = ref<any>({})
 const notificationEmails = ref<string[]>([])
 const moderatorWalletInput = ref('')
 const notificationEmailInput = ref('')
@@ -597,15 +606,25 @@ const shouldShowAdvanceSettings = ref<boolean>(false)
 
 const moderatorWalletsTableColumns = computed(() => [
   { key: 'wallet', label: 'Wallet', sortable: true },
+  { key: 'authz', label: 'Send NFT Grant', sortable: false },
   { key: 'remove', label: '', sortable: false }
 ])
 
 const moderatorWalletsTableRows = computed(() =>
   moderatorWallets.value.map((wallet, index) => {
+    const isGranted = !!moderatorWalletsGrants.value[wallet]
     return {
       index,
       wallet,
-      walletLink: getPortfolioURL(wallet)
+      walletLink: getPortfolioURL(wallet),
+      isGranted,
+      grantLabel: isGranted ? 'Granted' : 'Grant',
+      grantRoute: {
+        name: 'authz',
+        query: {
+          grantee: wallet
+        }
+      }
     }
   })
 )
@@ -653,6 +672,19 @@ watch(isLoading, (newIsLoading) => {
   if (newIsLoading) {
     error.value = ''
   }
+})
+
+watch(moderatorWallets, (newModeratorWallets) => {
+  newModeratorWallets?.forEach(async (m) => {
+    if (!moderatorWalletsGrants.value[m]) {
+      try {
+        moderatorWalletsGrants.value[m] = await getNFTAuthzGrants(
+          wallet.value,
+          m
+        )
+      } catch {}
+    }
+  })
 })
 
 function updatePrice (e: InputEvent, key: string, index: number) {
