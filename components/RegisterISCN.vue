@@ -22,19 +22,22 @@
 </template>
 
 <script setup lang="ts">
-import { BigNumber } from 'bignumber.js'
 import { storeToRefs } from 'pinia'
+import { useWriteContract } from '@wagmi/vue'
+import { waitForTransactionReceipt } from '@wagmi/vue/actions'
 import { useFileUpload } from '~/composables/useFileUpload'
-import { estimateISCNTxGasAndFee, signISCNTx } from '~/utils/iscn'
 import { useWalletStore } from '~/stores/wallet'
-import { getAccountBalance } from '~/utils/cosmos'
-import { ISCN_GAS_MULTIPLIER } from '~/constant/index'
 import { useUploadStore } from '~/stores/upload'
 import { useISCN } from '~/composables/useISCN'
+import { LIKE_NFT_ABI, LIKE_NFT_CONTRACT_ADDRESS } from '~/contracts/likeNFT'
+import { config } from '~/utils/wagmi/config'
 
 const walletStore = useWalletStore()
 const uploadStore = useUploadStore()
 const { getFileType } = useFileUpload()
+const {
+  LIKE_EVM_NFT_TARGET_ADDRESS
+} = useRuntimeConfig().public
 
 const { wallet, signer } = storeToRefs(walletStore)
 const { initIfNecessary } = walletStore
@@ -67,18 +70,12 @@ const iscnData = ref({
   coverUrl: ''
 })
 
-const balance = ref(new BigNumber(0))
-const iscnFee = ref(new BigNumber(0))
-const iscnGasFee = ref('0')
 const uploadStatus = ref('')
 const error = ref('')
 const emit = defineEmits(['handleSubmit', 'submit'])
 
-const totalFee = computed(() => {
-  return iscnFee.value || new BigNumber(0)
-})
-
 const { payload } = useISCN(iscnData)
+const { writeContractAsync } = useWriteContract()
 
 const isFormValid = computed(() => {
   const requiredFields = {
@@ -100,7 +97,6 @@ onMounted(() => {
   if (initialData) {
     iscnData.value = initialData
   }
-  calculateISCNFee()
 })
 
 const initializeFromSessionStorage = () => {
@@ -154,27 +150,6 @@ const initializeFromSessionStorage = () => {
   return baseData
 }
 
-const calculateISCNFee = async () => {
-  const estimation = await estimateISCNTxGasAndFee(
-    formatISCNTxPayload(payload.value)
-  )
-
-  const { iscnFee: fee, gas: iscnGasEstimation } = estimation
-
-  const iscnGasNanolike = new BigNumber(
-    iscnGasEstimation.fee.amount[0].amount
-  ).times(ISCN_GAS_MULTIPLIER)
-
-  const iscnFeeNanolike = fee.amount
-  iscnFee.value = new BigNumber(iscnFeeNanolike)
-    .plus(iscnGasNanolike)
-    .shiftedBy(-9)
-
-  iscnGasFee.value = new BigNumber(iscnGasEstimation.fee.gas)
-    .times(ISCN_GAS_MULTIPLIER)
-    .toFixed(0)
-}
-
 const onSubmit = async (): Promise<void> => {
   uploadStatus.value = 'checking'
 
@@ -185,21 +160,6 @@ const onSubmit = async (): Promise<void> => {
       timeout: 3000,
       color: 'red'
     })
-    return
-  }
-  await calculateISCNFee()
-  balance.value = await getAccountBalance(wallet.value)
-  if (balance.value?.lt(totalFee.value)) {
-    toast.add({
-      icon: 'i-heroicons-exclamation-circle',
-      title: 'INSUFFICIENT_BALANCE',
-      timeout: 0,
-      color: 'red',
-      ui: {
-        title: 'text-red-400 dark:text-red-400'
-      }
-    })
-    uploadStatus.value = ''
     return
   }
   if (
@@ -213,7 +173,7 @@ const submitToISCN = async (): Promise<void> => {
   uploadStatus.value = 'loading'
   await initIfNecessary()
 
-  if (!signer.value) {
+  if (!wallet.value || !signer.value) {
     error.value = 'MISSING_SIGNER'
     uploadStatus.value = ''
     return
@@ -221,15 +181,46 @@ const submitToISCN = async (): Promise<void> => {
 
   try {
     uploadStatus.value = 'signing'
-    const res = await signISCNTx(
-      formatISCNTxPayload(payload.value),
-      signer.value,
-      wallet.value,
-      { gas: iscnGasFee.value }
-    )
+    const contentMetadata = formatISCNTxPayload(payload.value)
+    const metadata = {
+      name: contentMetadata.name,
+      description: contentMetadata.description,
+      ...contentMetadata,
+      symbol: 'BOOK',
+      image: contentMetadata?.thumbnailUrl || '',
+      external_url: contentMetadata?.url || '',
+      nft_meta_collection_id: 'nft_book',
+      nft_meta_collection_name: 'NFT Book',
+      nft_meta_collection_description: 'NFT Book by Liker Land',
+      recordTimestamp: new Date().toISOString()
+    }
+    const txHash = await writeContractAsync({
+      address: LIKE_NFT_CONTRACT_ADDRESS,
+      abi: LIKE_NFT_ABI,
+      functionName: 'newBookNFT',
+      args: [{
+        creator: wallet.value,
+        updaters: [wallet.value, LIKE_EVM_NFT_TARGET_ADDRESS],
+        minters: [wallet.value, LIKE_EVM_NFT_TARGET_ADDRESS],
+        config: {
+          name: metadata.name,
+          symbol: 'BOOK',
+          metadata: JSON.stringify(metadata),
+          max_supply: 1000
+        }
+      }]
+    })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    // eslint-disable-next-line no-console
+    console.log(receipt)
+    if (!receipt || receipt.status !== 'success') { throw new Error('INVALID_RECEIPT') }
+    if (!receipt.logs[0].address) { throw new Error('INVALID_CLASS_ID') }
+    const classId = receipt.logs[0].address
     uploadStatus.value = 'success'
-    updateUploadFileData({ iscnRecord: res })
-    emit('submit', res)
+    updateUploadFileData({ iscnRecord: metadata })
+    emit('submit', {
+      classId, txHash
+    })
   } catch (err) {
     console.error(err)
     toast.add({
@@ -243,7 +234,6 @@ const submitToISCN = async (): Promise<void> => {
     })
     uploadStatus.value = ''
   } finally {
-    balance.value = await getAccountBalance(wallet.value)
     uploadStatus.value = ''
   }
 }

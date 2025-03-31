@@ -141,11 +141,11 @@ const handleUploadSubmit = (uploadFileData: any) => {
   step.value = 1
 }
 
-const handleIscnSubmit = (res: { iscnId: string, txHash: string }) => {
-  const { iscnId } = res
+const handleIscnSubmit = (res: { classId: string, txHash: string }) => {
+  const { classId } = res
   router.push({
     path: '/mint-nft',
-    query: { iscn_id: iscnId }
+    query: { class_id: classId }
   })
 }
 
