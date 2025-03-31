@@ -98,15 +98,18 @@
 import { storeToRefs } from 'pinia'
 import ePub from 'epubjs'
 import { BigNumber } from 'bignumber.js'
+import { useSendTransaction, useBalance } from '@wagmi/vue'
+import { waitForTransactionReceipt } from '@wagmi/vue/actions'
+import { parseEther } from 'viem'
 import { encryptDataWithAES } from '~/utils/encryption'
 import { fileToArrayBuffer, digestFileSHA256, calculateIPFSHash, sleep } from '~/utils/index'
 import {
   estimateBundlrFilePrice,
   uploadSingleFileToBundlr
 } from '~/utils/arweave'
-import { sendLIKE } from '~/utils/cosmos'
 import { useWalletStore } from '~/stores/wallet'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
+import { config } from '~/utils/wagmi/config'
 
 const UPLOAD_FILESIZE_MAX = 200 * 1024 * 1024
 
@@ -116,6 +119,8 @@ const { initIfNecessary } = store
 const bookStoreApiStore = useBookStoreApiStore()
 const { token } = storeToRefs(bookStoreApiStore)
 const toast = useToast()
+
+const { sendTransactionAsync } = useSendTransaction()
 
 const fileRecords = ref([])
 const isSizeExceeded = ref(false)
@@ -129,11 +134,15 @@ const arweaveFeeTargetAddress = ref('')
 const sentArweaveTransactionInfo = ref(new Map())
 const isOpenWarningSnackbar = ref(false)
 const error = ref('')
-const balance = ref(new BigNumber(0))
 const signDialogError = ref('')
 const numberOfSignNeeded = ref(0)
 const signProgress = ref(0)
 const isEncryptEBookData = ref(true)
+
+const balance = useBalance({
+  address: wallet.value,
+  unit: 'ether'
+})
 
 const emit = defineEmits(['arweaveUploaded', 'submit'])
 
@@ -362,10 +371,10 @@ const estimateArweaveFee = async (): Promise<void> => {
 
     let totalFee = new BigNumber(0)
     results.forEach((result) => {
-      const { address, arweaveId, LIKE, ipfsHash } = result
-      if (LIKE) {
-        totalFee = totalFee.plus(new BigNumber(LIKE))
-        arweaveFeeMap.value[ipfsHash] = LIKE
+      const { evmAddress, arweaveId, ETH, ipfsHash } = result
+      if (ETH) {
+        totalFee = totalFee.plus(new BigNumber(ETH))
+        arweaveFeeMap.value[ipfsHash] = ETH
       }
       if (arweaveId) {
         sentArweaveTransactionInfo.value.set(ipfsHash, {
@@ -380,7 +389,7 @@ const estimateArweaveFee = async (): Promise<void> => {
         }
       }
       if (!arweaveFeeTargetAddress.value) {
-        arweaveFeeTargetAddress.value = address
+        arweaveFeeTargetAddress.value = evmAddress
       }
     })
 
@@ -474,8 +483,10 @@ const sendArweaveFeeTx = async (record: any, memoIpfsOveride?: string): Promise<
       return transactionInfo.transactionHash
     }
   }
-  await initIfNecessary()
-  if (!signer.value) {
+  if (!wallet.value || !signer.value) {
+    await initIfNecessary()
+  }
+  if (!wallet.value || !signer.value) {
     throw new Error('SIGNER_NOT_INITED')
   }
   if (!arweaveFeeTargetAddress.value) {
@@ -490,13 +501,13 @@ const sendArweaveFeeTx = async (record: any, memoIpfsOveride?: string): Promise<
     fileSize: record.fileBlob?.size || 0
   })
   try {
-    const { transactionHash } = await sendLIKE(
-      wallet.value,
-      arweaveFeeTargetAddress.value,
-      arweaveFeeMap.value[record.ipfsHash],
-      signer.value,
-      memo
-    )
+    const transactionHash = await sendTransactionAsync({
+      to: arweaveFeeTargetAddress.value as `0x${string}`,
+      value: parseEther(arweaveFeeMap.value[record.ipfsHash] as string),
+      data: `0x${Buffer.from(memo, 'utf-8').toString('hex')}`
+    })
+    const receipt = await waitForTransactionReceipt(config, { hash: transactionHash })
+    if (!receipt || receipt.status !== 'success') { throw new Error('INVALID_RECEIPT') }
     if (transactionHash) {
       const existingData =
         sentArweaveTransactionInfo.value.get(record.ipfsHash) || {}
@@ -580,11 +591,8 @@ const onSubmit = async () => {
   uploadStatus.value = 'uploading'
   error.value = ''
   signDialogError.value = ''
-
-  const currentBalance = await getAccountBalance(wallet.value)
-  balance.value = currentBalance
-
-  if (currentBalance.lt(arweaveFee.value)) {
+  console.log(balance)
+  if (!balance || new BigNumber(balance.data).lt(arweaveFee.value)) {
     error.value = 'INSUFFICIENT_BALANCE'
     isOpenWarningSnackbar.value = true
     uploadStatus.value = ''
