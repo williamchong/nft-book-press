@@ -444,7 +444,6 @@
         </template>
       </UProgress>
       <EditISCNMetadataModal
-        ref="editISCNRef"
         v-model="showEditISCNModal"
         :class-id="classId"
         @save="onSaveISCN"
@@ -515,7 +514,6 @@ const mintMaxCount = computed(() => Math.min(classMaxSupply.value || NFT_DEFAULT
 
 const shouldShowDownloadLink = ref(false)
 const showEditISCNModal = ref(false)
-const editISCNRef = ref<any>(null)
 
 watch(iscnId, (newIscnId) => {
   if (newIscnId) {
@@ -953,15 +951,7 @@ function onDownloadNftsCSV (e?: Event) {
 }
 
 function onSaveISCN () {
-  const iscnId = editISCNRef.value?.iscnId
-  const currentVersion = editISCNRef.value?.recordVersion
-  if (iscnId) {
-    router.replace({ query: { ...route.query, iscn_id: `${iscnId}/${currentVersion + 1}` } })
-    iscnIdInput.value = `${iscnId}/${currentVersion + 1}`
-    step.value = 1
-  } else {
-    window.location.reload()
-  }
+  step.value = 1
 }
 
 </script>
