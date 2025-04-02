@@ -1391,10 +1391,9 @@ function shortenAllLinks () {
   }
 }
 
-async function handleOpenRestockModal () {
+function handleOpenRestockModal () {
   showRestockModal.value = true
-  const iscnId = await nftStore.getClassMetadataById(classId.value as string)?.data?.parent?.iscn_id_prefix
-  mintNFT.value?.onISCNIDInput(iscnId)
+  mintNFT.value?.onISCNIDInput(classId.value)
 }
 
 async function handleMintNFTSubmit () {

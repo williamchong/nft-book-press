@@ -1,9 +1,5 @@
 <template>
   <UForm :validate="validate" :state="state" class="flex flex-col gap-[12px]">
-    <UFormGroup label="NFT ID Prefix / 前綴（書本編號）" name="prefix" required>
-      <UInput v-model="state.prefix" placeholder="English only ex.MoneyVerse" />
-    </UFormGroup>
-
     <UFormGroup label="Number of NFT to mint / 鑄造數量（此批）" required>
       <UInput
         v-model="state.mintCount"
@@ -35,10 +31,6 @@
         <UInput v-model="state.externalUrl" placeholder="https://" />
       </UFormGroup>
 
-      <UFormGroup label="URI (optional) / 元資料網址（選填）">
-        <UInput v-model="state.uri" placeholder="https://" />
-      </UFormGroup>
-
       <UFormGroup v-if="showMaxSupply" label="Max number of supply for this NFT Class (optional) / 最大供應量（選填）">
         <template v-if="state.maxSupply && state.maxSupply < state.mintCount" #help>
           <UAlert
@@ -64,11 +56,9 @@
 import type { FormError } from '#ui/types'
 
 interface NFTMintFormState {
-  prefix: string
   mintCount: number
   imageUrl: string
   externalUrl: string
-  uri: string
   maxSupply?: number
 }
 
@@ -90,13 +80,8 @@ const shouldShowAdvanceSettings = ref(false)
 
 const validate = (state: NFTMintFormState): FormError[] => {
   const errors: FormError[] = []
-  const whitespaceRegex = /^[a-zA-Z][a-zA-Z0-9/:-]{2,100}$/
 
-  if (!whitespaceRegex.test(state.prefix)) {
-    errors.push({ path: 'prefix', message: 'NFT ID cannot contain spaces' })
-  }
-
-  if (!state.mintCount || state.mintCount <= 0) {
+  if (state.mintCount < 0) {
     errors.push({ path: 'mintCount', message: 'Mint count must be greater than 0' })
   }
 
