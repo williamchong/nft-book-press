@@ -416,15 +416,13 @@ import { useStripeStore } from '~/stores/stripe'
 import { useNftStore } from '~/stores/nft'
 import { getPortfolioURL } from '~/utils'
 import { escapeHtml, sanitizeHtml } from '~/utils/newClass'
-import { sendNFTsToAPIWallet } from '~/utils/cosmos'
 import { getApiEndpoints } from '~/constant/api'
 
 const { LCD_URL, LIKE_CO_API } = useRuntimeConfig().public
 const walletStore = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
 const stripeStore = useStripeStore()
-const { initIfNecessary } = walletStore
-const { wallet, signer } = storeToRefs(walletStore)
+const { wallet } = storeToRefs(walletStore)
 const { newBookListing, updateEditionPrice } = bookStoreApiStore
 const { fetchStripeConnectStatusByWallet } = stripeStore
 const { getStripeConnectStatusByWallet } = storeToRefs(stripeStore)
@@ -451,7 +449,6 @@ const mdEditorPlaceholder = ref({
 const classIdInput = ref(classId || '')
 const nextPriceIndex = ref(1)
 const hideDownload = ref(false)
-const autoDeliverNftIdInput = ref('')
 const isAllowCustomPrice = ref(true)
 
 const prices = ref<any[]>([
@@ -845,27 +842,6 @@ async function submitNewClass () {
       }))
       : undefined
 
-    const autoDeliverCount = p
-      .filter((price: any) => price.isAutoDeliver)
-      .reduce((acc: number, price: any) => acc + price.stock, 0)
-
-    let autoDeliverNFTsTxHash
-    if (autoDeliverCount > 0) {
-      if (!wallet.value || !signer.value) {
-        await initIfNecessary()
-      }
-      if (!wallet.value || !signer.value) {
-        throw new Error('Unable to connect to wallet')
-      }
-      autoDeliverNFTsTxHash = await sendNFTsToAPIWallet(
-        [classIdInput.value as string],
-        [autoDeliverNftIdInput.value as string],
-        autoDeliverCount,
-        signer.value,
-        wallet.value
-      )
-    }
-
     const shouldEnableCustomMessagePage =
       prices.value.some(price => price.deliveryMethod === 'manual')
 
@@ -878,8 +854,7 @@ async function submitNewClass () {
       shippingRates: s,
       mustClaimToView: true,
       enableCustomMessagePage: shouldEnableCustomMessagePage,
-      hideDownload: hideDownload.value,
-      autoDeliverNFTsTxHash
+      hideDownload: hideDownload.value
     })
     emit('submit')
   } catch (err) {
@@ -949,31 +924,10 @@ async function addNewEdition () {
   try {
     isLoading.value = true
     const p = mapPrices(prices.value)
-    const autoDeliverCount = p
-      .filter((price: any) => price.isAutoDeliver)
-      .reduce((acc: number, price: any) => acc + price.stock, 0)
 
-    let autoDeliverNFTsTxHash
-
-    if (autoDeliverCount > 0) {
-      if (!wallet.value || !signer.value) {
-        await initIfNecessary()
-      }
-      if (!wallet.value || !signer.value) {
-        throw new Error('Unable to connect to wallet')
-      }
-      autoDeliverNFTsTxHash = await sendNFTsToAPIWallet(
-        [classIdInput.value as string],
-        [autoDeliverNftIdInput.value as string],
-        autoDeliverCount,
-        signer.value,
-        wallet.value
-      )
-    }
     const price = p[0]
     await bookStoreApiStore.addEditionPrice(classId.value as string, newEditionIndex.value as string, {
-      price,
-      autoDeliverNFTsTxHash
+      price
     })
 
     emit('submit')
