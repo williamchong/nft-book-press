@@ -2,10 +2,10 @@ import { BigNumber } from 'bignumber.js'
 import type { OfflineSigner } from '@cosmjs/proto-signing'
 import type { DeliverTxResponse } from '@cosmjs/stargate'
 import type { ISCNSignPayload, ISCNSigningClient } from '@likecoin/iscn-js'
+import type { ISCNRegisterPayload } from './iscn.type'
 import { ISCN_GAS_FEE, ISCN_GAS_MULTIPLIER } from '~/constant'
 
-let client: ISCNSigningClient | null = null
-let iscnLib: any = null
+import { getSigningClient } from '~/utils/cosmos'
 
 export async function getISCNLib () {
   if (!iscnLib) {
@@ -63,6 +63,7 @@ export function formatISCNTxPayload (
 
 export async function estimateISCNTxGasAndFee (tx: ISCNSignPayload) {
   const signingClient = await getSigningClient()
+  // typo in the original code
   const res = await signingClient.esimateISCNTxGasAndFee(tx)
   return res
 }
