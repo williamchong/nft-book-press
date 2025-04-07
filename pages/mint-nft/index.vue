@@ -173,14 +173,6 @@
             :padded="false"
           />
         </UFormGroup>
-        <UFormGroup label="ISCN Description">
-          <UInput
-            :value="iscnData?.contentMetadata?.description"
-            :readonly="true"
-            variant="none"
-            :padded="false"
-          />
-        </UFormGroup>
         <UButton
           label="Edit ISCN Metadata"
           @click="showEditISCNModal = true"
