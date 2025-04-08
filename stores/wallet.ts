@@ -3,8 +3,8 @@ import { useAccount, useConnect, useDisconnect, useSignMessage } from '@wagmi/vu
 import { optimism, optimismSepolia } from '@wagmi/vue/chains'
 
 export const useWalletStore = defineStore('wallet', () => {
-  const { connectors, connect: wagmiConnect } = useConnect()
-  const { disconnect: wagmiDisconnect } = useDisconnect()
+  const { connectors, connectAsync: wagmiConnect } = useConnect()
+  const { disconnectAsync: wagmiDisconnect } = useDisconnect()
   const { address, isConnected } = useAccount()
   const { signMessageAsync } = useSignMessage()
 
