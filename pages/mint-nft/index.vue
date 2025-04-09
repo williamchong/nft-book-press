@@ -852,6 +852,7 @@ async function onMintNFTStart () {
       functionName: 'batchMint',
       args: [
         Array(nftMintCount.value).fill(wallet.value),
+        Array(nftMintCount.value).fill(''),
         nfts.map(nft => JSON.stringify({
           image: nft.metadata.image,
           image_data: '',
