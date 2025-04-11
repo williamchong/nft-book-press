@@ -459,7 +459,12 @@ import { NFT_DEFAULT_MINT_AMOUNT, PUBLISHING_NOTICE_URL_EN, PUBLISHING_NOTICE_UR
 import { LIKE_NFT_ABI, LIKE_NFT_CLASS_ABI, LIKE_NFT_CONTRACT_ADDRESS } from '~/contracts/likeNFT'
 import { config } from '~/utils/wagmi/config'
 
-const { getClassOwner, getClassMetadata, checkNFTClassIsBookNFT } = useNFTContractReader()
+const {
+  getClassOwner,
+  getClassMetadata,
+  checkNFTClassIsBookNFT,
+  getClassCurrentTokenId
+} = useNFTContractReader()
 const {
   LCD_URL,
   APP_LIKE_CO_URL,
@@ -674,14 +679,12 @@ async function onClickMintByInputting () {
     }
   }
   const nftsDefaultData = {
-    metadata: {
-      name,
-      description,
-      symbol: 'BOOK',
-      ...contentMetadata,
-      image: imageUrl.value,
-      external_url: externalUrl.value
-    }
+    name,
+    description,
+    symbol: 'BOOK',
+    ...contentMetadata,
+    image: imageUrl.value,
+    external_url: externalUrl.value
   }
   if (typeof nftMintCount.value !== 'number') {
     nftMintCount.value = Number(nftMintCount.value)
@@ -803,7 +806,8 @@ async function onMintNFTStart () {
     if (nftMintListData.value.length && nftMintListData.value.length !== nftMintCount.value) {
       throw new Error(`NFT csv data length ${nftMintListData.value.length} must match nft mint amount ${nftMintCount.value}`)
     }
-    const defaultMetadata = nftMintDefaultData.value.metadata
+    const defaultMetadata = nftMintDefaultData.value
+    const tokenId = await getClassCurrentTokenId(classId.value)
     const nfts = [...Array(nftMintCount.value).keys()].map((i) => {
       const {
         image: dataImage,
@@ -811,7 +815,9 @@ async function onMintNFTStart () {
         ...otherData
       } = nftMintListData?.value?.[i] || {}
       const dataMetadata = JSON.parse(dataMetadataString || '{}')
+      const { name } = defaultMetadata
       const data = { attributes: [], ...defaultMetadata, ...dataMetadata }
+      if (name) { data.name = `${name} #${tokenId + i + 1}` }
       if (dataImage) { data.image = dataImage }
       if (data.author) {
         data.attributes.push({
@@ -849,21 +855,12 @@ async function onMintNFTStart () {
     const res = await writeContractAsync({
       address: classId.value as `0x${string}`,
       abi: LIKE_NFT_CLASS_ABI,
-      functionName: 'batchMint',
+      functionName: 'safeMintWithTokenId',
       args: [
+        tokenId,
         Array(nftMintCount.value).fill(wallet.value),
         Array(nftMintCount.value).fill(''),
-        nfts.map(nft => JSON.stringify({
-          image: nft.metadata.image,
-          image_data: '',
-          external_url: nft.metadata.external_url || '',
-          description: nft.metadata.description || '',
-          name: nft.metadata.name || '',
-          attributes: nft.metadata.attributes || [],
-          background_color: '',
-          animation_url: '',
-          youtube_url: ''
-        }))
+        nfts.map(nft => JSON.stringify(nft.metadata))
       ]
     })
     const receipt = await waitForTransactionReceipt(config, { hash: res })
