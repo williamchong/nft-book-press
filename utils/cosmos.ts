@@ -27,7 +27,7 @@ async function getISCNLib () {
     const [parsing, msgParsing, likenft] = await Promise.all([
       await import(/* webpackChunkName: "iscn" */ '@likecoin/iscn-js/dist/iscn/parsing'),
       await import(/* webpackChunkName: "iscn" */ '@likecoin/iscn-js/dist/messages/parsing'),
-      await import(/* webpackChunkName: "iscn" */ '@likecoin/iscn-js/dist/messages/likenft'),
+      await import(/* webpackChunkName: "iscn" */ '@likecoin/iscn-js/dist/messages/likenft')
     ])
     iscnLib = {
       ...lib,
