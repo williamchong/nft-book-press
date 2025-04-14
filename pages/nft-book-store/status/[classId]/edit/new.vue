@@ -449,7 +449,7 @@ async function handleSubmit () {
     isLoading.value = true
 
     await bookStoreApiStore.addEditionPrice(classId.value as string, priceIndex.value, {
-      price: editedPrice,
+      price: editedPrice
     })
 
     router.push({

@@ -792,7 +792,7 @@ async function submitNewClass () {
       shippingRates: s,
       mustClaimToView: mustClaimToView.value,
       enableCustomMessagePage: enableCustomMessagePage.value,
-      hideDownload: hideDownload.value,
+      hideDownload: hideDownload.value
     })
     router.push({ name: 'nft-book-store' })
   } catch (err) {
