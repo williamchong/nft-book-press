@@ -391,11 +391,8 @@ const submitToArweave = async (record: any): Promise<void> => {
   const existingData =
     sentArweaveTransactionInfo.value.get(record.ipfsHash) || {}
   const { transactionHash, arweaveId: uploadArweaveId } = existingData
-  if (uploadArweaveId) {
-    return
-  }
 
-  if (!record.fileBlob) {
+  if (uploadArweaveId || !record.fileBlob) {
     return
   }
 
@@ -404,17 +401,28 @@ const submitToArweave = async (record: any): Promise<void> => {
   const arrayBuffer = await record.fileBlob.arrayBuffer()
   let buffer = Buffer.from(arrayBuffer)
   let { ipfsHash } = record
-  if (
-    (record.fileType === 'application/epub+zip' ||
-      record.fileType === 'application/pdf') &&
-    isEncryptEBookData.value
-  ) {
-    const { rawEncryptedKeyAsBase64, combinedArrayBuffer } =
-      await encryptDataWithAES({ data: arrayBuffer })
-    buffer = Buffer.from(combinedArrayBuffer)
-    key = rawEncryptedKeyAsBase64
-    ipfsHash = await calculateIPFSHash(buffer)
+
+  const shouldEncrypt =
+      (record.fileType === 'application/epub+zip' ||
+        record.fileType === 'application/pdf') &&
+      isEncryptEBookData.value
+
+  if (shouldEncrypt) {
+    if (!record.encryptedIpfsHash) {
+      const { rawEncryptedKeyAsBase64, combinedArrayBuffer } =
+        await encryptDataWithAES({ data: arrayBuffer })
+      const encryptedBuffer = Buffer.from(combinedArrayBuffer)
+
+      record.encryptionKey = rawEncryptedKeyAsBase64
+      record.encryptedBuffer = encryptedBuffer
+      record.encryptedIpfsHash = await calculateIPFSHash(encryptedBuffer)
+    } else {
+      ipfsHash = record.encryptedIpfsHash || ipfsHash
+      buffer = record.encryptedBuffer || buffer
+      key = record.encryptionKey || undefined
+    }
   }
+
   if (!txHash) {
     // HACK: override ipfsHash memo to match arweave tag later
     txHash = await sendArweaveFeeTx(record, ipfsHash)
@@ -444,7 +452,7 @@ const submitToArweave = async (record: any): Promise<void> => {
     arweaveLink,
     arweaveKey: key
   })
-  if (record.fileName.includes('cover.jpeg')) {
+  if (record.fileName?.endsWith('cover.jpeg')) {
     const metadata = epubMetadataList.value.find(
       (file: any) => file.thumbnailIpfsHash === record.ipfsHash
     )
