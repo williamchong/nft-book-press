@@ -36,6 +36,7 @@
           <NewNFTBook
             ref="newNFTBook"
             class="p-0 flex flex-col text-left gap-[24px]"
+            :is-new-class-page="true"
             @submit="handleNewBookSubmit"
           />
         </div>
@@ -173,8 +174,8 @@ const steps = [
     description: 'Mint NFT'
   },
   {
-    title: '設定上架資訊',
-    description: 'Set up listing information'
+    title: '新書發佈',
+    description: 'Publish new book'
   }
 ]
 
@@ -255,12 +256,12 @@ const handleIscnSubmit = async (res: { iscnId: string, txHash: string }) => {
 }
 
 const handleMintNFTSubmit = async (res: any) => {
-  const { classId, nftMintCount } = res
+  const { classId, nftMintCount, prefix } = res
   if (classId) {
     router.replace({ query: { class_id: classId } })
   }
   updateUploadFileData({
-    classData: { classId, nftMintCount }
+    classData: { classId, nftMintCount, prefix }
   })
   step.value = 3
   await nextTick()
@@ -269,6 +270,7 @@ const handleMintNFTSubmit = async (res: any) => {
 
 const handleNewBookSubmit = () => {
   clearUploadData()
+  router.push({ name: 'nft-book-store' })
 }
 
 const handleIscnInput = async () => {
