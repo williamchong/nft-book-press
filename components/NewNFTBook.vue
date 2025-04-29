@@ -142,14 +142,6 @@
                   />
 
                   <div v-if="p.deliveryMethod === 'auto'" class="pl-8 space-y-2">
-                    <UFormGroup label="Start ID (optional) / 起始 ID（選填）">
-                      <UInput
-                        v-model="autoDeliverNftIdInput"
-                        class="font-mono"
-                        placeholder="BOOKSN-0000"
-                      />
-                    </UFormGroup>
-
                     <UFormGroup label="Memo / 發書留言">
                       <UInput
                         v-model="p.autoMemo"
@@ -418,7 +410,7 @@ import { getPortfolioURL } from '~/utils'
 import { escapeHtml, sanitizeHtml } from '~/utils/newClass'
 import { getApiEndpoints } from '~/constant/api'
 
-const { LCD_URL, LIKE_CO_API } = useRuntimeConfig().public
+const { LIKE_CO_API } = useRuntimeConfig().public
 const walletStore = useWalletStore()
 const bookStoreApiStore = useBookStoreApiStore()
 const stripeStore = useStripeStore()
@@ -432,6 +424,7 @@ const nftStore = useNftStore()
 const emit = defineEmits(['submit'])
 const router = useRouter()
 const route = useRoute()
+const { lazyFetchClassMetadataById } = nftStore
 const classId = ref(
   route.params.classId || (route.query.class_id as string)
 )
@@ -510,7 +503,6 @@ const submitButtonText = computed(() =>
   isEditMode.value ? 'Save Changes' : 'Submit'
 )
 const shouldShowAdvanceSettings = ref<boolean>(false)
-const iscnId = ref('')
 
 const moderatorWalletsTableColumns = computed(() => [
   { key: 'wallet', label: 'Wallet', sortable: true },
@@ -634,19 +626,9 @@ watch(isLoading, (newIsLoading) => {
 })
 
 watch(classId, async (newClassId) => {
-  if (newClassId && !iscnId.value) {
-    // Fetch ISCN data
-    if (!iscnId.value) {
-      iscnId.value = await getIscnId()
-    }
-    if (!iscnId.value) { return }
-    const data = await $fetch(`${LCD_URL}/iscn/records/id?iscn_id=${encodeURIComponent(iscnId.value)}`)
-    const { records } = data as any
-
-    if (!records?.[0]?.data) { return }
-
-    iscnData.value = records[0].data
-    const fingerprints = iscnData?.value.contentFingerprints
+  if (newClassId) {
+    const data = await lazyFetchClassMetadataById(newClassId as string)
+    const fingerprints = data?.contentFingerprints
     if (fingerprints && isContentFingerPrintEncrypted(fingerprints)) {
       hideDownload.value = true
     }
@@ -793,6 +775,7 @@ async function onSubmit () {
 
   }
 }
+
 async function submitNewClass () {
   try {
     if (!classIdInput.value) {
@@ -807,11 +790,8 @@ async function submitNewClass () {
 
     isLoading.value = true
 
-    const data = await $fetch(
-      `${LCD_URL}/cosmos/nft/v1beta1/classes/${classIdInput.value}`
-    )
-    const collectionId =
-      (data as any)?.class?.data?.metadata?.nft_meta_collection_id || ''
+    const data = await lazyFetchClassMetadataById(classIdInput.value as string)
+    const collectionId = data?.nft_meta_collection_id || ''
     if (
       !collectionId.includes('nft_book') &&
       !collectionId.includes('book_nft')
@@ -880,32 +860,7 @@ async function submitEditedClass () {
 
     isLoading.value = true
 
-    let newAutoDeliverNFTsCount = 0
-    if (editedPrice.isAutoDeliver) {
-      newAutoDeliverNFTsCount = oldIsAutoDeliver.value
-        ? editedPrice.stock - oldStock.value
-        : editedPrice.stock
-    }
-
-    let autoDeliverNFTsTxHash
-    if (newAutoDeliverNFTsCount > 0) {
-      if (!wallet.value || !signer.value) {
-        await initIfNecessary()
-      }
-      if (!wallet.value || !signer.value) {
-        throw new Error('Unable to connect to wallet')
-      }
-      autoDeliverNFTsTxHash = await sendNFTsToAPIWallet(
-        [classIdInput.value as string],
-        [autoDeliverNftIdInput.value as string],
-        newAutoDeliverNFTsCount,
-        signer.value,
-        wallet.value
-      )
-    }
-
     await updateEditionPrice(classId.value as string, editionIndex.value, {
-      autoDeliverNFTsTxHash,
       price: editedPrice
     })
 
@@ -939,7 +894,7 @@ async function addNewEdition () {
   }
 }
 
-async function updateClassId ({ classId: newClassId, nftMintCount } : {
+function updateClassId ({ classId: newClassId, nftMintCount } : {
   classId: string
   nftMintCount?: number
 }) {
@@ -948,21 +903,6 @@ async function updateClassId ({ classId: newClassId, nftMintCount } : {
   if (nftMintCount) {
     prices.value[0].stock = nftMintCount
   }
-  if (!iscnId.value) {
-    iscnId.value = await getIscnId()
-  }
-}
-
-async function getIscnId () {
-  const classData = await nftStore.lazyFetchClassMetadataById(
-    classId.value as string
-  )
-  if (classData?.data?.parent) {
-    const parent = classData.data.parent
-    return parent?.iscn_id_prefix
-  }
-
-  return ''
 }
 
 defineExpose({
