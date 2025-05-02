@@ -139,7 +139,7 @@
                   <URadio
                     v-model="p.deliveryMethod"
                     value="auto"
-                    :disabled="p.isPhysicalOnly"
+                    :disabled="p.isPhysicalOnly || (isEditMode && !oldIsAutoDeliver)"
                     name="deliveryMethod"
                     label="Auto delivery / 自動發書"
                     @change="handleDeliveryMethodChange"
@@ -175,7 +175,11 @@
                     @change="handleDeliveryMethodChange"
                   />
                   <div v-if="p.deliveryMethod === 'manual'" class="pl-8 space-y-2">
-                    <UFormGroup label="Autograph image / 簽名圖">
+                    <UFormGroup>
+                      <template #label>
+                        <p>Autograph image / 簽名圖</p>
+                        <span class="text-gray-500 text-[12px]">僅限 png 圖檔，檔案大小不超過 10MB</span>
+                      </template>
                       <UInput
                         type="file"
                         accept="image/*"
@@ -197,6 +201,7 @@
                 <UCheckbox
                   v-model="p.hasShipping"
                   name="hasShipping"
+                  :disabled="(isEditMode && !p.hasShipping)"
                   label="Includes physical good that requires shipping / 包含需要運送的實體商品"
                 />
                 <ShippingRatesRateTable
@@ -521,6 +526,8 @@ const isStripeConnectChecked = ref(false)
 const stripeConnectWallet = ref('')
 const shouldDisableStripeConnectSetting = ref(false)
 const isUsingDefaultAccount = ref(true)
+const oldIsAutoDeliver = ref(false)
+const oldStock = ref(0)
 
 const toolbarOptions = ref<ToolbarNames[]>([
   'bold',
@@ -634,8 +641,10 @@ onMounted(async () => {
             hasShipping: currentEdition.hasShipping,
             isPhysicalOnly: currentEdition.isPhysicalOnly,
             isAllowCustomPrice: currentEdition.isAllowCustomPrice,
-            isUnlisted: false
+            isUnlisted: currentEdition.isUnlisted
           }]
+          oldIsAutoDeliver.value = currentEdition.isAutoDeliver
+          oldStock.value = currentEdition.stock
         } else {
           throw new Error('No prices found')
         }
@@ -976,12 +985,37 @@ async function submitEditedClass () {
       )
     }
     const p = mapPrices(prices.value)
-    const price = p[0]
+    const editedPrice = p[0]
 
     isLoading.value = true
 
+    let newAutoDeliverNFTsCount = 0
+    if (editedPrice.isAutoDeliver) {
+      newAutoDeliverNFTsCount = oldIsAutoDeliver.value
+        ? editedPrice.stock - oldStock.value
+        : editedPrice.stock
+    }
+
+    let autoDeliverNFTsTxHash
+    if (newAutoDeliverNFTsCount > 0) {
+      if (!wallet.value || !signer.value) {
+        await initIfNecessary()
+      }
+      if (!wallet.value || !signer.value) {
+        throw new Error('Unable to connect to wallet')
+      }
+      autoDeliverNFTsTxHash = await sendNFTsToAPIWallet(
+        [classIdInput.value as string],
+        [autoDeliverNftIdInput.value as string],
+        newAutoDeliverNFTsCount,
+        signer.value,
+        wallet.value
+      )
+    }
+
     await updateEditionPrice(classId.value as string, editionIndex.value, {
-      price
+      autoDeliverNFTsTxHash,
+      price: editedPrice
     })
 
     router.push({ name: 'nft-book-store' })
