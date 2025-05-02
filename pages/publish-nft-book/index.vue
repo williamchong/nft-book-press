@@ -55,14 +55,22 @@
       <div v-if="step === 0" class="flex flex-col justify-center px-[12px] mt-[16px]">
         <div class="w-full bg-gray-300 h-[1px]" />
         <div class="flex flex-col items-center gap-4 py-4">
-          <div class="flex items-center">
-            <span>已經有 ISCN ID 了？ 按</span>
-            <UButton
-              variant="ghost"
-              @click="showIscnInput = !showIscnInput"
-            >
-              這裡
-            </UButton>
+          <div class="flex flex-col items-center">
+            <div v-if="hasExistingSessionData">
+              繼續上次的註冊:
+              <UButton variant="ghost" class="text-primary-500 font-semibold" @click="step = 1">
+                {{ bookName }}
+              </UButton>
+            </div>
+            <div class="flex items-center">
+              <span>已經有 ISCN ID 了？ 按</span>
+              <UButton
+                variant="ghost"
+                @click="showIscnInput = !showIscnInput"
+              >
+                這裡
+              </UButton>
+            </div>
           </div>
 
           <div v-if="showIscnInput" class="flex flex-col items-center gap-2 w-full max-w-md">
@@ -93,16 +101,13 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useWalletStore } from '~/stores/wallet'
-import { useUploadStore } from '~/stores/upload'
+import { clearUploadFileData, setUploadFileData } from '~/utils/uploadFile'
 
 const walletStore = useWalletStore()
 const { wallet, signer } = storeToRefs(walletStore)
 const { initIfNecessary } = walletStore
 const route = useRoute()
 const router = useRouter()
-
-const uploadStore = useUploadStore()
-const { updateUploadFileData, clearUploadData, setUploadFileData } = uploadStore
 const { APP_LIKE_CO_URL } = useRuntimeConfig().public
 
 const step = ref(0)
@@ -113,6 +118,11 @@ const newNFTBook = ref()
 const toast = useToast()
 const showIscnInput = ref(false)
 const iscnInputValue = ref('')
+const bookName = ref('')
+
+const hasExistingSessionData = computed(() => {
+  return !bookName.value
+})
 const currentActionText = computed(() => {
   switch (step.value) {
     case 0:
@@ -192,16 +202,12 @@ onMounted(() => {
   }
 
   if (iscnId.value) {
-    if (data?.iscnRecord?.iscnId !== iscnId.value) {
-      clearUploadData()
-    }
     iscnInputValue.value = iscnId.value as string
     handleIscnSubmit({ iscnId: iscnId.value as string, txHash: '' })
   } else if (classId.value) {
-    if (data?.classData?.classId !== classId.value) {
-      clearUploadData()
-    }
     handleMintNFTSubmit({ classId: classId.value })
+  } else if (data?.epubMetadata && data?.fileRecords) {
+    bookName.value = data?.epubMetadata?.title
   }
 })
 
@@ -245,31 +251,27 @@ const handleUploadSubmit = (uploadFileData: any) => {
 }
 
 const handleIscnSubmit = async (res: { iscnId: string, txHash: string }) => {
-  updateUploadFileData({ iscnRecord: res })
   const { iscnId } = res
   if (iscnId) {
     router.replace({ query: { iscn_id: iscnId } })
   }
+  clearUploadFileData()
   step.value = 2
   await nextTick()
   mintNFT.value?.onISCNIDInput(iscnId)
 }
 
 const handleMintNFTSubmit = async (res: any) => {
-  const { classId, nftMintCount, prefix } = res
+  const { classId, nftMintCount } = res
   if (classId) {
     router.replace({ query: { class_id: classId } })
   }
-  updateUploadFileData({
-    classData: { classId, nftMintCount, prefix }
-  })
   step.value = 3
   await nextTick()
   newNFTBook.value?.updateClassId({ classId, nftMintCount })
 }
 
 const handleNewBookSubmit = () => {
-  clearUploadData()
   router.push({ name: 'nft-book-store' })
 }
 
