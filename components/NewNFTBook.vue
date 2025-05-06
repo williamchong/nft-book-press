@@ -595,7 +595,12 @@ onMounted(async () => {
     isLoading.value = true
 
     if (isEditMode.value) {
-      await fetchStripeConnectStatusByWallet(wallet.value)
+      try {
+        await fetchStripeConnectStatusByWallet(wallet.value)
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error(err)
+      }
       const classResData: any = await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId.value}`, {
         headers: {
           authorization: `Bearer ${token.value}`
