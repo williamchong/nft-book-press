@@ -245,6 +245,7 @@ async function handleSave () {
       color: 'blue'
     })
     emit('save')
+    await nftStore.fetchClassMetadataById(props.classId)
     handleClickBack()
   } catch (error) {
     toast.add({
