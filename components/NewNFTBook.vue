@@ -97,6 +97,7 @@
                   type="number"
                   step="1"
                   :min="0"
+                  :max="maxSupply"
                 />
               </UFormGroup>
               <UFormGroup label="Product Name" :ui="{ container: 'space-y-2' }">
@@ -400,7 +401,12 @@ import 'md-editor-v3/lib/style.css'
 import { v4 as uuidv4 } from 'uuid'
 import type { FormError } from '#ui/types'
 
-import { DEFAULT_PRICE, MINIMAL_PRICE } from '~/constant'
+import {
+  DEFAULT_PRICE,
+  MINIMAL_PRICE,
+  DEFAULT_MAX_SUPPLY,
+  DEFAULT_STOCK
+} from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
 import { useStripeStore } from '~/stores/stripe'
@@ -420,8 +426,9 @@ const { getStripeConnectStatusByWallet } = storeToRefs(stripeStore)
 const { token } = storeToRefs(bookStoreApiStore)
 const nftStore = useNftStore()
 
+const { getNFTClassConfig } = useNFTContractReader()
+
 const emit = defineEmits(['submit'])
-const route = useRoute()
 const editionIndex = computed(() => {
   return props.editionIndex
 })
@@ -446,7 +453,7 @@ const prices = ref<any[]>([
     price: DEFAULT_PRICE,
     deliveryMethod: 'auto',
     autoMemo: 'Thank you for your support. It means a lot to me.',
-    stock: Number((route.query.count as string) || 1),
+    stock: DEFAULT_STOCK,
     name: '標準版',
 
     nameEn: 'Standard Edition',
@@ -472,6 +479,15 @@ const stripeConnectWallet = ref('')
 const shouldDisableStripeConnectSetting = ref(false)
 const isUsingDefaultAccount = ref(true)
 const iscnData = ref<any>(null)
+
+const maxSupply = computed(() => {
+  if (isEditMode.value) {
+    return classMaxSupply.value - otherExistingStock.value
+  }
+  return classMaxSupply.value
+})
+const otherExistingStock = ref(0)
+const classMaxSupply = ref(DEFAULT_MAX_SUPPLY)
 
 const toolbarOptions = ref<ToolbarNames[]>([
   'bold',
@@ -552,6 +568,9 @@ useSeoMeta({
 onMounted(async () => {
   try {
     isLoading.value = true
+    classMaxSupply.value = Number(((await getNFTClassConfig(
+      classId.value as string
+    )) as any)?.max_supply || DEFAULT_MAX_SUPPLY)
 
     if (isEditMode.value) {
       if (wallet.value) {
@@ -602,6 +621,12 @@ onMounted(async () => {
             oldStock: currentEdition.stock
           }]
           isAllowCustomPrice.value = currentEdition.isAllowCustomPrice
+          otherExistingStock.value = classResData.prices.reduce((acc: number, price: any) => {
+            if (price.index.toString() !== editionIndex.value) {
+              return acc + price.stock
+            }
+            return acc
+          }, 0)
         } else {
           throw new Error('No prices found')
         }
