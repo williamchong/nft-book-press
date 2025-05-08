@@ -423,7 +423,11 @@ import { MdEditor, type ToolbarNames, config } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import DOMPurify from 'dompurify'
 
-import { DEFAULT_PRICE, MINIMAL_PRICE } from '~/constant'
+import {
+  DEFAULT_PRICE,
+  MINIMAL_PRICE,
+  DEFAULT_STOCK
+} from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
 import { useNftStore } from '~/stores/nft'
@@ -443,7 +447,6 @@ const { fetchStripeConnectStatusByWallet } = stripeStore
 const { getStripeConnectStatusByWallet } = storeToRefs(stripeStore)
 
 const router = useRouter()
-const route = useRoute()
 
 const error = ref('')
 const isLoading = ref(false)
@@ -463,7 +466,7 @@ const classIdInput = ref('')
 const classIds = ref<string[]>([])
 const price = ref({
   price: DEFAULT_PRICE,
-  stock: Number(route.query.count as string || 1),
+  stock: DEFAULT_STOCK,
   hasShipping: false,
   isPhysicalOnly: false,
   isAllowCustomPrice: true,
