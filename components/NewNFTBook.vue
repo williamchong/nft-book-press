@@ -159,6 +159,7 @@
                     :disabled="isEditMode && p.oldIsAutoDeliver"
                     name="deliveryMethod"
                     label="Manual delivery / 手動發書"
+                    @click="onClickManualDelivery(p)"
                   />
                 </div>
               </div>
@@ -426,7 +427,7 @@ const { getStripeConnectStatusByWallet } = storeToRefs(stripeStore)
 const { token } = storeToRefs(bookStoreApiStore)
 const nftStore = useNftStore()
 
-const { getNFTClassConfig } = useNFTContractReader()
+const { getNFTClassConfig, getBalanceOf } = useNFTContractReader()
 
 const emit = defineEmits(['submit'])
 const editionIndex = computed(() => {
@@ -486,8 +487,13 @@ const maxSupply = computed(() => {
   }
   return classMaxSupply.value
 })
+const availableManualStock = computed(() => {
+  return Math.max(ownedCount.value - otherExistingManualStock.value, 0)
+})
 const otherExistingStock = ref(0)
+const otherExistingManualStock = ref(0)
 const classMaxSupply = ref(DEFAULT_MAX_SUPPLY)
+const ownedCount = ref(0)
 
 const toolbarOptions = ref<ToolbarNames[]>([
   'bold',
@@ -568,9 +574,12 @@ useSeoMeta({
 onMounted(async () => {
   try {
     isLoading.value = true
-    classMaxSupply.value = Number(((await getNFTClassConfig(
-      classId.value as string
-    )) as any)?.max_supply || DEFAULT_MAX_SUPPLY)
+    const [bookConfig, balance] = await Promise.all([
+      getNFTClassConfig(classId.value as string),
+      wallet.value ? getBalanceOf(classId.value as string, wallet.value) : 0
+    ])
+    classMaxSupply.value = Number((bookConfig as any)?.max_supply) || DEFAULT_MAX_SUPPLY
+    ownedCount.value = Number(balance) || 0
 
     if (isEditMode.value || editionIndex.value !== undefined) {
       if (wallet.value) {
@@ -632,6 +641,12 @@ onMounted(async () => {
           }
           return acc
         }, 0)
+        otherExistingManualStock.value = classResData.prices.reduce((acc: number, price: any) => {
+          if (price.index.toString() !== editionIndex.value && !price.isAutoDeliver) {
+            return acc + price.stock
+          }
+          return acc
+        }, 0)
       } else {
         throw new Error('NFT Class not found')
       }
@@ -672,6 +687,10 @@ function isContentFingerPrintEncrypted (contentFingerprints: any[]) {
   return contentFingerprints.some((fingerprint) => {
     return !!fingerprint.startsWith(arweaveLinkEndpoint) || fingerprint.includes('?key=')
   })
+}
+
+function onClickManualDelivery (price: any) {
+  price.stock = Math.min(availableManualStock.value, price.stock)
 }
 
 function addMorePrice () {
