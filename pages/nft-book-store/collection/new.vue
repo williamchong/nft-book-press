@@ -48,7 +48,7 @@
             type="number"
             step="1"
             :min="0"
-            :max="Number(route.query.count) || undefined"
+            :max="DEFAULT_MAX_SUPPLY"
           />
         </UFormGroup>
       </UCard>
@@ -406,7 +406,8 @@ import DOMPurify from 'dompurify'
 import {
   DEFAULT_PRICE,
   MINIMAL_PRICE,
-  DEFAULT_STOCK
+  DEFAULT_STOCK,
+  DEFAULT_MAX_SUPPLY
 } from '~/constant'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
