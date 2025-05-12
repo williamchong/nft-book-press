@@ -1,5 +1,5 @@
 <template>
-  <UModal :model-value="modelValue" :ui="{ width: 'min-w-[80vw]' }">
+  <UModal :model-value="showOpenModal" :ui="{ width: 'min-w-[80vw]' }">
     <UCard
       :ui="{
         header: { base: 'flex justify-between items-center' },
@@ -26,7 +26,10 @@
         color="primary"
         class="w-full"
       />
-      <ISCNForm v-else ref="iscnFormRef" v-model="iscnData" />
+      <ISCNForm
+        v-else
+        v-model="iscnData"
+      />
       <template #footer>
         <div class="w-full flex justify-center items-center gap-2">
           <UButton color="gray" variant="soft" @click="handleClickBack">
@@ -65,25 +68,21 @@ const { initIfNecessary } = walletStore
 const route = useRoute()
 
 const props = defineProps<{
-  modelValue: boolean
   classId?: string
 }>()
 
-const emit = defineEmits<{(e: 'update:modelValue',
-  value: boolean): void
-  (e: 'save'): void
+const showOpenModal = defineModel<boolean>('modelValue')
+
+// eslint-disable-next-line func-call-spacing
+const emit = defineEmits<{
+  (e: 'save', iscnId: string): void
 }>()
 
 const iscnId = ref('')
 const classData = ref({} as any)
-const iscnFormRef = ref()
 const isSaving = ref(false)
 const isISCNLoading = ref(false)
 const recordVersion = ref(0)
-
-const isFormValid = computed(() => {
-  return iscnFormRef.value?.isFormValid || false
-})
 
 const iscnData = ref({
   type: 'Book',
@@ -114,11 +113,23 @@ const iscnData = ref({
 
 const { payload } = useISCN(iscnData)
 
+const isFormValid = computed(() => {
+  const requiredFields = {
+    title: !!iscnData.value.title,
+    description: !!iscnData.value.description,
+    authorName: !!iscnData.value.author.name,
+    contentUrl: !!iscnData.value.contentFingerprints.some(f => !!f.url)
+  }
+
+  return Object.entries(requiredFields)
+    .find(([_, isValid]) => !isValid)?.[0]?.toUpperCase() || ''
+})
+
 watchEffect(async () => {
   if (route.query.iscn_id) {
     iscnId.value = (route.query.iscn_id as string).replace(/\/\d+$/, '')
   }
-  if (props.modelValue && (props.classId || iscnId.value)) {
+  if (showOpenModal.value && (props.classId || iscnId.value)) {
     try {
       isISCNLoading.value = true
       if (props.classId) {
@@ -192,7 +203,7 @@ watchEffect(async () => {
 })
 
 function handleClickBack () {
-  emit('update:modelValue', false)
+  showOpenModal.value = false
 }
 
 function parseDownloadableUrl (url: string) {
@@ -250,7 +261,7 @@ async function handleSave () {
       title: 'ISCN updated successfully',
       color: 'blue'
     })
-    emit('save')
+    emit('save', iscnId.value)
     handleClickBack()
   } catch (error) {
     toast.add({
@@ -262,10 +273,5 @@ async function handleSave () {
     isSaving.value = false
   }
 }
-
-defineExpose({
-  recordVersion,
-  iscnId
-})
 
 </script>

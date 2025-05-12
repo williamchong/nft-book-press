@@ -207,6 +207,8 @@
         </template>
         <UploadForm
           ref="uploadFormRef"
+          @file-upload-status="(status) => (uploadStatus = status)"
+          @file-ready="(records) => (fileRecords = records)"
           @submit="handleUploadSubmit"
         />
         <template #footer>
@@ -268,13 +270,16 @@ interface ISCNFormData {
 
 const shouldShowUploadModal = ref(false)
 const uploadFormRef = ref()
+const fileRecords = ref([])
+const uploadStatus = ref('')
 
 const props = defineProps<{
   modelValue: ISCNFormData
 }>()
 
-const emit = defineEmits<{(e: 'update:modelValue',
-  value: ISCNFormData): void
+// eslint-disable-next-line func-call-spacing
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: ISCNFormData): void
 }>()
 
 const formData = computed({
@@ -284,23 +289,12 @@ const formData = computed({
   }
 })
 
-const isFormValid = computed(() => {
-  const requiredFields = {
-    title: !!formData.value.title,
-    description: !!formData.value.description,
-    authorName: !!formData.value.author.name,
-    contentUrl: !!formData.value.contentFingerprints.some(f => !!f.url)
-  }
-
-  return Object.values(requiredFields).every(Boolean)
-})
-
 const hasFiles = computed(() => {
-  return uploadFormRef.value?.fileRecords?.length > 0
+  return fileRecords.value?.length > 0
 })
 
 const shouldDisableAction = computed(() => {
-  return uploadFormRef.value?.uploadStatus !== ''
+  return uploadStatus.value !== ''
 })
 
 const addContentFingerprint = () => {
@@ -382,11 +376,6 @@ const handleUploadSubmit = (uploadData: any) => {
 
   shouldShowUploadModal.value = false
 }
-
-defineExpose({
-  isFormValid
-})
-
 </script>
 
 <style scoped>

@@ -23,20 +23,33 @@
         <div v-if="step === 0">
           <UploadForm
             ref="uploadFormRef"
+            @file-upload-status="(status) => (uploadStatus = status)"
+            @file-ready="(records) => (fileRecords = records)"
             @submit="handleUploadSubmit"
           />
         </div>
         <div v-else-if="step === 1">
-          <RegisterISCN ref="registerISCN" @submit="handleIscnSubmit" />
+          <RegisterISCN
+            ref="registerISCN"
+            @form-valid-change="(valid) => (isISCNFormValid = valid)"
+            @submit="handleIscnSubmit"
+          />
         </div>
         <div v-else-if="step === 2">
-          <MintNFT ref="mintNFT" @submit="handleMintNFTSubmit" />
+          <MintNFT
+            ref="mintNFT"
+            :iscn-id="localIscnId"
+            @loading-change="(isLoading) => (isMintLoading = isLoading)"
+            @form-valid-change="(valid) => (isMintFormValid = valid)"
+            @submit="handleMintNFTSubmit"
+          />
         </div>
         <div v-else-if="step === 3">
           <NewNFTBook
             ref="newNFTBook"
             class="p-0 flex flex-col text-left gap-[24px]"
             :is-new-class-page="true"
+            :class-id="classId"
             @submit="handleNewBookSubmit"
           />
         </div>
@@ -114,11 +127,17 @@ const step = ref(0)
 const uploadFormRef = ref()
 const registerISCN = ref()
 const mintNFT = ref()
-const newNFTBook = ref()
 const toast = useToast()
 const showIscnInput = ref(false)
 const iscnInputValue = ref('')
 const bookName = ref('')
+const localIscnId = ref('')
+
+const fileRecords = ref([])
+const uploadStatus = ref('')
+const isISCNFormValid = ref(false)
+const isMintFormValid = ref(false)
+const isMintLoading = ref(false)
 
 const hasExistingSessionData = computed(() => {
   return !!bookName.value
@@ -137,7 +156,7 @@ const currentActionText = computed(() => {
 })
 
 const hasFiles = computed(() => {
-  return uploadFormRef.value?.fileRecords?.length > 0
+  return fileRecords.value?.length > 0
 })
 
 const shouldShowActionButton = computed(() => {
@@ -149,11 +168,11 @@ const shouldShowActionButton = computed(() => {
 
 const shouldDisableAction = computed(() => {
   if (step.value === 0) {
-    return uploadFormRef.value?.uploadStatus !== ''
+    return uploadStatus.value !== ''
   } else if (step.value === 1) {
-    return !registerISCN.value?.isFormValid
+    return !isISCNFormValid.value
   } else if (step.value === 2) {
-    return !mintNFT.value?.isFormValid
+    return !isMintFormValid.value || isMintLoading.value
   }
   return false
 })
@@ -167,7 +186,7 @@ const iscnId = computed(() => {
 })
 
 const classId = computed(() => {
-  return route.query.class_id
+  return route.query.class_id?.toString() || ''
 })
 
 const steps = [
@@ -192,7 +211,7 @@ const steps = [
 onMounted(() => {
   let data = null
   try {
-    const sessionData = sessionStorage.getItem('uploadFileData')
+    const sessionData = sessionStorage.getItem(FILE_UPLOAD_KEY)
     if (sessionData) {
       data = JSON.parse(sessionData)
     }
@@ -234,13 +253,14 @@ const nextStep = async () => {
       return
     }
     if (step.value === 2) {
-      await mintNFT.value.onClickMintByInputting()
+      await mintNFT.value.startNFTMintFlow()
       return
     }
     if (step.value < steps.length - 1) {
       step.value++
     }
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error during form submission:', error)
   }
 }
@@ -258,16 +278,15 @@ const handleIscnSubmit = async (res: { iscnId: string, txHash: string }) => {
   clearUploadFileData()
   step.value = 2
   await nextTick()
-  mintNFT.value?.onISCNIDInput(iscnId)
+  localIscnId.value = iscnId
 }
 
 const handleMintNFTSubmit = async (res: any) => {
   const { classId, nftMintCount } = res
   if (classId) {
-    router.replace({ query: { class_id: classId } })
+    router.replace({ query: { class_id: classId, count: nftMintCount } })
     step.value = 3
     await nextTick()
-    newNFTBook.value?.updateClassId({ classId, nftMintCount })
   }
 }
 

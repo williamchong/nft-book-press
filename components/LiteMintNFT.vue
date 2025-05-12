@@ -21,7 +21,6 @@
       </template>
 
       <NFTMintForm
-        ref="formRef"
         v-model="formState"
         :max-supply="classMaxSupply"
         :show-max-supply="false"
@@ -50,7 +49,7 @@
           :loading="isLoading"
           size="lg"
           :disabled="isLoading"
-          @click="onClickMintByInputting"
+          @click="startNFTMintFlow"
         />
       </div>
     </UCard>
@@ -75,6 +74,7 @@ const error = ref('')
 const isLoading = ref(false)
 
 const iscnData = ref<any>(null)
+const localISCNId = ref('')
 
 const classData = ref<any>(null)
 const classMaxSupply = ref<number | undefined>(undefined)
@@ -84,9 +84,10 @@ const nftMintListData = ref<any>([])
 const nftMintDefaultData = ref<any>(null)
 const nftData = ref<any>(null)
 const existingNftCount = ref(0)
-const iscnOwner = ref('')
 
 const classId = ref<string>(route.params.classId as string || '')
+
+const iscnOwner = computed(() => iscnData.value?.owner || '')
 
 const formState = reactive({
   prefix: 'BOOKSN',
@@ -97,19 +98,34 @@ const formState = reactive({
   maxSupply: undefined
 })
 
-const formRef = ref()
 const { LCD_URL } = useRuntimeConfig().public
+const emit = defineEmits(['submit', 'formValidChange'])
 
-const isFormValid = computed(() => {
-  return formRef.value?.validate(formState).length === 0
+const formError = computed(() => {
+  const requiredFields = {
+    prefix: !!formState.prefix,
+    mintCount: !!formState.mintCount,
+    imageUrl: !!formState.imageUrl
+  }
+
+  return Object.entries(requiredFields)
+    .find(([_, isValid]) => !isValid)?.[0]?.toUpperCase() || ''
 })
+
+const isFormValid = computed(() => !formError.value)
+
+watch(isFormValid, (val: boolean) => {
+  emit('formValidChange', val)
+}, { immediate: true })
 
 const isCreateClass = computed(() => {
   return !classId.value
 })
-
-const emit = defineEmits(['submit'])
-const iscnId = ref('')
+watch(isLoading, (val: boolean) => {
+  if (val) {
+    error.value = ''
+  }
+}, { immediate: true })
 
 const props = defineProps({
   iscnData: {
@@ -119,21 +135,22 @@ const props = defineProps({
   shouldShowSubmit: {
     type: Boolean,
     default: true
+  },
+  iscnId: {
+    type: String,
+    default: ''
   }
 })
 
-watch(isLoading, (newIsLoading) => {
-  if (newIsLoading) { error.value = '' }
-})
-
-watch(() => props.iscnData, (recordData) => {
-  if (recordData) {
-    iscnData.value = recordData
-    iscnId.value = recordData['@id']
-    iscnOwner.value = recordData.owner
-    formState.imageUrl = recordData.contentMetadata?.thumbnailUrl || ''
+watchEffect(async () => {
+  if (props.iscnData) {
+    iscnData.value = props.iscnData
+    localISCNId.value = props.iscnData['@id']
+    formState.imageUrl = props.iscnData.contentMetadata?.thumbnailUrl || ''
+  } else if (props.iscnId) {
+    await fetchISCNById(props.iscnId)
   }
-}, { immediate: true })
+})
 
 async function onClassFileInput () {
   try {
@@ -144,7 +161,7 @@ async function onClassFileInput () {
     if (!wallet.value || !signer.value) { return }
     if (!classCreateData.value) { throw new Error('NO_CLASS_DATA') }
     if (iscnOwner.value !== wallet.value) { throw new Error('INVALID_OWNER') }
-    const newClassId = await signCreateNFTClass(classCreateData.value, iscnId.value, signer.value, wallet.value, { nftMaxSupply: classMaxSupply.value })
+    const newClassId = await signCreateNFTClass(classCreateData.value, localISCNId.value, signer.value, wallet.value, { nftMaxSupply: classMaxSupply.value })
     await signCreateRoyltyConfig(newClassId, iscnData.value, iscnOwner.value, false, signer.value, wallet.value)
     const data = await $fetch(`${LCD_URL}/cosmos/nft/v1beta1/classes/${encodeURIComponent(newClassId)}`)
     if (!data) { throw new Error('INVALID_NFT_CLASS_ID') }
@@ -186,7 +203,7 @@ function generateNFTMintListData ({
   return dataRows
 }
 
-async function onClickMintByInputting () {
+async function startNFTMintFlow () {
   try {
     isLoading.value = true
     const { contentMetadata } = iscnData.value
@@ -247,7 +264,7 @@ async function onClickMintByInputting () {
       classData.value = await onClassFileInput()
       classId.value = classData.value?.id
     }
-    await onMintNFTStart()
+    await mintNFTs()
     if (classData.value?.id) {
       emit('submit', {
         classId: classData.value?.id,
@@ -274,7 +291,7 @@ async function onClickMintByInputting () {
   }
 }
 
-async function onMintNFTStart () {
+async function mintNFTs () {
   try {
     isLoading.value = true
     if (!wallet.value || !signer.value) {
@@ -327,19 +344,21 @@ async function onMintNFTStart () {
   }
 }
 
-async function onISCNIDInput (value: string) {
+async function fetchISCNById (iscnId: string) {
   isLoading.value = true
   try {
-    iscnId.value = value
-    const resISCN = await $fetch(`${LCD_URL}/iscn/records/id?iscn_id=${encodeURIComponent(iscnId.value)}`, {
+    const resISCN = await $fetch(`${LCD_URL}/iscn/records/id?iscn_id=${encodeURIComponent(iscnId)}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
       }
     })
     const { records } = resISCN as any
-    iscnData.value = records[0].data
-    formState.imageUrl = iscnData.value.contentMetadata?.thumbnailUrl || ''
+    const data = records[0].data
+
+    localISCNId.value = iscnId
+    iscnData.value = data
+    formState.imageUrl = data?.contentMetadata?.thumbnailUrl || ''
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
@@ -349,10 +368,7 @@ async function onISCNIDInput (value: string) {
 }
 
 defineExpose({
-  isLoading,
-  isFormValid,
-  onISCNIDInput,
-  onClickMintByInputting
+  startNFTMintFlow
 })
 
 </script>

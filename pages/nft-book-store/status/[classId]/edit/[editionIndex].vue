@@ -26,9 +26,10 @@
         </template>
 
         <NewNFTBook
-          ref="newNFTBook"
           class="flex flex-col gap-4"
-          :is-new-class-page="false"
+          :is-edit-mode="true"
+          :edition-index="editionIndex"
+          :class-id="classId"
           @submit="handleSubmit"
         />
       </UCard>
@@ -41,7 +42,7 @@
 const router = useRouter()
 const route = useRoute()
 
-const classId = ref(route.params.classId)
+const classId = ref(route.params.classId?.toString() || '')
 const editionIndex = ref(route.params.editionIndex as string)
 
 const classData = ref<any>({})

@@ -25,7 +25,7 @@
 
         <UFormGroup label="NFT Class ID">
           <UInput
-            :value="classIdInput"
+            :value="classId"
             disabled
             class="font-mono"
           />
@@ -97,7 +97,6 @@
                   type="number"
                   step="1"
                   :min="0"
-                  :max="Number(route.query.count) || undefined"
                 />
               </UFormGroup>
               <UFormGroup label="Product Name" :ui="{ container: 'space-y-2' }">
@@ -440,13 +439,10 @@ const { token } = storeToRefs(bookStoreApiStore)
 const nftStore = useNftStore()
 
 const emit = defineEmits(['submit'])
-const router = useRouter()
 const route = useRoute()
-const classId = ref(
-  route.params.classId || (route.query.class_id as string)
-)
-const editionIndex = ref(route.params.editionIndex as string) || ref(route.query.price_index as string)
-const newEditionIndex = ref(route.query.price_index)
+const editionIndex = computed(() => {
+  return props.editionIndex
+})
 
 const error = ref('')
 const isLoading = ref(false)
@@ -456,7 +452,9 @@ const mdEditorPlaceholder = ref({
   zh: '例：此版本包含 EPUB 及 PDF 電子書檔'
 })
 
-const classIdInput = ref(classId || '')
+const classId = computed(() => {
+  return props.classId
+})
 const nextPriceIndex = ref(1)
 const hideDownload = ref(false)
 const autoDeliverNftIdInput = ref('')
@@ -511,7 +509,7 @@ const toolbarOptions = ref<ToolbarNames[]>([
 ])
 
 const isEditMode = computed(() =>
-  Boolean(route.params.classId && editionIndex.value)
+  props.isEditMode
 )
 const pageTitle = computed(() =>
   isEditMode.value ? 'Edit Current Edition' : 'General settings / 一般選項'
@@ -529,7 +527,7 @@ const moderatorWalletsTableColumns = computed(() => [
 ])
 
 const moderatorWalletsTableRows = computed(() =>
-  moderatorWallets.value.map((wallet, index) => {
+  moderatorWallets.value.map((wallet: string, index: number) => {
     const isGranted = !!moderatorWalletsGrants.value[wallet]
     return {
       index,
@@ -548,7 +546,7 @@ const moderatorWalletsTableRows = computed(() =>
 )
 
 const notificationEmailsTableRows = computed(() =>
-  notificationEmails.value.map((email, index) => ({
+  notificationEmails.value.map((email: string, index: number) => ({
     index,
     email
   }))
@@ -558,15 +556,24 @@ const iscnDataLanguage = computed(() => {
   return iscnData.value?.contentMetadata?.inLanguage
 })
 
+watch(isLoading, (val: boolean) => {
+  if (val) {
+    error.value = ''
+  }
+}, { immediate: true })
+
 config({
   markdownItConfig (mdit: any) {
     mdit.options.html = false
   }
 })
 
-const props = defineProps<{
- isNewClassPage: boolean
-}>()
+const props = defineProps({
+  isNewClassPage: { type: Boolean, default: false },
+  classId: { type: String, default: '' },
+  editionIndex: { type: [String, Number], default: undefined },
+  isEditMode: { type: Boolean, default: false }
+})
 
 useSeoMeta({
   title: 'New Book Listing',
@@ -640,19 +647,13 @@ onMounted(async () => {
   }
 })
 
-watch(isAllowCustomPrice, (newValue) => {
-  prices.value.forEach((price) => {
+watch(isAllowCustomPrice, (newValue: boolean) => {
+  prices.value.forEach((price: any) => {
     price.isAllowCustomPrice = newValue
   })
 })
 
-watch(isLoading, (newIsLoading) => {
-  if (newIsLoading) {
-    error.value = ''
-  }
-})
-
-watch(moderatorWallets, (newModeratorWallets) => {
+watch(moderatorWallets, (newModeratorWallets: string[]) => {
   newModeratorWallets?.forEach(async (m) => {
     if (!moderatorWalletsGrants.value[m]) {
       try {
@@ -665,7 +666,7 @@ watch(moderatorWallets, (newModeratorWallets) => {
   })
 })
 
-watch(classId, async (newClassId) => {
+watch(() => props.classId, async (newClassId:string) => {
   if (newClassId && !iscnId.value) {
     // Fetch ISCN data
     if (!iscnId.value) {
@@ -814,7 +815,7 @@ async function onSubmit () {
     } else if (props.isNewClassPage) { // in /publish-nft-book
       await submitNewClass()
     } else {
-      const existingListing = await fetch(`${LIKE_CO_API}/likernft/book/store/${classIdInput.value}`)
+      const existingListing = await fetch(`${LIKE_CO_API}/likernft/book/store/${classId.value}`)
       if (!existingListing.ok) {
         await submitNewClass()
       } else {
@@ -827,7 +828,7 @@ async function onSubmit () {
 }
 async function submitNewClass () {
   try {
-    if (!classIdInput.value) {
+    if (!classId.value) {
       throw new Error('Please input NFT class ID')
     }
     if (moderatorWalletInput.value) {
@@ -840,7 +841,7 @@ async function submitNewClass () {
     isLoading.value = true
 
     const data = await $fetch(
-      `${LCD_URL}/cosmos/nft/v1beta1/classes/${classIdInput.value}`
+      `${LCD_URL}/cosmos/nft/v1beta1/classes/${classId.value}`
     )
     const collectionId =
       (data as any)?.class?.data?.metadata?.nft_meta_collection_id || ''
@@ -867,7 +868,7 @@ async function submitNewClass () {
           }
         : null
     const s = shippingRates.value.length
-      ? shippingRates.value.map(rate => ({
+      ? shippingRates.value.map((rate: any) => ({
         name: { en: rate.name.en, zh: rate.name.zh },
         priceInDecimal: rate.priceInDecimal,
         price: rate.priceInDecimal / 100
@@ -887,7 +888,7 @@ async function submitNewClass () {
         throw new Error('Unable to connect to wallet')
       }
       autoDeliverNFTsTxHash = await sendNFTsToAPIWallet(
-        [classIdInput.value as string],
+        [classId.value as string],
         [autoDeliverNftIdInput.value as string],
         autoDeliverCount,
         signer.value,
@@ -896,9 +897,9 @@ async function submitNewClass () {
     }
 
     const shouldEnableCustomMessagePage =
-      prices.value.some(price => price.deliveryMethod === 'manual')
+      prices.value.some((price: any) => price.deliveryMethod === 'manual')
 
-    await newBookListing(classIdInput.value as string, {
+    await newBookListing(classId.value as string, {
       defaultPaymentCurrency: 'USD',
       connectedWallets,
       moderatorWallets: moderatorWallets.value,
@@ -950,7 +951,7 @@ async function submitEditedClass () {
         throw new Error('Unable to connect to wallet')
       }
       autoDeliverNFTsTxHash = await sendNFTsToAPIWallet(
-        [classIdInput.value as string],
+        [classId.value as string],
         [autoDeliverNftIdInput.value as string],
         newAutoDeliverNFTsCount,
         signer.value,
@@ -962,8 +963,7 @@ async function submitEditedClass () {
       autoDeliverNFTsTxHash,
       price: editedPrice
     })
-
-    router.push({ name: 'nft-book-store' })
+    emit('submit')
   } catch (err) {
     const errorData = (err as any).data || err
     // eslint-disable-next-line no-console
@@ -992,7 +992,7 @@ async function addNewEdition () {
         throw new Error('Unable to connect to wallet')
       }
       autoDeliverNFTsTxHash = await sendNFTsToAPIWallet(
-        [classIdInput.value as string],
+        [classId.value as string],
         [autoDeliverNftIdInput.value as string],
         autoDeliverCount,
         signer.value,
@@ -1000,7 +1000,7 @@ async function addNewEdition () {
       )
     }
     const price = p[0]
-    await bookStoreApiStore.addEditionPrice(classId.value as string, newEditionIndex.value as string, {
+    await bookStoreApiStore.addEditionPrice(classId.value.toString(), (editionIndex.value || 0).toString(), {
       price,
       autoDeliverNFTsTxHash
     })
@@ -1011,20 +1011,6 @@ async function addNewEdition () {
     console.error(error)
   } finally {
     isLoading.value = false
-  }
-}
-
-async function updateClassId ({ classId: newClassId, nftMintCount } : {
-  classId: string
-  nftMintCount?: number
-}) {
-  classId.value = newClassId
-  classIdInput.value = newClassId
-  if (nftMintCount) {
-    prices.value[0].stock = nftMintCount
-  }
-  if (!iscnId.value) {
-    iscnId.value = await getIscnId()
   }
 }
 
@@ -1040,15 +1026,8 @@ async function getIscnId () {
   return ''
 }
 
-defineExpose({
-  updateClassId
-})
-
 </script>
 <style scoped>
-.classIdInput {
-  width: 450px;
-}
 .md-editor {
   width: 60vw;
   min-width: 300px;
