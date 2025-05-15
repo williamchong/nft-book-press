@@ -115,6 +115,7 @@
 import { storeToRefs } from 'pinia'
 import { useWalletStore } from '~/stores/wallet'
 import { clearUploadFileData, setUploadFileData } from '~/utils/uploadFile'
+import { useToastComposable } from '~/composables/useToast'
 
 const walletStore = useWalletStore()
 const { wallet, signer } = storeToRefs(walletStore)
@@ -122,12 +123,12 @@ const { initIfNecessary } = walletStore
 const route = useRoute()
 const router = useRouter()
 const { APP_LIKE_CO_URL } = useRuntimeConfig().public
+const { showErrorToast } = useToastComposable()
 
 const step = ref(0)
 const uploadFormRef = ref()
 const registerISCN = ref()
 const mintNFT = ref()
-const toast = useToast()
 const showIscnInput = ref(false)
 const iscnInputValue = ref('')
 const bookName = ref('')
@@ -171,10 +172,8 @@ const shouldShowActionButton = computed(() => {
 const shouldDisableAction = computed(() => {
   if (step.value === 0) {
     return uploadStatus.value !== ''
-  } else if (step.value === 1) {
-    return !isISCNFormValid.value
   } else if (step.value === 2) {
-    return !isMintFormValid.value || isMintLoading.value
+    return isMintLoading.value
   }
   return false
 })
@@ -229,12 +228,7 @@ const nextStep = async () => {
     await initIfNecessary()
   }
   if (!wallet.value || !signer.value) {
-    toast.add({
-      icon: 'i-heroicons-exclamation-circle',
-      title: 'Please login first',
-      timeout: 3000,
-      color: 'red'
-    })
+    showErrorToast('Please login first')
     return
   }
   try {
@@ -243,10 +237,18 @@ const nextStep = async () => {
       return
     }
     if (step.value === 1) {
+      if (!isISCNFormValid.value) {
+        showErrorToast('Please fill in all required fields')
+        return
+      }
       await registerISCN.value.onSubmit()
       return
     }
     if (step.value === 2) {
+      if (!isMintFormValid.value) {
+        showErrorToast('Please fill in all required fields')
+        return
+      }
       await mintNFT.value.startNFTMintFlow()
       return
     }
