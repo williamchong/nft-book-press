@@ -129,10 +129,22 @@ interface FileRecord {
   arweaveKey?: string
 }
 
+interface epubMetadata {
+  title?: string;
+  author?: string;
+  language?: string;
+  description?: string;
+  tags?: string[];
+  epubFileName?: string;
+  thumbnailIpfsHash?: string | null;
+  thumbnailArweaveId?: string | null;
+  coverData?: string | null;
+}
+
 const fileRecords = ref<FileRecord[]>([])
 const isSizeExceeded = ref(false)
 const isDragging = ref(false)
-const epubMetadataList = ref<any[]>([])
+const epubMetadataList = ref<epubMetadata[]>([])
 
 const arweaveFee = ref(new BigNumber(0))
 const arweaveFeeMap = ref({} as any)
@@ -218,7 +230,16 @@ const onFileUpload = async (event: Event) => {
     }
 
     if (files?.length) {
-      for (const file of files) {
+      // Sort files so images are processed last,
+      // ensuring EPUB metadata is ready before assigning cover images.
+      const sortedFiles = Array.from(files).sort((a, b) => {
+        const isImageA = a.type.startsWith('image/')
+        const isImageB = b.type.startsWith('image/')
+
+        if (isImageA === isImageB) { return 0 }
+        return isImageA ? 1 : -1
+      })
+      for (const file of sortedFiles) {
         const reader = new FileReader()
         let fileRecord: FileRecord = {}
 
@@ -245,6 +266,38 @@ const onFileUpload = async (event: Event) => {
             }
             if (fileRecord.fileType === 'application/epub+zip') {
               await processEPub({ buffer: fileBytes, file })
+            } else if (fileRecord.fileType?.startsWith('image/')) {
+              let emptyCoverMetadata = epubMetadataList.value.find(
+                (metadata: any) => !metadata.thumbnailIpfsHash
+              )
+              if (!emptyCoverMetadata) {
+                if (epubMetadataList.value.length === 0) {
+                  // No EPUB file was uploaded — epubMetadataList is still empty
+                  emptyCoverMetadata = {
+                    thumbnailIpfsHash: null,
+                    coverData: null
+                  }
+                  epubMetadataList.value.push(emptyCoverMetadata)
+                } else {
+                  // A cover image has already been assigned — only one cover is allowed
+                  toast.add({
+                    icon: 'i-heroicons-exclamation-circle',
+                    title: 'Warning',
+                    description: 'Only one cover image is allowed.',
+                    timeout: 3000,
+                    color: 'yellow'
+                  })
+                  return
+                }
+              }
+
+              const coverReader = new FileReader()
+              coverReader.onload = (e) => {
+                if (!e.target) { return }
+                emptyCoverMetadata.thumbnailIpfsHash = ipfsHash
+                emptyCoverMetadata.coverData = e.target.result as string
+              }
+              coverReader.readAsDataURL(file)
             }
           }
         } else {
@@ -258,6 +311,7 @@ const onFileUpload = async (event: Event) => {
     try {
       await estimateArweaveFee()
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(error)
     }
     uploadStatus.value = ''
@@ -347,12 +401,29 @@ const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer; file: File }
     }
     epubMetadataList.value.push(epubMetadata)
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(err)
   }
 }
 
 const handleDeleteFile = (index: number) => {
-  fileRecords.value.splice(index, 1)
+  const [removedFile] = fileRecords.value.splice(index, 1)
+  if (removedFile.fileType?.startsWith('image/')) {
+    epubMetadataList.value = epubMetadataList.value
+      .map((metadata: any) => {
+        if (metadata.thumbnailIpfsHash === removedFile.ipfsHash) {
+          return { ...metadata, thumbnailIpfsHash: null, coverData: null }
+        }
+        return metadata
+      })
+      .filter((metadata: any) =>
+        metadata.epubFileName || metadata.thumbnailIpfsHash
+      )
+  } else if (removedFile.fileType === 'application/epub+zip') {
+    epubMetadataList.value = epubMetadataList.value.filter(
+      (metadata: any) => metadata.epubFileName !== removedFile.fileName
+    )
+  }
 }
 
 const estimateArweaveFee = async (): Promise<void> => {
