@@ -112,6 +112,7 @@ const { initIfNecessary } = store
 const bookStoreApiStore = useBookStoreApiStore()
 const { token } = storeToRefs(bookStoreApiStore)
 const toast = useToast()
+const imageFile = ref<HTMLInputElement | null>(null)
 
 interface FileRecord {
   fileName?: string;
@@ -313,6 +314,10 @@ const onFileUpload = async (event: Event) => {
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error)
+    }
+    // Clear the input value to allow re-uploading the same file
+    if (imageFile.value) {
+      imageFile.value.value = ''
     }
     uploadStatus.value = ''
     emit('fileReady', fileRecords.value)
