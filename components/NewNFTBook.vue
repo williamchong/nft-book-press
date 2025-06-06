@@ -167,6 +167,19 @@
                     name="deliveryMethod"
                     label="Manual delivery / 手動發書"
                   />
+                  <div v-if="p.deliveryMethod === 'manual'" class="pl-8 space-y-2">
+                    <UFormGroup>
+                      <template #label>
+                        <p>Autograph image / 簽名圖</p>
+                        <span class="text-gray-500 text-[12px]">僅限 png 圖檔，檔案大小不超過 1MB，建議尺寸為 600 x 200 </span>
+                      </template>
+                      <UInput
+                        type="file"
+                        accept="image/png"
+                        @change="(e) => onImgUpload(e, 'signatureImage')"
+                      />
+                    </UFormGroup>
+                  </div>
                 </div>
               </div>
 
@@ -424,11 +437,13 @@ const bookStoreApiStore = useBookStoreApiStore()
 const stripeStore = useStripeStore()
 const { initIfNecessary } = walletStore
 const { wallet, signer } = storeToRefs(walletStore)
-const { newBookListing, updateEditionPrice } = bookStoreApiStore
+const { newBookListing, updateEditionPrice, uploadSignImages } = bookStoreApiStore
 const { fetchStripeConnectStatusByWallet } = stripeStore
 const { getStripeConnectStatusByWallet } = storeToRefs(stripeStore)
 const { token } = storeToRefs(bookStoreApiStore)
 const nftStore = useNftStore()
+
+const UPLOAD_FILESIZE_MAX = 1 * 1024 * 1024
 
 const emit = defineEmits(['submit'])
 const route = useRoute()
@@ -483,6 +498,8 @@ const stripeConnectWallet = ref('')
 const shouldDisableStripeConnectSetting = ref(false)
 const isUsingDefaultAccount = ref(true)
 const iscnData = ref<any>(null)
+
+const signatureImage = ref<File | null>(null)
 
 const toolbarOptions = ref<ToolbarNames[]>([
   'bold',
@@ -668,6 +685,30 @@ function isContentFingerPrintEncrypted (contentFingerprints: any[]) {
   })
 }
 
+function onImgUpload (
+  files: FileList | null,
+  key: 'signatureImage' | 'memoImage' = 'signatureImage'
+) {
+  if (!files?.length) { return }
+
+  const file = files[0]
+  if (file.type !== 'image/png') {
+    error.value = '僅支援 PNG 檔案'
+    return
+  }
+  if (file.size > UPLOAD_FILESIZE_MAX) {
+    error.value = '檔案超過 1MB 限制'
+    return
+  }
+
+  if (key === 'signatureImage') {
+    signatureImage.value = file
+  } else {
+    // eslint-disable-next-line no-console
+    console.warn(`Unknown upload key: ${key}`)
+  }
+}
+
 function addMorePrice () {
   nextPriceIndex.value += 1
   prices.value.push({
@@ -790,6 +831,17 @@ async function onSubmit () {
         await addNewEdition()
       }
     }
+    // Upload signature image
+    if (signatureImage.value) {
+      const form = new FormData()
+
+      if (signatureImage.value) {
+        form.append('signImage', signatureImage.value)
+      }
+
+      await uploadSignImages(form, classId.value)
+    }
+    emit('submit')
   } catch (error) {
 
   }
@@ -879,7 +931,6 @@ async function submitNewClass () {
       hideDownload: hideDownload.value,
       autoDeliverNFTsTxHash
     })
-    emit('submit')
   } catch (err) {
     const errorData = (err as any).data || err
     // eslint-disable-next-line no-console
@@ -931,7 +982,6 @@ async function submitEditedClass () {
       autoDeliverNFTsTxHash,
       price: editedPrice
     })
-    emit('submit')
   } catch (err) {
     const errorData = (err as any).data || err
     // eslint-disable-next-line no-console
@@ -972,8 +1022,6 @@ async function addNewEdition () {
       price,
       autoDeliverNFTsTxHash
     })
-
-    emit('submit')
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
