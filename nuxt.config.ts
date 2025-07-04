@@ -122,17 +122,15 @@ exports.randomFillSync = randomFillSync`
 
       SITE_URL: process.env.SITE_URL,
 
-      LCD_URL: process.env.LCD_URL,
       CHAIN_EXPLORER_URL: process.env.CHAIN_EXPLORER_URL,
+      OPENSEA_URL: process.env.OPENSEA_URL,
 
       LIKE_EVM_NFT_TARGET_ADDRESS: process.env.LIKE_EVM_NFT_TARGET_ADDRESS,
 
       LIKER_LAND_URL: process.env.LIKER_LAND_URL,
-      LIKE_CO_HOST: process.env.LIKE_CO_HOST,
       LIKE_CO_API: process.env.LIKE_CO_API,
       LIKE_CO_STATIC_ENDPOINT: process.env.LIKE_CO_STATIC_ENDPOINT,
-      APP_LIKE_CO_URL: process.env.APP_LIKE_CO_URL,
-      ISCN_TOOLS_URL: process.env.ISCN_TOOLS_URL,
+
       ARWEAVE_ENDPOINT: process.env.ARWEAVE_ENDPOINT,
       LIKECOIN_V3_BOOK_MIGRATION_SITE_URL: process.env.LIKECOIN_V3_BOOK_MIGRATION_SITE_URL,
       BOOK3_URL: process.env.BOOK3_URL
