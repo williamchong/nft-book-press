@@ -50,14 +50,12 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { waitForTransactionReceipt } from '@wagmi/vue/actions'
 import { useWriteContract } from '@wagmi/vue'
 import { useNftStore } from '~/stores/nft'
 import { formatISCNTxPayload, validateISCNForm } from '~/utils/iscn'
 import { useWalletStore } from '~/stores/wallet'
 import { useISCN } from '~/composables/useISCN'
 import { LIKE_NFT_CLASS_ABI } from '~/contracts/likeNFT'
-import { config } from '~/utils/wagmi/config'
 import { DEFAULT_MAX_SUPPLY } from '~/constant'
 
 const nftStore = useNftStore()
@@ -66,7 +64,7 @@ const walletStore = useWalletStore()
 const { wallet, signer } = storeToRefs(walletStore)
 const { initIfNecessary } = walletStore
 const { writeContractAsync } = useWriteContract()
-const { checkAndGrantUpdater } = useNFTContractWriter()
+const { checkAndGrantUpdater, waitForTransactionReceipt } = useNFTContractWriter()
 
 const props = defineProps<{
   classId: string
@@ -247,7 +245,7 @@ async function handleSave () {
         max_supply: DEFAULT_MAX_SUPPLY
       }]
     })
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt({ hash: txHash })
     console.log(receipt)
     if (!receipt || receipt.status !== 'success') { throw new Error('INVALID_RECEIPT') }
     toast.add({
