@@ -23,7 +23,7 @@
           </h2>
         </template>
 
-        <UFormGroup label="NFT Class ID">
+        <UFormGroup :label="$t('nft_book_form.nft_class_id')"
           <UInput
             :value="classId"
             disabled
@@ -116,7 +116,7 @@
                 </template>
                 <UInput
                   v-model="p.name"
-                  placeholder="Product name"
+                  :placeholder="$t('nft_book_form.product_name_placeholder')"
                 />
                 <span class="block text-[14px] text-[#374151] mt-[8px]">Description (Optional) / 描述（選填）</span>
                 <md-editor
@@ -395,10 +395,10 @@
       <div class="space-y-3">
         <div class="flex justify-between items-center">
           <UBadge variant="soft">
-            Loading...
+            {{ $t('common.loading') }}
           </UBadge>
           <p class="text-xs text-gray-500">
-            請勿關閉此視窗，直到操作完成。
+            {{ $t('nft_book_form.loading_progress_text') }}
           </p>
         </div>
         <UProgress animation="carousel" color="primary" class="w-full" />
@@ -453,8 +453,8 @@ const error = ref('')
 const isLoading = ref(false)
 
 const mdEditorPlaceholder = ref({
-  en: 'e.g.: This edition includes EPUB and PDF ebook files.',
-  zh: '例：此版本包含 EPUB 及 PDF 電子書檔'
+  en: $t('editor.placeholder_en'),
+  zh: $t('editor.placeholder_zh')
 })
 
 const classId = computed(() => {
@@ -468,12 +468,12 @@ const prices = ref<any[]>([
   {
     price: DEFAULT_PRICE,
     deliveryMethod: 'auto',
-    autoMemo: 'Thank you for your support. It means a lot to me.',
+    autoMemo: $t('default_values.auto_memo'),
     stock: DEFAULT_STOCK,
-    name: '標準版',
+    name: $t('prices.標準版'),
 
-    nameEn: 'Standard Edition',
-    nameZh: '標準版',
+    nameEn: $t('prices.standard_edition'),
+    nameZh: $t('prices.標準版'),
     descriptionEn: '',
     descriptionZh: '',
     hasShipping: false,
@@ -531,15 +531,15 @@ const isEditMode = computed(() =>
   props.isEditMode
 )
 const pageTitle = computed(() =>
-  isEditMode.value ? 'Edit Current Edition' : 'General settings / 一般選項'
+  isEditMode.value ? $t('nft_book_form.edit_title') : $t('nft_book_form.page_title')
 )
 const submitButtonText = computed(() =>
-  isEditMode.value ? 'Save Changes' : 'Submit'
+  isEditMode.value ? $t('common.save') : $t('common.submit')
 )
 const shouldShowAdvanceSettings = ref<boolean>(false)
 
 const moderatorWalletsTableColumns = computed(() => [
-  { key: 'wallet', label: 'Wallet', sortable: true },
+  { key: 'wallet', label: $t('common.wallet'), sortable: true },
   { key: 'remove', label: '', sortable: false }
 ])
 

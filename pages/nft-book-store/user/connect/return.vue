@@ -56,7 +56,7 @@
       <template #footer>
         <UButton
           label="Go Back"
-          :to="{ name: 'nft-book-store-user' }"
+          :to="localeRoute({ name: 'nft-book-store-user' })"
         />
       </template>
     </UCard>
@@ -70,6 +70,7 @@ import { useBookStoreApiStore } from '~/stores/book-store-api'
 const { LIKE_CO_API } = useRuntimeConfig().public
 
 const router = useRouter()
+const localeRoute = useLocaleRoute()
 const bookStoreApiStore = useBookStoreApiStore()
 const { token } = storeToRefs(bookStoreApiStore)
 
@@ -99,7 +100,7 @@ onMounted(async () => {
     isDone.value = (data as any).isReady || false
 
     setTimeout(() => {
-      router.replace({ name: 'nft-book-store-user' })
+      router.replace(localeRoute({ name: 'nft-book-store-user' }))
     }, 3000)
   } catch (e) {
     console.error(e)

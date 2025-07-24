@@ -255,6 +255,7 @@
 import { typeOptions, licenseOptions, languageOptions, MAX_DESCRIPTION_LENGTH } from '~/constant/index'
 import { useFileUpload } from '~/composables/useFileUpload'
 import { getApiEndpoints } from '~/constant/api'
+const { t: $t } = useI18n()
 
 const downloadTypeOptions = [
   { label: 'EPUB', value: 'epub' },

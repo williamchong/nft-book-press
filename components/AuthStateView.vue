@@ -12,7 +12,7 @@
             target="_blank"
           />
         </UTooltip>
-        <UTooltip text="Copy address">
+        <UTooltip :text="$t('auth_state.copy_address')">
           <UButton
             icon="i-heroicons-document-duplicate"
             size="sm"
@@ -24,7 +24,7 @@
       </div>
 
       <UButton
-        label="Sign out"
+        :label="$t('auth_state.sign_out')"
         icon="i-heroicons-arrow-left-on-rectangle"
         color="primary"
         variant="outline"
@@ -37,7 +37,7 @@
       <div class="flex gap-2">
         <UButton
           class="w-1/2"
-          label="Login"
+          :label="$t('auth_state.login')"
           icon="i-heroicons-envelope"
           color="primary"
           size="lg"
@@ -48,7 +48,7 @@
         />
         <UButton
           class="w-1/2"
-          label="Wallet"
+          :label="$t('auth_state.wallet')"
           icon="i-heroicons-wallet"
           color="primary"
           size="lg"
@@ -65,16 +65,16 @@
         icon="i-heroicons-exclamation-circle"
         color="orange"
         variant="soft"
-        description="liker.land is now 3ook.com"
+        :description="$t('auth_state.migration_notice')"
         :actions="[
           {
-            label: 'Close',
+            label: $t('auth_state.close'),
             color: 'gray',
             variant: 'ghost',
             click: closeMigrateAlert,
           },
           {
-            label: 'Migrate',
+            label: $t('auth_state.migrate'),
             color: 'orange',
             variant: 'outline',
             click: onClickMigrate,
@@ -92,6 +92,7 @@ import { getPortfolioURL, copyToClipboard, appendUTMParamsToURL } from '~/utils/
 import { shortenWalletAddress } from '~/utils/cosmos'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useAuth } from '~/composables/useAuth'
+const { t: $t } = useI18n()
 
 const store = useWalletStore()
 const { wallet } = storeToRefs(store)

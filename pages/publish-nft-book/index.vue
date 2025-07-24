@@ -109,12 +109,14 @@ import { storeToRefs } from 'pinia'
 import { useWalletStore } from '~/stores/wallet'
 import { clearUploadFileData, setUploadFileData } from '~/utils/uploadFile'
 import { useToastComposable } from '~/composables/useToast'
+const { t: $t } = useI18n()
 
 const walletStore = useWalletStore()
 const { wallet, signer } = storeToRefs(walletStore)
 const { initIfNecessary } = walletStore
 const route = useRoute()
 const router = useRouter()
+const localeRoute = useLocaleRoute()
 const { showErrorToast } = useToastComposable()
 
 const step = ref(0)
@@ -276,7 +278,7 @@ const handleMintNFTSubmit = async (res: any) => {
 }
 
 const handleNewBookSubmit = () => {
-  router.push({ name: 'nft-book-store' })
+  router.push(localeRoute({ name: 'nft-book-store' }))
 }
 
 const handleIscnInput = async () => {

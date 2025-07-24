@@ -64,6 +64,7 @@
 </template>
 
 <script setup lang="ts">
+const { t: $t } = useI18n()
 
 interface NFTMintFormState {
   mintCount: number

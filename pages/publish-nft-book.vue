@@ -9,11 +9,12 @@
 </template>
 
 <script setup lang="ts">
+const { t: $t } = useI18n()
 const route = useRoute()
 
 useSeoMeta({
-  title: 'Publish your NFT Book',
-  ogTitle: 'Publish your NFT Book'
+  title: $t('seo_titles.publish_nft_book'),
+  ogTitle: $t('seo_titles.publish_nft_book')
 })
 
 </script>

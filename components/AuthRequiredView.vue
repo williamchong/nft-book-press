@@ -7,13 +7,13 @@
       icon="i-heroicons-light-bulb"
       color="amber"
       variant="subtle"
-      title="Sign in required"
-      description="Please sign in to continue."
+      :title="$t('auth.signin_required')"
+      :description="$t('auth.signin_description')"
       :ui="{ wrapper: 'w-auto', inner: 'w-auto', title: 'font-bold' }"
     />
     <UButton
       class="block lg:hidden"
-      label="Sign in"
+      :label="$t('auth.signin')"
       icon="i-heroicons-arrow-right-on-rectangle"
       color="primary"
       :loading="isAuthenticating"
@@ -29,6 +29,7 @@
 import { storeToRefs } from 'pinia'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useAuth } from '~/composables/useAuth'
+const { t: $t } = useI18n()
 
 const bookStoreApiStore = useBookStoreApiStore()
 const { isRestoringSession } = storeToRefs(bookStoreApiStore)

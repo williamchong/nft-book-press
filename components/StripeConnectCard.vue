@@ -56,7 +56,7 @@
               <UButton
                 class="mt-2"
                 label="Create one here"
-                :to="{ name: 'nft-book-store-user' }"
+                :to="localeRoute({ name: 'nft-book-store-user' })"
                 target="_blank"
                 variant="outline"
               />
@@ -140,6 +140,7 @@ import { storeToRefs } from 'pinia'
 
 import { LIKE_ADDRESS_REGEX } from '~/constant'
 import { useStripeStore } from '~/stores/stripe'
+const localeRoute = useLocaleRoute()
 
 const stripeStore = useStripeStore()
 
