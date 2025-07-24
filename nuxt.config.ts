@@ -25,7 +25,8 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     'nuxt-gtag',
     'nuxt-security',
-    '@nuxt/scripts'
+    '@nuxt/scripts',
+    '@nuxtjs/i18n'
   ],
 
   scripts: {
@@ -38,6 +39,16 @@ export default defineNuxtConfig({
     id: GA_TRACKING_ID
   },
 
+  i18n: {
+    locales: [
+      {
+        code: 'en',
+        language: 'en-US',
+        file: 'en.json'
+      }
+    ],
+    defaultLocale: 'en'
+  },
   sentry: {
     sourceMapsUploadOptions: SENTRY_AUTH_TOKEN
       ? {
