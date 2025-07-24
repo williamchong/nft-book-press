@@ -300,7 +300,7 @@
     "table_of_content": "Table Of Content",
     "pricing_availability": "Pricing and Availability",
     "unit_price_usd": "Unit Price in USD (Minimum ${MINIMAL_PRICE}, or 0 for free)",
-    "total_nft_for_sale": "Total number of NFT ${hasMultiplePrices ? 'edition' : 'ebook'} for sale",
+    "total_nft_for_sale": "Total number of NFT {type} for sale",
     "delivery_method": "Delivery method of this ${priceItemLabel}",
     "memo_delivery": "Memo of this ${priceItemLabel}",
     "is_physical_only": "Is Physical only good",

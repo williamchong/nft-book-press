@@ -161,7 +161,7 @@ useSeoMeta({
 })
 
 function selectTableRow (row: any) {
-  router.push(localeRoute({
+  navigateTo(localeRoute({
     name: 'nft-book-store-collection-status-collectionId',
     params: { collectionId: row.collectionId }
   }))

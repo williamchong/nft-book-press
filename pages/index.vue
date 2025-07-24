@@ -13,10 +13,9 @@
 </template>
 <script setup lang="ts">
 const { t: $t } = useI18n()
-const router = useRouter()
 const localeRoute = useLocaleRoute()
 
 onMounted(() => {
-  router.replace(localeRoute({ name: 'latest-books' }))
+  navigateTo(localeRoute({ name: 'latest-books' }), { replace: true })
 })
 </script>

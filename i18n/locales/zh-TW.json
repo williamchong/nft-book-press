@@ -306,7 +306,7 @@
     "table_of_content": "章節目錄",
     "pricing_availability": "定價與可用性",
     "unit_price_usd": "美元單價（最低 ${minimal}，或 0 免費）",
-    "total_nft_for_sale": "此定價的銷售數量",
+    "total_nft_for_sale": "待售 NFT {type} 總數",
     "delivery_method": "自動或手動發書",
     "memo_delivery": "自動發書留言",
     "is_physical_only": "只含實體書",

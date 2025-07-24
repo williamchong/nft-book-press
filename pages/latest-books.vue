@@ -74,7 +74,6 @@ const stripeStore = useStripeStore()
 const bookStoreApiStore = useBookStoreApiStore()
 const walletStore = useWalletStore()
 
-const router = useRouter()
 const localeRoute = useLocaleRoute()
 const route = useRoute()
 
@@ -206,7 +205,7 @@ async function fetchUserStripeInfo () {
 
 function handleAffiliationSetupButtonClick () {
   useTrackEvent('latest_books_click_affiliation_setup')
-  router.push(localeRoute({ name: 'nft-book-store-user' }))
+  navigateTo(localeRoute({ name: 'nft-book-store-user' }))
 }
 
 function selectTableRow (row: any) {

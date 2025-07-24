@@ -140,7 +140,6 @@ import { convertArrayOfObjectsToCSV } from '~/utils'
 
 const toast = useToast()
 const route = useRoute()
-const router = useRouter()
 const localeRoute = useLocaleRoute()
 
 const CSV_HEADER = 'key,url'
@@ -342,7 +341,7 @@ function downloadAllShortenedLinks () {
 
 function convertToQRCode () {
   sessionStorage.setItem('nft_book_press_batch_qrcode', convertArrayOfObjectsToCSV(shortenedURLItems.value))
-  router.push(localeRoute({ name: 'batch-qrcode' }))
+  navigateTo(localeRoute({ name: 'batch-qrcode' }))
 }
 
 function handleFileChange (files: FileList) {

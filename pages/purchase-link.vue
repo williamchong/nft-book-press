@@ -990,7 +990,7 @@ function shortenLinksByTableRows (rows: AffiliationLink[] = []) {
       'nft_book_press_batch_shorten_url',
       convertArrayOfObjectsToCSV(rows.map(({ channelId, ...link }) => ({ key: channelId, ...link })))
     )
-    router.push(localeRoute({ name: 'batch-short-links', query: { print: 1 } }))
+    navigateTo(localeRoute({ name: 'batch-short-links', query: { print: 1 } }))
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)

@@ -296,7 +296,7 @@ onMounted(async () => {
 })
 
 function selectTableRow (row: any) {
-  router.push(localeRoute({
+  navigateTo(localeRoute({
     name: 'nft-book-store-status-classId',
     params: { classId: row.classId }
   }))

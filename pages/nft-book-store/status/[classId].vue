@@ -1377,7 +1377,7 @@ function shortenAllLinks () {
       'nft_book_press_batch_shorten_url',
       convertArrayOfObjectsToCSV(purchaseLinks.value.map(({ channel, url }) => ({ key: channel, url })))
     )
-    router.push(localeRoute({ name: 'batch-short-links', query: { print: 1 } }))
+    navigateTo(localeRoute({ name: 'batch-short-links', query: { print: 1 } }))
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)

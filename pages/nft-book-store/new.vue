@@ -84,7 +84,7 @@
                 />
               </UFormGroup>
               <UFormGroup
-                :label="`Total number of NFT ${hasMultiplePrices ? 'edition' : 'ebook'} for sale / 此定價的銷售數量`"
+                :label="$t('new_listing.total_nft_for_sale', { type: hasMultiplePrices ? 'edition' : 'ebook' })"
               >
                 <UInput
                   :value="p.stock"
@@ -498,7 +498,6 @@ const { newBookListing, updateEditionPrice } = bookStoreApiStore
 const { fetchStripeConnectStatusByWallet } = stripeStore
 const { getStripeConnectStatusByWallet } = storeToRefs(stripeStore)
 
-const router = useRouter()
 const localeRoute = useLocaleRoute()
 const route = useRoute()
 // params.editingClassId and params.editionIndex is only available when editing an existing class
@@ -802,7 +801,7 @@ async function submitNewClass () {
       enableCustomMessagePage: enableCustomMessagePage.value,
       hideDownload: hideDownload.value
     })
-    router.push(localeRoute({ name: 'nft-book-store' }))
+    navigateTo(localeRoute({ name: 'nft-book-store' }))
   } catch (err) {
     const errorData = (err as any).data || err
     console.error(errorData)
@@ -850,7 +849,7 @@ async function submitEditedClass () {
       price
     })
 
-    router.push(localeRoute({ name: 'nft-book-store' }))
+    navigateTo(localeRoute({ name: 'nft-book-store' }))
   } catch (err) {
     const errorData = (err as any).data || err
     console.error(errorData)
