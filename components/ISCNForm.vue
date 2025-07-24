@@ -71,7 +71,7 @@
         />
       </UFormGroup>
 
-      <UFormGroup label="書訊">
+      <UFormGroup :label="$t('form_labels.book_info')">
         <UInput
           v-model="formData.bookInfoUrl"
           placeholder="Enter book info URL"

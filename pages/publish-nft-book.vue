@@ -1,6 +1,6 @@
 <template>
   <PageContainer :key="route.path">
-    <PageHeader title="發佈你的區塊鏈書" />
+    <PageHeader :title="$t('publish_nft_book.page_title')" />
 
     <AuthRequiredView>
       <NuxtPage />

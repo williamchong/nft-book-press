@@ -45,9 +45,14 @@ export default defineNuxtConfig({
         code: 'en',
         language: 'en-US',
         file: 'en.json'
+      },
+      {
+        code: 'zh',
+        language: 'zh-TW',
+        file: 'zh-TW.json'
       }
     ],
-    defaultLocale: 'en'
+    defaultLocale: 'zh'
   },
   sentry: {
     sourceMapsUploadOptions: SENTRY_AUTH_TOKEN

@@ -23,7 +23,7 @@
           </h2>
         </template>
 
-        <UFormGroup :label="$t('nft_book_form.nft_class_id')"
+        <UFormGroup :label="$t('nft_book_form.nft_class_id')">
           <UInput
             :value="classId"
             disabled
@@ -32,13 +32,13 @@
         </UFormGroup>
         <UFormGroup class="flex items-center">
           <ToolTips
-            tool-tip-text="This option is only available when uploading files / 僅能在上傳檔案時決定"
+            :tool-tip-text="$t('nft_book_form.drm_tooltip')"
           >
             <UCheckbox
               v-model="hideDownload"
               name="hideDownload"
               :disabled="true"
-              label="DRM: encrypt content & disable download / 加密文本、禁止下載"
+              :label="$t('nft_book_form.drm_label')"
             />
           </ToolTips>
         </UFormGroup>
@@ -46,7 +46,7 @@
           <UCheckbox
             v-model="isAllowCustomPrice"
             name="isAllowCustomPrice"
-            label="Accept tipping / 接受打賞"
+            :label="$t('nft_book_form.accept_tipping')"
           />
         </UFormGroup>
       </UCard>
@@ -76,11 +76,11 @@
             >
               <template v-if="hasMultiplePrices" #header>
                 <h3 class="font-bold font-mono">
-                  {{ `Edition #${index + 1} / 版本 #${index + 1}` }}
+                  {{ $t('nft_book_form.edition_number', { number: index + 1 }) }}
                 </h3>
               </template>
               <UFormGroup
-                :label="`Unit Price in USD (Minimum ${MINIMAL_PRICE}, or 0 for free) / 版本定價（美元）`"
+                :label="$t('nft_book_form.unit_price_label', { minPrice: MINIMAL_PRICE })"
               >
                 <UInput
                   v-model="p.price"
@@ -90,7 +90,7 @@
                 />
               </UFormGroup>
               <UFormGroup
-                label="No of copies / 數量"
+                :label="$t('nft_book_form.copies_label')"
               >
                 <UInput
                   v-model="p.stock"
@@ -102,7 +102,7 @@
               </UFormGroup>
               <UFormGroup label="Product Name" :ui="{ container: 'space-y-2' }">
                 <template #label>
-                  Product Name / 產品名稱
+                  {{ $t('nft_book_form.product_name') }}
                   <ToolTips :image-style="{ width: '250px' }">
                     <template #image>
                       <img
@@ -118,7 +118,7 @@
                   v-model="p.name"
                   :placeholder="$t('nft_book_form.product_name_placeholder')"
                 />
-                <span class="block text-[14px] text-[#374151] mt-[8px]">Description (Optional) / 描述（選填）</span>
+                <span class="block text-[14px] text-[#374151] mt-[8px]">{{ $t('nft_book_form.description_optional') }}</span>
                 <md-editor
                   v-model="p.descriptionEn"
                   language="en-US"
@@ -138,14 +138,14 @@
                     value="auto"
                     :disabled="isEditMode && p.oldIsAutoDeliver"
                     name="deliveryMethod"
-                    label="Auto delivery / 自動發書"
+                    :label="$t('nft_book_form.auto_delivery')"
                   />
 
                   <div v-if="p.deliveryMethod === 'auto'" class="pl-8 space-y-2">
-                    <UFormGroup label="Memo / 發書留言">
+                    <UFormGroup :label="$t('nft_book_form.delivery_memo')">
                       <UInput
                         v-model="p.autoMemo"
-                        placeholder="Thank you for your support. It means a lot to me."
+                        :placeholder="$t('nft_book_form.memo_placeholder')"
                       />
                     </UFormGroup>
                   </div>
@@ -158,14 +158,14 @@
                     value="manual"
                     :disabled="isEditMode && p.oldIsAutoDeliver"
                     name="deliveryMethod"
-                    label="Manual delivery / 手動發書"
+                    :label="$t('nft_book_form.manual_delivery')"
                     @click="onClickManualDelivery(p)"
                   />
                   <div v-if="p.deliveryMethod === 'manual'" class="pl-8 space-y-2">
                     <UFormGroup>
                       <template #label>
-                        <p>Autograph image / 簽名圖</p>
-                        <span class="text-gray-500 text-[12px]">僅限 png 圖檔，檔案大小不超過 1MB，建議尺寸為 600 x 200 </span>
+                        <p>{{ $t('nft_book_form.autograph_image') }}</p>
+                        <span class="text-gray-500 text-[12px]">{{ $t('nft_book_form.image_requirements') }}</span>
                       </template>
                       <UInput
                         type="file"
@@ -181,7 +181,7 @@
                 <UCheckbox
                   v-model="p.isUnlisted"
                   name="isUnlisted"
-                  label="Pause selling of this Edition / 暫停此版本的銷售"
+                  :label="$t('nft_book_form.pause_selling')"
                 />
               </UFormGroup>
               <div class="flex flex-col gap-2">
@@ -189,7 +189,7 @@
                   v-model="p.hasShipping"
                   name="hasShipping"
                   :disabled="(isEditMode && !p.hasShipping)"
-                  label="Includes physical good that requires shipping / 包含需要運送的實體商品"
+                  :label="$t('nft_book_form.includes_shipping')"
                 />
                 <ShippingRatesRateTable
                   v-if="p.hasShipping"
@@ -204,7 +204,7 @@
             <div class="flex justify-center items-center">
               <UButton
                 v-if="hasMultiplePrices"
-                label="Delete"
+                :label="$t('common.delete')"
                 color="red"
                 @click="deletePrice(index)"
               />
@@ -218,7 +218,7 @@
           :ui="{ rounded: 'rounded-full' }"
           color="gray"
           icon="i-heroicons-plus-solid"
-          label="Add Edition"
+          :label="$t('nft_book_form.add_edition')"
           @click="addMorePrice"
         />
       </div>
@@ -232,7 +232,7 @@
       >
         <div class="flex justify-between items-center w-full">
           <h3 class="font-bold font-mono">
-            Advanced Settings
+            {{ $t('nft_book_form.advanced_settings') }}
           </h3>
           <UButton
             color="gray"
@@ -260,7 +260,7 @@
             >
               <template #header>
                 <h4 class="text-sm font-bold font-mono">
-                  Email to receive sales notifications / 欲收到銷售通知的電郵
+                  {{ $t('nft_book_form.notification_email_header') }}
                 </h4>
 
                 <div class="flex gap-2">
@@ -270,7 +270,7 @@
                   />
 
                   <UButton
-                    label="Add"
+                    :label="$t('common.add')"
                     :variant="notificationEmailInput ? 'outline' : 'solid'"
                     :color="notificationEmailInput ? 'primary' : 'gray'"
                     :disabled="!notificationEmailInput"
@@ -281,7 +281,7 @@
 
               <UTable
                 :columns="[
-                  { key: 'email', label: 'Email', sortable: true },
+                  { key: 'email', label: $t('common.email'), sortable: true },
                   { key: 'action' },
                 ]"
                 :rows="notificationEmailsTableRows"
@@ -329,7 +329,7 @@
             >
               <template #header>
                 <h4 class="text-sm font-bold font-mono">
-                  Share sales data to wallets / 分享銷售數據給特定地址
+                  {{ $t('nft_book_form.share_sales_data') }}
                 </h4>
                 <div class="flex gap-2">
                   <UInput
@@ -339,7 +339,7 @@
                   />
 
                   <UButton
-                    label="Add"
+                    :label="$t('common.add')"
                     :variant="moderatorWalletInput ? 'outline' : 'solid'"
                     :color="moderatorWalletInput ? 'primary' : 'gray'"
                     :disabled="!moderatorWalletInput"
@@ -428,6 +428,7 @@ import { useNftStore } from '~/stores/nft'
 import { getPortfolioURL } from '~/utils'
 import { escapeHtml, sanitizeHtml } from '~/utils/newClass'
 import { getApiEndpoints } from '~/constant/api'
+const { t: $t } = useI18n()
 
 const { LIKE_CO_API } = useRuntimeConfig().public
 const walletStore = useWalletStore()
@@ -584,8 +585,8 @@ const props = defineProps({
 })
 
 useSeoMeta({
-  title: 'New Book Listing',
-  ogTitle: 'New Book Listing'
+  title: $t('seo_titles.new_book_listing'),
+  ogTitle: $t('seo_titles.new_book_listing')
 })
 
 onMounted(async () => {
@@ -665,7 +666,7 @@ onMounted(async () => {
           return acc
         }, 0)
       } else {
-        throw new Error('NFT Class not found')
+        throw new Error($t('errors.nft_class_not_found'))
       }
     }
   } catch (e) {
@@ -714,11 +715,11 @@ function onImgUpload (
 
   const file = files[0]
   if (file.type !== 'image/png') {
-    error.value = '僅支援 PNG 檔案'
+    error.value = $t('errors.png_only')
     return
   }
   if (file.size > UPLOAD_FILESIZE_MAX) {
-    error.value = '檔案超過 1MB 限制'
+    error.value = $t('errors.file_size_limit')
     return
   }
 
@@ -743,10 +744,10 @@ function addMorePrice () {
     autoMemo: '',
     stock: 1,
     name: iscnDataLanguage.value === 'en'
-      ? `Tier ${nextPriceIndex.value}`
-      : `級別 ${nextPriceIndex.value}`,
-    nameEn: `Tier ${nextPriceIndex.value}`,
-    nameZh: `級別 ${nextPriceIndex.value}`,
+      ? $t('nft_book_form.tier', { number: nextPriceIndex.value })
+      : $t('nft_book_form.tier_zh', { number: nextPriceIndex.value }),
+    nameEn: $t('nft_book_form.tier', { number: nextPriceIndex.value }),
+    nameZh: $t('nft_book_form.tier_zh', { number: nextPriceIndex.value }),
     descriptionEn: '',
     descriptionZh: '',
     hasShipping: false,
@@ -819,13 +820,13 @@ function validate (prices: any[]) {
     if (!price.name.en || !price.name.zh) {
       errors.push({
         path: 'name',
-        message: 'Please input product name'
+        message: $t('errors.product_name_required')
       })
     }
     if (price.hasShipping && !shippingRates.value.length) {
       errors.push({
         path: 'shipping',
-        message: 'Please input shipping rates'
+        message: $t('errors.shipping_rates_required')
       })
     }
   })
@@ -875,13 +876,13 @@ async function onSubmit () {
 async function submitNewClass () {
   try {
     if (!classId.value) {
-      throw new Error('Please input NFT class ID')
+      throw new Error($t('errors.nft_class_id_required'))
     }
     if (moderatorWalletInput.value) {
-      throw new Error('Please press "Add" button to add moderator wallet')
+      throw new Error($t('errors.add_moderator_wallet'))
     }
     if (notificationEmailInput.value) {
-      throw new Error('Please press "Add" button to add notification email')
+      throw new Error($t('errors.add_notification_email'))
     }
 
     isLoading.value = true
@@ -892,7 +893,7 @@ async function submitNewClass () {
       !collectionId.includes('nft_book') &&
       !collectionId.includes('book_nft')
     ) {
-      throw new Error('NFT Class not in NFT BOOK meta collection')
+      throw new Error($t('errors.not_nft_book_collection'))
     }
 
     const p = mapPrices(prices.value)
@@ -900,7 +901,7 @@ async function submitNewClass () {
       p.find((price: any) => price.price !== 0 && price.price < MINIMAL_PRICE)
     ) {
       throw new Error(
-        `Price of each edition must be at least $${MINIMAL_PRICE} or $0 (free)`
+        $t('errors.price_validation', { minPrice: MINIMAL_PRICE })
       )
     }
 
@@ -947,7 +948,7 @@ async function submitEditedClass () {
   try {
     if (!isEditMode.value) {
       throw new Error(
-        'Unable to submit edit: Missing edition index or class ID'
+        $t('errors.missing_edition_data')
       )
     }
     const p = mapPrices(prices.value)

@@ -28,7 +28,6 @@
   },
   "menu": {
     "publish_nft_book": "Publish NFT Book",
-    "我要出版": "我要出版",
     "bookstore_listing": "Bookstore & Listing",
     "latest_books": "Latest Books",
     "manage_book_listings": "Manage Book Listings",
@@ -40,45 +39,43 @@
     "bookstore_pos": "Bookstore POS",
     "batch_create_qr_codes": "Batch Create QR Codes",
     "batch_create_short_links": "Batch Create Short Links",
-    "help": "Help 幫助",
+    "help": "Help",
     "publisher_guide": "Publisher Guide",
-    "出版教學": "出版教學",
     "listing_disclaimer": "Listing Disclaimer",
-    "上架須知和收費": "上架須知和收費",
-    "chat_with_us": "Chat with Us 聯絡我們"
+    "chat_with_us": "Chat with Us"
   },
   "nft_book_form": {
-    "page_title": "General settings / 一般選項",
+    "page_title": "General settings",
     "edit_title": "Edit Current Edition",
     "nft_class_id": "NFT Class ID",
-    "drm_label": "DRM: encrypt content & disable download / 加密文本、禁止下載",
-    "drm_tooltip": "This option is only available when uploading files / 僅能在上傳檔案時決定",
-    "accept_tipping": "Accept tipping / 接受打賞",
-    "edition_title": "Edition #{{index}} / 版本 #{{index}}",
-    "unit_price_label": "Unit Price in USD (Minimum {{minimal}}, or 0 for free) / 版本定價（美元）",
-    "copies_label": "No of copies / 數量",
-    "product_name_label": "Product Name / 產品名稱",
+    "drm_label": "DRM: encrypt content & disable download",
+    "drm_tooltip": "This option is only available when uploading files",
+    "accept_tipping": "Accept tipping",
+    "edition_number": "Edition #{number}",
+    "unit_price_label": "Unit Price in USD (Minimum ${minPrice}, or 0 for free)",
+    "copies_label": "No of copies",
+    "product_name": "Product Name",
     "product_name_placeholder": "Product name",
-    "description_optional": "Description (Optional) / 描述（選填）",
-    "auto_delivery": "Auto delivery / 自動發書",
-    "manual_delivery": "Manual delivery / 手動發書",
-    "memo_label": "Memo / 發書留言",
+    "description_optional": "Description (Optional)",
+    "auto_delivery": "Auto delivery",
+    "manual_delivery": "Manual delivery",
+    "delivery_memo": "Memo",
     "memo_placeholder": "Thank you for your support. It means a lot to me.",
-    "autograph_image": "Autograph image / 簽名圖",
-    "autograph_requirements": "僅限 png 圖檔，檔案大小不超過 1MB，建議尺寸為 600 x 200",
-    "pause_selling": "Pause selling of this Edition / 暫停此版本的銷售",
-    "includes_shipping": "Includes physical good that requires shipping / 包含需要運送的實體商品",
+    "autograph_image": "Autograph image",
+    "image_requirements": "PNG files only, max 1MB, recommended size 600 x 200",
+    "pause_selling": "Pause selling of this Edition",
+    "includes_shipping": "Includes physical good that requires shipping",
     "add_edition": "Add Edition",
     "advanced_settings": "Advanced Settings",
-    "notification_email": "Email to receive sales notifications / 欲收到銷售通知的電郵",
-    "notification_email_placeholder": "abc@example.com",
-    "share_sales_data": "Share sales data to wallets / 分享銷售數據給特定地址",
+    "notification_email_header": "Email to receive sales notifications",
+    "notification_email_placeholder": "abc{at}example.com",
+    "share_sales_data": "Share sales data to wallets",
     "wallet_placeholder": "like1...",
-    "loading_progress_text": "請勿關閉此視窗，直到操作完成。"
+    "loading_progress_text": "Please do not close this window until operation is complete."
   },
   "editor": {
     "placeholder_en": "e.g.: This edition includes EPUB and PDF ebook files.",
-    "placeholder_zh": "例：此版本包含 EPUB 及 PDF 電子書檔"
+    "placeholder_zh": "e.g.: This edition includes EPUB and PDF ebook files."
   },
   "latest_books": {
     "title": "Latest Books on Liker Land Bookstore",
@@ -92,33 +89,33 @@
   },
   "sales_pos": {
     "sales_items": "Sales Items",
-    "selected_count": " ({{count}} selected)",
+    "selected_count": " ({count} selected)",
     "direct_checkout": "Direct Checkout",
     "gift_checkout": "Gift Checkout",
     "checkout_url": "Checkout URL",
     "receiver_email": "Receiver Email"
   },
   "prices": {
-    "標準版": "標準版",
     "standard_edition": "Standard Edition",
-    "tier": "Tier {{number}}",
-    "級別": "級別 {{number}}"
+    "標準版": "Standard Edition",
+    "tier": "Tier {number}",
+    "tier_zh": "Level {number}"
   },
-  "validation": {
-    "please_input_product_name": "Please input product name",
-    "please_input_shipping_rates": "Please input shipping rates",
-    "png_file_only": "僅支援 PNG 檔案",
-    "file_size_limit": "檔案超過 1MB 限制",
-    "please_input_nft_class_id": "Please input NFT class ID",
-    "add_moderator_wallet": "Please press \"Add\" button to add moderator wallet",
-    "add_notification_email": "Please press \"Add\" button to add notification email",
-    "nft_not_in_collection": "NFT Class not in NFT BOOK meta collection",
-    "minimum_price_error": "Price of each edition must be at least ${{minimal}} or $0 (free)",
+  "errors": {
+    "product_name_required": "Please input product name",
+    "shipping_rates_required": "Please input shipping rates",
+    "png_only": "PNG files only",
+    "file_size_limit": "File exceeds 1MB limit",
+    "nft_class_id_required": "Please input NFT class ID",
+    "add_moderator_wallet": "Please press Add button to add moderator wallet",
+    "add_notification_email": "Please press Add button to add notification email",
+    "not_nft_book_collection": "NFT Class not in NFT BOOK meta collection",
+    "price_validation": "Price of each edition must be at least ${minPrice} or $0 (free)",
     "edition_not_found": "Edition not found",
     "no_prices_found": "No prices found",
     "nft_class_not_found": "NFT Class not found",
     "not_owner": "NOT_OWNER_OF_NFT_CLASS",
-    "unable_to_submit_edit": "Unable to submit edit: Missing edition index or class ID",
+    "missing_edition_data": "Unable to submit edit: Missing edition index or class ID",
     "unsupported_file_type": "Unsupported file type"
   },
   "default_values": {
@@ -149,7 +146,7 @@
     "click_here": "click here"
   },
   "stripe_connect": {
-    "connect_title": "Connect to a Stripe Account / 連接 Stripe 帳戶",
+    "connect_title": "Connect to a Stripe Account",
     "connect_description": "Use a Stripe Connect account for receiving payments",
     "use_my_account": "Use my account",
     "has_stripe_account": "Has Stripe Account",
@@ -300,22 +297,22 @@
     "profile_update_failed": "Unable to update user profile"
   },
   "new_listing": {
-    "table_of_content": "Table Of Content / 章節目錄",
+    "table_of_content": "Table Of Content",
     "pricing_availability": "Pricing and Availability",
-    "unit_price_usd": "Unit Price in USD (Minimum ${MINIMAL_PRICE}, or 0 for free) / 版本定價（美金）",
-    "total_nft_for_sale": "Total number of NFT ${hasMultiplePrices ? 'edition' : 'ebook'} for sale / 此定價的銷售數量",
-    "delivery_method": "Delivery method of this ${priceItemLabel} / 自動或手動發書",
-    "memo_delivery": "Memo of this ${priceItemLabel} / 自動發書留言",
-    "is_physical_only": "Is Physical only good / 只含實體書",
+    "unit_price_usd": "Unit Price in USD (Minimum ${MINIMAL_PRICE}, or 0 for free)",
+    "total_nft_for_sale": "Total number of NFT ${hasMultiplePrices ? 'edition' : 'ebook'} for sale",
+    "delivery_method": "Delivery method of this ${priceItemLabel}",
+    "memo_delivery": "Memo of this ${priceItemLabel}",
+    "is_physical_only": "Is Physical only good",
     "no_digital_files": "This edition does not contain digital file/NFT",
-    "allow_custom_price": "Allow custom price / 開啟打賞功能",
+    "allow_custom_price": "Allow custom price",
     "allow_pay_more": "Allow user to pay more than defined price",
-    "unlist_edition": "Unlist Edition / 暫時下架",
+    "unlist_edition": "Unlist Edition",
     "pause_selling_edition": "Pause selling of this Edition",
     "product_information": "Product Information",
-    "product_name_en": "Product Name / 產品名稱（英文）",
+    "product_name_en": "Product Name (English)",
     "product_name_en_placeholder": "Product name in English",
-    "description_optional_label": "Description (Optional) / 描述（選填）"
+    "description_optional_label": "Description (Optional)"
   },
   "nft_send": {
     "enter_author_message": "Enter Author's Message",
@@ -336,16 +333,48 @@
   },
   "status_page": {
     "search_placeholder": "Search...",
-    "email_placeholder": "abc@example.com",
+    "email_placeholder": "abc{at}example.com",
     "wallet_placeholder": "like1...",
     "channel_ids_placeholder": "Channel ID(s), separated by commas (e.g. store01, store02)"
   },
   "publish_nft_book": {
-    "page_title": "發佈你的區塊鏈書"
+    "page_title": "Publish your blockchain book"
   },
   "seo_titles": {
     "publish_nft_book": "Publish your NFT Book",
     "book_listing_management": "Book Listing Management",
     "new_book_listing": "New Book Listing"
+  },
+  "publish_steps": {
+    "upload_files": "Upload Files",
+    "register_iscn": "Register ISCN",
+    "mint_nft": "Mint Blockchain Book",
+    "new_book_publish": "New Book Publication",
+    "continue_last_register": "Continue previous registration:",
+    "already_have_iscn": "Already have ISCN ID? Click ",
+    "here": "here",
+    "enter_iscn_id": "Enter ISCN ID"
+  },
+  "upload_form": {
+    "drag_files_here": "Drag files here to upload or ",
+    "file_size_suggestion": "Suggested file size: < 20 MB",
+    "do_not_close_upload": "Please do not close this window until upload is complete.",
+    "drm_encrypt_disable": "Encrypt content & disable download"
+  },
+  "form_labels": {
+    "book_info": "Book Information",
+    "nft_mint_count": "Number of NFT to mint (this batch)",
+    "image_url": "Cover Image URL",
+    "external_url": "External URL (optional)",
+    "max_supply": "Max supply (optional)"
+  },
+  "notifications": {
+    "do_not_close_window": "Please do not close this window until the operation is complete.",
+    "file_upload_complete": "Please do not close this window until upload is complete.",
+    "iscn_registration_complete": "Please do not close this window until ISCN registration is complete."
+  },
+  "collection": {
+    "new_collection_name": "New Collection Name",
+    "collection_zh_description": "Collection Chinese description..."
   }
 }

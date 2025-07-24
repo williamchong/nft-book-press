@@ -1,7 +1,7 @@
 <template>
   <UForm :state="state" class="flex flex-col gap-[12px]">
     <UFormGroup
-      label="Number of NFT to mint / 鑄造數量（此批）"
+      :label="$t('form_labels.nft_mint_count')"
       class="text-left"
       :error="(state.mintCount === undefined || state.mintCount < 0) && 'Mint count must be greater than 0'"
       required
@@ -16,7 +16,7 @@
     </UFormGroup>
 
     <UFormGroup
-      label="Image URL / 封面網址"
+      :label="$t('form_labels.image_url')"
       name="imageUrl"
       class="text-left"
       :error="!state.imageUrl && 'Image URL is required'"
@@ -38,11 +38,11 @@
     </div>
 
     <template v-if="shouldShowAdvanceSettings">
-      <UFormGroup label="External URL (optional) / 外部網址（選填）">
+      <UFormGroup :label="$t('form_labels.external_url')">
         <UInput v-model="state.externalUrl" placeholder="https://" />
       </UFormGroup>
 
-      <UFormGroup v-if="showMaxSupply" label="Max number of supply for this NFT Class (optional) / 最大供應量（選填）">
+      <UFormGroup v-if="showMaxSupply" :label="$t('form_labels.max_supply')">
         <template v-if="state.maxSupply && state.maxSupply < state.mintCount" #help>
           <UAlert
             class="mt-1"
