@@ -35,7 +35,7 @@
   },
   "menu": {
     "publish_nft_book": "發佈 NFT 書籍",
-    "我要出版": "我要出版",
+    "start_publishing": "我要出版",
     "bookstore_listing": "書店與上架",
     "latest_books": "最新書籍",
     "manage_book_listings": "管理書籍清單",

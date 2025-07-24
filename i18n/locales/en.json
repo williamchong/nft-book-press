@@ -28,6 +28,7 @@
   },
   "menu": {
     "publish_nft_book": "Publish NFT Book",
+    "start_publishing": "Start Publishing",
     "bookstore_listing": "Bookstore & Listing",
     "latest_books": "Latest Books",
     "manage_book_listings": "Manage Book Listings",

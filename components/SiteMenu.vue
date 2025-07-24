@@ -69,7 +69,7 @@ const items = computed(() => [
     label: $t('menu.publish_nft_book'),
     links: [
       {
-        label: $t('menu.我要出版'),
+        label: $t('menu.start_publishing'),
         icon: 'i-heroicons-sparkles',
         to: localeRoute({ name: 'publish-nft-book' })
       }
