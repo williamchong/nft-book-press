@@ -81,7 +81,7 @@
   "sales_pos.checkout_url": "Checkout URL",
   "sales_pos.receiver_email": "Receiver Email",
   "prices.standard_edition": "Standard Edition",
-  "prices.標準版": "Standard Edition",
+  "prices.standard_edition_zh": "Standard Edition",
   "prices.tier": "Tier {number}",
   "prices.tier_zh": "Level {number}",
   "errors.product_name_required": "Please input product name",

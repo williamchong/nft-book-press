@@ -471,10 +471,10 @@ const prices = ref<any[]>([
     deliveryMethod: 'auto',
     autoMemo: $t('default_values.auto_memo'),
     stock: DEFAULT_STOCK,
-    name: $t('prices.標準版'),
+    name: $t('prices.standard_edition_zh'),
 
     nameEn: $t('prices.standard_edition'),
-    nameZh: $t('prices.標準版'),
+    nameZh: $t('prices.standard_edition_zh'),
     descriptionEn: '',
     descriptionZh: '',
     hasShipping: false,
@@ -744,10 +744,10 @@ function addMorePrice () {
     autoMemo: '',
     stock: 1,
     name: iscnDataLanguage.value === 'en'
-      ? $t('nft_book_form.tier', { number: nextPriceIndex.value })
-      : $t('nft_book_form.tier_zh', { number: nextPriceIndex.value }),
-    nameEn: $t('nft_book_form.tier', { number: nextPriceIndex.value }),
-    nameZh: $t('nft_book_form.tier_zh', { number: nextPriceIndex.value }),
+      ? $t('prices.tier', { number: nextPriceIndex.value })
+      : $t('prices.tier_zh', { number: nextPriceIndex.value }),
+    nameEn: $t('prices.tier', { number: nextPriceIndex.value }),
+    nameZh: $t('prices.tier_zh', { number: nextPriceIndex.value }),
     descriptionEn: '',
     descriptionZh: '',
     hasShipping: false,
