@@ -25,7 +25,7 @@
       :prevent-close="true"
       :ui="{ base: 'p-4 items-center gap-2' }"
     >
-      <span>Restoring session ...</span>
+      <span>{{ $t('app.restoring_session') }}</span>
       <UProgress animation="carousel" />
     </UModal>
     <WelcomeModal />
@@ -42,6 +42,7 @@ import { storeToRefs } from 'pinia'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useCollectionStore } from '~/stores/collection'
 import { useUIStore } from '~/stores/ui'
+const { t: $t } = useI18n()
 
 const { SITE_URL } = useRuntimeConfig().public
 const bookStoreApiStore = useBookStoreApiStore()
@@ -86,13 +87,13 @@ useHead({
 
 useSeoMeta({
   titleTemplate: (titleChunk) => {
-    return titleChunk ? `${titleChunk} - Liker Land Book Press` : 'Liker Land Book Press'
+    return titleChunk ? `${titleChunk} - ${$t('app.site_title')}` : $t('app.site_title')
   },
-  ogTitle: 'Liker Land Book Press',
-  description: 'Liker Land Web3 Book Press – the future of direct and self-publishing. Empowering authors to create, share, and monetize ebooks seamlessly through decentralized Web3 technology. Start your publishing journey today!',
-  ogDescription: 'Liker Land Web3 Book Press – the future of direct and self-publishing. Empowering authors to create, share, and monetize ebooks seamlessly through decentralized Web3 technology. Start your publishing journey today!',
+  ogTitle: $t('app.site_title'),
+  description: $t('app.site_description'),
+  ogDescription: $t('app.site_description'),
   ogType: 'website',
-  ogSiteName: 'Liker Land Book Press',
+  ogSiteName: $t('app.site_title'),
   themeColor: '#28646e'
 })
 

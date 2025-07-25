@@ -23,7 +23,7 @@
           Liker Land Book Collections
         </h2>
 
-        <UButton icon="i-heroicons-plus-circle" label="New Collection" :to="{ name: 'nft-book-store-collection-new' }" />
+        <UButton icon="i-heroicons-plus-circle" label="New Collection" :to="localeRoute({ name: 'nft-book-store-collection-new' })" />
       </template>
 
       <UTabs
@@ -69,6 +69,7 @@ import { useCollectionStore } from '~/stores/collection'
 
 const route = useRoute()
 const router = useRouter()
+const localeRoute = useLocaleRoute()
 const nftStore = useNftStore()
 const bookStoreApiStore = useBookStoreApiStore()
 const collectionStore = useCollectionStore()
@@ -160,10 +161,10 @@ useSeoMeta({
 })
 
 function selectTableRow (row: any) {
-  router.push({
+  navigateTo(localeRoute({
     name: 'nft-book-store-collection-status-collectionId',
     params: { collectionId: row.collectionId }
-  })
+  }))
 }
 
 </script>

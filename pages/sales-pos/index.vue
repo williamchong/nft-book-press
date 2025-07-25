@@ -23,7 +23,7 @@
           <div class="flex items-center gap-2">
             <h2
               class="text-xl font-bold"
-              v-text="`Sales Items${selectedItems.length > 0 ? ` (${selectedItems.length} selected)` : ''}`"
+              v-text="$t('sales_pos.sales_items') + (selectedItems.length > 0 ? $t('sales_pos.selected_count', { count: selectedItems.length }) : '')"
             />
 
             <UButton
@@ -113,8 +113,8 @@
           <UTabs
             class="w-full"
             :items="[
-              { key: 'direct', label: 'Direct Checkout' },
-              { key: 'gift', label: 'Gift Checkout' },
+              { key: 'direct', label: $t('sales_pos.direct_checkout') },
+              { key: 'gift', label: $t('sales_pos.gift_checkout') },
             ]"
             :ui="{
               wrapper: 'px-4 sm:px-6',
@@ -123,7 +123,7 @@
           >
             <template #item="{ item }">
               <template v-if="item.key === 'direct'">
-                <UFormGroup label="Checkout URL">
+                <UFormGroup :label="$t('sales_pos.checkout_url')">
                   <div class="flex items-center gap-2">
                     <UInput
                       v-model="checkoutUrl"
@@ -180,7 +180,7 @@
                 </div>
               </template>
               <template v-else-if="item.key === 'gift'">
-                <UFormGroup label="Receiver Email">
+                <UFormGroup :label="$t('sales_pos.receiver_email')">
                   <UInput v-model="giftToEmail" type="email" placeholder="example@liker.land" />
                 </UFormGroup>
 
@@ -334,6 +334,7 @@ import type { DropdownItem } from '#ui/types'
 
 import { useNftStore } from '~/stores/nft'
 import { useCollectionStore } from '~/stores/collection'
+const { t: $t } = useI18n()
 
 const route = useRoute()
 const toast = useToast()
@@ -368,7 +369,7 @@ watch(isShowAddItemModal, (value) => {
 
 const saleItemTableColumns = computed(() => {
   const columns = [
-    { key: 'name', label: 'Product', class: '' }
+    { key: 'name', label: $t('common.name'), class: '' }
   ]
   if (isEditMode.value) {
     columns.push({ key: 'delete-action', label: '', class: 'w-12' })

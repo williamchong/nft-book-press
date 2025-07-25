@@ -729,6 +729,7 @@ const { getBalanceOf } = useNFTContractReader()
 
 const route = useRoute()
 const router = useRouter()
+const localeRoute = useLocaleRoute()
 const toast = useToast()
 
 const error = ref('')
@@ -1376,7 +1377,7 @@ function shortenAllLinks () {
       'nft_book_press_batch_shorten_url',
       convertArrayOfObjectsToCSV(purchaseLinks.value.map(({ channel, url }) => ({ key: channel, url })))
     )
-    router.push({ name: 'batch-short-links', query: { print: 1 } })
+    navigateTo(localeRoute({ name: 'batch-short-links', query: { print: 1 } }))
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)

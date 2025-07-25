@@ -71,7 +71,7 @@
         />
       </UFormGroup>
 
-      <UFormGroup label="書訊">
+      <UFormGroup :label="$t('form_labels.book_info')">
         <UInput
           v-model="formData.bookInfoUrl"
           placeholder="Enter book info URL"
@@ -255,6 +255,7 @@
 import { typeOptions, licenseOptions, languageOptions, MAX_DESCRIPTION_LENGTH } from '~/constant/index'
 import { useFileUpload } from '~/composables/useFileUpload'
 import { getApiEndpoints } from '~/constant/api'
+const { t: $t } = useI18n()
 
 const downloadTypeOptions = [
   { label: 'EPUB', value: 'epub' },

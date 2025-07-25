@@ -4,12 +4,12 @@
       <UButton
         class="font-bold"
         variant="ghost"
-        label="Liker Land Book Press"
-        :to="{ name: 'index' }"
+        :label="$t('app.site_title')"
+        :to="localeRoute({ name: 'index' })"
       />
       <UBadge
         v-if="isTestnet"
-        label="TESTNET"
+        :label="$t('app.testnet')"
         variant="subtle"
         color="amber"
         size="xs"
@@ -25,5 +25,7 @@
 </template>
 
 <script setup lang="ts">
+const { t: $t } = useI18n()
+const localeRoute = useLocaleRoute()
 const isTestnet = getIsTestnet()
 </script>

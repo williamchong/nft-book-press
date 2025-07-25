@@ -427,7 +427,7 @@ const { getClassMetadataById, lazyFetchClassMetadataById } = nftStore
 const { fetchStripeConnectStatusByWallet } = stripeStore
 const { getStripeConnectStatusByWallet } = storeToRefs(stripeStore)
 
-const router = useRouter()
+const localeRoute = useLocaleRoute()
 
 const error = ref('')
 const isLoading = ref(false)
@@ -674,7 +674,7 @@ async function submitNewCollection () {
       mustClaimToView: mustClaimToView.value,
       ...formattedPrice
     })
-    router.push({ name: 'nft-book-store-collection' })
+    navigateTo(localeRoute({ name: 'nft-book-store-collection' }))
   } catch (err) {
     const errorData = (err as any).data || err
     console.error(errorData)

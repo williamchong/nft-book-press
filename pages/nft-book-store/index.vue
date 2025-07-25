@@ -26,7 +26,7 @@
         <UButton
           icon="i-heroicons-plus-circle"
           label="New Listing"
-          :to="{ name: 'nft-book-store-new' }"
+          :to="localeRoute({ name: 'nft-book-store-new' })"
         />
       </template>
 
@@ -162,6 +162,7 @@ import { useNftStore } from '~/stores/nft'
 
 const route = useRoute()
 const router = useRouter()
+const localeRoute = useLocaleRoute()
 const bookStoreApiStore = useBookStoreApiStore()
 const nftStore = useNftStore()
 const { listingList: bookList, moderatedBookList, token } = storeToRefs(bookStoreApiStore)
@@ -295,9 +296,9 @@ onMounted(async () => {
 })
 
 function selectTableRow (row: any) {
-  router.push({
+  navigateTo(localeRoute({
     name: 'nft-book-store-status-classId',
     params: { classId: row.classId }
-  })
+  }))
 }
 </script>

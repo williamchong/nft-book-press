@@ -4,7 +4,7 @@
 
     <PageBody class="space-y-8">
       <h2 class="lg:mt-10 text-3xl font-bold">
-        🎉 Welcome!
+        {{ $t('welcome.title') }}
       </h2>
 
       <SiteMenu :is-large="true" />
@@ -12,9 +12,10 @@
   </PageContainer>
 </template>
 <script setup lang="ts">
-const router = useRouter()
+const { t: $t } = useI18n()
+const localeRoute = useLocaleRoute()
 
 onMounted(() => {
-  router.replace({ name: 'latest-books' })
+  navigateTo(localeRoute({ name: 'latest-books' }), { replace: true })
 })
 </script>

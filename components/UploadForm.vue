@@ -9,11 +9,11 @@
         @click="($refs.imageFile as HTMLInputElement)?.click()"
       >
         <UIcon name="i-heroicons-folder-arrow-down" class="w-5 h-5" />
-        <p class="text-gray-600 my-[16px]" v-text="`把檔案拖到此處上傳或`" />
+        <p class="text-gray-600 my-[16px]" v-text="$t('upload_form.drag_files_here')" />
         <UButton type="button" variant="ghost" @click.stop="($refs.imageFile as HTMLInputElement)?.click()">
-          選擇檔案
+          {{ $t('common.select_file') }}
         </UButton>
-        <p class="text-xs text-gray-500 mt-2" v-text="`建議檔案大小: < 20 MB`" />
+        <p class="text-xs text-gray-500 mt-2" v-text="$t('upload_form.file_size_suggestion')" />
         <input
           ref="imageFile"
           type="file"
@@ -63,7 +63,7 @@
       </div>
     </div>
     <div class="flex items-center gap-2 mt-4">
-      <UCheckbox v-model="isEncryptEBookData" label="DRM: encrypt content & disable download / 加密文本、禁止下載" />
+      <UCheckbox v-model="isEncryptEBookData" :label="$t('upload_form.drm_encrypt_disable')" />
     </div>
     <UModal
       :model-value="!!uploadStatus"
@@ -78,7 +78,7 @@
             {{ uploadStatus }}
           </UBadge>
           <p class="text-xs text-gray-500">
-            請勿關閉此視窗，直到上傳完成。
+            {{ $t('upload_form.do_not_close_upload') }}
           </p>
         </div>
         <UProgress
@@ -105,6 +105,7 @@ import {
 } from '~/utils/arweave'
 import { useWalletStore } from '~/stores/wallet'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
+const { t: $t } = useI18n()
 
 const UPLOAD_FILESIZE_MAX = 200 * 1024 * 1024
 

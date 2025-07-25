@@ -1,6 +1,6 @@
 <template>
   <PageBody>
-    <PageHeader title="Latest Books on Liker Land Bookstore" />
+    <PageHeader :title="$t('latest_books.title')" />
     <UAlert
       v-if="error"
       icon="i-heroicons-exclamation-triangle"
@@ -15,10 +15,10 @@
       icon="i-heroicons-exclamation-circle"
       color="orange"
       variant="soft"
-      title="Join Our Affiliation Program!"
-      description="Setup your Liker ID and Stripe Connect Account to participate in sales affiliation program on Liker Land Bookstore."
+      :title="$t('latest_books.join_affiliation')"
+      :description="$t('latest_books.affiliation_description')"
       :actions="[{
-        label: 'Setup',
+        label: $t('common.setup'),
         color: 'orange',
         variant: 'outline',
         click: handleAffiliationSetupButtonClick,
@@ -40,7 +40,7 @@
           }"
         >
           <div class="flex px-3 py-3.5 border-b border-gray-200">
-            <UInput v-model="q" placeholder="Filter books by name or author" />
+            <UInput v-model="q" :placeholder="$t('latest_books.filter_placeholder')" />
           </div>
           <UTable :columns="tableColumns" :rows="filteredRows" @select="selectTableRow">
             <template #image-data="{ row }">
@@ -50,7 +50,7 @@
               <div class="max-w-[20vw] whitespace-normal" v-text="row.className" />
             </template>
             <template #url-data="{ row }">
-              <UButton label="Copy" :disabled="!isAffiliationReady" @click="handleCopyButtonClick($event, row.url)" />
+              <UButton :label="$t('common.copy')" :disabled="!isAffiliationReady" @click="handleCopyButtonClick($event, row.url)" />
             </template>
           </UTable>
         </UCard>
@@ -65,6 +65,7 @@ import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useUserStore } from '~/stores/user'
 import { useStripeStore } from '~/stores/stripe'
 import { useWalletStore } from '~/stores/wallet'
+const { t: $t } = useI18n()
 
 const { BOOK3_URL, LIKE_CO_API } = useRuntimeConfig().public
 
@@ -73,7 +74,7 @@ const stripeStore = useStripeStore()
 const bookStoreApiStore = useBookStoreApiStore()
 const walletStore = useWalletStore()
 
-const router = useRouter()
+const localeRoute = useLocaleRoute()
 const route = useRoute()
 
 const { wallet } = storeToRefs(walletStore)
@@ -81,8 +82,8 @@ const { userLikerInfo } = storeToRefs(userStore)
 const { isAuthenticated } = storeToRefs(bookStoreApiStore)
 
 const tabItems = [
-  { label: 'Latest Releases', key: 'latest' },
-  { label: 'Best Sellers', key: 'bestselling' }
+  { label: $t('latest_books.latest_releases'), key: 'latest' },
+  { label: $t('latest_books.best_sellers'), key: 'bestselling' }
 ]
 
 const error = ref('')
@@ -109,21 +110,21 @@ const tableColumns = computed(() => [
   },
   {
     key: 'className',
-    label: 'Book Name',
+    label: $t('latest_books.book_name'),
     sortable: true
   },
   {
     key: 'author',
-    label: 'Author',
+    label: $t('common.author'),
     sortable: true
   },
   {
     key: 'priceInUSD',
-    label: 'Price',
+    label: $t('common.price'),
     sortable: true
   }, {
     key: 'url',
-    label: isAffiliationReady.value ? 'Affiliation Link' : 'Link',
+    label: isAffiliationReady.value ? $t('latest_books.affiliation_link') : $t('common.link'),
     sortable: false
   }
 ])
@@ -204,7 +205,7 @@ async function fetchUserStripeInfo () {
 
 function handleAffiliationSetupButtonClick () {
   useTrackEvent('latest_books_click_affiliation_setup')
-  router.push({ name: 'nft-book-store-user' })
+  navigateTo(localeRoute({ name: 'nft-book-store-user' }))
 }
 
 function selectTableRow (row: any) {

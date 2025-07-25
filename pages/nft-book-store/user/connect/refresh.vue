@@ -10,7 +10,7 @@
       <template #footer>
         <UButton
           label="Go Back"
-          :to="{ name: 'nft-book-store-user' }"
+          :to="localeRoute({ name: 'nft-book-store-user' })"
         />
       </template>
     </UCard>
@@ -18,5 +18,6 @@
 </template>
 
 <script setup lang="ts">
+const localeRoute = useLocaleRoute()
 definePageMeta({ layout: 'page' })
 </script>

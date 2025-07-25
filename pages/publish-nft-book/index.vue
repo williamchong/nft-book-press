@@ -70,18 +70,18 @@
         <div class="flex flex-col items-center gap-4 py-4">
           <div class="flex flex-col items-center">
             <div v-if="hasExistingSessionData">
-              繼續上次的註冊:
+              {{ $t('publish_steps.continue_last_register') }}
               <UButton variant="ghost" class="text-primary-500 font-semibold" @click="step = 1">
                 {{ bookName }}
               </UButton>
             </div>
             <div class="flex items-center">
-              <span>已經有 ISCN ID 了？ 按</span>
+              <span>{{ $t('publish_steps.already_have_iscn') }}</span>
               <UButton
                 variant="ghost"
                 @click="showIscnInput = !showIscnInput"
               >
-                這裡
+                {{ $t('publish_steps.here') }}
               </UButton>
             </div>
           </div>
@@ -89,13 +89,13 @@
           <div v-if="showIscnInput" class="flex flex-col items-center gap-2 w-full max-w-md">
             <UInput
               v-model="iscnInputValue"
-              placeholder="輸入 ISCN ID"
+              :placeholder="$t('publish_steps.enter_iscn_id')"
             />
             <UButton
               :disabled="!iscnInputValue"
               @click="handleIscnInput"
             >
-              確認
+              {{ $t('common.confirm') }}
             </UButton>
           </div>
         </div>
@@ -109,12 +109,14 @@ import { storeToRefs } from 'pinia'
 import { useWalletStore } from '~/stores/wallet'
 import { clearUploadFileData, setUploadFileData } from '~/utils/uploadFile'
 import { useToastComposable } from '~/composables/useToast'
+const { t: $t } = useI18n()
 
 const walletStore = useWalletStore()
 const { wallet, signer } = storeToRefs(walletStore)
 const { initIfNecessary } = walletStore
 const route = useRoute()
 const router = useRouter()
+const localeRoute = useLocaleRoute()
 const { showErrorToast } = useToastComposable()
 
 const step = ref(0)
@@ -172,19 +174,19 @@ const shouldDisableAction = computed(() => {
 
 const steps = [
   {
-    title: '上傳檔案',
+    title: $t('publish_steps.upload_files'),
     description: 'Upload your book file'
   },
   {
-    title: '註冊 ISCN',
+    title: $t('publish_steps.register_iscn'),
     description: 'Register ISCN'
   },
   {
-    title: '鑄造區塊鏈書',
+    title: $t('publish_steps.mint_nft'),
     description: 'Mint NFT'
   },
   {
-    title: '新書發佈',
+    title: $t('publish_steps.new_book_publish'),
     description: 'Publish new book'
   }
 ]
@@ -276,7 +278,7 @@ const handleMintNFTSubmit = async (res: any) => {
 }
 
 const handleNewBookSubmit = () => {
-  router.push({ name: 'nft-book-store' })
+  navigateTo(localeRoute({ name: 'nft-book-store' }))
 }
 
 const handleIscnInput = async () => {

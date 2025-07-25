@@ -41,6 +41,9 @@ import { storeToRefs } from 'pinia'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
 import { useCollectionStore } from '~/stores/collection'
 import { PUBLISHING_NOTICE_URL_EN, PUBLISHING_NOTICE_URL_ZH } from '~/constant'
+const { t: $t } = useI18n()
+
+const localeRoute = useLocaleRoute()
 
 const bookStoreApiStore = useBookStoreApiStore()
 const collectionStore = useCollectionStore()
@@ -63,107 +66,107 @@ function handleLinkClick ({ label }: { label?: string }) {
 
 const items = computed(() => [
   {
-    label: 'Publish NFT Book',
+    label: $t('menu.publish_nft_book'),
     links: [
       {
-        label: '我要出版',
+        label: $t('menu.start_publishing'),
         icon: 'i-heroicons-sparkles',
-        to: { name: 'publish-nft-book' }
+        to: localeRoute({ name: 'publish-nft-book' })
       }
     ]
   },
   {
-    label: 'Bookstore & Listing',
+    label: $t('menu.bookstore_listing'),
     links: [
       {
-        label: 'Latest Books',
+        label: $t('menu.latest_books'),
         icon: 'i-heroicons-book-open',
-        to: { name: 'latest-books' },
+        to: localeRoute({ name: 'latest-books' }),
         exact: true
       },
       {
-        label: 'Manage Book Listings',
+        label: $t('menu.manage_book_listings'),
         icon: 'i-heroicons-rectangle-stack',
-        to: { name: 'nft-book-store' },
+        to: localeRoute({ name: 'nft-book-store' }),
         exact: true,
         badge: getTotalPendingNFTCount.value
       },
       {
-        label: 'Manage Collections',
+        label: $t('menu.manage_collections'),
         icon: 'i-heroicons-rectangle-stack',
-        to: { name: 'nft-book-store-collection' },
+        to: localeRoute({ name: 'nft-book-store-collection' }),
         exact: true,
         badge: getCollectionTotalPendingNFTCount.value
       }
     ]
   },
   {
-    label: 'Authors & Affiliates',
+    label: $t('menu.authors_affiliates'),
     links: [
       {
-        label: 'User Settings',
+        label: $t('menu.user_settings'),
         icon: 'i-heroicons-user-group',
-        to: { name: 'nft-book-store-user' },
+        to: localeRoute({ name: 'nft-book-store-user' }),
         exact: true
       }
     ]
   },
   {
-    label: 'Sales Tools',
+    label: $t('menu.sales_tools'),
     links: [
       {
-        label: 'Create Purchase Link',
+        label: $t('menu.create_purchase_link'),
         icon: 'i-heroicons-link',
-        to: { name: 'purchase-link' },
+        to: localeRoute({ name: 'purchase-link' }),
         exact: true
       },
       {
-        label: 'Bookstore POS',
+        label: $t('menu.bookstore_pos'),
         icon: 'i-heroicons-shopping-cart',
-        to: { name: 'sales-pos' },
+        to: localeRoute({ name: 'sales-pos' }),
         exact: true
       },
       {
-        label: 'Batch Create QR Codes',
+        label: $t('menu.batch_create_qr_codes'),
         icon: 'i-heroicons-qr-code',
-        to: { name: 'batch-qrcode' },
+        to: localeRoute({ name: 'batch-qrcode' }),
         target: '_blank'
       },
       {
-        label: 'Batch Create Short Links',
+        label: $t('menu.batch_create_short_links'),
         icon: 'i-heroicons-link',
-        to: { name: 'batch-short-links' }
+        to: localeRoute({ name: 'batch-short-links' })
       }
     ]
   }, {
-    label: 'Help 幫助',
+    label: $t('menu.help'),
     links: [
       {
-        label: 'Publisher Guide',
+        label: $t('menu.publisher_guide'),
         icon: 'i-heroicons-document-text',
         to: 'https://docs.like.co/depub/nft-book-press',
         target: '_blank'
       },
       {
-        label: '出版教學',
+        label: $t('menu.出版教學'),
         icon: 'i-heroicons-document-text',
         to: 'https://docs.like.co/zh/depub/nft-book-press',
         target: '_blank'
       },
       {
-        label: 'Listing Disclaimer',
+        label: $t('menu.listing_disclaimer'),
         icon: 'i-heroicons-shield-exclamation',
         to: PUBLISHING_NOTICE_URL_EN,
         target: '_blank'
       },
       {
-        label: '上架須知和收費',
+        label: $t('menu.上架須知和收費'),
         icon: 'i-heroicons-shield-exclamation',
         to: PUBLISHING_NOTICE_URL_ZH,
         target: '_blank'
       },
       {
-        label: 'Chat with Us 聯絡我們',
+        label: $t('menu.chat_with_us'),
         icon: 'i-heroicons-chat-bubble-bottom-center',
         to: 'https://cs.3ook.com',
         target: '_blank'
