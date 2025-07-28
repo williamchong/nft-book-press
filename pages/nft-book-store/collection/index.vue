@@ -13,17 +13,17 @@
 
     <UProgress v-if="isLoading" animation="carousel">
       <template #indicator>
-        Loading...
+        {{ $t('common.loading') }}
       </template>
     </UProgress>
 
     <UCard :ui="{ header: { base: 'flex justify-between items-center gap-4' } }">
       <template #header>
         <h2 class="text-xl font-bold font-mono">
-          Liker Land Book Collections
+          {{ $t('collection.liker_land_collections') }}
         </h2>
 
-        <UButton icon="i-heroicons-plus-circle" label="New Collection" :to="localeRoute({ name: 'nft-book-store-collection-new' })" />
+        <UButton icon="i-heroicons-plus-circle" :label="$t('collection.new_collection_btn')" :to="localeRoute({ name: 'nft-book-store-collection-new' })" />
       </template>
 
       <UTabs
@@ -82,9 +82,11 @@ const collectionList = ref<any[]>([])
 const moderatedCollectionList = ref<any[]>([])
 
 // Tabs
+const { t: $t } = useI18n()
+
 const tabItems = [
-  { label: 'Current Collection Listing', key: 'current' },
-  { label: 'Viewable Collection Listing', key: 'viewable' }
+  { label: $t('collection.current_collection_listing'), key: 'current' },
+  { label: $t('collection.viewable_collection_listing'), key: 'viewable' }
 ]
 
 const selectedTabItemIndex = computed({
@@ -108,22 +110,22 @@ watch(isLoading, (newIsLoading) => {
 const tableColumns = [
   {
     key: 'name',
-    label: 'Collection Name',
+    label: $t('collection.collection_name'),
     sortable: true
   },
   {
     key: 'priceInUSD',
-    label: 'Price in USD',
+    label: $t('table.price_in_usd'),
     sortable: true
   },
   {
     key: 'pendingAction',
-    label: 'Pending Action',
+    label: $t('collection.pending_action'),
     sortable: true
   },
   {
     key: 'sold',
-    label: 'Sold',
+    label: $t('table.sold'),
     sortable: true
   }
 ]
@@ -155,8 +157,8 @@ const tableRows = computed(() => (tabItems[selectedTabItemIndex.value].key === '
 })))
 
 useSeoMeta({
-  title: 'Book Collection Management',
-  ogTitle: 'Book Collection Management'
+  title: $t('collection.collection_management'),
+  ogTitle: $t('collection.collection_management')
 })
 
 async function selectTableRow (row: any) {

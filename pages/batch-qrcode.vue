@@ -1,19 +1,19 @@
 <template>
   <PageBody class="print:space-y-0 print:p-0">
     <h1 class="text-lg font-bold font-mono print:hidden">
-      Batch Create Book QR Codes
+      {{ $t('batch_qrcode.page_title') }}
     </h1>
 
     <UFormGroup
-      label="Upload CSV file"
+      :label="$t('batch_qrcode.upload_csv')"
       class="print:hidden"
     >
       <UInput type="file" accept="csv" @change="handleFileChange" />
     </UFormGroup>
-    <UDivider class="print:hidden" label="OR" />
+    <UDivider class="print:hidden" :label="$t('batch_qrcode.or_divider')" />
     <UFormGroup
       class="print:hidden"
-      label="Input CSV content"
+      :label="$t('batch_qrcode.input_csv')"
     >
       <UTextarea
         v-model="csvInput"
@@ -25,7 +25,7 @@
 
     <div class="print:hidden flex justify-center">
       <UButton
-        label="QR Code Appearance"
+        :label="$t('batch_qrcode.qr_appearance')"
         variant="outline"
         @click="isEditingQRCodeConfig = true"
       />
@@ -43,7 +43,7 @@
       >
         <template #header>
           <h3 class="font-bold font-mono">
-            QR Code Config
+            {{ $t('batch_qrcode.qr_config') }}
           </h3>
           <UButton
             icon="i-heroicons-x-mark"
@@ -58,20 +58,20 @@
     <nav class="flex justify-center items-center gap-2 print:hidden">
       <UButton
         v-if="!urlItems?.length"
-        label="Generate"
+        :label="$t('batch_qrcode.generate')"
         size="lg"
         :disabled="!csvInput"
         @click="drawQRCodes"
       />
       <template v-else>
         <UButton
-          label="Print"
+          :label="$t('batch_qrcode.print')"
           size="lg"
           variant="outline"
           @click="handleClickPrint"
         />
         <UButton
-          label="Download"
+          :label="$t('batch_qrcode.download')"
           size="lg"
           variant="outline"
           @click="handleClickDownload"
@@ -104,6 +104,7 @@
 import { parse as csvParse } from 'csv-parse/sync'
 
 import { getQRCodeOptions, DEFAULT_QR_CODE_ICON } from '~/utils/qrcode'
+const { t: $t } = useI18n()
 
 const CSV_HEADER = 'key,url'
 
@@ -182,7 +183,7 @@ async function drawQRCodes () {
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
-      title: 'Failed to parse CSV input',
+      title: $t('batch_qrcode.parse_csv_error'),
       timeout: 0,
       color: 'red',
       ui: {

@@ -188,7 +188,7 @@
       >
         <template #header>
           <h4 class="text-sm font-bold font-mono">
-            Email to receive sales notifications / 欲收到銷售通知的電郵
+            {{ $t('form.email_notifications') }}
           </h4>
 
           <div class="flex gap-2">
@@ -271,7 +271,7 @@
       >
         <div class="flex justify-between items-center w-full">
           <h3 class="font-bold font-mono">
-            Advanced Settings
+            {{ $t('nft_book_form.advanced_settings') }}
           </h3>
           <UButton
             color="gray"
@@ -361,7 +361,7 @@
             >
               <template #header>
                 <h3 class="font-bold font-mono">
-                  Copy Purchase Link / 複製購買連結
+                  {{ $t('form.copy_purchase_link') }}
                 </h3>
               </template>
 
@@ -407,7 +407,7 @@
         </template>
       </UCard>
       <UButton
-        label="Save Changes"
+        :label="$t('common.save')"
         :loading="isLoading"
         size="lg"
         :disabled="isLoading"
@@ -516,28 +516,28 @@ const purchaseList = computed(() => {
 
 const orderTableColumns = computed(() => {
   const columns = [
-    { key: 'actions', label: 'Actions', sortable: false },
-    { key: 'orderDate', label: 'Order Date', sortable: true },
-    { key: 'status', label: 'Status', sortable: true }
+    { key: 'actions', label: $t('table.actions'), sortable: false },
+    { key: 'orderDate', label: $t('table.order_date'), sortable: true },
+    { key: 'status', label: $t('table.status'), sortable: true }
   ]
   if (orderHasShipping.value) {
-    columns.push({ key: 'shippingStatus', label: 'Shipping Status', sortable: true })
+    columns.push({ key: 'shippingStatus', label: $t('table.shipping_status'), sortable: true })
   }
   columns.push(
-    { key: 'from', label: 'Sales Channel', sortable: true },
-    { key: 'price', label: 'Price', sortable: true },
-    { key: 'quantity', label: 'Quantity', sortable: true },
-    { key: 'coupon', label: 'Coupon Applied', sortable: false },
-    { key: 'buyerEmail', label: 'Buyer Email', sortable: true },
-    { key: 'readerEmail', label: 'Reader Email', sortable: true },
-    { key: 'wallet', label: 'Reader Wallet', sortable: true },
-    { key: 'message', label: 'Reader Message', sortable: false }
+    { key: 'from', label: $t('table.sales_channel'), sortable: true },
+    { key: 'price', label: $t('form.price'), sortable: true },
+    { key: 'quantity', label: $t('table.quantity'), sortable: true },
+    { key: 'coupon', label: $t('table.coupon_applied'), sortable: false },
+    { key: 'buyerEmail', label: $t('table.buyer_email'), sortable: true },
+    { key: 'readerEmail', label: $t('table.reader_email'), sortable: true },
+    { key: 'wallet', label: $t('table.reader_wallet'), sortable: true },
+    { key: 'message', label: $t('table.reader_message'), sortable: false }
   )
   if (orderHasShipping.value) {
-    columns.push({ key: 'buyerPhone', label: 'Buyer Phone', sortable: true })
-    columns.push({ key: 'shippingName', label: 'Shipping Name', sortable: true })
-    columns.push({ key: 'shippingAddress', label: 'Shipping Address', sortable: true })
-    columns.push({ key: 'shippingCountry', label: 'Shipping Country', sortable: true })
+    columns.push({ key: 'buyerPhone', label: $t('table.buyer_phone'), sortable: true })
+    columns.push({ key: 'shippingName', label: $t('table.shipping_name'), sortable: true })
+    columns.push({ key: 'shippingAddress', label: $t('table.shipping_address'), sortable: true })
+    columns.push({ key: 'shippingCountry', label: $t('table.shipping_country'), sortable: true })
   }
 
   return columns

@@ -25,9 +25,9 @@
       }]"
     />
     <UCard v-else>
-      Append <UKbd class="font-mono">
+      {{ $t('latest_books_extended.append_text') }}<UKbd class="font-mono">
         ?from={{ channelId }}
-      </UKbd> in any bookstore page to earn commission from book sales.
+      </UKbd>{{ $t('latest_books_extended.append_suffix') }}
     </UCard>
     <UTabs v-model="selectedTabItemIndex" class="w-full" :items="tabItems">
       <template #item="{ item }">
@@ -105,7 +105,7 @@ const isAffiliationReady = computed(() => isStripeConnectReady.value && channelI
 const tableColumns = computed(() => [
   {
     key: 'image',
-    label: 'Cover',
+    label: $t('table.cover'),
     sortable: false
   },
   {

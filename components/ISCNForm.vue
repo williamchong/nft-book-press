@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-6">
     <!-- Basic Info -->
-    <UFormGroup label="Type" class="flex-1">
+    <UFormGroup :label="$t('form.type')" class="flex-1">
       <USelect
         v-model="formData.type"
         :options="typeOptions"
@@ -10,7 +10,7 @@
     </UFormGroup>
 
     <UFormGroup
-      label="Title"
+      :label="$t('common.title')"
       :error="!formData.title && 'Title is required'"
       class="flex-1 text-left"
       required
@@ -22,7 +22,7 @@
     </UFormGroup>
 
     <UFormGroup
-      label="Description"
+      :label="$t('common.description')"
       class="flex-1 text-left"
       :hint="`${formData.description.length}/${MAX_DESCRIPTION_LENGTH}`"
       :error="descriptionError"
@@ -36,18 +36,18 @@
     </UFormGroup>
 
     <div class="grid grid-cols-3 gap-4">
-      <UFormGroup label="ISBN">
-        <UInput v-model="formData.isbn" placeholder="Enter ISBN" />
+      <UFormGroup :label="$t('form.isbn')">
+        <UInput v-model="formData.isbn" :placeholder="$t('form.enter_isbn')" />
       </UFormGroup>
 
-      <UFormGroup label="Publisher">
+      <UFormGroup :label="$t('form.publisher')">
         <UInput
           v-model="formData.publisher"
-          placeholder="Enter publisher name"
+          :placeholder="$t('form.enter_publisher_name')"
         />
       </UFormGroup>
 
-      <UFormGroup label="Publication Date">
+      <UFormGroup :label="$t('form.publication_date')">
         <UInput
           v-model="formData.publicationDate"
           type="date"
@@ -55,7 +55,7 @@
         />
       </UFormGroup>
 
-      <UFormGroup label="Language" required>
+      <UFormGroup :label="$t('form.language')" required>
         <USelect
           v-model="formData.language"
           :options="languageOptions"
@@ -63,7 +63,7 @@
         />
       </UFormGroup>
 
-      <UFormGroup label="Cover Image">
+      <UFormGroup :label="$t('form.cover_image')">
         <UInput
           v-model="formData.coverUrl"
           placeholder="ar://{arweave_id}"
@@ -310,7 +310,7 @@ const descriptionError = computed(() => {
   if (!desc) {
     return 'Description is required'
   } else if (desc.length > MAX_DESCRIPTION_LENGTH) {
-    return `Description cannot exceed ${MAX_DESCRIPTION_LENGTH} characters`
+    return $t('validation.description_cannot_exceed', { max: MAX_DESCRIPTION_LENGTH })
   }
   return ''
 })

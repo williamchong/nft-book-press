@@ -97,13 +97,13 @@
         </UFormGroup>
         <UFormGroup
           v-else
-          label="Is Physical only good / 只含實體書"
+          :label="$t('collection.is_physical_only')"
           :ui="{ label: { base: 'font-mono font-bold' } }"
         >
           <UCheckbox
             v-model="price.isPhysicalOnly"
             name="isPhysicalOnly"
-            label="This collection does not contain any digital file/NFT"
+            :label="$t('collection.no_digital_files')"
           />
         </UFormGroup>
         <UFormGroup>
@@ -126,7 +126,7 @@
             label="Allow user to pay more than defined price"
           />
         </UFormGroup>
-        <UFormGroup label="Unlist Edition / 暫時下架">
+        <UFormGroup :label="$t('collection.unlist_edition')">
           <UCheckbox
             v-model="price.isUnlisted"
             name="isUnlisted"
@@ -264,7 +264,7 @@
       >
         <div class="flex justify-between items-center w-full">
           <h3 class="font-bold font-mono">
-            Advanced Settings
+            {{ $t('nft_book_form.advanced_settings') }}
           </h3>
           <UButton
             color="gray"

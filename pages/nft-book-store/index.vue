@@ -20,7 +20,7 @@
     <UCard :ui="{ header: { base: 'flex justify-between items-center gap-4' } }">
       <template #header>
         <h2 class="text-xl font-bold font-mono">
-          Liker Land Book Listing
+          {{ $t('bookstore.liker_land_listing') }}
         </h2>
 
         <UButton
@@ -162,6 +162,7 @@ import { useNftStore } from '~/stores/nft'
 
 const route = useRoute()
 const localeRoute = useLocaleRoute()
+const { t: $t } = useI18n()
 const bookStoreApiStore = useBookStoreApiStore()
 const nftStore = useNftStore()
 const { listingList: bookList, moderatedBookList, token } = storeToRefs(bookStoreApiStore)

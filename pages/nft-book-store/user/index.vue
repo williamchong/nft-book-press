@@ -15,8 +15,8 @@
       icon="i-heroicons-exclamation-circle"
       color="orange"
       variant="soft"
-      title="You need to have a Stripe Express account to use the auto-payout service of Liker Land Bookstore."
-      description="A Stripe Express account is separated from any full-featured Stripe account. If you have a full-featured Stripe account, you must also register again here to create a Stripe Express account under Liker Land."
+      :title="$t('user_settings.stripe_express_notice')"
+      :description="$t('user_settings.stripe_express_description')"
     />
 
     <template v-if="bookStoreApiStore.isAuthenticated">
@@ -28,10 +28,10 @@
       >
         <template #header>
           <h1 class="text-center font-bold font-mono">
-            Book Sales Affiliation Program
+            {{ $t('user_settings.affiliation_program') }}
           </h1>
           <UTooltip
-            text="Refresh Liker ID"
+            :text="$t('user_settings.refresh_liker_id')"
             :popper="{ placement: 'left' }"
           >
             <UButton
@@ -43,8 +43,8 @@
           </utooltip>
         </template>
 
-        <UFormGroup v-if="userLikerInfo?.user" label="Your affiliation channel ID" size="xl">
-          <UInput placeholder="Affiliation ID" :value="channelId" disabled />
+        <UFormGroup v-if="userLikerInfo?.user" :label="$t('user_settings.affiliation_channel_id')" size="xl">
+          <UInput :placeholder="$t('user.affiliation_id_placeholder')" :value="channelId" disabled />
           <template v-if="!isStripeConnectReady" #help>
             Please setup your stripe account below to participate in the book affiliation program.
           </template>
@@ -77,7 +77,7 @@
       >
         <template #header>
           <h1 class="text-center font-bold font-mono">
-            Stripe Connect Payout Account Status
+            {{ $t('user_settings.stripe_payout_status') }}
           </h1>
 
           <UTooltip
@@ -95,8 +95,8 @@
 
         <UTable
           :columns="[
-            { key: 'initiated', label: 'Setup Initiated' },
-            { key: 'completed', label: 'Setup Completed' }
+            { key: 'initiated', label: $t('user_settings.setup_initiated') },
+            { key: 'completed', label: $t('user_settings.setup_completed') }
           ]"
           :rows="[{
             initiated: connectStatus?.hasAccount || false,
@@ -105,12 +105,12 @@
           :ui="{ th: { base: 'text-center' }, td: { base: 'text-center' } }"
         >
           <template #initiated-data="{ row }">
-            <UBadge v-if="row.initiated" label="Yes" color="green" variant="outline" />
-            <UBadge v-else label="No" color="red" variant="outline" />
+            <UBadge v-if="row.initiated" :label="$t('user.yes')" color="green" variant="outline" />
+            <UBadge v-else :label="$t('user.no')" color="red" variant="outline" />
           </template>
           <template #completed-data="{ row }">
-            <UBadge v-if="row.completed" :label="connectStatus?.notificationEmail || 'Yes'" color="green" variant="outline" />
-            <UBadge v-else label="No" color="red" variant="outline" />
+            <UBadge v-if="row.completed" :label="connectStatus?.notificationEmail || $t('user.yes')" color="green" variant="outline" />
+            <UBadge v-else :label="$t('user.no')" color="red" variant="outline" />
           </template>
         </UTable>
 
@@ -343,6 +343,7 @@ import { useNftStore } from '~/stores/nft'
 import { useCollectionStore } from '~/stores/collection'
 
 const { LIKER_LAND_URL, LIKE_CO_API, BOOK3_URL } = useRuntimeConfig().public
+const { t: $t } = useI18n()
 
 const nftStore = useNftStore()
 const bookStoreApiStore = useBookStoreApiStore()
