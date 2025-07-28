@@ -603,7 +603,7 @@ function getStatusLabel (purchaseListItem: any) {
 
     case 'completed':
       if (purchaseListItem.shippingStatus === 'pending') {
-        return 'Pending Shipping'
+        return $t('collection.pending_shipping')
       }
       return 'Completed'
 

@@ -46,7 +46,7 @@
         <UFormGroup v-if="userLikerInfo?.user" :label="$t('user_settings.affiliation_channel_id')" size="xl">
           <UInput :placeholder="$t('user.affiliation_id_placeholder')" :value="channelId" disabled />
           <template v-if="!isStripeConnectReady" #help>
-            Please setup your stripe account below to participate in the book affiliation program.
+            {{ $t('user_settings.setup_stripe_notice') }}
           </template>
           <template v-else #help>
             Append <UKbd class="font-mono">
