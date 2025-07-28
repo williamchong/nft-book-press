@@ -167,8 +167,8 @@
 
           <UTable
             :columns="[
-              { key: 'name', label: 'Name' },
-              { key: 'editionSelect', label: 'Selected Edition' }
+              { key: 'name', label: $t('table.name') },
+              { key: 'editionSelect', label: $t('table.selected_edition') }
             ]"
             :rows="productTableRows"
           >
@@ -197,8 +197,8 @@
 
           <UTable
             :columns="[
-              { key: 'key', label: 'Key' },
-              { key: 'value', label: 'Value' }
+              { key: 'key', label: $t('table.key') },
+              { key: 'value', label: $t('table.value') }
             ]"
             :rows="commonQueryStringTableRows"
             :ui="{ td: { font: 'font-mono' } }"
@@ -699,25 +699,25 @@ const linkTableColumns = computed(() => {
   if (!isUsingCustomDestination.value) {
     cols.push({
       key: 'productId',
-      label: 'Product',
+      label: $t('common.title'),
       sortable: true
     },
     {
       key: 'selectedEditionLabel',
-      label: 'Edition'
+      label: $t('table.selected_edition')
     })
   }
 
   if (!isSharingMode.value) {
     cols.push({
       key: 'utmCampaign',
-      label: 'UTM Campaign',
+      label: $t('purchase_link.utm_campaign'),
       sortable: true
     })
   }
   cols.push({
     key: 'link',
-    label: 'Link'
+    label: $t('common.link')
   })
   return cols
 })

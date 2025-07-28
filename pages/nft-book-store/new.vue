@@ -245,7 +245,7 @@
             <div class="flex justify-center items-center">
               <UButton
                 v-if="hasMultiplePrices"
-                label="Delete"
+                :label="$t('common.delete')"
                 color="red"
                 @click="deletePrice(index)"
               />
@@ -259,7 +259,7 @@
           :ui="{ rounded: 'rounded-full' }"
           color="gray"
           icon="i-heroicons-plus-solid"
-          label="Add Edition"
+          :label="$t('form.add_edition')"
           @click="addMorePrice"
         />
       </div>
@@ -292,7 +292,7 @@
             />
 
             <UButton
-              label="Add"
+              :label="$t('common.add')"
               :variant="notificationEmailInput ? 'outline' : 'solid'"
               :color="notificationEmailInput ? 'primary' : 'gray'"
               :disabled="!notificationEmailInput"
@@ -303,7 +303,7 @@
 
         <UTable
           :columns="[
-            { key: 'email', label: 'Email', sortable: true },
+            { key: 'email', label: $t('table.email'), sortable: true },
             { key: 'action' },
           ]"
           :rows="notificationEmailsTableRows"
@@ -384,7 +384,7 @@
                   />
 
                   <UButton
-                    label="Add"
+                    :label="$t('common.add')"
                     :variant="moderatorWalletInput ? 'outline' : 'solid'"
                     :color="moderatorWalletInput ? 'primary' : 'gray'"
                     :disabled="!moderatorWalletInput"
@@ -581,7 +581,7 @@ const submitButtonText = computed(() =>
 const shouldShowAdvanceSettings = ref<boolean>(false)
 
 const moderatorWalletsTableColumns = computed(() => [
-  { key: 'wallet', label: 'Wallet', sortable: true },
+  { key: 'wallet', label: $t('table.wallet'), sortable: true },
   { key: 'remove', label: '', sortable: false }
 ])
 

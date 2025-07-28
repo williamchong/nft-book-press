@@ -2,13 +2,13 @@
   <PageBody class="space-y-10 pb-10">
     <div class="flex justify-between gap-4">
       <h1 class="text-lg font-bold font-mono flex-wrap">
-        Payout Details - {{ payoutId }}
+        {{ $t('user_settings.payout_details') }} - {{ payoutId }}
       </h1>
     </div>
 
     <UProgress v-if="isLoading" animation="carousel">
       <template #indicator>
-        Loading...
+        {{ $t('loading.progress') }}
       </template>
     </UProgress>
 
@@ -17,18 +17,18 @@
     >
       <template #header>
         <h3 class="font-bold font-mono">
-          Payout Information
+          {{ $t('user_settings.payout_details') }}
         </h3>
       </template>
 
       <UTable
         :columns="[
-          { key: 'id', label: 'ID' },
-          { key: 'createdTs', label: 'Created' },
-          { key: 'currency', label: 'Currency' },
-          { key: 'amount', label: 'Payout Amount' },
-          { key: 'status', label: 'Status' },
-          { key: 'arrivalTs', label: 'Arrived' },
+          { key: 'id', label: $t('table.id') },
+          { key: 'createdTs', label: $t('table.created') },
+          { key: 'currency', label: $t('table.currency') },
+          { key: 'amount', label: $t('table.payout_amount') },
+          { key: 'status', label: $t('table.status') },
+          { key: 'arrivalTs', label: $t('table.arrived') },
         ]"
         :rows="payoutDataRows"
         :loading="isLoading"
@@ -39,18 +39,18 @@
     <UCard :ui="{ body: { padding: '' } }">
       <template #header>
         <h3 class="text-sm font-bold font-mono">
-          Payout Commission Item Details
+          {{ $t('user_settings.payout_details') }}
         </h3>
       </template>
       <UTable
         :columns="[
-          { key: 'commissionId', label: 'Commission ID' },
-          { key: 'createdTs', label: 'Created' },
-          { key: 'currency', label: 'Currency' },
-          { key: 'amount', label: 'Commission Amount' },
-          { key: 'description', label: 'Description' },
-          { key: 'status', label: 'Status' },
-          { key: 'metadata', label: 'Metadata' },
+          { key: 'commissionId', label: $t('table.id') },
+          { key: 'createdTs', label: $t('table.created') },
+          { key: 'currency', label: $t('table.currency') },
+          { key: 'amount', label: $t('table.commission_amount') },
+          { key: 'description', label: $t('common.description') },
+          { key: 'status', label: $t('table.status') },
+          { key: 'metadata', label: $t('table.metadata') },
         ]"
         :rows="payoutItemRows"
         :loading="isLoading"
@@ -58,7 +58,7 @@
       >
         <template #metadata-data="{ row }">
           <UButton
-            label="View"
+            :label="$t('buttons.view_edit')"
             color="gray"
             @click="modalMetadata = row.metadata"
           />
@@ -74,7 +74,7 @@
         }"
       >
         <template #header>
-          <h4 class="font-mono font-bold" v-text="'Metadata'" />
+          <h4 class="font-mono font-bold" v-text="$t('table.metadata')" />
 
           <UButton
             color="gray"
@@ -95,6 +95,8 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useBookStoreApiStore } from '~/stores/book-store-api'
+
+const { t: $t } = useI18n()
 
 const { LIKE_CO_API } = useRuntimeConfig().public
 const bookStoreApiStore = useBookStoreApiStore()

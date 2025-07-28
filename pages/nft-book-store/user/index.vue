@@ -255,13 +255,13 @@
 
           <UTable
             :columns="[
-              { key: 'timestamp', label: 'Timestamp' },
-              { key: 'type', label: 'Commission Type' },
-              { key: 'amount', label: 'Commission' },
-              { key: 'classId', label: 'Book Id' },
-              { key: 'collectionId', label: 'Book Collection Id' },
-              { key: 'currency', label: 'Currency' },
-              { key: 'amountTotal', label: 'Sale Amount' },
+              { key: 'timestamp', label: $t('user_settings.timestamp') },
+              { key: 'type', label: $t('user_settings.commission_type') },
+              { key: 'amount', label: $t('user_settings.commission') },
+              { key: 'classId', label: $t('user_settings.book_id') },
+              { key: 'collectionId', label: $t('user_settings.book_collection_id') },
+              { key: 'currency', label: $t('user_settings.currency') },
+              { key: 'amountTotal', label: $t('user_settings.sale_amount') },
             ]"
             :rows="commissionHistoryRows"
             :ui="{ th: { base: 'text-center' }, td: { base: 'text-center' } }"
@@ -306,11 +306,11 @@
 
           <UTable
             :columns="[
-              { key: 'createdTs', label: 'Created' },
-              { key: 'amount', label: 'Payout Amount' },
-              { key: 'status', label: 'Status' },
-              { key: 'arrivalTs', label: 'Arrived' },
-              { key: 'details', label: 'Payout Details' },
+              { key: 'createdTs', label: $t('user_settings.created') },
+              { key: 'amount', label: $t('user_settings.payout_amount') },
+              { key: 'status', label: $t('user_settings.status') },
+              { key: 'arrivalTs', label: $t('user_settings.arrived') },
+              { key: 'details', label: $t('user_settings.details') },
             ]"
             :rows="payoutHistoryRows"
             :ui="{ th: { base: 'text-center' }, td: { base: 'text-center' } }"

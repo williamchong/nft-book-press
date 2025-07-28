@@ -25,7 +25,7 @@
 
         <UButton
           icon="i-heroicons-plus-circle"
-          label="New Listing"
+          :label="$t('bookstore.new_listing')"
           :to="localeRoute({ name: 'nft-book-store-new' })"
         />
       </template>
@@ -51,13 +51,13 @@
               <h2 class="font-bold font-mono">
                 {{ item.label }}
               </h2>
-              <UInput v-model="searchInput" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search..." />
+              <UInput v-model="searchInput" icon="i-heroicons-magnifying-glass-20-solid" :placeholder="$t('table.search_placeholder')" />
             </template>
 
             <!-- Header and Action buttons -->
             <div class="flex justify-between items-center w-full px-4 py-3">
               <div class="flex items-center gap-1.5">
-                <span class="text-sm">Rows per page</span>
+                <span class="text-sm">{{ $t('table.rows_per_page') }}</span>
 
                 <USelect
                   v-model="tableRowsPerPage"
@@ -75,7 +75,7 @@
                 >
                   <UButton
                     class="min-w-[180px]"
-                    label="Columns"
+                    :label="$t('table.columns')"
                     icon="i-heroicons-view-columns"
                     color="gray"
                     size="xs"
@@ -84,7 +84,7 @@
 
                 <UButton
                   icon="i-heroicons-funnel"
-                  label="Reset"
+                  :label="$t('table.reset')"
                   color="gray"
                   size="xs"
                   :disabled="!searchInput"
@@ -97,13 +97,7 @@
             <div class="flex flex-wrap justify-between items-center w-full px-4 py-3">
               <div>
                 <span class="text-sm leading-5">
-                  Showing
-                  <span class="font-medium">{{ tablePageRowFrom }}</span>
-                  to
-                  <span class="font-medium">{{ tablePageRowTo }}</span>
-                  of
-                  <span class="font-medium">{{ tableRows.length }}</span>
-                  rows
+                  {{ $t('table.showing_rows', { from: tablePageRowFrom, to: tablePageRowTo, total: tableRows.length }) }}
                 </span>
               </div>
 
@@ -174,8 +168,8 @@ const isLoading = ref(false)
 
 // Tabs
 const tabItems = [
-  { label: 'Current Listing', key: 'current' },
-  { label: 'Viewable Listing', key: 'viewable' }
+  { label: $t('bookstore.current_listing'), key: 'current' },
+  { label: $t('bookstore.viewable_listing'), key: 'viewable' }
 ]
 
 const selectedTabItemIndex = computed({
@@ -243,28 +237,28 @@ const paginatedTableRows = computed(() => {
 const tableColumns = [
   {
     key: 'classId',
-    label: 'Class Id',
+    label: $t('bookstore.class_id'),
     sortable: true,
     class: 'font-mono'
   },
   {
     key: 'className',
-    label: 'Class Name',
+    label: $t('table.class_name'),
     sortable: true
   },
   {
     key: 'priceInUSD',
-    label: 'Price in USD',
+    label: $t('table.price_in_usd'),
     sortable: true
   },
   {
     key: 'pendingAction',
-    label: 'Pending Action',
+    label: $t('table.pending_action'),
     sortable: true
   },
   {
     key: 'sold',
-    label: 'Sold',
+    label: $t('table.sold'),
     sortable: true
   }
 ]
