@@ -10,7 +10,7 @@
       >
         <template #header>
           <h2 class="font-bold font-mono">
-            Edit collection info
+            {{ $t('pages.edit_collection_info') }}
           </h2>
 
           <UButton
@@ -24,7 +24,7 @@
 
         <UProgress v-if="isLoading" animation="carousel">
           <template #indicator>
-            Loading...
+            {{ $t('loading.progress') }}
           </template>
         </UProgress>
 
@@ -32,16 +32,16 @@
         <UCard :ui="{ body: { base: 'space-y-4' } }">
           <template #header>
             <h2 class="font-bold font-mono">
-              Class Info
+              {{ $t('pages.class_info') }}
             </h2>
           </template>
-          <UFormGroup label="NFT collection ID">
+          <UFormGroup :label="$t('form.nft_collection_id')">
             <UInput class="font-mono" :value="collectionId" :readonly="true" :disabled="true" />
           </UFormGroup>
-          <UFormGroup label="Books in Collection">
+          <UFormGroup :label="$t('form.books_in_collection')">
             <UCard :ui="{ body: { padding: '' } }">
               <UTable
-                :columns="[{ key: 'classId', label: 'Class ID' }, { key: 'name', label: 'Book Name'}]"
+                :columns="[{ key: 'classId', label: $t('table.class_id') }, { key: 'name', label: $t('table.book_name')}]"
 
                 :rows="classIds.map((classId, index) => ({ index, classId, name: getClassMetadataById(classId)?.name }))"
               />
@@ -226,7 +226,7 @@
         />
 
         <template #footer>
-          <UButton label="Save Changes" :loading="isLoading" size="lg" :disabled="isLoading" @click="handleSubmit" />
+          <UButton :label="$t('common.save')" :loading="isLoading" size="lg" :disabled="isLoading" @click="handleSubmit" />
         </template>
       </UCard>
     </UModal>
@@ -242,6 +242,7 @@ import { DEFAULT_MAX_SUPPLY, DEFAULT_PRICE, MINIMAL_PRICE } from '~/constant'
 import { useCollectionStore } from '~/stores/collection'
 import { useNftStore } from '~/stores/nft'
 import { deliverMethodOptions, parseImageURLFromMetadata } from '~/utils'
+const { t: $t } = useI18n()
 
 const collectionStore = useCollectionStore()
 const nftStore = useNftStore()

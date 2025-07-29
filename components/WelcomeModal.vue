@@ -15,16 +15,15 @@
     <div class="flex flex-col items-center gap-[12px] px-6 pt-0 pb-12 text-center">
       <img
         src="~/assets/images/migration-notice.png"
-        alt="Migration Icon"
+        :alt="$t('welcome_modal.migration_icon_alt')"
         class="h-[80px]"
       >
       <div class="space-y-4 text-[15px] text-center text-gray-700">
         <h3 class="text-[24px] font-semibold">
-          Latest Update
+          {{ $t('welcome_modal.latest_update') }}
         </h3>
         <p class="text-[16px]">
-          Welcome to our new platform, publish.3ook.com.
-          Here, you can publish and manage your eBooks.
+          {{ $t('welcome_modal.welcome_message') }}
         </p>
       </div>
 
@@ -32,19 +31,19 @@
         <UButton
           size="lg"
           block
-          label="Understood"
+          :label="$t('welcome_modal.understood')"
           color="black"
           @click="onClose"
         />
         <p class="text-[14px] font-semibold">
-          If this is your first time visiting from publish.liker.land, please
+          {{ $t('welcome_modal.first_time_message') }}
           <a
             class="text-[#20A492] hover:underline"
             :href="migrationURL"
             target="_blank"
             rel="noopener noreferrer"
           >
-            click here
+            {{ $t('welcome_modal.click_here') }}
           </a>
         </p>
       </div>
@@ -56,6 +55,7 @@
 import { appendUTMParamsToURL } from '~/utils/index'
 const { show: showModal, close: onClose } = useOneTimePopup('welcomePopup:v3')
 const { LIKECOIN_V3_BOOK_MIGRATION_SITE_URL } = useRuntimeConfig().public
+const { t: $t } = useI18n()
 const migrationURL = appendUTMParamsToURL({
   url: LIKECOIN_V3_BOOK_MIGRATION_SITE_URL,
   medium: 'popup',

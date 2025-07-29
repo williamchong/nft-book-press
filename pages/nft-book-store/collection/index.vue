@@ -13,17 +13,17 @@
 
     <UProgress v-if="isLoading" animation="carousel">
       <template #indicator>
-        Loading...
+        {{ $t('common.loading') }}
       </template>
     </UProgress>
 
     <UCard :ui="{ header: { base: 'flex justify-between items-center gap-4' } }">
       <template #header>
         <h2 class="text-xl font-bold font-mono">
-          Liker Land Book Collections
+          {{ $t('collection.liker_land_collections') }}
         </h2>
 
-        <UButton icon="i-heroicons-plus-circle" label="New Collection" :to="localeRoute({ name: 'nft-book-store-collection-new' })" />
+        <UButton icon="i-heroicons-plus-circle" :label="$t('collection.new_collection_btn')" :to="localeRoute({ name: 'nft-book-store-collection-new' })" />
       </template>
 
       <UTabs
@@ -82,14 +82,16 @@ const collectionList = ref<any[]>([])
 const moderatedCollectionList = ref<any[]>([])
 
 // Tabs
-const tabItems = [
-  { label: 'Current Collection Listing', key: 'current' },
-  { label: 'Viewable Collection Listing', key: 'viewable' }
-]
+const { t: $t } = useI18n()
+
+const tabItems = computed(() => [
+  { label: $t('collection.current_collection_listing'), key: 'current' },
+  { label: $t('collection.viewable_collection_listing'), key: 'viewable' }
+])
 
 const selectedTabItemIndex = computed({
   get () {
-    const index = tabItems.findIndex(item => item.key === route.query.tab)
+    const index = tabItems.value.findIndex(item => item.key === route.query.tab)
     if (index === -1) {
       return 0
     }
@@ -97,7 +99,7 @@ const selectedTabItemIndex = computed({
     return index
   },
   set (value) {
-    navigateTo(localeRoute({ query: { tab: tabItems[value].key } }), { replace: true })
+    navigateTo(localeRoute({ query: { tab: tabItems.value[value].key } }), { replace: true })
   }
 })
 
@@ -105,28 +107,28 @@ watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
 })
 
-const tableColumns = [
+const tableColumns = computed(() => [
   {
     key: 'name',
-    label: 'Collection Name',
+    label: $t('collection.collection_name'),
     sortable: true
   },
   {
     key: 'priceInUSD',
-    label: 'Price in USD',
+    label: $t('table.price_in_usd'),
     sortable: true
   },
   {
     key: 'pendingAction',
-    label: 'Pending Action',
+    label: $t('collection.pending_action'),
     sortable: true
   },
   {
     key: 'sold',
-    label: 'Sold',
+    label: $t('table.sold'),
     sortable: true
   }
-]
+])
 
 onMounted(async () => {
   const promises = [listNFTBookCollections()]
@@ -144,7 +146,7 @@ onMounted(async () => {
   })
 })
 
-const tableRows = computed(() => (tabItems[selectedTabItemIndex.value].key === 'viewable' ? moderatedCollectionList : collectionList).value.map(b => ({
+const tableRows = computed(() => (tabItems.value[selectedTabItemIndex.value].key === 'viewable' ? moderatedCollectionList : collectionList).value.map(b => ({
   collectionId: b.id,
   name: b.name?.en,
   priceInUSD: b.typePayload?.priceInDecimal / 100,
@@ -155,8 +157,8 @@ const tableRows = computed(() => (tabItems[selectedTabItemIndex.value].key === '
 })))
 
 useSeoMeta({
-  title: 'Book Collection Management',
-  ogTitle: 'Book Collection Management'
+  title: () => $t('collection.collection_management'),
+  ogTitle: () => $t('collection.collection_management')
 })
 
 async function selectTableRow (row: any) {

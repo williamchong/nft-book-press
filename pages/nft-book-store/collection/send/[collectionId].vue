@@ -32,14 +32,14 @@
           <tbody>
             <tr>
               <th class="text-left px-4 py-3">
-                Buyer Email
+                {{ $t('table.buyer_email') }}
               </th><td class="px-4 py-3">
                 {{ orderInfo.email }}
               </td>
             </tr>
             <tr>
               <th class="text-left px-4 py-3">
-                Reader Email
+                {{ $t('table.reader_email') }}
               </th><td class="px-4 py-3">
                 {{ orderInfo.giftInfo?.toEmail || orderInfo.email }}
               </td>

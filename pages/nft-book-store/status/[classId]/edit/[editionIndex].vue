@@ -39,6 +39,7 @@
 
 <script setup lang="ts">
 
+const { t: $t } = useI18n()
 const route = useRoute()
 const localeRoute = useLocaleRoute()
 
@@ -50,7 +51,11 @@ const hasMultiplePrices = computed(() => classData?.value?.prices?.length > 1)
 
 const priceItemLabel = computed(() => hasMultiplePrices.value ? 'edition' : 'book')
 
-const pageTitle = computed(() => `Edit ${priceItemLabel.value} ${hasMultiplePrices.value ? `#${editionIndex.value}` : 'price'} info`)
+const pageTitle = computed(() =>
+  hasMultiplePrices.value
+    ? $t('pages.edit_edition_info', { type: priceItemLabel.value, number: `#${editionIndex.value}` })
+    : $t('pages.edit_book_price_info')
+)
 
 async function handleClickBack () {
   await navigateTo(localeRoute({

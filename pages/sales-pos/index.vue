@@ -494,8 +494,8 @@ const giftUrl = computed(() => {
 
 const pageTitle = computed(() => 'Liker Land Point Of Sale')
 useSeoMeta({
-  title: pageTitle.value,
-  ogTitle: pageTitle.value
+  title: () => pageTitle.value,
+  ogTitle: () => pageTitle.value
 })
 
 onMounted(() => {

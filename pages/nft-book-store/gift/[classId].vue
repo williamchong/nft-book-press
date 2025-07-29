@@ -21,22 +21,22 @@
         footer: { base: 'flex justify-center gap-2' }
       }"
     >
-      <UFormGroup label="Default Recipient Name" :required="true">
-        <UTextarea v-model="defaultToName" placeholder="Fellow Reader" />
+      <UFormGroup :label="$t('gift.default_recipient_name')" :required="true">
+        <UTextarea v-model="defaultToName" :placeholder="$t('gift.fellow_reader')" />
       </UFormGroup>
 
-      <UFormGroup label="Default Gift Message" :required="true">
-        <UTextarea v-model="defaultMessage" placeholder="Thank you for your support" />
+      <UFormGroup :label="$t('gift.default_gift_message')" :required="true">
+        <UTextarea v-model="defaultMessage" :placeholder="$t('gift.thank_you_support')" />
       </UFormGroup>
 
-      <UFormGroup label="Gift Giver’s Name" :required="true">
-        <UTextarea v-model="defaultFromName" placeholder="Your name" />
+      <UFormGroup :label="$t('gift.gift_giver_name')" :required="true">
+        <UTextarea v-model="defaultFromName" :placeholder="$t('gift.your_name')" />
       </UFormGroup>
 
       <UFormGroup>
         <template #label>
-          Upload Recipient List CSV file (<UButton
-            label="Download CSV Template"
+          {{ $t('gift.upload_recipient_list') }} (<UButton
+            :label="$t('gift.download_csv_template')"
             variant="link"
             :padded="false"
             size="xs"
@@ -122,7 +122,7 @@ watch(isLoading, (newIsLoading) => {
 })
 
 const csvColumns = ['wallet', 'email', 'toName', 'message']
-const tableColumns = [
+const tableColumns = computed(() => [
   {
     label: 'Email (required)',
     key: 'email'
@@ -139,7 +139,7 @@ const tableColumns = [
     label: 'Message (optional)',
     key: 'message'
   }
-]
+])
 
 onMounted(async () => {
   isLoading.value = true

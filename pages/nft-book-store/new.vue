@@ -17,7 +17,7 @@
 
     <UProgress v-if="isLoading" animation="carousel">
       <template #indicator>
-        Loading...
+        {{ $t('loading.progress') }}
       </template>
     </UProgress>
 
@@ -29,7 +29,7 @@
           </h2>
         </template>
 
-        <UFormGroup label="NFT Class ID">
+        <UFormGroup :label="$t('form.nft_class_id')">
           <UInput
             v-if="!isEditMode"
             v-model="classIdInput"
@@ -39,7 +39,7 @@
           <UInput v-else :value="classId" :readonly="true" />
         </UFormGroup>
 
-        <UFormGroup label="Table Of Content / 章節目錄">
+        <UFormGroup :label="$t('form.table_of_content')">
           <UTextarea v-model="tableOfContents" />
         </UFormGroup>
       </UCard>
@@ -69,11 +69,11 @@
             >
               <template #header>
                 <h3 class="font-bold font-mono">
-                  Pricing and Availability
+                  {{ $t('form.pricing_availability') }}
                 </h3>
               </template>
               <UFormGroup
-                :label="`Unit Price in USD (Minimum ${MINIMAL_PRICE}, or 0 for free) / 版本定價（美金）`"
+                :label="$t('form.unit_price_label', { minPrice: MINIMAL_PRICE })"
               >
                 <UInput
                   :value="p.price"
@@ -98,13 +98,13 @@
               <URadioGroup
                 v-model="p.deliveryMethod"
                 :disabled="p.isPhysicalOnly"
-                :legend="`Delivery method of this ${priceItemLabel} / 自動或手動發書`"
+                :legend="$t('form.delivery_method', { type: priceItemLabel })"
                 :options="deliverMethodOptions"
                 @change="handleDeliveryMethodChange"
               />
               <UFormGroup v-if="p.deliveryMethod === 'auto'">
                 <template #label>
-                  {{ `Memo of this ${priceItemLabel} / 自動發書留言` }}
+                  {{ $t('form.memo_delivery', { type: priceItemLabel }) }}
                   <ToolTips>
                     <template #image>
                       <img
@@ -123,18 +123,18 @@
               </UFormGroup>
               <UFormGroup
                 v-else
-                label="Is Physical only good / 只含實體書"
+                :label="$t('form.is_physical_only')"
               >
                 <UCheckbox
                   v-model="p.isPhysicalOnly"
                   name="isPhysicalOnly"
-                  label="This edition does not contain digital file/NFT"
+                  :label="$t('form.no_digital_files')"
                 />
               </UFormGroup>
 
               <UFormGroup>
                 <template #label>
-                  Allow custom price / 開啟打賞功能
+                  {{ $t('form.allow_custom_price') }}
                   <ToolTips :image-style="{ width: '300px' }">
                     <template #image>
                       <img
@@ -149,14 +149,14 @@
                 <UCheckbox
                   v-model="p.isAllowCustomPrice"
                   name="isAllowCustomPrice"
-                  label="Allow user to pay more than defined price"
+                  :label="$t('form.allow_pay_more')"
                 />
               </UFormGroup>
-              <UFormGroup label="Unlist Edition / 暫時下架">
+              <UFormGroup :label="$t('form.unlist_edition')">
                 <UCheckbox
                   v-model="p.isUnlisted"
                   name="isUnlisted"
-                  label="Pause selling of this Edition"
+                  :label="$t('form.pause_selling_edition')"
                 />
               </UFormGroup>
             </UCard>
@@ -171,12 +171,12 @@
             >
               <template #header>
                 <h3 class="font-bold font-mono">
-                  Product Information
+                  {{ $t('form.product_information') }}
                 </h3>
               </template>
-              <UFormGroup label="Product Name" :ui="{ container: 'space-y-2' }">
+              <UFormGroup :label="$t('form.product_name')" :ui="{ container: 'space-y-2' }">
                 <template #label>
-                  Product Name / 產品名稱（英文）
+                  {{ $t('form.product_name_english') }}
                   <ToolTips :image-style="{ width: '250px' }">
                     <template #image>
                       <img
@@ -189,11 +189,11 @@
                   </ToolTips>
                 </template>
                 <UInput
-                  placeholder="Product name in English"
+                  :placeholder="$t('form.product_name_placeholder_en')"
                   :value="p.nameEn"
                   @input="(e: InputEvent) => updatePrice(e, 'nameEn', index)"
                 />
-                <span class="block text-[14px] text-[#374151] mt-[8px]">Description (Optional) / 描述（選填）</span>
+                <span class="block text-[14px] text-[#374151] mt-[8px]">{{ $t('form.description_optional') }}</span>
                 <md-editor
                   v-model="p.descriptionEn"
                   language="en-US"
@@ -206,7 +206,7 @@
               </UFormGroup>
               <UFormGroup :ui="{ container: 'space-y-2 my-[20px]' }">
                 <template #label>
-                  產品名稱（中文）
+                  {{ $t('form.product_name_chinese') }}
                   <ToolTips :image-style="{ width: '250px' }">
                     <template #image>
                       <img
@@ -219,11 +219,11 @@
                   </ToolTips>
                 </template>
                 <UInput
-                  placeholder="產品中文名字"
+                  :placeholder="$t('form.product_name_placeholder_zh')"
                   :value="p.nameZh"
                   @input="(e: InputEvent) => updatePrice(e, 'nameZh', index)"
                 />
-                <span class="block text-[14px] text-[#374151] mt-[8px]">描述 (選填)</span>
+                <span class="block text-[14px] text-[#374151] mt-[8px]">{{ $t('form.description_optional') }}</span>
                 <md-editor
                   v-model="p.descriptionZh"
                   language="en-US"
@@ -245,7 +245,7 @@
             <div class="flex justify-center items-center">
               <UButton
                 v-if="hasMultiplePrices"
-                label="Delete"
+                :label="$t('common.delete')"
                 color="red"
                 @click="deletePrice(index)"
               />
@@ -259,7 +259,7 @@
           :ui="{ rounded: 'rounded-full' }"
           color="gray"
           icon="i-heroicons-plus-solid"
-          label="Add Edition"
+          :label="$t('form.add_edition')"
           @click="addMorePrice"
         />
       </div>
@@ -282,7 +282,7 @@
       >
         <template #header>
           <h4 class="text-sm font-bold font-mono">
-            Email to receive sales notifications / 欲收到銷售通知的電郵
+            {{ $t('form.email_notifications') }}
           </h4>
 
           <div class="flex gap-2">
@@ -292,7 +292,7 @@
             />
 
             <UButton
-              label="Add"
+              :label="$t('common.add')"
               :variant="notificationEmailInput ? 'outline' : 'solid'"
               :color="notificationEmailInput ? 'primary' : 'gray'"
               :disabled="!notificationEmailInput"
@@ -303,7 +303,7 @@
 
         <UTable
           :columns="[
-            { key: 'email', label: 'Email', sortable: true },
+            { key: 'email', label: $t('table.email'), sortable: true },
             { key: 'action' },
           ]"
           :rows="notificationEmailsTableRows"
@@ -338,7 +338,7 @@
       >
         <div class="flex justify-between items-center w-full">
           <h3 class="font-bold font-mono">
-            Advanced Settings
+            {{ $t('nft_book_form.advanced_settings') }}
           </h3>
           <UButton
             color="gray"
@@ -374,7 +374,7 @@
             >
               <template #header>
                 <h4 class="text-sm font-bold font-mono">
-                  Share sales data to wallets / 分享銷售數據給特定地址
+                  {{ $t('form.share_sales_data') }}
                 </h4>
                 <div class="flex gap-2">
                   <UInput
@@ -384,7 +384,7 @@
                   />
 
                   <UButton
-                    label="Add"
+                    :label="$t('common.add')"
                     :variant="moderatorWalletInput ? 'outline' : 'solid'"
                     :color="moderatorWalletInput ? 'primary' : 'gray'"
                     :disabled="!moderatorWalletInput"
@@ -422,41 +422,41 @@
             <UCard :ui="{ body: { base: 'space-y-8' } }">
               <template #header>
                 <h3 class="font-bold font-mono">
-                  DRM Options / 數位版權管理選項
+                  {{ $t('form.drm_options') }}
                 </h3>
               </template>
 
               <div class="grid md:grid-cols-2 gap-4">
                 <UFormGroup
-                  label="Force NFT claim before view"
+                  :label="$t('form.force_nft_claim')"
                   :ui="{ label: { base: 'font-mono font-bold' } }"
                 >
                   <UCheckbox
                     v-model="mustClaimToView"
                     name="mustClaimToView"
-                    label="Must claim NFT to view"
+                    :label="$t('form.must_claim_to_view')"
                   />
                 </UFormGroup>
 
                 <UFormGroup
-                  label="Disable File Download"
+                  :label="$t('form.disable_file_download')"
                   :ui="{ label: { base: 'font-mono font-bold' } }"
                 >
                   <UCheckbox
                     v-model="hideDownload"
                     name="hideDownload"
-                    label="Disable Download"
+                    :label="$t('form.disable_download')"
                   />
                 </UFormGroup>
 
                 <UFormGroup
-                  label="Insert cutomized message page in eBook"
+                  :label="$t('form.custom_message_page')"
                   :ui="{ label: { base: 'font-mono font-bold' } }"
                 >
                   <UCheckbox
                     v-model="enableCustomMessagePage"
                     name="enableCustomMessagePage"
-                    label="Enable custom message page"
+                    :label="$t('form.enable_custom_message')"
                   />
                 </UFormGroup>
               </div>
@@ -491,6 +491,7 @@ import { getPortfolioURL, deliverMethodOptions } from '~/utils'
 
 const { getClassOwner, getClassMetadata } = useNFTContractReader()
 const walletStore = useWalletStore()
+const { t: $t } = useI18n()
 const bookStoreApiStore = useBookStoreApiStore()
 const stripeStore = useStripeStore()
 const { wallet } = storeToRefs(walletStore)
@@ -572,15 +573,15 @@ const isEditMode = computed(() =>
   Boolean(route.params.editingClassId && editionIndex.value)
 )
 const pageTitle = computed(() =>
-  isEditMode.value ? 'Edit Current Edition' : 'New NFT Book Listing'
+  isEditMode.value ? $t('pages.edit_current_edition') : $t('pages.new_book_listing')
 )
 const submitButtonText = computed(() =>
-  isEditMode.value ? 'Save Changes' : 'Submit'
+  isEditMode.value ? $t('common.save') : $t('common.submit')
 )
 const shouldShowAdvanceSettings = ref<boolean>(false)
 
 const moderatorWalletsTableColumns = computed(() => [
-  { key: 'wallet', label: 'Wallet', sortable: true },
+  { key: 'wallet', label: $t('table.wallet'), sortable: true },
   { key: 'remove', label: '', sortable: false }
 ])
 
@@ -608,8 +609,8 @@ editorConfig({
 })
 
 useSeoMeta({
-  title: 'New Book Listing',
-  ogTitle: 'New Book Listing'
+  title: () => $t('seo_titles.new_book_listing'),
+  ogTitle: () => $t('seo_titles.new_book_listing')
 })
 
 onMounted(async () => {

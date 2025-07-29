@@ -469,12 +469,12 @@ const prices = ref<any[]>([
   {
     price: DEFAULT_PRICE,
     deliveryMethod: 'auto',
-    autoMemo: $t('default_values.auto_memo'),
+    autoMemo: 'Thank you for your support. It means a lot to me.',
     stock: DEFAULT_STOCK,
-    name: $t('prices.standard_edition_zh'),
+    name: $t('prices.standard_edition'),
 
-    nameEn: $t('prices.standard_edition'),
-    nameZh: $t('prices.standard_edition_zh'),
+    nameEn: 'Standard Edition',
+    nameZh: '標準版',
     descriptionEn: '',
     descriptionZh: '',
     hasShipping: false,
@@ -585,8 +585,8 @@ const props = defineProps({
 })
 
 useSeoMeta({
-  title: $t('seo_titles.new_book_listing'),
-  ogTitle: $t('seo_titles.new_book_listing')
+  title: () => $t('seo_titles.new_book_listing'),
+  ogTitle: () => $t('seo_titles.new_book_listing')
 })
 
 onMounted(async () => {
@@ -744,10 +744,10 @@ function addMorePrice () {
     autoMemo: '',
     stock: 1,
     name: iscnDataLanguage.value === 'en'
-      ? $t('prices.tier', { number: nextPriceIndex.value })
-      : $t('prices.tier_zh', { number: nextPriceIndex.value }),
-    nameEn: $t('prices.tier', { number: nextPriceIndex.value }),
-    nameZh: $t('prices.tier_zh', { number: nextPriceIndex.value }),
+      ? `Tier ${nextPriceIndex.value}`
+      : `級別 ${nextPriceIndex.value}`,
+    nameEn: `Tier ${nextPriceIndex.value}`,
+    nameZh: `級別 ${nextPriceIndex.value}`,
     descriptionEn: '',
     descriptionZh: '',
     hasShipping: false,

@@ -40,7 +40,7 @@
             :loading="isSaving"
             @click="handleSave"
           >
-            Save Changes
+            {{ $t('common.save') }}
           </UButton>
         </div>
       </template>

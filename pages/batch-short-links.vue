@@ -1,10 +1,10 @@
 <template>
   <PageContainer>
-    <PageHeader title="Batch Create Book Short Links" />
+    <PageHeader :title="$t('batch_short_links.page_title')" />
 
     <PageBody>
       <UFormGroup
-        label="Short Link Provider"
+        :label="$t('batch_short_links.provider_label')"
         :required="true"
       >
         <USelect
@@ -26,7 +26,7 @@
 
       <UFormGroup
         v-if="shouldShowShortLinkDomain"
-        label="Short.io Domain"
+        :label="$t('batch_short_links.shortio_domain')"
         :required="true"
       >
         <UInput
@@ -37,19 +37,19 @@
         />
       </UFormGroup>
 
-      <UFormGroup label="Title Prefix">
+      <UFormGroup :label="$t('batch_short_links.title_prefix')">
         <UInput
           v-model="titlePrefix"
-          hint="Optional"
+          :hint="$t('batch_short_links.optional')"
         />
       </UFormGroup>
 
       <UCard :ui="{ body: { base: 'space-y-2' } }">
-        <UFormGroup label="Upload CSV file">
+        <UFormGroup :label="$t('batch_short_links.upload_csv')">
           <UInput type="file" accept="csv" @change="handleFileChange" />
         </UFormGroup>
-        <UDivider class="print:hidden" label="OR" />
-        <UFormGroup label="Input CSV content">
+        <UDivider class="print:hidden" :label="$t('batch_short_links.or_divider')" />
+        <UFormGroup :label="$t('batch_short_links.input_csv')">
           <UTextarea
             v-model="csvInput"
             class="font-mono"
@@ -61,7 +61,7 @@
 
       <div class="flex justify-center">
         <UButton
-          label="Start"
+          :label="$t('batch_short_links.start')"
           size="lg"
           :disabled="!csvInput || !apiKey || (shouldShowShortLinkDomain && !shortLinkDomain)"
           @click="startShorteningURLs"
@@ -77,17 +77,17 @@
         >
           <template #header>
             <h3 class="font-bold font-mono">
-              Results
+              {{ $t('batch_short_links.results') }}
             </h3>
 
             <div class="flex items-center gap-2">
               <UButton
-                label="Download CSV"
+                :label="$t('batch_short_links.download_csv')"
                 variant="outline"
                 @click="downloadAllShortenedLinks"
               />
               <UButton
-                label="Convert to QR Codes"
+                :label="$t('batch_short_links.convert_to_qr')"
                 variant="outline"
                 @click="convertToQRCode"
               />
@@ -96,9 +96,9 @@
 
           <UTable
             :columns="[
-              { key: 'key', label: 'Key' },
-              { key: 'url', label: 'URL' },
-              { key: 'destination', label: 'Destination' },
+              { key: 'key', label: $t('batch_short_links.key_column') },
+              { key: 'url', label: $t('batch_short_links.url_column') },
+              { key: 'destination', label: $t('batch_short_links.destination_column') },
             ]"
             :rows="shortenedURLItems"
           >
@@ -137,6 +137,7 @@
 import { parse as csvParse } from 'csv-parse/sync'
 
 import { convertArrayOfObjectsToCSV } from '~/utils'
+const { t: $t } = useI18n()
 
 const toast = useToast()
 const route = useRoute()
@@ -162,7 +163,7 @@ const shortLinkProvider = ref(route.query.provider as string || ShortLinkProvide
 const shouldShowShortLinkDomain = computed(() => shortLinkProvider.value === ShortLinkProvider.ShortIO)
 const shortLinkDomain = ref('')
 
-const titlePrefix = ref(route.query.title_prefix as string || 'NFT Book Press')
+const titlePrefix = ref(route.query.title_prefix as string || $t('batch_short_links.default_title_prefix'))
 const csvInput = ref('')
 const csvInputPlaceholder = `${CSV_HEADER}
 example01,https://example01.com,
@@ -171,9 +172,9 @@ const apiKey = ref('')
 const apiKeyLabel = computed(() => {
   switch (shortLinkProvider.value) {
     case ShortLinkProvider.Bitly:
-      return 'Bitly Access Token'
+      return $t('batch_short_links.bitly_token')
     case ShortLinkProvider.ShortIO:
-      return 'Short.io API Key'
+      return $t('batch_short_links.shortio_api_key')
     default:
       return ''
   }
@@ -215,7 +216,7 @@ async function shortenURLWithBitly ({ url, key }: { url: string, key: string }) 
       }
     })
     if (!data) {
-      throw new Error('No data returned from Bitly')
+      throw new Error($t('batch_short_links.bitly_no_data'))
     }
     return data.link
   } catch (error) {
@@ -252,7 +253,7 @@ async function shortenURLWithShortIO ({ url, key }: { url: string, key: string }
       }
     })
     if (!data) {
-      throw new Error('No data returned from Short.io')
+      throw new Error($t('batch_short_links.shortio_no_data'))
     }
     return data.shortURL
   } catch (error) {

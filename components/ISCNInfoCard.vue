@@ -2,11 +2,11 @@
   <UCard :ui="{ body: { base: 'space-y-4' } }">
     <template #header>
       <h2 class="font-bold font-mono">
-        ISCN Information
+        {{ $t('iscn.information') }}
       </h2>
     </template>
 
-    <UFormGroup label="Owner" class="text-left">
+    <UFormGroup :label="$t('iscn.owner')" class="text-left">
       <UButton
         :label="iscnOwner"
         :to="`${OPENSEA_URL}/${encodeURIComponent(iscnOwner)}`"
@@ -16,7 +16,7 @@
       />
     </UFormGroup>
 
-    <UFormGroup label="Title">
+    <UFormGroup :label="$t('common.title')">
       <UInput
         :value="iscnData?.contentMetadata?.name"
         :readonly="true"
@@ -25,7 +25,7 @@
       />
     </UFormGroup>
 
-    <UFormGroup label="Description">
+    <UFormGroup :label="$t('common.description')">
       <UInput
         :value="iscnData?.contentMetadata?.description"
         :readonly="true"
@@ -37,7 +37,7 @@
     <slot name="actions">
       <UButton
         v-if="showEditButton"
-        label="Edit ISCN Metadata"
+        :label="$t('iscn.edit_metadata')"
         @click="$emit('edit')"
       />
     </slot>

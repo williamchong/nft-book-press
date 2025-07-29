@@ -12,7 +12,7 @@
 
     <UProgress v-if="isLoading" animation="carousel">
       <template #indicator>
-        Loading...
+        {{ $t('common.loading') }}
       </template>
     </UProgress>
 
@@ -21,10 +21,10 @@
       <UCard :ui="{ body: { base: 'space-y-4' } }">
         <template #header>
           <h2 class="font-bold font-mono">
-            New Book Collection Info
+            {{ $t('collection.new_collection_info') }}
           </h2>
         </template>
-        <UFormGroup label="Books in Collection">
+        <UFormGroup :label="$t('form.books_in_collection')">
           <UCard :ui="{ body: { padding: '' } }">
             <UTable
               :columns="[{ key: 'classId', label: 'Class ID' }, { key: 'name', label: 'Book Name'}]"
@@ -37,7 +37,7 @@
                 placeholder="0x...."
               />
               <UButton @click="addMoreClassId">
-                Add
+                {{ $t('common.add') }}
               </UButton>
             </div>
           </UCard>
@@ -64,7 +64,7 @@
       >
         <template #header>
           <h3 class="font-bold font-mono">
-            Pricing and Availability
+            {{ $t('form.pricing_availability') }}
           </h3>
         </template>
         <UFormGroup :label="`Price(USD) of this collection (Minimal ${MINIMAL_PRICE} or $0 (free)) / 版本定價（美金）`">
@@ -97,13 +97,13 @@
         </UFormGroup>
         <UFormGroup
           v-else
-          label="Is Physical only good / 只含實體書"
+          :label="$t('collection.is_physical_only')"
           :ui="{ label: { base: 'font-mono font-bold' } }"
         >
           <UCheckbox
             v-model="price.isPhysicalOnly"
             name="isPhysicalOnly"
-            label="This collection does not contain any digital file/NFT"
+            :label="$t('collection.no_digital_files')"
           />
         </UFormGroup>
         <UFormGroup>
@@ -123,14 +123,14 @@
           <UCheckbox
             v-model="price.isAllowCustomPrice"
             name="isAllowCustomPrice"
-            label="Allow user to pay more than defined price"
+            :label="$t('form.allow_pay_more')"
           />
         </UFormGroup>
-        <UFormGroup label="Unlist Edition / 暫時下架">
+        <UFormGroup :label="$t('collection.unlist_edition')">
           <UCheckbox
             v-model="price.isUnlisted"
             name="isUnlisted"
-            label="Pause selling of this Edition"
+            :label="$t('form.pause_selling_edition')"
           />
         </UFormGroup>
       </UCard>
@@ -146,7 +146,7 @@
       >
         <template #header>
           <h3 class="font-bold font-mono">
-            Product Information
+            {{ $t('form.product_information') }}
           </h3>
         </template>
         <UFormGroup :ui="{ container: 'space-y-2 my-[20px]' }">
@@ -179,7 +179,7 @@
           />
         </UFormGroup>
         <UFormGroup
-          :label="`Image of this book collection`"
+          :label="$t('form.cover_image')"
           :ui="{ container: 'space-y-2' }"
         >
           <UInput
@@ -215,7 +215,7 @@
       >
         <template #header>
           <h4 class="text-sm font-bold font-mono">
-            Email to receive sales notifications / 欲收到銷售通知的電郵
+            {{ $t('form.email_notifications') }} / 欲收到銷售通知的電郵
           </h4>
           <div class="flex gap-2">
             <UInput
@@ -223,7 +223,7 @@
               placeholder="abc@example.com"
             />
             <UButton
-              label="Add"
+              :label="$t('common.add')"
               :variant="notificationEmailInput ? 'outline' : 'solid'"
               :color="notificationEmailInput ? 'primary' : 'gray'"
               :disabled="!notificationEmailInput"
@@ -232,7 +232,7 @@
           </div>
         </template>
         <UTable
-          :columns="[{ key: 'email', label: 'Email', sortable: true }, { key: 'action' }]"
+          :columns="[{ key: 'email', label: $t('common.email'), sortable: true }, { key: 'action' }]"
           :rows="notificationEmailsTableRows"
         >
           <template #email-data="{ row }">
@@ -264,7 +264,7 @@
       >
         <div class="flex justify-between items-center w-full">
           <h3 class="font-bold font-mono">
-            Advanced Settings
+            {{ $t('nft_book_form.advanced_settings') }}
           </h3>
           <UButton
             color="gray"
@@ -315,7 +315,7 @@
                     placeholder="0x..."
                   />
                   <UButton
-                    label="Add"
+                    :label="$t('common.add')"
                     :variant="moderatorWalletInput ? 'outline' : 'solid'"
                     :color="moderatorWalletInput ? 'primary' : 'gray'"
                     :disabled="!moderatorWalletInput"
@@ -360,24 +360,24 @@
 
               <div class="grid md:grid-cols-2 gap-4">
                 <UFormGroup
-                  label="Force NFT claim before view"
+                  :label="$t('form.force_nft_claim')"
                   :ui="{ label: { base: 'font-mono font-bold' } }"
                 >
                   <UCheckbox
                     v-model="mustClaimToView"
                     name="mustClaimToView"
-                    label="Must claim NFT to view"
+                    :label="$t('form.must_claim_to_view')"
                   />
                 </UFormGroup>
 
                 <UFormGroup
-                  label="Disable File Download"
+                  :label="$t('form.disable_file_download')"
                   :ui="{ label: { base: 'font-mono font-bold' } }"
                 >
                   <UCheckbox
                     v-model="hideDownload"
                     name="hideDownload"
-                    label="Disable Download"
+                    :label="$t('form.disable_download')"
                   />
                 </UFormGroup>
               </div>
@@ -428,6 +428,7 @@ const { fetchStripeConnectStatusByWallet } = stripeStore
 const { getStripeConnectStatusByWallet } = storeToRefs(stripeStore)
 
 const localeRoute = useLocaleRoute()
+const { t: $t } = useI18n()
 
 const error = ref('')
 const isLoading = ref(false)
@@ -484,10 +485,10 @@ const toolbarOptions: ToolbarNames[] = [
   'preview'
 ]
 
-const submitButtonText = computed(() => 'Submit')
+const submitButtonText = computed(() => $t('common.submit'))
 
 const moderatorWalletsTableColumns = computed(() => [
-  { key: 'wallet', label: 'Wallet', sortable: true },
+  { key: 'wallet', label: $t('common.wallet'), sortable: true },
   { key: 'remove', label: '', sortable: false }
 ])
 
@@ -613,16 +614,16 @@ function sanitizeHtml (html: string) {
 async function submitNewCollection () {
   try {
     if (classIdInput.value) {
-      throw new Error('Please press "Add" button to add NFT class ID')
+      throw new Error($t('errors.nft_class_id_required'))
     }
     if (!classIds.value.length) {
-      throw new Error('Please press "Add" button to add NFT class ID')
+      throw new Error($t('errors.nft_class_id_required'))
     }
     if (moderatorWalletInput.value) {
-      throw new Error('Please press "Add" button to add moderator wallet')
+      throw new Error($t('errors.add_moderator_wallet'))
     }
     if (notificationEmailInput.value) {
-      throw new Error('Please press "Add" button to add notification email')
+      throw new Error($t('errors.add_notification_email'))
     }
 
     isLoading.value = true
@@ -634,12 +635,12 @@ async function submitNewCollection () {
         !collectionId.includes('nft_book') &&
         !collectionId.includes('book_nft')
       ) {
-        throw new Error('NFT Class not in NFT BOOK meta collection')
+        throw new Error($t('errors.not_nft_book_collection'))
       }
     }))
 
     if (Number(price.value.price) !== 0 && price.value.price < MINIMAL_PRICE) {
-      throw new Error(`Price of each edition must be at least $${MINIMAL_PRICE} or $0 (free)`)
+      throw new Error($t('errors.price_validation', { minPrice: `$${MINIMAL_PRICE}` }))
     }
 
     const connectedWallets = (isStripeConnectChecked.value && stripeConnectWallet.value)

@@ -2,13 +2,13 @@
   <PageBody class="space-y-10 pb-10">
     <div class="flex justify-between gap-4">
       <h1 class="text-lg font-bold font-mono flex-wrap">
-        NFT Book Status "{{ nftClassName || classId }}"
+        {{ $t('pages.nft_book_status') }} "{{ nftClassName || classId }}"
       </h1>
 
       <div class="flex justify-center items-center gap-2 flex-wrap">
         <UButton
           class="font-mono break-all"
-          label="Gift Books"
+          :label="$t('buttons.gift_books')"
           icon="i-heroicons-gift"
           :to="localeRoute({
             name: 'nft-book-store-gift-classId',
@@ -20,7 +20,7 @@
         />
 
         <UButton
-          label="View in 3ook.com"
+          :label="$t('buttons.view_in_3ook')"
           icon="i-heroicons-arrow-top-right-on-square"
           variant="outline"
           :to="`${BOOK3_URL}/store/${classId}`"
@@ -41,7 +41,7 @@
 
     <UProgress v-if="isLoading" animation="carousel">
       <template #indicator>
-        Loading...
+        {{ $t('loading.progress') }}
       </template>
     </UProgress>
 
@@ -54,10 +54,10 @@
       >
         <div class="flex justify-between items-center w-full">
           <h3 class="font-bold font-mono">
-            Book Details (Metadata)
+            {{ $t('pages.book_details_metadata') }}
           </h3>
           <UButton
-            label="View / Edit"
+            :label="$t('buttons.view_edit')"
             @click="showEditISCNModal = true"
           />
         </div>
@@ -66,15 +66,15 @@
       <UCard :ui="{ body: { padding: '' } }">
         <template #header>
           <h3 class="font-bold font-mono">
-            Book Listing Status
+            {{ $t('pages.book_listing_status') }}
           </h3>
         </template>
 
         <UTable
           :columns="[
-            { key: 'pendingAction', label: 'Pending Action' },
-            { key: 'sold', label: 'Sold' },
-            { key: 'stock', label: 'Stock' },
+            { key: 'pendingAction', label: $t('table.pending_action') },
+            { key: 'sold', label: $t('table.sold') },
+            { key: 'stock', label: $t('table.stock') },
           ]"
           :rows="[
             {
@@ -106,10 +106,10 @@
       >
         <template #header>
           <h3 class="font-bold font-mono">
-            Orders
+            {{ $t('pages.orders') }}
           </h3>
 
-          <UInput v-model="searchInput" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search..." />
+          <UInput v-model="searchInput" icon="i-heroicons-magnifying-glass-20-solid" :placeholder="$t('status_page.search_placeholder')" />
         </template>
 
         <UTable
@@ -170,15 +170,15 @@
         <template #header>
           <div class="flex justify-between items-center">
             <h3 class="font-bold font-mono">
-              Editions
+              {{ $t('pages.editions') }}
             </h3>
             <div class="flex justify-between items-center gap-4">
               <div>
-                Unassigned Stock : {{ unassignedStock }}
+                {{ $t('table.unassigned_stock') }} : {{ unassignedStock }}
               </div>
               <UButton
                 icon="i-heroicons-plus-circle"
-                label="Mint New Stock"
+                :label="$t('buttons.mint_new_stock')"
                 @click="handleOpenRestockModal"
               />
             </div>
@@ -189,22 +189,22 @@
           <thead class="border-b-2">
             <tr class="text-left">
               <th class="px-3 py-4">
-                Order
+                {{ $t('table.order') }}
               </th>
               <th class="px-3 py-4">
-                Name
+                {{ $t('table.name') }}
               </th>
               <th class="px-3 py-4 text-right">
-                stock
+                {{ $t('table.stock') }}
               </th>
               <th class="px-3 py-4 text-right">
-                Price (USD)
+                {{ $t('table.price_usd') }}
               </th>
               <th v-if="userIsOwner && prices.length > 1" class="px-3 py-4 text-center">
-                Sort
+                {{ $t('table.sort') }}
               </th>
               <th v-if="userIsOwner" class="px-3 py-4 text-center">
-                Details
+                {{ $t('table.details') }}
               </th>
             </tr>
           </thead>
@@ -227,7 +227,7 @@
                   <template v-if="typeof element.name === 'object'">
                     <UCard :ui="{ body: { padding: '' } }">
                       <UTable
-                        :columns="[{ key: 'locale', label: 'Locale' }, { key: 'content', label: 'Content' }]"
+                        :columns="[{ key: 'locale', label: $t('table.locale') }, { key: 'content', label: $t('table.content') }]"
                         :rows="Object.entries(element.name).map(([locale, content]) => ({ locale, content }))"
                       >
                         <template #locale-data="{ row }">
@@ -281,7 +281,7 @@
           <UButton
             icon="i-heroicons-plus-circle"
             class="mb-[12px]"
-            label="New Edition"
+            :label="$t('form.add_edition')"
             :to="localeRoute({
               name: 'nft-book-store-status-classId-edit-new',
               params: { classId },
@@ -310,7 +310,7 @@
       >
         <template #header>
           <h4 class="text-sm font-bold font-mono">
-            Email to receive sales notifications / 欲收到銷售通知的電郵
+            {{ $t('form.email_notifications') }}
           </h4>
 
           <div class="flex gap-2">
@@ -330,7 +330,7 @@
         </template>
 
         <UTable
-          :columns="[{ key: 'email', label: 'Email', sortable: true }, { key: 'action' }]"
+          :columns="[{ key: 'email', label: $t('common.email'), sortable: true }, { key: 'action' }]"
           :rows="notificationEmailsTableRows"
         >
           <template #email-data="{ row }">
@@ -358,15 +358,15 @@
       <UCard :ui="{ body: { padding: '' } }">
         <template #header>
           <h3 class="font-bold font-mono">
-            Sales Channel Summary / 銷售渠道摘要
+            {{ $t('pages.sales_channel_summary') }}
           </h3>
         </template>
 
         <UTable
           :columns="[
-            { key: 'id', label: 'Channel ID', sortable: true },
-            { key: 'count', label: 'Count', sortable: true },
-            { key: 'totalUSD', label: 'Total USD', sortable: true },
+            { key: 'id', label: $t('table.channel_id'), sortable: true },
+            { key: 'count', label: $t('table.count'), sortable: true },
+            { key: 'totalUSD', label: $t('table.total_usd'), sortable: true },
           ]"
           :rows="salesChannelTableRows"
         >
@@ -393,7 +393,7 @@
       >
         <div class="flex justify-between items-center w-full">
           <h3 class="font-bold font-mono">
-            Advanced Settings
+            {{ $t('nft_book_form.advanced_settings') }}
           </h3>
           <UButton
             color="gray"
@@ -412,7 +412,7 @@
         </div>
         <template v-if="shouldShowAdvanceSettings">
           <div class="mt-[24px] flex flex-col gap-[12px]">
-            <UFormGroup label="Table Of Content / 章節目錄">
+            <UFormGroup :label="$t('form.table_of_content')">
               <UTextarea v-model="tableOfContents" />
             </UFormGroup>
 
@@ -433,7 +433,7 @@
             >
               <template #header>
                 <h4 class="text-sm font-bold font-mono">
-                  Share sales data to wallets / 分享銷售數據給特定地址
+                  {{ $t('form.share_sales_data') }}
                 </h4>
                 <div class="flex gap-2">
                   <UInput
@@ -442,7 +442,7 @@
                     placeholder="like1..."
                   />
                   <UButton
-                    label="Add"
+                    :label="$t('common.add')"
                     :variant="moderatorWalletInput ? 'outline' : 'solid'"
                     :color="moderatorWalletInput ? 'primary' : 'gray'"
                     :disabled="!moderatorWalletInput"
@@ -489,35 +489,35 @@
 
               <div class="grid md:grid-cols-2 gap-4">
                 <UFormGroup
-                  label="Force NFT claim before view"
+                  :label="$t('form.force_nft_claim')"
                   :ui="{ label: { base: 'font-mono font-bold' } }"
                 >
                   <UCheckbox
                     v-model="mustClaimToView"
                     name="mustClaimToView"
-                    label="Must claim NFT to view"
+                    :label="$t('form.must_claim_to_view')"
                   />
                 </UFormGroup>
 
                 <UFormGroup
-                  label="Disable File Download "
+                  :label="$t('form.disable_file_download')"
                   :ui="{ label: { base: 'font-mono font-bold' } }"
                 >
                   <UCheckbox
                     v-model="hideDownload"
                     name="hideDownload"
-                    label="Disable Download"
+                    :label="$t('form.disable_download')"
                   />
                 </UFormGroup>
 
                 <UFormGroup
-                  label="Insert cutomized message page in eBook"
+                  :label="$t('form.custom_message_page')"
                   :ui="{ label: { base: 'font-mono font-bold' } }"
                 >
                   <UCheckbox
                     v-model="enableCustomMessagePage"
                     name="enableCustomMessagePage"
-                    label="Enable custom message page"
+                    :label="$t('form.enable_custom_message')"
                   />
                 </UFormGroup>
               </div>
@@ -529,20 +529,20 @@
             >
               <template #header>
                 <h3 class="font-bold font-mono">
-                  Copy Purchase Link / 複製購買連結
+                  {{ $t('form.copy_purchase_link') }}
                 </h3>
               </template>
 
               <div>
                 <UToggle v-model="useLikerLandPurchaseLink" />
-                Use {{ useLikerLandPurchaseLink ? 'Liker Land' : 'Stripe' }} Purchase Link
+                {{ $t('form.use_liker_land_link') }}
               </div>
 
-              <UFormGroup label="Price" :required="true">
+              <UFormGroup :label="$t('form.price')" :required="true">
                 <USelect v-model="priceIndex" :options="priceIndexOptions" />
               </UFormGroup>
 
-              <UFormGroup label="Sales channel for the link(s)" hint="Optional">
+              <UFormGroup :label="$t('form.sales_channel_for_links')" :hint="$t('common.optional')">
                 <UInput v-model="fromChannelInput" placeholder="Channel ID(s), separated by commas (e.g. store01, store02)" />
               </UFormGroup>
 
@@ -555,24 +555,24 @@
               >
                 <template #header>
                   <h4 class="text-sm font-bold font-mono">
-                    All Purchase Links
+                    {{ $t('purchase_link.download_all_links') }}
                   </h4>
 
                   <UDropdown
                     :items="[
                       [
                         {
-                          label: 'Print All QR Codes',
+                          label: $t('buttons.print_all_qr'),
                           icon: 'i-heroicons-qr-code',
                           click: printAllQRCodes,
                         },
                         {
-                          label: 'Download All Links',
+                          label: $t('buttons.download_all_links'),
                           icon: 'i-heroicons-arrow-down-on-square-stack',
                           click: downloadAllPurchaseLinks,
                         },
                         {
-                          label: 'Shorten All Links',
+                          label: $t('buttons.shorten_all_links'),
                           icon: 'i-heroicons-sparkles',
                           click: shortenAllLinks,
                         },
@@ -591,8 +591,8 @@
                 <UTable
                   :columns="[
                     { key: 'index', label: '#' },
-                    { key: 'channel', label: 'Channel ID' },
-                    { key: 'link', label: 'Purchase Link' },
+                    { key: 'channel', label: $t('table.channel_id') },
+                    { key: 'link', label: $t('purchase_link.download_links') },
                   ]"
                   :rows="purchaseLinks"
                   :ui="{ thead: 'whitespace-nowrap' }"
@@ -663,7 +663,7 @@
         </template>
       </UCard>
       <UButton
-        label="Save Changes"
+        :label="$t('common.save')"
         :loading="isLoading"
         size="lg"
         :disabled="isLoading"
@@ -686,7 +686,7 @@
       >
         <template #header>
           <h3 class="font-bold font-mono">
-            Download QR Code
+            {{ $t('purchase_link.download_qr_modal') }}
           </h3>
           <UButton
             icon="i-heroicons-x-mark"
@@ -714,6 +714,7 @@ import { useWalletStore } from '~/stores/wallet'
 import { useStripeStore } from '~/stores/stripe'
 import { getPortfolioURL, downloadFile, convertArrayOfObjectsToCSV, getPurchaseLink, formatShippingAddress } from '~/utils'
 import { shortenWalletAddress } from '~/utils/cosmos'
+const { t: $t } = useI18n()
 
 const { CHAIN_EXPLORER_URL, BOOK3_URL, LIKE_CO_API } = useRuntimeConfig().public
 const store = useWalletStore()
@@ -841,29 +842,29 @@ const purchaseList = computed(() => {
 
 const orderTableColumns = computed(() => {
   const columns = [
-    { key: 'actions', label: 'Actions', sortable: false },
-    { key: 'orderDate', label: 'Order Date', sortable: true },
-    { key: 'status', label: 'Status', sortable: true }
+    { key: 'actions', label: $t('table.actions'), sortable: false },
+    { key: 'orderDate', label: $t('table.order_date'), sortable: true },
+    { key: 'status', label: $t('table.status'), sortable: true }
   ]
   if (orderHasShipping.value) {
-    columns.push({ key: 'shippingStatus', label: 'Shipping Status', sortable: true })
+    columns.push({ key: 'shippingStatus', label: $t('table.shipping_status'), sortable: true })
   }
   columns.push(
-    { key: 'from', label: 'Sales Channel', sortable: true },
-    { key: 'price', label: 'Price', sortable: true },
-    { key: 'priceName', label: 'Price Name', sortable: false },
-    { key: 'quantity', label: 'Quantity', sortable: true },
-    { key: 'coupon', label: 'Coupon Applied', sortable: false },
-    { key: 'buyerEmail', label: 'Buyer Email', sortable: true },
-    { key: 'readerEmail', label: 'Reader Email', sortable: true },
-    { key: 'wallet', label: 'Reader Wallet', sortable: true },
-    { key: 'message', label: 'Reader Message', sortable: false }
+    { key: 'from', label: $t('table.sales_channel'), sortable: true },
+    { key: 'price', label: $t('form.price'), sortable: true },
+    { key: 'priceName', label: $t('table.price_name'), sortable: false },
+    { key: 'quantity', label: $t('table.quantity'), sortable: true },
+    { key: 'coupon', label: $t('table.coupon_applied'), sortable: false },
+    { key: 'buyerEmail', label: $t('table.buyer_email'), sortable: true },
+    { key: 'readerEmail', label: $t('table.reader_email'), sortable: true },
+    { key: 'wallet', label: $t('table.reader_wallet'), sortable: true },
+    { key: 'message', label: $t('table.reader_message'), sortable: false }
   )
   if (orderHasShipping.value) {
-    columns.push({ key: 'buyerPhone', label: 'Buyer Phone', sortable: true })
-    columns.push({ key: 'shippingName', label: 'Shipping Name', sortable: true })
-    columns.push({ key: 'shippingAddress', label: 'Shipping Address', sortable: true })
-    columns.push({ key: 'shippingCountry', label: 'Shipping Country', sortable: true })
+    columns.push({ key: 'buyerPhone', label: $t('table.buyer_phone'), sortable: true })
+    columns.push({ key: 'shippingName', label: $t('table.shipping_name'), sortable: true })
+    columns.push({ key: 'shippingAddress', label: $t('table.shipping_address'), sortable: true })
+    columns.push({ key: 'shippingCountry', label: $t('table.shipping_country'), sortable: true })
   }
 
   return columns
@@ -882,7 +883,7 @@ function getOrdersTableActionItems (purchaseListItem: any) {
 
   if (purchaseListItem.status === 'completed' && purchaseListItem.txHash) {
     actionItems.push([{
-      label: 'View Transaction',
+      label: $t('collection.view_transaction'),
       icon: 'i-heroicons-magnifying-glass',
       to: `${CHAIN_EXPLORER_URL}/${purchaseListItem.txHash}`,
       target: '_blank'
@@ -922,7 +923,7 @@ function getOrdersTableActionItems (purchaseListItem: any) {
 
   if (purchaseListItem.status === 'paid') {
     actionItems.push([{
-      label: 'Send Reminder Email',
+      label: $t('collection.send_reminder_email'),
       icon: 'i-heroicons-envelope',
       click: () => {
         sendReminderEmail(purchaseListItem)
@@ -932,7 +933,7 @@ function getOrdersTableActionItems (purchaseListItem: any) {
 
   if (['pendingNFT', 'paid'].includes(purchaseListItem.status)) {
     actionItems.push([{
-      label: 'Mark Complete',
+      label: $t('collection.mark_complete'),
       icon: 'i-heroicons-check-circle',
       click: () => {
         hardSetStatusToCompleted(purchaseListItem)
@@ -953,9 +954,9 @@ function getStatusLabel (purchaseListItem: any) {
 
     case 'completed':
       if (purchaseListItem.shippingStatus === 'pending') {
-        return 'Pending Shipping'
+        return $t('collection.pending_shipping')
       }
-      return 'Completed'
+      return $t('status.completed')
 
     default:
       return purchaseListItem.status
@@ -1020,7 +1021,7 @@ const ordersTableRows = computed(() => purchaseList.value?.map((p: any, index: n
 }))
 
 const moderatorWalletsTableColumns = computed(() => {
-  const columns = [{ key: 'wallet', label: 'Wallet', sortable: true }]
+  const columns = [{ key: 'wallet', label: $t('table.wallet'), sortable: true }]
 
   if (userIsOwner.value) {
     columns.push(
@@ -1200,7 +1201,7 @@ async function sendReminderEmail (purchase: any) {
 
   toast.add({
     icon: 'i-heroicons-check-circle',
-    title: 'Reminder email sent',
+    title: $t('collection.send_reminder_email'),
     timeout: 2000,
     color: 'green'
   })
@@ -1275,10 +1276,10 @@ async function handleSaveStripeConnectWallet (wallet: any) {
 async function updateSettings () {
   try {
     if (moderatorWalletInput.value) {
-      throw new Error('Please press "Add" button to add moderator wallet')
+      throw new Error($t('errors.add_moderator_wallet'))
     }
     if (notificationEmailInput.value) {
-      throw new Error('Please press "Add" button to add notification email')
+      throw new Error($t('errors.add_notification_email'))
     }
     isLoading.value = true
 
@@ -1334,7 +1335,7 @@ async function copyPurchaseLink (text = '') {
   await navigator.clipboard.writeText(text)
   toast.add({
     icon: 'i-heroicons-check-circle',
-    title: 'Copied purchase link to clipboard',
+    title: $t('purchase_link.copied_to_clipboard'),
     timeout: 2000,
     color: 'green'
   })
@@ -1360,7 +1361,7 @@ function printAllQRCodes () {
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
-      title: 'Failed to print QR codes',
+      title: $t('purchase_link.failed_print_qr'),
       timeout: 0,
       color: 'red',
       ui: {
@@ -1382,7 +1383,7 @@ async function shortenAllLinks () {
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
-      title: 'Failed to shorten links',
+      title: $t('purchase_link.failed_shorten_links'),
       timeout: 0,
       color: 'red',
       ui: {

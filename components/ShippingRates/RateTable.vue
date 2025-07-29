@@ -4,7 +4,7 @@
       <div class="flex flex-row justify-between items-center">
         <div class="flex justify-start items-center gap-[8px]">
           <h3 class="font-bold font-mono">
-            Shipping Options / 寄送選項
+            {{ $t('form.shipping_options') }}
           </h3>
           <slot name="header" />
         </div>

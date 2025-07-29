@@ -13,7 +13,7 @@
         />
         <span
           class="text-gray-400 dark:text-gray-700 text-sm"
-          v-text="creatingAffiliationLinkState || 'Creating affiliation links...'"
+          v-text="creatingAffiliationLinkState || $t('purchase_link.failed_create_link')"
         />
       </div>
 
@@ -21,13 +21,13 @@
         v-else-if="!productDataList"
         :ui="{ body: { base: 'space-y-4' }, footer: { base: 'flex justify-end' } }"
       >
-        <UFormGroup label="Destination">
+        <UFormGroup :label="$t('purchase_link.destination')">
           <USelect v-model="destinationSetting" :options="destinationSettings" option-attribute="name" />
         </UFormGroup>
 
         <UFormGroup
           v-if="isUsingCustomDestination"
-          label="Custom Page URL"
+          :label="$t('purchase_link.custom_page_url')"
           :required="true"
         >
           <UInput
@@ -40,7 +40,7 @@
 
         <UFormGroup
           v-else
-          label="Product ID/URL(s)"
+          :label="$t('purchase_link.product_ids')"
           :error="productIdError"
           :required="true"
         >
@@ -54,8 +54,8 @@
         </UFormGroup>
 
         <UFormGroup
-          label="Channel ID(s)"
-          hint="Optional"
+          :label="$t('purchase_link.channel_ids')"
+          :hint="$t('purchase_link.optional')"
           :error="customChannelInputError"
           :ui="{ help: 'flex items-center gap-2' }"
         >
@@ -69,7 +69,7 @@
             <UButton
               v-show="!customChannelInput && userLikerInfo"
               class="relative"
-              label="Prefill from Account"
+              :label="$t('purchase_link.prefill_from_account')"
               color="gray"
               variant="outline"
               size="2xs"
@@ -79,7 +79,7 @@
 
           <template #help>
             <UToggle v-model="isIncludeDefaultChannels" :disabled="!customChannelInput" />
-            <span v-text="'Include default channels'" />
+            <span v-text="$t('purchase_link.include_default_channels')" />
           </template>
         </UFormGroup>
 
@@ -88,7 +88,7 @@
           variant="soft"
           size="md"
           :items="[{
-            label: 'Query String (Optional)',
+            label: $t('purchase_link.query_string_optional'),
             defaultOpen: true,
             slot: 'body'
           }]"
@@ -97,7 +97,7 @@
           <template #body>
             <UCard :ui="{ body: { base: 'space-y-4' } }">
               <div class="relative flex max-md:flex-col flex-wrap gap-4">
-                <UFormGroup class="flex-1" label="UTM Campaign">
+                <UFormGroup class="flex-1" :label="$t('purchase_link.utm_campaign')">
                   <UInput
                     v-model="utmCampaignInput"
                     class="font-mono"
@@ -105,7 +105,7 @@
                     :placeholder="`e.g. ${utmCampaignDefault}`"
                   />
                 </UFormGroup>
-                <UFormGroup class="flex-1" label="UTM Source">
+                <UFormGroup class="flex-1" :label="$t('purchase_link.utm_source')">
                   <UInput
                     v-model="utmSourceInput"
                     class="font-mono"
@@ -113,7 +113,7 @@
                     :placeholder="`e.g. ${utmSourceDefault}`"
                   />
                 </UFormGroup>
-                <UFormGroup class="flex-1" label="UTM Medium">
+                <UFormGroup class="flex-1" :label="$t('purchase_link.utm_medium')">
                   <UInput
                     v-model="utmMediumInput"
                     class="font-mono"
@@ -123,7 +123,7 @@
                 </UFormGroup>
               </div>
 
-              <UFormGroup label="Additional Query String">
+              <UFormGroup :label="$t('purchase_link.additional_query_string')">
                 <UInput
                   v-model="additionalQueryStringInput"
                   class="font-mono"
@@ -134,7 +134,7 @@
 
               <div class="flex items-center gap-2">
                 <UToggle v-model="shouldPrefixChannelIdForUTMCampaign" />
-                <span v-text="'Prefix Channel ID for UTM Campaign'" />
+                <span v-text="$t('purchase_link.prefix_channel_id')" />
               </div>
             </UCard>
           </template>
@@ -142,7 +142,7 @@
 
         <template #footer>
           <UButton
-            label="Generate"
+            :label="$t('purchase_link.generate')"
             size="lg"
             :disabled="!canCreateAffiliationLink"
             @click="createAffiliationLink"
@@ -154,7 +154,7 @@
         <header v-if="!isSharingMode">
           <UButton
             icon="i-heroicons-arrow-uturn-left"
-            label="Back to configuration"
+            :label="$t('purchase_link.back_to_config')"
             variant="soft"
             @click="productDataList = undefined"
           />
@@ -162,13 +162,13 @@
 
         <UCard v-if="hasMoreThanOneChannel && productTableRows.length" :ui="{ body: { padding: '' } }">
           <template #header>
-            <h3 class="text-lg font-bold" v-text="'Product List'" />
+            <h3 class="text-lg font-bold" v-text="$t('purchase_link.product_list')" />
           </template>
 
           <UTable
             :columns="[
-              { key: 'name', label: 'Name' },
-              { key: 'editionSelect', label: 'Selected Edition' }
+              { key: 'name', label: $t('table.name') },
+              { key: 'editionSelect', label: $t('table.selected_edition') }
             ]"
             :rows="productTableRows"
           >
@@ -192,13 +192,13 @@
           :ui="{ body: { padding: '' } }"
         >
           <template #header>
-            <h3 class="text-lg font-bold" v-text="'Common Query String'" />
+            <h3 class="text-lg font-bold" v-text="$t('purchase_link.common_query_string')" />
           </template>
 
           <UTable
             :columns="[
-              { key: 'key', label: 'Key' },
-              { key: 'value', label: 'Value' }
+              { key: 'key', label: $t('table.key') },
+              { key: 'value', label: $t('table.value') }
             ]"
             :rows="commonQueryStringTableRows"
             :ui="{ td: { font: 'font-mono' } }"
@@ -217,29 +217,29 @@
           <template v-if="hasMoreThanOneChannel" #header>
             <h2
               class="text-lg font-bold"
-              v-text="'Affiliation Links by Channel'"
+              v-text="$t('purchase_link.affiliation_links')"
             />
 
             <UDropdown
               :items="[
                 [
                   {
-                    label: 'Print All QR Codes',
+                    label: $t('purchase_link.print_all_qr'),
                     icon: 'i-heroicons-qr-code',
                     click: printAllQRCodes,
                   },
                   {
-                    label: 'Download QR Codes',
+                    label: $t('purchase_link.download_qr_codes'),
                     icon: 'i-heroicons-arrow-down-on-square-stack',
                     click: downloadAllQRCodes,
                   },
                   {
-                    label: 'Download All Links',
+                    label: $t('purchase_link.download_all_links'),
                     icon: 'i-heroicons-arrow-down-on-square-stack',
                     click: downloadAllPurchaseLinks,
                   },
                   {
-                    label: 'Shorten All Links',
+                    label: $t('purchase_link.shorten_all_links'),
                     icon: 'i-heroicons-sparkles',
                     click: shortenAllLinks,
                   },
@@ -286,27 +286,27 @@
                 :items="[
                   [
                     {
-                      label: 'Print QR Codes',
+                      label: $t('purchase_link.print_qr_codes'),
                       icon: 'i-heroicons-qr-code',
                       click: printQRCodesByChannelId(channel.id),
                     },
                     {
-                      label: 'Download QR Codes',
+                      label: $t('purchase_link.download_qr_codes'),
                       icon: 'i-heroicons-arrow-down-on-square-stack',
                       click: downloadQRCodesByChannelId(channel.id),
                     },
                     {
-                      label: 'Download Links',
+                      label: $t('purchase_link.download_links'),
                       icon: 'i-heroicons-arrow-down-on-square-stack',
                       click: downloadPurchaseLinksByChannelId(channel.id),
                     },
                     {
-                      label: 'Shorten Links',
+                      label: $t('purchase_link.shorten_links'),
                       icon: 'i-heroicons-sparkles',
                       click: shortenLinksByChannelId(channel.id),
                     },
                     {
-                      label: 'Share Table',
+                      label: $t('purchase_link.share_table'),
                       icon: 'i-heroicons-document-duplicate',
                       click: shareTableLinkByChannelId(channel.id),
                     },
@@ -381,7 +381,7 @@
           >
             <template #header>
               <h3 class="font-bold font-mono">
-                Download QR Code
+                {{ $t('purchase_link.download_qr_modal') }}
               </h3>
               <UButton
                 icon="i-heroicons-x-mark"
@@ -416,6 +416,7 @@ const { userLikerInfo } = storeToRefs(userStore)
 const route = useRoute()
 const localeRoute = useLocaleRoute()
 const toast = useToast()
+const { t: $t } = useI18n()
 
 const isSharingMode = computed({
   get: () => route.query.share === '1',
@@ -430,7 +431,7 @@ const isSharingMode = computed({
 })
 
 const pageTitle = computed(() => {
-  return isSharingMode.value ? 'Book Purchase Links' : 'Book Purchase Link Generator'
+  return isSharingMode.value ? $t('purchase_link.sharing_mode_title') : $t('purchase_link.generator_mode_title')
 })
 
 useSeoMeta({
@@ -578,17 +579,17 @@ const commonQueryStringTableRows = computed(() => {
     }))
 })
 
-const destinationSettings = ref([
+const destinationSettings = computed(() => [
   {
-    name: 'Liker Land Product Page',
+    name: $t('purchase_link.liker_land_product'),
     value: 'liker_land'
   },
   {
-    name: 'Stripe Checkout Page',
+    name: $t('purchase_link.stripe_checkout'),
     value: 'direct'
   },
   {
-    name: 'Custom Page',
+    name: $t('purchase_link.custom_page'),
     value: 'custom'
   }
 ])
@@ -699,25 +700,25 @@ const linkTableColumns = computed(() => {
   if (!isUsingCustomDestination.value) {
     cols.push({
       key: 'productId',
-      label: 'Product',
+      label: $t('common.title'),
       sortable: true
     },
     {
       key: 'selectedEditionLabel',
-      label: 'Edition'
+      label: $t('table.selected_edition')
     })
   }
 
   if (!isSharingMode.value) {
     cols.push({
       key: 'utmCampaign',
-      label: 'UTM Campaign',
+      label: $t('purchase_link.utm_campaign'),
       sortable: true
     })
   }
   cols.push({
     key: 'link',
-    label: 'Link'
+    label: $t('common.link')
   })
   return cols
 })
@@ -846,10 +847,10 @@ async function createAffiliationLink () {
   try {
     // Validate custom channels
     if (customChannels.value.length) {
-      creatingAffiliationLinkState.value = 'Validating custom channels...'
+      creatingAffiliationLinkState.value = $t('purchase_link.validating_channels')
       const invalidChannel = customChannels.value.find(channel => !validateChannelId(channel.id))
       if (invalidChannel) {
-        customChannelInputError.value = `Invalid channel "${invalidChannel.id}", please enter a valid channel ID starting with "@"`
+        customChannelInputError.value = $t('purchase_link.invalid_channel') + ` "${invalidChannel.id}", please enter a valid channel ID starting with "@"`
         return
       }
 
@@ -857,15 +858,15 @@ async function createAffiliationLink () {
         await Promise.all(customChannels.value.map(async (channel) => {
           const channelInfo = await likerStore.lazyFetchChannelInfoById(channel.id)
           if (!channelInfo) {
-            throw new Error(`Channel ID "${channel.id}" has not registered for Liker ID`)
+            throw new Error($t('purchase_link.channel_no_liker_id'))
           }
 
           const stripeConnectStatus = await stripeStore.fetchStripeConnectStatusByWallet(channelInfo.likeWallet)
           if (!stripeConnectStatus?.hasAccount) {
-            throw new Error(`Channel ID "${channel.id}" has not connected to Stripe`)
+            throw new Error($t('purchase_link.channel_no_stripe'))
           }
           if (!stripeConnectStatus?.isReady) {
-            throw new Error(`Channel ID "${channel.id}" has not completed Stripe Connect setup`)
+            throw new Error($t('purchase_link.channel_stripe_incomplete'))
           }
         }))
       } catch (error) {
@@ -875,7 +876,7 @@ async function createAffiliationLink () {
       }
     }
 
-    creatingAffiliationLinkState.value = 'Fetching product data...'
+    creatingAffiliationLinkState.value = $t('purchase_link.fetching_product_data')
     try {
       const dataList = await Promise.all(productIds.value.map(id => fetchProductData(id)))
       productDataList.value = dataList
@@ -888,7 +889,7 @@ async function createAffiliationLink () {
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
-      title: 'Failed to create affiliation link',
+      title: $t('purchase_link.failed_create_link'),
       timeout: 0,
       color: 'red',
       ui: {
@@ -923,7 +924,7 @@ async function copyLink (text = '') {
   await navigator.clipboard.writeText(text)
   toast.add({
     icon: 'i-heroicons-check-circle',
-    title: 'Copied link to clipboard',
+    title: $t('purchase_link.copied_to_clipboard'),
     timeout: 2000,
     color: 'green'
   })
@@ -965,7 +966,7 @@ function printQRCodesByTableRows (rows: AffiliationLink[] = []) {
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
-      title: 'Failed to print QR codes',
+      title: $t('purchase_link.failed_print_qr'),
       timeout: 0,
       color: 'red',
       ui: {
@@ -995,7 +996,7 @@ function shortenLinksByTableRows (rows: AffiliationLink[] = []) {
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
-      title: 'Failed to shorten links',
+      title: $t('purchase_link.failed_shorten_links'),
       timeout: 0,
       color: 'red',
       ui: {

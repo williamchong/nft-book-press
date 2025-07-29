@@ -16,7 +16,7 @@
     >
       <template #header>
         <h3 class="font-bold">
-          Mint NFT by filling required information
+          {{ $t('nft.mint_by_filling_info') }}
         </h3>
       </template>
 
@@ -28,10 +28,10 @@
         <div class="space-y-3">
           <div class="flex justify-between items-center">
             <UBadge variant="soft">
-              Minting NFT
+              {{ $t('nft.minting') }}
             </UBadge>
             <p class="text-xs text-gray-500">
-              請勿關閉此視窗，直到操作完成。
+              {{ $t('notifications.do_not_close_window') }}
             </p>
           </div>
           <UProgress
@@ -43,7 +43,7 @@
       </div>
       <div v-if="shouldShowSubmit" class="flex justify-center">
         <UButton
-          label="Submit"
+          :label="$t('common.submit')"
           :loading="isLoading"
           size="lg"
           :disabled="isLoading"
@@ -214,7 +214,7 @@ async function startNFTMintFlow () {
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
-    showErrorToast(`Mint NFT error: ${(error as Error).toString()}`)
+    showErrorToast(`${$t('nft.mint_error')}: ${(error as Error).toString()}`)
   } finally {
     isLoading.value = false
   }
