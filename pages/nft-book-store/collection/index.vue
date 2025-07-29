@@ -157,8 +157,8 @@ const tableRows = computed(() => (tabItems.value[selectedTabItemIndex.value].key
 })))
 
 useSeoMeta({
-  title: $t('collection.collection_management'),
-  ogTitle: $t('collection.collection_management')
+  title: () => $t('collection.collection_management'),
+  ogTitle: () => $t('collection.collection_management')
 })
 
 async function selectTableRow (row: any) {

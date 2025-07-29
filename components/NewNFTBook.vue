@@ -585,8 +585,8 @@ const props = defineProps({
 })
 
 useSeoMeta({
-  title: $t('seo_titles.new_book_listing'),
-  ogTitle: $t('seo_titles.new_book_listing')
+  title: () => $t('seo_titles.new_book_listing'),
+  ogTitle: () => $t('seo_titles.new_book_listing')
 })
 
 onMounted(async () => {

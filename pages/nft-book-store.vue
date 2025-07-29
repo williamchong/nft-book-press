@@ -15,8 +15,8 @@ const route = useRoute()
 const isHeaderHidden = computed(() => route.query.print === '1')
 
 useSeoMeta({
-  title: $t('seo_titles.book_listing_management'),
-  ogTitle: $t('seo_titles.book_listing_management')
+  title: () => $t('seo_titles.book_listing_management'),
+  ogTitle: () => $t('seo_titles.book_listing_management')
 })
 
 </script>
