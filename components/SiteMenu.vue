@@ -148,7 +148,7 @@ const items = computed(() => [
         target: '_blank'
       },
       {
-        label: $t('menu.出版教學'),
+        label: $t('menu.publisher_guide_zh'),
         icon: 'i-heroicons-document-text',
         to: 'https://docs.like.co/zh/depub/nft-book-press',
         target: '_blank'
@@ -160,7 +160,7 @@ const items = computed(() => [
         target: '_blank'
       },
       {
-        label: $t('menu.上架須知和收費'),
+        label: $t('menu.listing_disclaimer_zh'),
         icon: 'i-heroicons-shield-exclamation',
         to: PUBLISHING_NOTICE_URL_ZH,
         target: '_blank'
