@@ -15,7 +15,7 @@
       <UToggle
         v-model="isStripeConnectChecked"
         name="stripe"
-        label="Use a Stripe Connect account for receiving payments"
+        :label="$t('stripe_connect.connect_description')"
       />
     </template>
 
@@ -30,7 +30,7 @@
               :disabled="!!props.shouldDisableSetting"
             >
               <template #label>
-                <div>Use my account</div>
+                <div>{{ $t('stripe_connect.use_my_account') }}</div>
               </template>
             </URadio>
             <div
@@ -44,7 +44,7 @@
                   icon="i-heroicons-check"
                   color="primary"
                   variant="outline"
-                  title="Has Stripe Account"
+                  :title="$t('stripe_connect.has_stripe_account')"
                 />
                 <div
                   v-if="defaultAccountConnectStatus.email"
@@ -55,7 +55,7 @@
             <span v-else>
               <UButton
                 class="mt-2"
-                label="Create one here"
+                :label="$t('stripe_connect.create_one_here')"
                 :to="localeRoute({ name: 'nft-book-store-user' })"
                 target="_blank"
                 variant="outline"
@@ -70,7 +70,7 @@
               :disabled="!!props.shouldDisableSetting"
             >
               <template #label>
-                <span>Use another Stripe Express account</span>
+                <span>{{ $t('stripe_connect.use_another_account') }}</span>
               </template>
             </URadio>
             <div class="flex flex-col mt-[14px] w-[80%]">
@@ -96,7 +96,7 @@
                   icon="i-heroicons-check"
                   color="primary"
                   variant="outline"
-                  title="Has Stripe Account"
+                  :title="$t('stripe_connect.has_stripe_account')"
                 />
                 <div
                   v-if="inputAccountConnectStatus.email"
@@ -108,14 +108,14 @@
                 icon="i-heroicons-x-mark"
                 color="red"
                 variant="outline"
-                title="No Stripe account connected to this wallet yet."
+                :title="$t('stripe_connect.no_account_connected')"
               />
             </div>
           </div>
         </div>
         <div class="flex flex-col items-center justify-center gap-[8px] w-full">
           <UButton
-            label="Save Changes"
+            :label="$t('stripe_connect.save_changes')"
             :loading="isUpdatingStripeAccount"
             :color="isStripeConnectWalletReadyToSave ? 'primary' : 'gray'"
             :disabled="
@@ -127,7 +127,7 @@
             v-if="!!props.shouldDisableSetting"
             class="text-center text-green-800 text-[12px]"
           >
-            Successfully save the Stripe Connect account!
+            {{ $t('stripe_connect.save_success') }}
           </div>
         </div>
       </div>
@@ -141,6 +141,7 @@ import { storeToRefs } from 'pinia'
 import { LIKE_ADDRESS_REGEX } from '~/constant'
 import { useStripeStore } from '~/stores/stripe'
 const localeRoute = useLocaleRoute()
+const { t: $t } = useI18n()
 
 const stripeStore = useStripeStore()
 
@@ -200,7 +201,7 @@ async function onStripeConnectWalletInput (input: any) {
   stripeConnectInputError.value = ''
 
   if (!LIKE_ADDRESS_REGEX.test(inputValue)) {
-    stripeConnectInputError.value = 'You have entered an invalid wallet address'
+    stripeConnectInputError.value = $t('stripe_connect.invalid_wallet')
     return
   }
 
