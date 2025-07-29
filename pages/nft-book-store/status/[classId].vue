@@ -281,7 +281,7 @@
           <UButton
             icon="i-heroicons-plus-circle"
             class="mb-[12px]"
-            label="New Edition"
+            :label="$t('form.add_edition')"
             :to="localeRoute({
               name: 'nft-book-store-status-classId-edit-new',
               params: { classId },
@@ -489,35 +489,35 @@
 
               <div class="grid md:grid-cols-2 gap-4">
                 <UFormGroup
-                  label="Force NFT claim before view"
+                  :label="$t('form.force_nft_claim')"
                   :ui="{ label: { base: 'font-mono font-bold' } }"
                 >
                   <UCheckbox
                     v-model="mustClaimToView"
                     name="mustClaimToView"
-                    label="Must claim NFT to view"
+                    :label="$t('form.must_claim_to_view')"
                   />
                 </UFormGroup>
 
                 <UFormGroup
-                  label="Disable File Download "
+                  :label="$t('form.disable_file_download')"
                   :ui="{ label: { base: 'font-mono font-bold' } }"
                 >
                   <UCheckbox
                     v-model="hideDownload"
                     name="hideDownload"
-                    label="Disable Download"
+                    :label="$t('form.disable_download')"
                   />
                 </UFormGroup>
 
                 <UFormGroup
-                  label="Insert cutomized message page in eBook"
+                  :label="$t('form.custom_message_page')"
                   :ui="{ label: { base: 'font-mono font-bold' } }"
                 >
                   <UCheckbox
                     v-model="enableCustomMessagePage"
                     name="enableCustomMessagePage"
-                    label="Enable custom message page"
+                    :label="$t('form.enable_custom_message')"
                   />
                 </UFormGroup>
               </div>
@@ -535,14 +535,14 @@
 
               <div>
                 <UToggle v-model="useLikerLandPurchaseLink" />
-                Use {{ useLikerLandPurchaseLink ? 'Liker Land' : 'Stripe' }} Purchase Link
+                {{ $t('form.use_liker_land_link') }}
               </div>
 
               <UFormGroup :label="$t('form.price')" :required="true">
                 <USelect v-model="priceIndex" :options="priceIndexOptions" />
               </UFormGroup>
 
-              <UFormGroup label="Sales channel for the link(s)" hint="Optional">
+              <UFormGroup :label="$t('form.sales_channel_for_links')" :hint="$t('common.optional')">
                 <UInput v-model="fromChannelInput" placeholder="Channel ID(s), separated by commas (e.g. store01, store02)" />
               </UFormGroup>
 
@@ -555,7 +555,7 @@
               >
                 <template #header>
                   <h4 class="text-sm font-bold font-mono">
-                    All Purchase Links
+                    {{ $t('purchase_link.download_all_links') }}
                   </h4>
 
                   <UDropdown
@@ -591,8 +591,8 @@
                 <UTable
                   :columns="[
                     { key: 'index', label: '#' },
-                    { key: 'channel', label: 'Channel ID' },
-                    { key: 'link', label: 'Purchase Link' },
+                    { key: 'channel', label: $t('table.channel_id') },
+                    { key: 'link', label: $t('purchase_link.download_links') },
                   ]"
                   :rows="purchaseLinks"
                   :ui="{ thead: 'whitespace-nowrap' }"
@@ -686,7 +686,7 @@
       >
         <template #header>
           <h3 class="font-bold font-mono">
-            Download QR Code
+            {{ $t('purchase_link.download_qr_modal') }}
           </h3>
           <UButton
             icon="i-heroicons-x-mark"
@@ -883,7 +883,7 @@ function getOrdersTableActionItems (purchaseListItem: any) {
 
   if (purchaseListItem.status === 'completed' && purchaseListItem.txHash) {
     actionItems.push([{
-      label: 'View Transaction',
+      label: $t('collection.view_transaction'),
       icon: 'i-heroicons-magnifying-glass',
       to: `${CHAIN_EXPLORER_URL}/${purchaseListItem.txHash}`,
       target: '_blank'
@@ -923,7 +923,7 @@ function getOrdersTableActionItems (purchaseListItem: any) {
 
   if (purchaseListItem.status === 'paid') {
     actionItems.push([{
-      label: 'Send Reminder Email',
+      label: $t('collection.send_reminder_email'),
       icon: 'i-heroicons-envelope',
       click: () => {
         sendReminderEmail(purchaseListItem)
@@ -933,7 +933,7 @@ function getOrdersTableActionItems (purchaseListItem: any) {
 
   if (['pendingNFT', 'paid'].includes(purchaseListItem.status)) {
     actionItems.push([{
-      label: 'Mark Complete',
+      label: $t('collection.mark_complete'),
       icon: 'i-heroicons-check-circle',
       click: () => {
         hardSetStatusToCompleted(purchaseListItem)
@@ -1201,7 +1201,7 @@ async function sendReminderEmail (purchase: any) {
 
   toast.add({
     icon: 'i-heroicons-check-circle',
-    title: 'Reminder email sent',
+    title: $t('collection.send_reminder_email'),
     timeout: 2000,
     color: 'green'
   })
@@ -1335,7 +1335,7 @@ async function copyPurchaseLink (text = '') {
   await navigator.clipboard.writeText(text)
   toast.add({
     icon: 'i-heroicons-check-circle',
-    title: 'Copied purchase link to clipboard',
+    title: $t('purchase_link.copied_to_clipboard'),
     timeout: 2000,
     color: 'green'
   })
@@ -1361,7 +1361,7 @@ function printAllQRCodes () {
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
-      title: 'Failed to print QR codes',
+      title: $t('purchase_link.failed_print_qr'),
       timeout: 0,
       color: 'red',
       ui: {
@@ -1383,7 +1383,7 @@ async function shortenAllLinks () {
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
-      title: 'Failed to shorten links',
+      title: $t('purchase_link.failed_shorten_links'),
       timeout: 0,
       color: 'red',
       ui: {
