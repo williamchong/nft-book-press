@@ -84,14 +84,14 @@ const moderatedCollectionList = ref<any[]>([])
 // Tabs
 const { t: $t } = useI18n()
 
-const tabItems = [
+const tabItems = computed(() => [
   { label: $t('collection.current_collection_listing'), key: 'current' },
   { label: $t('collection.viewable_collection_listing'), key: 'viewable' }
-]
+])
 
 const selectedTabItemIndex = computed({
   get () {
-    const index = tabItems.findIndex(item => item.key === route.query.tab)
+    const index = tabItems.value.findIndex(item => item.key === route.query.tab)
     if (index === -1) {
       return 0
     }
@@ -99,7 +99,7 @@ const selectedTabItemIndex = computed({
     return index
   },
   set (value) {
-    navigateTo(localeRoute({ query: { tab: tabItems[value].key } }), { replace: true })
+    navigateTo(localeRoute({ query: { tab: tabItems.value[value].key } }), { replace: true })
   }
 })
 
@@ -107,7 +107,7 @@ watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
 })
 
-const tableColumns = [
+const tableColumns = computed(() => [
   {
     key: 'name',
     label: $t('collection.collection_name'),
@@ -128,7 +128,7 @@ const tableColumns = [
     label: $t('table.sold'),
     sortable: true
   }
-]
+])
 
 onMounted(async () => {
   const promises = [listNFTBookCollections()]
@@ -146,7 +146,7 @@ onMounted(async () => {
   })
 })
 
-const tableRows = computed(() => (tabItems[selectedTabItemIndex.value].key === 'viewable' ? moderatedCollectionList : collectionList).value.map(b => ({
+const tableRows = computed(() => (tabItems.value[selectedTabItemIndex.value].key === 'viewable' ? moderatedCollectionList : collectionList).value.map(b => ({
   collectionId: b.id,
   name: b.name?.en,
   priceInUSD: b.typePayload?.priceInDecimal / 100,

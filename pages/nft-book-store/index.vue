@@ -167,14 +167,14 @@ const error = ref('')
 const isLoading = ref(false)
 
 // Tabs
-const tabItems = [
+const tabItems = computed(() => [
   { label: $t('bookstore.current_listing'), key: 'current' },
   { label: $t('bookstore.viewable_listing'), key: 'viewable' }
-]
+])
 
 const selectedTabItemIndex = computed({
   get () {
-    const index = tabItems.findIndex(item => item.key === route.query.tab)
+    const index = tabItems.value.findIndex(item => item.key === route.query.tab)
     if (index === -1) {
       return 0
     }
@@ -182,7 +182,7 @@ const selectedTabItemIndex = computed({
     return index
   },
   set (value) {
-    navigateTo(localeRoute({ query: { tab: tabItems[value].key } }), { replace: true })
+    navigateTo(localeRoute({ query: { tab: tabItems.value[value].key } }), { replace: true })
   }
 })
 
@@ -203,7 +203,7 @@ const tablePageRowFrom = computed(() => (tablePage.value - 1) * tableRowsPerPage
 const tablePageRowTo = computed(() => Math.min(tablePage.value * tableRowsPerPage.value, tableRows.value.length))
 
 // Rows
-const tableRows = computed(() => (tabItems[selectedTabItemIndex.value].key === 'viewable' ? moderatedBookList : bookList).value.map(b => ({
+const tableRows = computed(() => (tabItems.value[selectedTabItemIndex.value].key === 'viewable' ? moderatedBookList : bookList).value.map(b => ({
   classId: b.classId,
   className: nftStore.getClassMetadataById(b.classId)?.name,
   priceInUSD: b.prices?.[0].price,
@@ -234,7 +234,7 @@ const paginatedTableRows = computed(() => {
 })
 
 // Columns
-const tableColumns = [
+const tableColumns = computed(() => [
   {
     key: 'classId',
     label: $t('bookstore.class_id'),
@@ -261,9 +261,9 @@ const tableColumns = [
     label: $t('table.sold'),
     sortable: true
   }
-]
+])
 
-const selectedTableColumns = ref(tableColumns.slice(1, tableColumns.length))
+const selectedTableColumns = ref(tableColumns.value.slice(1, tableColumns.value.length))
 
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }

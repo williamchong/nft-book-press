@@ -122,7 +122,7 @@ watch(isLoading, (newIsLoading) => {
 })
 
 const csvColumns = ['wallet', 'email', 'toName', 'message']
-const tableColumns = [
+const tableColumns = computed(() => [
   {
     label: 'Email (required)',
     key: 'email'
@@ -139,7 +139,7 @@ const tableColumns = [
     label: 'Message (optional)',
     key: 'message'
   }
-]
+])
 
 onMounted(async () => {
   isLoading.value = true

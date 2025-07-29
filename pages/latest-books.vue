@@ -81,10 +81,10 @@ const { wallet } = storeToRefs(walletStore)
 const { userLikerInfo } = storeToRefs(userStore)
 const { isAuthenticated } = storeToRefs(bookStoreApiStore)
 
-const tabItems = [
+const tabItems = computed(() => [
   { label: $t('latest_books.latest_releases'), key: 'latest' },
   { label: $t('latest_books.best_sellers'), key: 'bestselling' }
-]
+])
 
 const error = ref('')
 const isStripeConnectReady = ref(false)
@@ -128,7 +128,7 @@ const tableColumns = computed(() => [
     sortable: false
   }
 ])
-const selectedTabItemKey = computed(() => tabItems[selectedTabItemIndex.value].key)
+const selectedTabItemKey = computed(() => tabItems.value[selectedTabItemIndex.value].key)
 const bookList = computed(() => selectedTabItemKey.value === 'latest' ? latestBookList.value : bestSellerBookList.value)
 const tableRows = computed(() => bookList.value.map((b: any) => {
   const className = b.name || b.title
@@ -203,9 +203,9 @@ async function fetchUserStripeInfo () {
   }
 }
 
-async function handleAffiliationSetupButtonClick () {
+function handleAffiliationSetupButtonClick () {
   useTrackEvent('latest_books_click_affiliation_setup')
-  await navigateTo(localeRoute({ name: 'nft-book-store-user' }))
+  navigateTo(localeRoute({ name: 'nft-book-store-user' }))
 }
 
 function selectTableRow (row: any) {
