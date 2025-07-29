@@ -31,7 +31,7 @@
               {{ $t('nft.minting') }}
             </UBadge>
             <p class="text-xs text-gray-500">
-              請勿關閉此視窗，直到操作完成。
+              {{ $t('notifications.do_not_close_window') }}
             </p>
           </div>
           <UProgress

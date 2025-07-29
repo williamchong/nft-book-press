@@ -12,7 +12,7 @@
             {{ uploadStatus }}
           </UBadge>
           <p class="text-xs text-gray-500">
-            請勿關閉此視窗，直到 ISCN 註冊完成。
+            {{ $t('notifications.iscn_registration_complete') }}
           </p>
         </div>
         <UProgress animation="carousel" color="primary" class="w-full" />
