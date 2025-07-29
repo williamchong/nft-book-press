@@ -151,11 +151,11 @@ enum ShortLinkProvider {
 }
 const shortLinkProviders = [
   {
-    label: $t('batch_short_links.bitly'),
+    label: 'Bitly',
     value: ShortLinkProvider.Bitly
   },
   {
-    label: $t('batch_short_links.shortio'),
+    label: 'Short.io',
     value: ShortLinkProvider.ShortIO
   }
 ]
