@@ -337,7 +337,6 @@
   "pages.book_details_metadata": "Book Details (Metadata)",
   "pages.book_listing_status": "Book Listing Status",
   "pages.book_name": "Book Name",
-  "pages.cannot_fetch_collection_data": "Cannot fetch collection data.",
   "pages.channel_id_placeholder": "Channel ID",
   "pages.class_id": "Class ID",
   "pages.class_id_exists": "Class ID already exists",

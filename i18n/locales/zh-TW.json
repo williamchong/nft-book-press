@@ -337,7 +337,6 @@
   "pages.book_details_metadata": "書籍詳情（元數據）",
   "pages.book_listing_status": "書籍上架狀態",
   "pages.book_name": "書名",
-  "pages.cannot_fetch_collection_data": "無法獲取收藏資料。",
   "pages.channel_id_placeholder": "頻道 ID",
   "pages.class_id": "類別 ID",
   "pages.class_id_exists": "類別 ID 已存在",

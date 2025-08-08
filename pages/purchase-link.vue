@@ -408,7 +408,6 @@ import { useStripeStore } from '~/stores/stripe'
 import { useUserStore } from '~/stores/user'
 
 const { LIKE_CO_API, SITE_URL } = useRuntimeConfig().public
-const { t } = useI18n()
 const collectionStore = useCollectionStore()
 const likerStore = useLikerStore()
 const stripeStore = useStripeStore()
@@ -819,7 +818,7 @@ async function fetchProductData (id: string) {
   if (id.startsWith('col_')) {
     const data = await collectionStore.fetchCollectionById(id)
     if (!data) {
-      throw new Error(t('pages.cannot_fetch_collection_data'))
+      throw new Error('Cannot fetch collection data.')
     }
     return {
       id,

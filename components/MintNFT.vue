@@ -66,11 +66,11 @@ watch(isFormValid, (val: boolean) => {
   emit('formValidChange', val)
 }, { immediate: true })
 
-const { t } = useI18n()
+const { t: $t } = useI18n()
 
 useSeoMeta({
-  title: t('seo.mint_nft_book_title'),
-  ogTitle: t('seo.mint_nft_book_title')
+  title: () => $t('seo.mint_nft_book_title'),
+  ogTitle: () => $t('seo.mint_nft_book_title')
 })
 
 const props = defineProps({

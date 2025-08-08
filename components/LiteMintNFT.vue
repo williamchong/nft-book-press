@@ -65,7 +65,7 @@ import { useToastComposable } from '~/composables/useToast'
 import { LIKE_NFT_CLASS_ABI } from '~/contracts/likeNFT'
 
 const route = useRoute()
-const { t } = useI18n()
+const { t: $t } = useI18n()
 const { writeContractAsync } = useWriteContract()
 const {
   getClassOwner,
@@ -177,7 +177,7 @@ async function startNFTMintFlow () {
 
     if (!isFormValid.value) {
       const missingFields = formError.value.join(', ')
-      showErrorToast(t('errors.required_field_missing', { fields: missingFields }))
+      showErrorToast($t('errors.required_field_missing', { fields: missingFields }))
       return
     }
 
@@ -228,7 +228,7 @@ async function mintNFTs () {
       await initIfNecessary()
     }
     if (!wallet.value) { return }
-    if (!nftMintDefaultData.value) { throw new Error(t('errors.no_mint_data')) }
+    if (!nftMintDefaultData.value) { throw new Error($t('errors.no_mint_data')) }
     const defaultMetadata = nftMintDefaultData.value.metadata
     const nfts = [...Array(formState.mintCount).keys()].map((i) => {
       const {

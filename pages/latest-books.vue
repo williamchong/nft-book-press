@@ -155,11 +155,9 @@ const filteredRows = computed(() => {
   })
 })
 
-const { t } = useI18n()
-
 useSeoMeta({
-  title: t('seo.latest_books_title'),
-  ogTitle: t('seo.latest_books_title')
+  title: () => $t('seo.latest_books_title'),
+  ogTitle: () => $t('seo.latest_books_title')
 })
 
 onMounted(async () => {
