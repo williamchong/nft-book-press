@@ -75,12 +75,10 @@
               <UFormGroup
                 :label="$t('form.unit_price_label', { minPrice: MINIMAL_PRICE })"
               >
-                <UInput
-                  :value="p.price"
-                  type="number"
-                  step="0.01"
-                  :min="0"
-                  @input="(e: InputEvent) => updatePrice(e, 'price', index)"
+                <USelectMenu
+                  v-model="p.price"
+                  :options="USD_PRICING_OPTIONS"
+                  value-attribute="value"
                 />
               </UFormGroup>
               <UFormGroup
@@ -483,7 +481,7 @@ import 'md-editor-v3/lib/style.css'
 import DOMPurify from 'dompurify'
 import { v4 as uuidv4 } from 'uuid'
 
-import { DEFAULT_PRICE, MINIMAL_PRICE } from '~/constant'
+import { DEFAULT_PRICE, MINIMAL_PRICE, USD_PRICING_OPTIONS } from '~/constant'
 import { useBookstoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
 import { useStripeStore } from '~/stores/stripe'
