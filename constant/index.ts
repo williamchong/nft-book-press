@@ -5,7 +5,7 @@ export const DEFAULT_PRICE = 4.99
 export const MAXIMUM_PRICE = 199.99
 
 export const USD_PRICING_OPTIONS = [0, ...Array.from(
-  { length: (MAXIMUM_PRICE - MINIMAL_PRICE) + 1 },
+  { length: Math.round(MAXIMUM_PRICE - MINIMAL_PRICE) + 1 },
   (_, i) => MINIMAL_PRICE + i
 )].map(value => ({
   label: value.toFixed(2),
