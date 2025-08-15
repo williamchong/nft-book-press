@@ -68,7 +68,11 @@
           </h3>
         </template>
         <UFormGroup :label="`Price(USD) of this collection (Minimal ${MINIMAL_PRICE} or $0 (free)) / 版本定價（美金）`">
-          <UInput v-model="price.price" type="number" step="0.01" :min="MINIMAL_PRICE" @input="onPriceChange" />
+          <USelectMenu
+            v-model="price.price"
+            :options="USD_PRICING_OPTIONS"
+            value-attribute="value"
+          />
         </UFormGroup>
 
         <URadioGroup
@@ -406,6 +410,7 @@ import DOMPurify from 'dompurify'
 import {
   DEFAULT_PRICE,
   MINIMAL_PRICE,
+  USD_PRICING_OPTIONS,
   DEFAULT_STOCK,
   DEFAULT_MAX_SUPPLY
 } from '~/constant'
@@ -544,11 +549,11 @@ useSeoMeta({
   ogTitle: 'New Book Collection'
 })
 
-function onPriceChange (event: InputEvent) {
-  if (Number(event.data) === 0) {
+watch(() => price.value.price, (newPrice) => {
+  if (Number(newPrice) === 0) {
     price.value.isAllowCustomPrice = true
   }
-}
+})
 
 function addMoreClassId () {
   if (!classIdInput.value) { return }

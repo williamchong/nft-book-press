@@ -82,11 +82,10 @@
               <UFormGroup
                 :label="$t('nft_book_form.unit_price_label', { minPrice: MINIMAL_PRICE })"
               >
-                <UInput
+                <USelectMenu
                   v-model="p.price"
-                  type="number"
-                  step="0.01"
-                  :min="0"
+                  :options="USD_PRICING_OPTIONS"
+                  value-attribute="value"
                 />
               </UFormGroup>
               <UFormGroup
@@ -418,6 +417,7 @@ import type { FormError } from '#ui/types'
 import {
   DEFAULT_PRICE,
   MINIMAL_PRICE,
+  USD_PRICING_OPTIONS,
   DEFAULT_MAX_SUPPLY,
   DEFAULT_STOCK
 } from '~/constant'

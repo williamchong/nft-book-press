@@ -64,7 +64,11 @@
             </h3>
           </template>
           <UFormGroup :label="`Price(USD) of this collection (Minimal ${MINIMAL_PRICE} or $0 (free)) / 版本定價（美金）`">
-            <UInput v-model="price" type="number" step="0.01" :min="MINIMAL_PRICE" @input="onPriceInput" />
+            <USelectMenu
+              v-model="price"
+              :options="USD_PRICING_OPTIONS"
+              value-attribute="value"
+            />
           </UFormGroup>
           <UFormGroup :label="`Total number of NFT for sale of this collection / 此定價上架的數量`">
             <UInput v-model="stock" type="number" step="1" :min="minStock" :max="DEFAULT_MAX_SUPPLY" />
@@ -238,7 +242,7 @@ import { MdEditor, config, type ToolbarNames } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import DOMPurify from 'dompurify'
 
-import { DEFAULT_MAX_SUPPLY, DEFAULT_PRICE, MINIMAL_PRICE } from '~/constant'
+import { DEFAULT_MAX_SUPPLY, DEFAULT_PRICE, MINIMAL_PRICE, USD_PRICING_OPTIONS } from '~/constant'
 import { useCollectionStore } from '~/stores/collection'
 import { useNftStore } from '~/stores/nft'
 import { deliverMethodOptions, parseImageURLFromMetadata } from '~/utils'
@@ -304,14 +308,11 @@ config({
     mdit.options.html = false
   }
 })
-
-function onPriceInput (input: any) {
-  const newPrice = input.target.value
-  const oldPrice = price.value
+watch(price, (newPrice, oldPrice) => {
   if (Number(oldPrice) !== 0 && Number(newPrice) === 0) {
     isAllowCustomPrice.value = true
   }
-}
+})
 
 onMounted(async () => {
   try {
