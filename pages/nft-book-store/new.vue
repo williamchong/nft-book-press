@@ -79,6 +79,7 @@
                   v-model="p.price"
                   :options="USD_PRICING_OPTIONS"
                   value-attribute="value"
+                  @update:model-value="(value) => handlePriceChange(value, index)"
                 />
               </UFormGroup>
               <UFormGroup
@@ -643,7 +644,11 @@ watch(isLoading, (newIsLoading) => {
 
 function updatePrice (e: InputEvent, key: string, index: number) {
   prices.value[index][key] = (e.target as HTMLInputElement)?.value
-  if (key === 'price' && Number((e.target as HTMLInputElement)?.value) === 0) {
+}
+
+function handlePriceChange (value: number, index: number) {
+  prices.value[index].price = value
+  if (Number(value) === 0) {
     prices.value[index].isAllowCustomPrice = true
   }
 }
