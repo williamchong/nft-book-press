@@ -36,7 +36,7 @@
             </h2>
           </template>
           <UFormGroup :label="$t('form.nft_collection_id')">
-            <UInput class="font-mono" :value="collectionId" :readonly="true" :disabled="true" />
+            <UInput class="font-mono" :model-value="collectionId" :readonly="true" :disabled="true" />
           </UFormGroup>
           <UFormGroup :label="$t('form.books_in_collection')">
             <UCard :ui="{ body: { padding: '' } }">
@@ -254,7 +254,11 @@ const nftStore = useNftStore()
 const route = useRoute()
 const localeRoute = useLocaleRoute()
 const toast = useToast()
-const collectionId = ref(route.params.collectionId)
+const collectionId = ref(
+  Array.isArray(route.params.collectionId)
+    ? route.params.collectionId[0]
+    : route.params.collectionId
+)
 
 const isLoading = ref(false)
 
