@@ -114,7 +114,6 @@
             class="w-full"
             :items="[
               { key: 'direct', label: $t('sales_pos.direct_checkout') },
-              { key: 'gift', label: $t('sales_pos.gift_checkout') },
             ]"
             :ui="{
               wrapper: 'px-4 sm:px-6',
@@ -177,20 +176,6 @@
                       </template>
                     </QRCodeGenerator>
                   </UModal>
-                </div>
-              </template>
-              <template v-else-if="item.key === 'gift'">
-                <UFormGroup :label="$t('sales_pos.receiver_email')">
-                  <UInput v-model="giftToEmail" type="email" placeholder="example@liker.land" />
-                </UFormGroup>
-
-                <div class="flex justify-center items-center gap-4">
-                  <UButton
-                    label="Send Gift"
-                    :disabled="!selectedItems.length || !giftToEmail"
-                    size="lg"
-                    @click="onClickGift"
-                  />
                 </div>
               </template>
             </template>
@@ -338,7 +323,7 @@ const { t: $t } = useI18n()
 
 const route = useRoute()
 const toast = useToast()
-const { LIKER_LAND_URL } = useRuntimeConfig().public
+const { BOOK3_URL } = useRuntimeConfig().public
 const nftStore = useNftStore()
 const collectionStore = useCollectionStore()
 
@@ -354,7 +339,6 @@ const newCouponCodeInput = ref('')
 const coupons = ref<{name: string, code: string}[]>([])
 const selectedCouponCode = ref('')
 
-const giftToEmail = ref('')
 const saleItemList = ref<any[]>([])
 const isShowAddItemModal = ref(false)
 const isOpenQRCodeModal = ref(false)
@@ -463,36 +447,17 @@ const checkoutUrl = computed(() => {
     utm_source: 'direct-checkout',
     utm_medium: 'pos'
   })
-  selectedItems.value.forEach(({ classId, priceIndex, collectionId }) => {
-    if (classId) { params.append('class_id', classId) }
-    if (priceIndex) { params.append('price_index', priceIndex.toString()) }
-    if (collectionId) { params.append('collection_id', collectionId) }
-  })
+  const productsString = selectedItems.value.map(({ classId, priceIndex }) => {
+    return `${classId}${priceIndex ? `:${priceIndex}` : ''}`
+  }).join(',')
+  params.append('products', productsString)
   if (selectedCouponCode.value) {
     params.append('coupon', selectedCouponCode.value)
   }
-  return `${LIKER_LAND_URL}/shopping-cart/book?${params.toString()}`
+  return `${BOOK3_URL}/checkout?${params.toString()}`
 })
 
-const giftUrl = computed(() => {
-  const params = new URLSearchParams({
-    gift_to_email: giftToEmail.value,
-    checkout: '1',
-    utm_source: 'direct-sales',
-    utm_medium: 'pos'
-  })
-  selectedItems.value.forEach(({ classId, priceIndex, collectionId }) => {
-    if (classId) { params.append('class_id', classId) }
-    if (priceIndex) { params.append('price_index', priceIndex.toString()) }
-    if (collectionId) { params.append('collection_id', collectionId) }
-  })
-  if (selectedCouponCode.value) {
-    params.append('coupon', selectedCouponCode.value)
-  }
-  return `${LIKER_LAND_URL}/shopping-cart/book?${params.toString()}`
-})
-
-const pageTitle = computed(() => 'Liker Land Point Of Sale')
+const pageTitle = computed(() => '3ook Point Of Sale')
 useSeoMeta({
   title: () => pageTitle.value,
   ogTitle: () => pageTitle.value
@@ -636,14 +601,6 @@ function goToCartUrl () {
 
 function generateQRCode () {
   isOpenQRCodeModal.value = true
-}
-
-function onClickGift () {
-  if (!giftToEmail.value) {
-    alert('Please enter email')
-    return
-  }
-  window.open(giftUrl.value)
 }
 
 </script>
