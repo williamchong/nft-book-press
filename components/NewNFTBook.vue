@@ -452,7 +452,7 @@ const isAllowCustomPrice = ref(true)
 
 const prices = ref<any[]>([
   {
-    price: DEFAULT_PRICE,
+    price: -1,
     deliveryMethod: 'auto',
     autoMemo: 'Thank you for your support. It means a lot to me.',
     stock: DEFAULT_STOCK,
@@ -621,6 +621,8 @@ onMounted(async () => {
           } else {
             throw new Error('No prices found')
           }
+        } else {
+          prices.value[0].price = DEFAULT_PRICE
         }
         otherExistingStock.value = classResData.prices.reduce((acc: number, price: any) => {
           if (price.index.toString() !== editionIndex.value) {
@@ -778,6 +780,12 @@ function mapPrices (prices: any) {
 function validate (prices: any[]) {
   const errors: FormError[] = []
   prices.forEach((price: any) => {
+    if (price.price !== 0 && price.price < MINIMAL_PRICE) {
+      errors.push({
+        path: 'price',
+        message: $t('errors.price_validation', { minPrice: MINIMAL_PRICE })
+      })
+    }
     if (!price.name.en || !price.name.zh) {
       errors.push({
         path: 'name',
