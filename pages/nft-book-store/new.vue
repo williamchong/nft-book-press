@@ -457,7 +457,7 @@ import 'md-editor-v3/lib/style.css'
 import DOMPurify from 'dompurify'
 import { v4 as uuidv4 } from 'uuid'
 
-import { DEFAULT_PRICE, MINIMAL_PRICE, USD_PRICING_OPTIONS } from '~/constant'
+import { DEFAULT_PRICE_STRING, MINIMAL_PRICE, USD_PRICING_OPTIONS } from '~/constant'
 import { useBookstoreApiStore } from '~/stores/book-store-api'
 import { useWalletStore } from '~/stores/wallet'
 import { useStripeStore } from '~/stores/stripe'
@@ -498,7 +498,7 @@ const enableCustomMessagePage = ref(false)
 const hideDownload = ref(false)
 const prices = ref<any[]>([
   {
-    price: DEFAULT_PRICE,
+    price: DEFAULT_PRICE_STRING,
     deliveryMethod: 'auto',
     autoMemo: 'Thank you for your support. It means a lot to me.',
     stock: Number((route.query.count as string) || 1),
@@ -629,7 +629,7 @@ function addMorePrice () {
   nextPriceIndex.value += 1
   prices.value.push({
     index: uuidv4(),
-    price: DEFAULT_PRICE,
+    price: DEFAULT_PRICE_STRING,
     deliveryMethod: 'auto',
     autoMemo: '',
     stock: 1,
