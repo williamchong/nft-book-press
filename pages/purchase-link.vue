@@ -475,7 +475,7 @@ const productIds = computed(() => {
       input = url.pathname.split('/').pop()
     }
 
-    if (input?.startsWith('col_') || input?.startsWith('likenft')) {
+    if (input?.startsWith('0x')) {
       return input
     }
 
@@ -842,7 +842,7 @@ async function createAffiliationLink () {
             throw new Error($t('purchase_link.channel_no_liker_id'))
           }
 
-          const stripeConnectStatus = await stripeStore.fetchStripeConnectStatusByWallet(channelInfo.likeWallet)
+          const stripeConnectStatus = await stripeStore.fetchStripeConnectStatusByWallet(channelInfo.evmWallet)
           if (!stripeConnectStatus?.hasAccount) {
             throw new Error($t('purchase_link.channel_no_stripe'))
           }
