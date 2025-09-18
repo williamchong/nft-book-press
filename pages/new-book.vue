@@ -96,6 +96,11 @@ const uploadStatus = ref('')
 const isISCNFormValid = ref(false)
 const isMintLoading = ref(false)
 
+useSeoMeta({
+  title: () => $t('seo_titles.publish_nft_book'),
+  ogTitle: () => $t('seo_titles.publish_nft_book')
+})
+
 const currentActionText = computed(() => {
   switch (step.value) {
     case 0:

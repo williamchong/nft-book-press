@@ -17,9 +17,10 @@
       </template>
     </UProgress>
 
-    <UCard :ui="{ header: { base: 'flex justify-between items-center gap-4' } }">
+    <UCard
+      :ui="{ header: { base: 'flex justify-between items-center gap-4' } }"
+    >
       <UTabs
-        v-if="bookstoreApiStore.isAuthenticated"
         v-model="selectedTabItemIndex"
         class="w-full"
         :items="tabItems"
@@ -107,6 +108,11 @@ const { fetchBookListing, fetchModeratedBookList } = bookstoreApiStore
 
 const error = ref('')
 const isLoading = ref(false)
+
+useSeoMeta({
+  title: () => $t('seo_titles.book_listing_management'),
+  ogTitle: () => $t('seo_titles.book_listing_management')
+})
 
 // Tabs
 const tabItems = computed(() => [

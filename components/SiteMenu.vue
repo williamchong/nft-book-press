@@ -24,27 +24,27 @@
     </li>
   </ul>
 
-  <UAccordion
-    v-else
-    :items="items"
-    :default-open="true"
-    :multiple="true"
-  >
-    <template #item="{ item }">
-      <UVerticalNavigation :links="item.links" />
-    </template>
-  </UAccordion>
+  <div v-else class="space-y-4">
+    <div v-for="item in items" :key="item.label" class="space-y-3">
+      <h3 class="text-sm font-mono text-gray-400 dark:text-gray-300 px-3">
+        {{ item.label }}
+      </h3>
+      <UVerticalNavigation
+        :links="item.links"
+        :ui="{ label: 'font-bold', badge: { base: 'rounded-[10px] bg-[#50E3C2] font-bold' }}"
+      />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useBookstoreApiStore } from '~/stores/book-store-api'
 const { t: $t } = useI18n()
 
 const localeRoute = useLocaleRoute()
 
 const bookstoreApiStore = useBookstoreApiStore()
-const { getTotalPendingNFTCount } = storeToRefs(bookstoreApiStore)
+const { getTotalPendingNFTCount, isAuthenticated } = storeToRefs(bookstoreApiStore)
 
 const props = defineProps({
   isLarge: {
@@ -60,90 +60,87 @@ function handleLinkClick ({ label }: { label?: string }) {
   emit('click-link')
 }
 
-const items = computed(() => [
-  {
-    label: $t('menu.bookstore_listing'),
-    links: [
+const items = computed(() => {
+  if (!isAuthenticated.value) {
+    return [
       {
-        label: $t('menu.start_publishing'),
-        icon: 'i-heroicons-sparkles',
-        to: localeRoute({ name: 'new-book' })
-      },
-      {
-        label: $t('menu.manage_book_listings'),
-        icon: 'i-heroicons-rectangle-stack',
-        to: localeRoute({ name: 'my-books' }),
-        exact: true,
-        badge: getTotalPendingNFTCount.value
+        label: $t('menu.help'),
+        links: [
+          {
+            label: $t('menu.publisher_guide'),
+            icon: 'i-heroicons-arrow-top-right-on-square-20-solid',
+            to: 'https://docs.3ook.com/zh-TW/collections/14176162-出版',
+            target: '_blank'
+          },
+          {
+            label: $t('menu.listing_disclaimer'),
+            icon: 'i-heroicons-shield-exclamation',
+            to: $t('menu.listing_disclaimer_url'),
+            target: '_blank'
+          }
+        ]
       }
-    ]
-  },
-  {
-    label: $t('menu.authors_affiliates'),
-    links: [
-      {
-        label: $t('menu.user_settings'),
-        icon: 'i-heroicons-user-group',
-        to: localeRoute({ name: 'my-books-user' }),
-        exact: true
-      },
-      {
-        label: $t('menu.latest_books'),
-        icon: 'i-heroicons-book-open',
-        to: localeRoute({ name: 'latest-books' }),
-        exact: true
-      }
-    ]
-  },
-  {
-    label: $t('menu.sales_tools'),
-    links: [
-      {
-        label: $t('menu.create_purchase_link'),
-        icon: 'i-heroicons-link',
-        to: localeRoute({ name: 'purchase-link' }),
-        exact: true
-      },
-      {
-        label: $t('menu.bookstore_pos'),
-        icon: 'i-heroicons-shopping-cart',
-        to: localeRoute({ name: 'sales-pos' }),
-        exact: true
-      },
-      {
-        label: $t('menu.batch_create_qr_codes'),
-        icon: 'i-heroicons-qr-code',
-        to: localeRoute({ name: 'batch-qrcode' }),
-        target: '_blank'
-      },
-      {
-        label: $t('menu.batch_create_short_links'),
-        icon: 'i-heroicons-link',
-        to: localeRoute({ name: 'batch-short-links' })
-      }
-    ]
-  }, {
-    label: $t('menu.help'),
-    links: [
-      {
-        label: $t('menu.publisher_guide'),
-        icon: 'i-heroicons-arrow-top-right-on-square-20-solid',
-        to: 'https://docs.3ook.com/zh-TW/collections/14176162-出版',
-        target: '_blank'
-      },
-      {
-        label: $t('menu.listing_disclaimer'),
-        icon: 'i-heroicons-shield-exclamation',
-        to: $t('menu.listing_disclaimer_url'),
-        target: '_blank'
-      }
-    ]
+    ].map(item => ({
+      ...item,
+      links: item.links.map(link => ({
+        ...link,
+        click: () => handleLinkClick({ label: link.label })
+      }))
+    }))
   }
-].map(item => ({
-  ...item,
-  links: item.links.map(link => ({
-    ...link,
-    click: () => handleLinkClick({ label: link.label })
+
+  return [
+    {
+      label: $t('menu.bookstore_listing'),
+      links: [
+        {
+          label: $t('menu.start_publishing'),
+          icon: 'i-heroicons-sparkles',
+          to: localeRoute({ name: 'new-book' })
+        },
+        {
+          label: $t('menu.manage_book_listings'),
+          icon: 'i-heroicons-rectangle-stack',
+          to: localeRoute({ name: 'my-books' }),
+          exact: true,
+          badge: getTotalPendingNFTCount.value
+        }
+      ]
+    },
+    {
+      label: $t('menu.authors_affiliates'),
+      links: [
+        {
+          label: $t('menu.user_settings'),
+          icon: 'i-heroicons-user-group',
+          to: localeRoute({ name: 'my-books-user' }),
+          exact: true
+        },
+        {
+          label: $t('menu.latest_books'),
+          icon: 'i-heroicons-book-open',
+          to: localeRoute({ name: 'latest-books' }),
+          exact: true
+        }
+      ]
+    },
+    {
+      label: $t('menu.help'),
+      links: [
+        {
+          label: $t('menu.publisher_guide'),
+          icon: 'i-heroicons-arrow-top-right-on-square-20-solid',
+          to: 'https://docs.3ook.com/zh-TW/collections/14176162-出版',
+          target: '_blank'
+        }
+      ]
+    }
+  ].map(item => ({
+    ...item,
+    links: item.links.map(link => ({
+      ...link,
+      click: () => handleLinkClick({ label: link.label })
+    }))
   }))
-})))
+})
 </script>
