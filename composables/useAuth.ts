@@ -6,7 +6,7 @@ import { SIGN_AUTHORIZATION_PERMISSIONS } from '~/utils/auth'
 export function useAuth () {
   const bookstoreApiStore = useBookstoreApiStore()
   const store = useWalletStore()
-  const { wallet, signer, isConnected } = storeToRefs(store)
+  const { wallet, isConnected } = storeToRefs(store)
   const { connect, disconnect, signMessageMemo } = store
   const { authenticate, clearSession, fetchBookListing } = bookstoreApiStore
   const { intercomToken } = storeToRefs(bookstoreApiStore)
@@ -17,17 +17,58 @@ export function useAuth () {
   const loginStatus = ref<string | undefined>('')
 
   const onAuthenticate = async (connectorId = 'magic') => {
+    let connectResult: any
     loginStatus.value = $t('auth_state.connecting')
 
     try {
       isAuthenticating.value = true
       setupPostAuthRedirect()
 
-      if (!wallet.value || !signer.value) {
-        await connect(connectorId)
+      if (!wallet.value) {
+        connectResult = await connect(connectorId)
       }
-      if (!wallet.value || !signer.value) {
+      if (!wallet.value) {
         return
+      }
+
+      if (!connectResult) {
+        clearSession()
+        if (isConnected.value) {
+          await disconnect()
+        }
+        return
+      }
+
+      const { walletAddress, email, loginMethod, magicUserId, magicDIDToken } = connectResult
+      let isRegistered = await store.checkIsRegistered({ walletAddress, email, magicDIDToken, loginMethod })
+
+      if (!isRegistered) {
+        const maxRetries = 2
+
+        for (let retryCount = 0; retryCount < maxRetries && !isRegistered; retryCount++) {
+          try {
+            isRegistered = await store.register({ walletAddress, email, loginMethod, magicUserId, magicDIDToken })
+          } catch (error) {
+            toast.add({
+              icon: 'i-heroicons-exclamation-circle',
+              title: (error as Error).toString(),
+              timeout: 10000,
+              color: 'red',
+              ui: {
+                title: 'text-red-400 dark:text-red-400'
+              }
+            })
+          }
+        }
+
+        if (!isRegistered) {
+          if (window.Intercom) {
+            window.Intercom('showNewMessage', $t('intercom.registration_failed_message', {
+              walletAddress
+            }))
+          }
+          return
+        }
       }
 
       const signature = await signMessageMemo(
