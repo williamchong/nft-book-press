@@ -215,9 +215,9 @@ const { assertPositiveWalletBalance, waitForTransactionReceipt } = useNFTContrac
 
 const error = ref({ message: '', actions: [] as any[] })
 const isLoading = ref(false)
-const classId = ref(route.params.classId as string)
-const paymentId = ref(route.query.payment_id as string)
-const ownerWallet = ref(route.query.owner_wallet as string || wallet.value)
+const classId = computed(() => route.params.classId as string)
+const paymentId = computed(() => route.query.payment_id as string)
+const ownerWallet = computed(() => route.query.owner_wallet as string || wallet.value)
 const memo = ref($t('nft_book_form.default_memo'))
 const { messageCharCount, isLimitReached } = useMessageCharCount(memo, AUTHOR_MESSAGE_LIMIT)
 const { getNFTMetadata, getNFTOwner } = useNFTContractReader()
