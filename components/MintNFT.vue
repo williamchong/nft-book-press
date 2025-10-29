@@ -7,6 +7,7 @@
       variant="soft"
       :title="`${error}`"
       :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      :actions="errorActions"
       @close="error = ''"
     />
 
@@ -28,9 +29,9 @@ const {
   checkNFTClassIsBookNFT
 } = useNFTContractReader()
 
-const step = ref(1)
 const error = ref('')
 const isLoading = ref(false)
+const maxRetries = 3
 
 const iscnOwner = ref('')
 const iscnData = ref<any>(null)
@@ -38,6 +39,15 @@ const classId = ref('')
 const liteMintNFTRef = ref<any>(null)
 
 const emit = defineEmits(['submit', 'loadingChange'])
+
+const errorActions = computed(() => {
+  return [{
+    label: $t('button.retry'),
+    variant: 'solid' as const,
+    color: 'red' as const,
+    click: () => window.location.reload()
+  }]
+})
 
 watch(isLoading, (val: boolean) => {
   emit('loadingChange', val)
@@ -66,10 +76,11 @@ watch(() => props.iscnId, async (val: string) => {
   }
 }, { immediate: true })
 
-async function fetchISCNById (iscnId?: string) {
+async function fetchISCNById (iscnId?: string, retryCount = 0) {
   if (!iscnId) {
     return
   }
+
   try {
     isLoading.value = true
     const isBookNFT = await checkNFTClassIsBookNFT(iscnId)
@@ -81,18 +92,24 @@ async function fetchISCNById (iscnId?: string) {
       getClassOwner(iscnId)
     ])
     if (!data) {
-      throw new Error('Invalid NFT Class ID')
+      throw new Error('Failed to fetch ISCN metadata')
     }
     iscnData.value = { contentMetadata: data, owner, '@id': iscnId }
     iscnOwner.value = owner as string
     classId.value = iscnId
-    step.value = 3
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error(err)
-    error.value = (err as Error).toString()
-  } finally {
+    error.value = ''
     isLoading.value = false
+  } catch (err) {
+    if (retryCount < maxRetries) {
+      const nextRetryCount = retryCount + 1
+      const delay = nextRetryCount * 1000
+      setTimeout(() => {
+        fetchISCNById(iscnId, nextRetryCount)
+      }, delay)
+    } else {
+      error.value = $t('error.fetch_classid_failed') + err
+      isLoading.value = false
+    }
   }
 }
 
