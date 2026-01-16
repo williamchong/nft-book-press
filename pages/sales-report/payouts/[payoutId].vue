@@ -13,12 +13,25 @@
     </UProgress>
 
     <UCard
-      :ui="{ body: { padding: '' } }"
+      :ui="{
+        header: { base: 'flex justify-between items-center' },
+        body: { padding: '' }
+      }"
     >
       <template #header>
         <h3 class="font-bold font-mono">
           {{ $t('user_settings.payout_details') }}
         </h3>
+
+        <UButton
+          icon="i-heroicons-arrow-down-tray"
+          variant="outline"
+          size="sm"
+          :disabled="isLoading || !payoutDataRows.length"
+          @click="exportPayoutData"
+        >
+          {{ $t('common.export_csv', { length: payoutDataRows.length }) }}
+        </UButton>
       </template>
 
       <UTable
@@ -36,11 +49,21 @@
       />
     </UCard>
 
-    <UCard :ui="{ body: { padding: '' } }">
+    <UCard :ui="{ body: { padding: '' }, header: { base: 'flex justify-between items-center' } }">
       <template #header>
         <h3 class="text-sm font-bold font-mono">
           {{ $t('user_settings.payout_details') }}
         </h3>
+
+        <UButton
+          icon="i-heroicons-arrow-down-tray"
+          variant="outline"
+          size="sm"
+          :disabled="isLoading || !payoutItemRows.length"
+          @click="exportPayoutItems"
+        >
+          {{ $t('common.export_csv', { length: payoutItemRows.length }) }}
+        </UButton>
       </template>
       <UTable
         :columns="[
@@ -95,6 +118,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useBookstoreApiStore } from '~/stores/book-store-api'
+import { downloadCSV } from '~/utils/index'
 
 const { t: $t } = useI18n()
 
@@ -186,4 +210,58 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+
+async function exportPayoutData () {
+  if (!payoutDataRows.value.length) { return }
+
+  const date = new Date().toISOString().split('T')[0]
+
+  const columns = [
+    { key: 'id', label: $t('table.id') },
+    { key: 'createdTs', label: $t('table.created') },
+    { key: 'currency', label: $t('table.currency') },
+    { key: 'amount', label: $t('table.payout_amount') },
+    { key: 'status', label: $t('table.status') },
+    { key: 'arrivalTs', label: $t('table.arrived') }
+  ]
+
+  const data = payoutDataRows.value.map((row: any) => ({
+    id: row.id,
+    createdTs: row.createdTs,
+    currency: row.currency,
+    amount: row.amount,
+    status: row.status,
+    arrivalTs: row.arrivalTs
+  }))
+
+  await downloadCSV(data, columns, `payout-details-${payoutId.value}-${date}.csv`)
+}
+
+async function exportPayoutItems () {
+  if (!payoutItemRows.value.length) { return }
+
+  const date = new Date().toISOString().split('T')[0]
+
+  const columns = [
+    { key: 'commissionId', label: $t('table.id') },
+    { key: 'createdTs', label: $t('table.created') },
+    { key: 'currency', label: $t('table.currency') },
+    { key: 'amount', label: $t('table.commission_amount') },
+    { key: 'description', label: $t('common.description') },
+    { key: 'status', label: $t('table.status') },
+    { key: 'metadata', label: $t('table.metadata') }
+  ]
+
+  const data = payoutItemRows.value.map((row: any) => ({
+    commissionId: row.commissionId,
+    createdTs: row.createdTs,
+    currency: row.currency,
+    amount: row.amount,
+    description: row.description || '',
+    status: row.status,
+    metadata: row.metadata || ''
+  }))
+
+  await downloadCSV(data, columns, `payout-items-${payoutId.value}-${date}.csv`)
+}
 </script>

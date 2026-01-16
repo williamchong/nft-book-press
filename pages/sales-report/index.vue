@@ -32,17 +32,27 @@
           v-text="$t('user_settings.commission_history')"
         />
 
-        <UTooltip
-          :text="$t('user_settings.commission_history.tooltip')"
-          :popper="{ placement: 'left' }"
-        >
+        <div class="flex gap-2">
           <UButton
-            icon="i-heroicons-arrow-path"
+            icon="i-heroicons-arrow-down-tray"
             variant="outline"
-            :disabled="isLoading"
-            @click="loadCommissionHistory"
-          />
-        </UTooltip>
+            :disabled="isLoading || !commissionHistoryRows.length"
+            @click="exportCommissionHistory"
+          >
+            {{ $t('common.export_csv', { length: commissionHistoryRows.length }) }}
+          </UButton>
+          <UTooltip
+            :text="$t('user_settings.commission_history.tooltip')"
+            :popper="{ placement: 'left' }"
+          >
+            <UButton
+              icon="i-heroicons-arrow-path"
+              variant="outline"
+              :disabled="isLoading"
+              @click="loadCommissionHistory"
+            />
+          </UTooltip>
+        </div>
       </template>
 
       <UTable
@@ -77,17 +87,27 @@
           v-text="$t('user_settings.payout_history')"
         />
 
-        <UTooltip
-          text="Refresh Status"
-          :popper="{ placement: 'left' }"
-        >
+        <div class="flex gap-2">
           <UButton
-            icon="i-heroicons-arrow-path"
+            icon="i-heroicons-arrow-down-tray"
             variant="outline"
-            :disabled="isLoading"
-            @click="loadPayoutHistory"
-          />
-        </UTooltip>
+            :disabled="isLoading || !payoutHistoryRows.length"
+            @click="exportPayoutHistory"
+          >
+            {{ $t('common.export_csv', { length: payoutHistoryRows.length }) }}
+          </UButton>
+          <UTooltip
+            text="Refresh Status"
+            :popper="{ placement: 'left' }"
+          >
+            <UButton
+              icon="i-heroicons-arrow-path"
+              variant="outline"
+              :disabled="isLoading"
+              @click="loadPayoutHistory"
+            />
+          </UTooltip>
+        </div>
       </template>
 
       <UTable
@@ -121,6 +141,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { downloadCSV } from '~/utils/index'
 
 const { LIKE_CO_API, BOOK3_URL } = useRuntimeConfig().public
 const { t: $t } = useI18n()
@@ -233,6 +254,54 @@ async function loadPayoutHistory () {
   } finally {
     isLoading.value = false
   }
+}
+
+async function exportCommissionHistory () {
+  const date = new Date().toISOString().split('T')[0]
+
+  const columns = [
+    { key: 'timestamp', label: $t('user_settings.timestamp') },
+    { key: 'type', label: $t('user_settings.commission_type') },
+    { key: 'bookName', label: $t('table.book_name') },
+    { key: 'classId', label: $t('user_settings.book_id') },
+    { key: 'amount', label: $t('user_settings.commission') },
+    { key: 'currency', label: $t('user_settings.currency') },
+    { key: 'amountTotal', label: $t('user_settings.sale_amount') }
+  ]
+
+  const data = commissionHistoryRows.value.map((row: any) => ({
+    timestamp: row.timestamp,
+    type: row.type,
+    bookName: nftStore.getClassMetadataById(row.classId)?.name || '',
+    classId: row.classId,
+    amount: row.amount,
+    currency: row.currency,
+    amountTotal: row.amountTotal
+  }))
+
+  await downloadCSV(data, columns, `sales-commission-history-${date}.csv`)
+}
+
+async function exportPayoutHistory () {
+  const date = new Date().toISOString().split('T')[0]
+
+  const columns = [
+    { key: 'createdTs', label: $t('user_settings.created') },
+    { key: 'amount', label: $t('user_settings.payout_amount') },
+    { key: 'status', label: $t('user_settings.status') },
+    { key: 'arrivalTs', label: $t('user_settings.arrived') },
+    { key: 'id', label: 'ID' }
+  ]
+
+  const data = payoutHistoryRows.value.map((row: any) => ({
+    createdTs: row.createdTs,
+    amount: row.amount,
+    status: row.status,
+    arrivalTs: row.arrivalTs,
+    id: row.id
+  }))
+
+  await downloadCSV(data, columns, `sales-payout-history-${date}.csv`)
 }
 
 </script>

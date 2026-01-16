@@ -35,6 +35,39 @@ export function downloadBlob (content: string, filename: string, contentType: st
   pom.click()
 }
 
+/**
+ * Download array of objects as CSV with BOM for Excel compatibility with Chinese characters
+ * @param data - Array of objects to export
+ * @param columns - Column definitions with key and display label
+ * @param filename - Output filename
+ */
+export async function downloadCSV (
+  data: Record<string, any>[],
+  columns: { key: string; label: string }[],
+  filename: string
+) {
+  if (data.length === 0) {
+    return
+  }
+
+  const { saveAs } = await import('file-saver')
+
+  // Map data to columns and use csv-stringify for proper escaping
+  const rows = data.map(row =>
+    columns.map(col => row[col.key] ?? '')
+  )
+
+  const csvContent = csvStringify(rows, {
+    header: true,
+    columns: columns.map(col => col.label)
+  })
+
+  // Add BOM for Excel compatibility with Chinese characters
+  const bom = '\uFEFF'
+  const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' })
+  saveAs(blob, filename)
+}
+
 export function parseImageURLFromMetadata (image: string): string {
   const { ARWEAVE_ENDPOINT } = useRuntimeConfig().public
   if (!image) { return '' }
