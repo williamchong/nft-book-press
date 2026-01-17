@@ -72,7 +72,7 @@ export default defineNuxtConfig({
       crossOriginOpenerPolicy: 'same-origin-allow-popups',
       contentSecurityPolicy: {
         'worker-src': ["'self'", 'blob:'],
-        'img-src': ["'self'", 'data:', '*'],
+        'img-src': ["'self'", 'data:', '*', 'blob:'],
         // NOTE: Resolve Safari force HTTPS in development
         'upgrade-insecure-requests': !isDevelopment
       }

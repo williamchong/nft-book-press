@@ -135,7 +135,19 @@
                     <UInput
                       type="file"
                       accept="image/png"
-                      @change="(e: FileList | null) => onImgUpload(e, 'signatureImage')"
+                      @input="(e: Event) => onImgUpload(e, 'signatureImage')"
+                    />
+                    <div v-if="signatureImagePreview" class="mt-2">
+                      <img
+                        :src="signatureImagePreview"
+                        alt="Signature preview"
+                        class="w-full max-h-[180px] object-contain rounded border border-gray-200"
+                      >
+                    </div>
+                    <p
+                      v-else-if="hasExistingSignatureImage"
+                      class="mt-2 text-sm text-gray-500"
+                      v-text="$t('nft_book_form.autograph_image_uploaded')"
                     />
                   </UFormGroup>
                 </div>
@@ -377,6 +389,21 @@ const notificationEmailInput = ref('')
 const connectedWallets = ref<Record<string, number>>({})
 
 const signatureImage = ref<File | null>(null)
+const hasExistingSignatureImage = ref(false)
+const signatureImagePreview = ref<string | null>(null)
+
+watch(signatureImage, (newFile) => {
+  if (signatureImagePreview.value) {
+    URL.revokeObjectURL(signatureImagePreview.value)
+  }
+  signatureImagePreview.value = newFile ? URL.createObjectURL(newFile) : null
+})
+
+onBeforeUnmount(() => {
+  if (signatureImagePreview.value) {
+    URL.revokeObjectURL(signatureImagePreview.value)
+  }
+})
 
 const maxSupply = ref(Number(DEFAULT_MAX_SUPPLY))
 
@@ -458,6 +485,10 @@ onMounted(async () => {
 
         if (classResData.connectedWallets) {
           connectedWallets.value = classResData.connectedWallets
+        }
+
+        if (classResData.enableSignatureImage) {
+          hasExistingSignatureImage.value = true
         }
 
         if (editionIndex.value !== undefined) {
@@ -552,19 +583,27 @@ function isContentFingerprintEncrypted (contentFingerprints: any[]) {
 }
 
 function onImgUpload (
-  files: FileList | null,
+  event: Event,
   key: 'signatureImage' | 'memoImage' = 'signatureImage'
 ) {
+  const input = event.target as HTMLInputElement
+  const files = input.files
+
   if (!files?.length) { return }
 
   const file = files[0]
   if (!file) { return }
+  if (key === 'signatureImage') {
+    signatureImage.value = null
+  }
   if (file.type !== 'image/png') {
     error.value = $t('errors.png_only')
+    input.value = ''
     return
   }
   if (file.size > UPLOAD_FILESIZE_MAX) {
     error.value = $t('errors.file_size_limit')
+    input.value = ''
     return
   }
 
