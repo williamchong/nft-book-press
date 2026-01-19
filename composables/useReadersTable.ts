@@ -198,7 +198,7 @@ export function useReadersTable () {
   }
 
   async function exportReadersToCSV () {
-    if (!hasSelection.value) { return }
+    const dataToExport = hasSelection.value ? selectedRows.value : ordersStore.readers
 
     const columnConfig = [
       { key: 'readerEmail', label: t('table.reader_email') },
@@ -215,7 +215,7 @@ export function useReadersTable () {
     ]
 
     const filename = `readers_export_${new Date().toISOString().split('T')[0]}.csv`
-    await exportToCSV(selectedRows.value, columnConfig, filename)
+    await exportToCSV(dataToExport, columnConfig, filename)
   }
 
   return {
