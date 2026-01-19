@@ -5,12 +5,11 @@
       <div class="flex gap-2">
         <UButton
           icon="i-hugeicons-csv-02"
-          :color="hasSelection ? 'primary' : 'gray'"
-          :disabled="!hasSelection"
+          color="primary"
           variant="outline"
           @click="exportSelectedToCSV"
         >
-          {{ $t('common.export_csv',{ length: selectionCount }) }}
+          {{ $t('common.export_csv',{ length: hasSelection ? selectionCount : ordersStore.readers.length }) }}
         </UButton>
         <UButton
           icon="i-heroicons-arrow-path"
