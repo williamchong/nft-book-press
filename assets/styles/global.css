@@ -1,3 +1,20 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+  --color-like-green-50: #f2fdf9;
+  --color-like-green-100: #d7ecec;
+  --color-like-green-200: #aaf1e7;
+  --color-like-green-300: #50e2c3;
+  --color-like-green-400: #32cdb6;
+  --color-like-green-500: #19b3a6;
+  --color-like-green-600: #12918b;
+  --color-like-green-700: #28646e;
+  --color-like-green-800: #2a5360;
+  --color-like-green-900: #274453;
+  --color-like-green-950: #152937;
+}
+
 body {
   margin: 0;
 

@@ -16,7 +16,8 @@ export const useWalletStore = defineStore('wallet', () => {
   const { $wagmiConfig } = useNuxtApp()
 
   const toast = useToast()
-  const modal = useModal()
+  const overlay = useOverlay()
+  const registrationModal = overlay.create(RegistrationModal)
   const { t: $t } = useI18n()
 
   const isLoginLoading = ref(false)
@@ -56,11 +57,8 @@ export const useWalletStore = defineStore('wallet', () => {
           current: wallet.value.slice(0, 6) + '...',
           session: sessionWallet.value.slice(0, 6) + '...'
         }),
-        timeout: 3000,
-        color: 'amber',
-        ui: {
-          title: 'text-amber-600 dark:text-amber-400'
-        }
+        duration: 3000,
+        color: 'warning'
       })
 
       bookstoreApiStore.clearSession()
@@ -349,18 +347,18 @@ export const useWalletStore = defineStore('wallet', () => {
       bookstoreApiStore.closeLoginPanel()
       await nextTick()
       await new Promise<void>((resolve) => {
-        modal.open(RegistrationModal, {
+        registrationModal.open({
           email: payload?.email,
           accountId: payload?.accountId,
           isAccountIdHidden: true,
           isDisplayNameHidden: true,
           onSubmit: (data: ModalResult) => {
             modalResult = data
-            modal.close()
+            registrationModal.close()
             resolve()
           },
           onClose: () => {
-            modal.close()
+            registrationModal.close()
             resolve()
           }
         })

@@ -1,9 +1,9 @@
 <template>
   <UCard
     :ui="{
-      header: { base: 'flex justify-between items-center gap-2' },
-      body: { padding: '' },
-      footer: { base: 'flex justify-center items-center gap-2' }
+      header: 'flex justify-between items-center gap-2',
+      body: 'p-0',
+      footer: 'flex justify-center items-center gap-2'
     }"
   >
     <template #header>
@@ -11,15 +11,15 @@
     </template>
 
     <div v-if="!isReadonlyMode" class="grid grid-cols-2 gap-4 p-4 print:hidden">
-      <UFormGroup :label="$t('qr_generator.pick_dot')">
+      <UFormField :label="$t('qr_generator.pick_dot')">
         <URadioGroup
           v-model="selectedDotStyle"
-          :options="dotStyleOptions"
+          :items="dotStyleOptions"
         />
-      </UFormGroup>
+      </UFormField>
     </div>
 
-    <UDivider v-if="!isReadonlyMode" />
+    <USeparator v-if="!isReadonlyMode" />
 
     <div
       id="qr-code"
@@ -31,7 +31,7 @@
       <template v-if="isDownloadMode">
         <USelect
           v-model="downloadFileExtension"
-          :options="[
+          :items="[
             { value: 'svg', label: 'SVG' },
             { value: 'png', label: 'PNG' },
             { value: 'jpeg', label: 'JPEG' },

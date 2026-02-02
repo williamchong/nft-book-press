@@ -181,14 +181,14 @@ async function handleSave () {
   if (!wallet.value || !signer.value) {
     toast.add({
       title: $t('auth.login_required'),
-      color: 'red'
+      color: 'error'
     })
     return
   }
   if (!isFormValid.value) {
     toast.add({
       title: formError.value.join(', '),
-      color: 'red'
+      color: 'error'
     })
     return
   }
@@ -235,7 +235,7 @@ async function handleSave () {
     if (!receipt || receipt.status !== 'success') { throw new Error('INVALID_RECEIPT') }
     toast.add({
       title: $t('edit_iscn.update_success'),
-      color: 'blue'
+      color: 'info'
     })
     iscnFormRef.value?.resetSnapshot()
     await nftStore.fetchClassMetadataById(props.classId)
@@ -248,7 +248,7 @@ async function handleSave () {
     toast.add({
       title: $t('edit_iscn.update_failed'),
       description: (error as Error).message,
-      color: 'red'
+      color: 'error'
     })
   } finally {
     isSaving.value = false

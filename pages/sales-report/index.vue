@@ -3,17 +3,17 @@
     <UAlert
       v-if="error"
       icon="i-heroicons-exclamation-triangle"
-      color="red"
+      color="error"
       variant="soft"
       :title="`${error}`"
-      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      :close="{ icon: 'i-heroicons-x-mark-20-solid', color: 'error', variant: 'link' }"
       @close="error = ''"
     />
 
     <UAlert
       v-if="!isStripeConnectReady"
       icon="i-heroicons-exclamation-circle"
-      color="orange"
+      color="warning"
       variant="soft"
       :title="$t('user_settings.stripe_express_notice')"
       :description="$t('user_settings.stripe_express_description')"
@@ -21,9 +21,9 @@
 
     <UCard
       :ui="{
-        header: { base: 'flex justify-between items-center' },
-        body: { padding: '' },
-        footer: { base: 'text-center' },
+        header: 'flex justify-between items-center',
+        body: 'p-0',
+        footer: 'text-center',
       }"
     >
       <template #header>
@@ -57,28 +57,28 @@
 
       <UTable
         :columns="[
-          { key: 'timestamp', label: $t('user_settings.timestamp') },
-          { key: 'type', label: $t('user_settings.commission_type') },
-          { key: 'amount', label: $t('user_settings.commission') },
-          { key: 'classId', label: $t('user_settings.book_id') },
-          { key: 'currency', label: $t('user_settings.currency') },
-          { key: 'amountTotal', label: $t('user_settings.sale_amount') },
+          { accessorKey: 'timestamp', header: $t('user_settings.timestamp') },
+          { accessorKey: 'type', header: $t('user_settings.commission_type') },
+          { accessorKey: 'amount', header: $t('user_settings.commission') },
+          { accessorKey: 'classId', header: $t('user_settings.book_id') },
+          { accessorKey: 'currency', header: $t('user_settings.currency') },
+          { accessorKey: 'amountTotal', header: $t('user_settings.sale_amount') },
         ]"
-        :rows="commissionHistoryRows"
-        :ui="{ th: { base: 'text-center' }, td: { base: 'text-center' } }"
+        :data="commissionHistoryRows"
+        :ui="{ th: 'text-center', td: 'text-center' }"
       >
-        <template #classId-data="{ row }">
-          <a :href="`${BOOK3_URL}/store/${row.classId}`" target="_blank">
-            {{ nftStore.getClassMetadataById(row.classId)?.name || row.classId }}
+        <template #classId-cell="{ row }">
+          <a :href="`${BOOK3_URL}/store/${row.original.classId}`" target="_blank">
+            {{ nftStore.getClassMetadataById(row.original.classId)?.name || row.original.classId }}
           </a>
         </template>
       </UTable>
     </UCard>
     <UCard
       :ui="{
-        header: { base: 'flex justify-between items-center' },
-        body: { padding: '' },
-        footer: { base: 'text-center' },
+        header: 'flex justify-between items-center',
+        body: 'p-0',
+        footer: 'text-center',
       }"
     >
       <template #header>
@@ -112,24 +112,24 @@
 
       <UTable
         :columns="[
-          { key: 'createdTs', label: $t('user_settings.created') },
-          { key: 'amount', label: $t('user_settings.payout_amount') },
-          { key: 'status', label: $t('user_settings.status') },
-          { key: 'arrivalTs', label: $t('user_settings.arrived') },
-          { key: 'details', label: $t('user_settings.details') },
+          { accessorKey: 'createdTs', header: $t('user_settings.created') },
+          { accessorKey: 'amount', header: $t('user_settings.payout_amount') },
+          { accessorKey: 'status', header: $t('user_settings.status') },
+          { accessorKey: 'arrivalTs', header: $t('user_settings.arrived') },
+          { accessorKey: 'details', header: $t('user_settings.details') },
         ]"
-        :rows="payoutHistoryRows"
-        :ui="{ th: { base: 'text-center' }, td: { base: 'text-center' } }"
+        :data="payoutHistoryRows"
+        :ui="{ th: 'text-center', td: 'text-center' }"
       >
-        <template #details-data="{ row }">
+        <template #details-cell="{ row }">
           <UButton
             :label="$t('user_settings.details')"
             size="sm"
-            color="gray"
+            color="neutral"
             :to="localeRoute({
               name: 'sales-report-payouts-payoutId',
               params: {
-                payoutId: row.id
+                payoutId: (row.original as any).id
               }
             })"
           />
@@ -257,13 +257,13 @@ async function exportCommissionHistory () {
   const date = new Date().toISOString().split('T')[0]
 
   const columns = [
-    { key: 'timestamp', label: $t('user_settings.timestamp') },
-    { key: 'type', label: $t('user_settings.commission_type') },
-    { key: 'bookName', label: $t('table.book_name') },
-    { key: 'classId', label: $t('user_settings.book_id') },
-    { key: 'amount', label: $t('user_settings.commission') },
-    { key: 'amountTotal', label: $t('user_settings.sale_amount') },
-    { key: 'currency', label: $t('user_settings.currency') }
+    { accessorKey: 'timestamp', header: $t('user_settings.timestamp') },
+    { accessorKey: 'type', header: $t('user_settings.commission_type') },
+    { accessorKey: 'bookName', header: $t('table.book_name') },
+    { accessorKey: 'classId', header: $t('user_settings.book_id') },
+    { accessorKey: 'amount', header: $t('user_settings.commission') },
+    { accessorKey: 'amountTotal', header: $t('user_settings.sale_amount') },
+    { accessorKey: 'currency', header: $t('user_settings.currency') }
   ]
 
   const data = commissionHistory.value.map((row: any) => ({
@@ -294,11 +294,11 @@ async function exportPayoutHistory () {
   const date = new Date().toISOString().split('T')[0]
 
   const columns = [
-    { key: 'createdTs', label: $t('user_settings.created') },
-    { key: 'amount', label: $t('user_settings.payout_amount') },
-    { key: 'status', label: $t('user_settings.status') },
-    { key: 'arrivalTs', label: $t('user_settings.arrived') },
-    { key: 'id', label: 'ID' }
+    { accessorKey: 'createdTs', header: $t('user_settings.created') },
+    { accessorKey: 'amount', header: $t('user_settings.payout_amount') },
+    { accessorKey: 'status', header: $t('user_settings.status') },
+    { accessorKey: 'arrivalTs', header: $t('user_settings.arrived') },
+    { accessorKey: 'id', header: 'ID' }
   ]
 
   const data = payoutHistory.value.map((row: any) => ({

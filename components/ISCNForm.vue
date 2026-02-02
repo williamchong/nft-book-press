@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-6">
-    <UFormGroup
+    <UFormField
       :label="$t('common.title')"
       :error="!formData.title && $t('iscn_form.title_required')"
       class="flex-1 text-left"
@@ -10,9 +10,9 @@
         v-model="formData.title"
         :placeholder="$t('iscn_form.enter_iscn_title')"
       />
-    </UFormGroup>
+    </UFormField>
 
-    <UFormGroup
+    <UFormField
       :label="$t('iscn_form.subtitle')"
       class="flex-1 text-left"
       :hint="`${(formData.alternativeHeadline || '').length}/${MAX_ALTERNATIVE_HEADLINE_LENGTH}`"
@@ -22,9 +22,9 @@
         v-model="formData.alternativeHeadline"
         :placeholder="$t('iscn_form.enter_subtitle')"
       />
-    </UFormGroup>
+    </UFormField>
 
-    <UFormGroup
+    <UFormField
       :label="$t('common.description')"
       class="flex-1 text-left"
       :hint="`${formData.description.length}/${MAX_DESCRIPTION_LENGTH}`"
@@ -36,9 +36,9 @@
         :placeholder="$t('iscn_form.enter_iscn_description')"
         autoresize
       />
-    </UFormGroup>
+    </UFormField>
 
-    <UFormGroup
+    <UFormField
       :label="$t('iscn_form.description_full')"
       class="flex-1 text-left"
       :hint="`${(formData.descriptionFull || '').length}/${MAX_DESCRIPTION_FULL_LENGTH}`"
@@ -49,37 +49,37 @@
         :placeholder="$t('iscn_form.enter_iscn_description_full')"
         autoresize
       />
-    </UFormGroup>
+    </UFormField>
 
     <div class="grid grid-cols-3 gap-4">
-      <UFormGroup :label="$t('form.isbn')">
+      <UFormField :label="$t('form.isbn')">
         <UInput v-model="formData.isbn" :placeholder="$t('form.enter_isbn')" />
-      </UFormGroup>
+      </UFormField>
 
-      <UFormGroup :label="$t('form.publisher')">
+      <UFormField :label="$t('form.publisher')">
         <UInput
           v-model="formData.publisher"
           :placeholder="$t('form.enter_publisher_name')"
         />
-      </UFormGroup>
+      </UFormField>
 
-      <UFormGroup :label="$t('form.publication_date')">
+      <UFormField :label="$t('form.publication_date')">
         <UInput
           v-model="formData.publicationDate"
           type="date"
           :placeholder="$t('iscn_form.select_date')"
         />
-      </UFormGroup>
+      </UFormField>
 
-      <UFormGroup :label="$t('form.language')" required>
+      <UFormField :label="$t('form.language')" required>
         <USelect
           v-model="formData.language"
-          :options="languageOptions"
+          :items="languageOptions"
           :placeholder="$t('iscn_form.select_language')"
         />
-      </UFormGroup>
+      </UFormField>
 
-      <UFormGroup
+      <UFormField
         required
         :label="$t('form.cover_image')"
         :error="!formData.coverUrl && $t('iscn_form.cover_image_required')"
@@ -90,19 +90,19 @@
           placeholder="ar://{arweave_id}"
           class="font-mono"
         />
-      </UFormGroup>
+      </UFormField>
 
-      <UFormGroup :label="$t('form_labels.book_info')">
+      <UFormField :label="$t('form_labels.book_info')">
         <UInput
           v-model="formData.bookInfoUrl"
           :placeholder="$t('iscn_form.enter_book_info_url')"
         />
-      </UFormGroup>
+      </UFormField>
     </div>
 
     <!-- Author Info -->
     <div class="grid grid-cols-2 gap-4">
-      <UFormGroup
+      <UFormField
         :label="$t('iscn_form.author_name')"
         :error="!formData.author.name && $t('iscn_form.author_name_required')"
         class="text-left"
@@ -112,22 +112,22 @@
           v-model="formData.author.name"
           :placeholder="$t('iscn_form.enter_author_name')"
         />
-      </UFormGroup>
+      </UFormField>
 
-      <UFormGroup :label="$t('iscn_form.author_description')">
+      <UFormField :label="$t('iscn_form.author_description')">
         <UTextarea
           v-model="formData.author.description"
           :placeholder="$t('iscn_form.enter_author_description')"
           autoresize
         />
-      </UFormGroup>
+      </UFormField>
     </div>
 
-    <UFormGroup :label="$t('iscn_form.license')" class="flex-1">
+    <UFormField :label="$t('iscn_form.license')" class="flex-1">
       <div class="space-y-2">
         <USelect
           v-model="formData.license"
-          :options="licenseOptions"
+          :items="licenseOptions"
           :placeholder="$t('iscn_form.select_license')"
         />
         <UInput
@@ -136,7 +136,7 @@
           :placeholder="$t('iscn_form.enter_custom_license')"
         />
       </div>
-    </UFormGroup>
+    </UFormField>
 
     <!-- Content Fingerprints -->
     <div class="flex flex-col border p-4 rounded-lg gap-4">
@@ -156,16 +156,16 @@
         class="flex gap-4 items-end"
       >
         <div class="flex justify-between items-end w-full gap-[8px]">
-          <UFormGroup class="w-full" :label="`URL #${index + 1}`">
+          <UFormField class="w-full" :label="`URL #${index + 1}`">
             <UInput
               v-model="fingerprint.url"
               class="w-full"
               :placeholder="$t('iscn_form.enter_content_fingerprint_url')"
             />
-          </UFormGroup>
+          </UFormField>
           <UButton
             v-if="formData.contentFingerprints.length > 1"
-            color="red"
+            color="error"
             class="w-min"
             variant="soft"
             icon="i-heroicons-trash"
@@ -201,19 +201,19 @@
         class="flex gap-4 items-end"
       >
         <div class="grid grid-cols-3 gap-4 flex-1">
-          <UFormGroup :label="$t('iscn_form.type')">
+          <UFormField :label="$t('iscn_form.type')">
             <USelect
               v-model="download.type"
-              :options="downloadTypeOptions"
+              :items="downloadTypeOptions"
               placeholder="Select file type"
             />
-          </UFormGroup>
-          <UFormGroup :label="$t('iscn_form.url')">
+          </UFormField>
+          <UFormField :label="$t('iscn_form.url')">
             <UInput v-model="download.url" :placeholder="$t('iscn_form.enter_download_url')" />
-          </UFormGroup>
-          <UFormGroup :label="$t('iscn_form.filename')">
+          </UFormField>
+          <UFormField :label="$t('iscn_form.filename')">
             <UInput v-model="download.fileName" :placeholder="$t('iscn_form.enter_filename')" />
-          </UFormGroup>
+          </UFormField>
         </div>
       </div>
       <UButton
@@ -224,7 +224,7 @@
       />
       <UButton
         v-if="formData.downloadableUrls?.length > 1"
-        color="red"
+        color="error"
         variant="soft"
         icon="i-heroicons-trash"
         @click="removeDownloadableUrl(formData.downloadableUrls.length - 1)"
@@ -232,42 +232,44 @@
     </div>
 
     <UModal
-      v-model="shouldShowUploadModal"
-      :prevent-close="true"
-      :ui="{ width: 'w-full max-w-[80vw]' }"
+      v-model:open="shouldShowUploadModal"
+      :dismissible="false"
+      class="w-full max-w-[80vw]"
     >
-      <UCard
-        :ui="{
-          header: { base: 'flex justify-between items-center' },
-          body: { base: 'space-y-4' },
-          footer: { base: 'flex justify-end items-center' },
-        }"
-      >
-        <template #header>
-          <h2 class="font-bold font-mono" v-text="$t('iscn_form.upload_files')" />
-        </template>
-        <UploadForm
-          ref="uploadFormRef"
-          :default-encrypted="isContentFingerprintsEncrypted"
-          @file-upload-status="(status: string) => (uploadStatus = status)"
-          @file-ready="(records: FileRecord[]) => (fileRecords = records)"
-          @submit="handleUploadSubmit"
-        />
-        <template #footer>
-          <div class="w-full flex justify-center items-center gap-2">
-            <UButton color="gray" variant="soft" @click="shouldShowUploadModal = false">
-              Cancel
-            </UButton>
-            <UButton
-              color="primary"
-              :loading="false"
-              :disabled="!hasFiles || shouldDisableAction"
-              :label="$t('iscn_form.confirm_upload')"
-              @click="startUpload"
-            />
-          </div>
-        </template>
-      </UCard>
+      <template #content>
+        <UCard
+          :ui="{
+            header: 'flex justify-between items-center',
+            body: 'space-y-4',
+            footer: 'flex justify-end items-center',
+          }"
+        >
+          <template #header>
+            <h2 class="font-bold font-mono" v-text="$t('iscn_form.upload_files')" />
+          </template>
+          <UploadForm
+            ref="uploadFormRef"
+            :default-encrypted="isContentFingerprintsEncrypted"
+            @file-upload-status="(status: string) => (uploadStatus = status)"
+            @file-ready="(records: FileRecord[]) => (fileRecords = records)"
+            @submit="handleUploadSubmit"
+          />
+          <template #footer>
+            <div class="w-full flex justify-center items-center gap-2">
+              <UButton color="neutral" variant="soft" @click="shouldShowUploadModal = false">
+                Cancel
+              </UButton>
+              <UButton
+                color="primary"
+                :loading="false"
+                :disabled="!hasFiles || shouldDisableAction"
+                :label="$t('iscn_form.confirm_upload')"
+                @click="startUpload"
+              />
+            </div>
+          </template>
+        </UCard>
+      </template>
     </UModal>
   </div>
 </template>
@@ -275,6 +277,7 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core'
 import type { FileRecord } from '~/components/UploadForm.vue'
+import { useFileUploadLocal } from '~/composables/useFileUploadLocal'
 
 import { licenseOptions, languageOptions, MAX_DESCRIPTION_LENGTH, MAX_DESCRIPTION_FULL_LENGTH, MAX_ALTERNATIVE_HEADLINE_LENGTH } from '~/constant/index'
 import { getApiEndpoints } from '~/constant/api'
@@ -406,7 +409,7 @@ const startUpload = async () => {
   await uploadFormRef.value.onSubmit()
 }
 
-const { getFileType } = useFileUpload()
+const { getFileType } = useFileUploadLocal()
 
 const handleUploadSubmit = (uploadData: any) => {
   const { fileRecords, epubMetadata } = uploadData

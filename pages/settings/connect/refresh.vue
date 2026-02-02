@@ -1,19 +1,21 @@
 <template>
-  <UModal :model-value="true">
-    <UCard :ui="{ header: { base: 'font-bold font-mono' } }">
-      <template #header>
-        A unexpected issue happened
-      </template>
+  <UModal :open="true">
+    <template #content>
+      <UCard :ui="{ header: 'font-bold font-mono' }">
+        <template #header>
+          A unexpected issue happened
+        </template>
 
-      Please go back to Stripe Connect status page and try again.
+        Please go back to Stripe Connect status page and try again.
 
-      <template #footer>
-        <UButton
-          :label="$t('common.go_back')"
-          :to="localeRoute({ name: 'settings' })"
-        />
-      </template>
-    </UCard>
+        <template #footer>
+          <UButton
+            :label="$t('common.go_back')"
+            :to="localeRoute({ name: 'settings' })"
+          />
+        </template>
+      </UCard>
+    </template>
   </UModal>
 </template>
 

@@ -1,51 +1,53 @@
 <template>
-  <UModal :model-value="showOpenModal" :ui="{ width: 'min-w-[80vw]' }">
-    <UCard
-      :ui="{
-        header: { base: 'flex justify-between items-center' },
-        body: { base: 'space-y-4' },
-        footer: { base: 'flex justify-end items-center' },
-      }"
-    >
-      <template #header>
-        <h2 class="font-bold font-mono">
-          {{ $t('iscn.metadata_title') }}
-        </h2>
+  <UModal :open="showOpenModal" class="min-w-[80vw]">
+    <template #content>
+      <UCard
+        :ui="{
+          header: 'flex justify-between items-center',
+          body: 'space-y-4',
+          footer: 'flex justify-end items-center',
+        }"
+      >
+        <template #header>
+          <h2 class="font-bold font-mono">
+            {{ $t('iscn.metadata_title') }}
+          </h2>
 
-        <UButton
-          color="gray"
-          variant="ghost"
-          icon="i-heroicons-x-mark-20-solid"
-          class="-my-1"
-          @click="handleClickBack"
-        />
-      </template>
-      <UProgress
-        v-if="isISCNLoading"
-        animation="carousel"
-        color="primary"
-        class="w-full"
-      />
-      <ISCNForm
-        v-else
-        ref="iscnFormRef"
-        v-model="iscnFormData"
-      />
-      <template #footer>
-        <div class="w-full flex justify-center items-center gap-2">
-          <UButton color="gray" variant="soft" @click="handleClickBack">
-            {{ $t('edit_iscn_modal.cancel') }}
-          </UButton>
           <UButton
-            color="primary"
-            :loading="isSaving"
-            @click="handleSave"
-          >
-            {{ $t('common.save') }}
-          </UButton>
-        </div>
-      </template>
-    </UCard>
+            color="neutral"
+            variant="ghost"
+            icon="i-heroicons-x-mark-20-solid"
+            class="-my-1"
+            @click="handleClickBack"
+          />
+        </template>
+        <UProgress
+          v-if="isISCNLoading"
+          animation="carousel"
+          color="primary"
+          class="w-full"
+        />
+        <ISCNForm
+          v-else
+          ref="iscnFormRef"
+          v-model="iscnFormData"
+        />
+        <template #footer>
+          <div class="w-full flex justify-center items-center gap-2">
+            <UButton color="neutral" variant="soft" @click="handleClickBack">
+              {{ $t('edit_iscn_modal.cancel') }}
+            </UButton>
+            <UButton
+              color="primary"
+              :loading="isSaving"
+              @click="handleSave"
+            >
+              {{ $t('common.save') }}
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </template>
   </UModal>
 </template>
 
@@ -209,14 +211,14 @@ async function handleSave () {
   if (!wallet.value || !signer.value) {
     toast.add({
       title: $t('auth.login_required'),
-      color: 'red'
+      color: 'error'
     })
     return
   }
   if (!isFormValid.value) {
     toast.add({
       title: formError.value.join(', '),
-      color: 'red'
+      color: 'error'
     })
     return
   }
@@ -264,7 +266,7 @@ async function handleSave () {
     if (!receipt || receipt.status !== 'success') { throw new Error('INVALID_RECEIPT') }
     toast.add({
       title: 'ISCN updated successfully',
-      color: 'blue'
+      color: 'info'
     })
     iscnFormRef.value?.resetSnapshot()
     await nftStore.fetchClassMetadataById(props.classId)
@@ -278,7 +280,7 @@ async function handleSave () {
     toast.add({
       title: 'Failed to update ISCN',
       description: (error as Error).message,
-      color: 'red'
+      color: 'error'
     })
   } finally {
     isSaving.value = false

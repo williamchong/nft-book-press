@@ -157,11 +157,8 @@ export async function downloadQRCodes (
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: `Failed to download QR codes file ${zipFilename}`,
-      timeout: 0,
-      color: 'red',
-      ui: {
-        title: 'text-red-400 dark:text-red-400'
-      }
+      duration: 0,
+      color: 'error'
     })
   }
 }

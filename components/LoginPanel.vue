@@ -12,14 +12,15 @@
       icon="i-material-symbols-mail-outline-rounded"
       size="lg"
       block
-      color="black"
+      color="neutral"
+      variant="solid"
       @click="handleConnect('magic')"
     >
       <span class="grow mr-[28px]" v-text="$t('login_panel_continue_with_email')" />
     </UButton>
 
     <template v-if="othersConnectors.length">
-      <UDivider
+      <USeparator
         class="my-4"
         :label="$t('login_panel_or_separator')"
         :ui="{ label: 'text-neutral-400' }"
@@ -32,11 +33,11 @@
           type="button"
         >
           <UButton
+            color="neutral"
             variant="soft"
-            color="black"
             size="lg"
             block
-            :ui="{ base: 'border border-neutral-300' }"
+            class="border border-neutral-300"
             @click="handleConnect(connector.id)"
           >
             <template #leading>

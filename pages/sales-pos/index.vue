@@ -4,19 +4,16 @@
     <PageBody
       :ui="{
         base: 'flex flex-col items-stretch grow space-y-4',
-        padding: 'max-md:!px-0 max-md:py-0',
+        padding: 'max-md:px-0! max-md:py-0',
       }"
     >
       <UCard
+        class="max-md:rounded-none"
         :ui="{
-          base: 'flex flex-col grow',
-          rounded: 'max-md:rounded-none',
-          header: { base: 'flex justify-between items-center gap-4' },
-          body: { base: 'grow', padding: '' },
-          footer: {
-            base: 'sticky bottom-0 bg-white dark:bg-gray-900 rounded-b-[inherit]',
-            padding: 'px-0 sm:px-0 space-y-4',
-          },
+          root: 'flex flex-col grow',
+          header: 'flex justify-between items-center gap-4',
+          body: 'grow p-0',
+          footer: 'sticky bottom-0 bg-white dark:bg-gray-900 rounded-b-[inherit] px-0 sm:px-0 space-y-4',
         }"
       >
         <template #header>
@@ -33,41 +30,48 @@
             />
           </div>
 
-          <UDropdown
+          <UDropdownMenu
             :items="dropdownMenuItems"
             :popper="{ placement: 'bottom-end' }"
           >
-            <UButton color="white" icon="i-heroicons-ellipsis-horizontal-circle" />
-          </UDropdown>
+            <UButton color="neutral" variant="outline" icon="i-heroicons-ellipsis-horizontal-circle" />
+          </UDropdownMenu>
         </template>
 
         <UTable
-          v-model="selectedSaleItemTableRows"
           :columns="saleItemTableColumns"
-          :rows="saleItemTableRows"
-          :ui="{ wrapper: 'static h-full', thead: 'sticky top-0' }"
+          :data="saleItemTableRows"
+          :ui="{ root: 'static h-full', thead: 'sticky top-0' }"
+          @select="(row: any) => {
+            const idx = selectedSaleItemTableRows.findIndex(r => r.index === row.index)
+            if (idx >= 0) {
+              selectedSaleItemTableRows.splice(idx, 1)
+            } else {
+              selectedSaleItemTableRows.push(row)
+            }
+          }"
         >
-          <template #name-data="{ row }">
+          <template #name-cell="{ row }">
             <div class="flex items-start gap-4">
               <img
-                v-if="row.image"
+                v-if="row.original.image"
                 class="w-[64px] object-contain rounded-sm"
-                :src="row.image"
+                :src="row.original.image"
                 alt="Item image"
               >
 
               <div class="flex flex-col justify-start">
-                <div class="whitespace-break-spaces" v-text="row.name" />
+                <div class="whitespace-break-spaces" v-text="row.original.name" />
 
                 <USelect
-                  v-if="!!row.classId && row.prices?.length > 1"
+                  v-if="!!row.original.classId && (row.original.prices?.length ?? 0) > 1"
                   class="mt-2"
-                  :model-value="saleItemList[row.index].priceIndex || 0"
-                  :options="row.prices?.map((price: any) => ({
+                  :model-value="saleItemList[row.original.index].priceIndex || 0"
+                  :items="row.original.prices?.map((price: any) => ({
                     label: price.name?.zh || price.name?.en || price.name,
                     value: price.index
                   }))"
-                  @update:model-value="changePriceIndex($event, row)"
+                  @update:model-value="changePriceIndex($event, row.original)"
                 />
               </div>
             </div>
@@ -80,7 +84,7 @@
           <template #delete-action-data="{ row }">
             <UButton
               icon="i-heroicons-x-mark"
-              color="red"
+              color="error"
               variant="link"
               @click="removeSaleItem(row)"
             />
@@ -92,7 +96,7 @@
             <USelect
               v-model="selectedCouponCode"
               class="grow"
-              :options="coupons.map(coupon => ({
+              :items="coupons.map(coupon => ({
                 label: coupon.name,
                 value: coupon.code
               }))"
@@ -103,27 +107,27 @@
               v-if="selectedCouponCode"
               icon="i-heroicons-x-mark-16-solid"
               size="sm"
-              color="gray"
+              color="neutral"
               variant="outline"
               @click="() => { selectedCouponCode = '' }"
             />
           </div>
 
-          <UDivider />
+          <USeparator />
 
           <UTabs
             class="w-full"
             :items="[
-              { key: 'direct', label: $t('sales_pos.direct_checkout') },
+              { value: 'direct', label: $t('sales_pos.direct_checkout') },
             ]"
             :ui="{
-              wrapper: 'px-4 sm:px-6',
-              base: 'flex flex-col space-y-4'
+              root: 'px-4 sm:px-6',
+              content: 'flex flex-col space-y-4'
             }"
           >
-            <template #item="{ item }">
-              <template v-if="item.key === 'direct'">
-                <UFormGroup :label="$t('sales_pos.checkout_url')">
+            <template #content="{ item }">
+              <template v-if="item.value === 'direct'">
+                <UFormField :label="$t('sales_pos.checkout_url')">
                   <div class="flex items-center gap-2">
                     <UInput
                       v-model="checkoutUrl"
@@ -133,11 +137,11 @@
                     <UButton
                       icon="i-heroicons-clipboard-document"
                       variant="soft"
-                      color="gray"
+                      color="neutral"
                       @click="copyCartUrl"
                     />
                   </div>
-                </UFormGroup>
+                </UFormField>
 
                 <div class="flex justify-center items-center gap-4">
                   <UButton
@@ -153,29 +157,27 @@
                     @click="generateQRCode"
                   />
                   <UModal
-                    v-model="isOpenQRCodeModal"
-                    :ui="{
-                      padding: 'p-0',
-                      rounded: 'max-sm:rounded-b-none'
-                    }"
+                    v-model:open="isOpenQRCodeModal"
                   >
-                    <QRCodeGenerator
-                      :data="checkoutUrl"
-                      mode="readonly"
-                      file-name="likerland_checkout"
-                      :width="280"
-                      :height="280"
-                    >
-                      <template #header>
-                        <h3 class="font-bold font-mono" v-text="'Scan to buy'" />
-                        <UButton
-                          icon="i-heroicons-x-mark"
-                          color="gray"
-                          variant="ghost"
-                          @click="isOpenQRCodeModal = false"
-                        />
-                      </template>
-                    </QRCodeGenerator>
+                    <template #content>
+                      <QRCodeGenerator
+                        :data="checkoutUrl"
+                        mode="readonly"
+                        file-name="likerland_checkout"
+                        :width="280"
+                        :height="280"
+                      >
+                        <template #header>
+                          <h3 class="font-bold font-mono" v-text="'Scan to buy'" />
+                          <UButton
+                            icon="i-heroicons-x-mark"
+                            color="neutral"
+                            variant="ghost"
+                            @click="isOpenQRCodeModal = false"
+                          />
+                        </template>
+                      </QRCodeGenerator>
+                    </template>
                   </UModal>
                 </div>
               </template>
@@ -185,138 +187,133 @@
       </UCard>
 
       <UModal
-        v-model="isShowAddItemModal"
-        :ui="{
-          padding: 'p-0',
-          rounded: 'max-sm:rounded-b-none',
-        }"
+        v-model:open="isShowAddItemModal"
       >
-        <UCard
-          :ui="{
-            rounded: 'max-sm:rounded-b-none',
-            header: { base: 'flex justify-between items-center gap-4' },
-            body: { base: 'space-y-4' },
-            footer: { base: 'flex justify-center items-center' }
-          }"
-        >
-          <template #header>
-            <h3 class="font-bold font-mono" v-text="'Add Item(s)'" />
-
-            <UButton
-              icon="i-heroicons-x-mark"
-              color="gray"
-              variant="link"
-              @click="toggleAddItemModal"
-            />
-          </template>
-          <UFormGroup
-            v-for="(input, index) in newProductIdInputs"
-            :key="`input-${input.id}`"
-            :label="$t('sales_pos.enter_product_id_urls')"
-            :required="true"
-            :error="input.error?.message"
+        <template #content>
+          <UCard
+            class="max-sm:rounded-b-none"
+            :ui="{
+              header: 'flex justify-between items-center gap-4',
+              body: 'space-y-4',
+              footer: 'flex justify-center items-center'
+            }"
           >
-            <div class="flex items-center gap-2">
-              <UInput
-                class="grow font-mono"
-                :model-value="input.value"
-                placeholder="https://3ook.com/store/0x...."
-                @update:model-value="handleNewItemInputUpdate(index, $event)"
-              />
+            <template #header>
+              <h3 class="font-bold font-mono" v-text="'Add Item(s)'" />
 
               <UButton
-                v-if="newProductIdInputs.length > 1"
-                icon="i-heroicons-x-circle"
+                icon="i-heroicons-x-mark"
+                color="neutral"
                 variant="link"
-                @click="deleteNewItemInput(index)"
+                @click="toggleAddItemModal"
+              />
+            </template>
+            <UFormField
+              v-for="(input, index) in newProductIdInputs"
+              :key="`input-${input.id}`"
+              :label="$t('sales_pos.enter_product_id_urls')"
+              :required="true"
+              :error="input.error?.message"
+            >
+              <div class="flex items-center gap-2">
+                <UInput
+                  class="grow font-mono"
+                  :model-value="input.value"
+                  placeholder="https://3ook.com/store/0x...."
+                  @update:model-value="handleNewItemInputUpdate(index, $event)"
+                />
+
+                <UButton
+                  v-if="newProductIdInputs.length > 1"
+                  icon="i-heroicons-x-circle"
+                  variant="link"
+                  @click="deleteNewItemInput(index)"
+                />
+              </div>
+            </UFormField>
+
+            <div class="flex justify-center gap-4">
+              <UButton
+                icon="i-heroicons-plus-circle"
+                :label="$t('sales_pos.add')"
+                variant="outline"
+                @click="addNewItemInput"
               />
             </div>
-          </UFormGroup>
 
-          <div class="flex justify-center gap-4">
-            <UButton
-              icon="i-heroicons-plus-circle"
-              :label="$t('sales_pos.add')"
-              variant="outline"
-              @click="addNewItemInput"
-            />
-          </div>
-
-          <template #footer>
-            <UButton
-              label="Confirm"
-              @click="addSaleItem"
-            />
-          </template>
-        </UCard>
+            <template #footer>
+              <UButton
+                label="Confirm"
+                @click="addSaleItem"
+              />
+            </template>
+          </UCard>
+        </template>
       </UModal>
 
       <UModal
-        v-model="isOpenNewCouponModal"
-        :ui="{
-          padding: 'p-0',
-          rounded: 'max-sm:rounded-b-none',
-        }"
+        v-model:open="isOpenNewCouponModal"
       >
-        <UCard
-          :ui="{
-            rounded: 'max-sm:rounded-b-none',
-            header: { base: 'flex justify-between items-center gap-4' },
-            body: { base: 'space-y-4' },
-            footer: { base: 'flex justify-end items-center gap-4' }
-          }"
-        >
-          <template #header>
-            <h3 class="font-bold" v-text="'Add Coupon'" />
-
-            <UButton
-              icon="i-heroicons-x-mark-16-solid"
-              color="gray"
-              size="xl"
-              :padded="false"
-              variant="link"
-              @click="isOpenNewCouponModal = false"
-            />
-          </template>
-
-          <UFormGroup
-            label="Coupon Name"
-            help="For POS Display Only"
-            :required="true"
+        <template #content>
+          <UCard
+            class="max-sm:rounded-b-none"
+            :ui="{
+              header: 'flex justify-between items-center gap-4',
+              body: 'space-y-4',
+              footer: 'flex justify-end items-center gap-4'
+            }"
           >
-            <UInput
-              v-model="newCouponNameInput"
-              placeholder="Fall Promotion"
-            />
-          </UFormGroup>
+            <template #header>
+              <h3 class="font-bold" v-text="'Add Coupon'" />
 
-          <UFormGroup
-            label="Coupon Code"
-            :required="true"
-          >
-            <UInput
-              v-model="newCouponCodeInput"
-              class="font-mono"
-              placeholder="FALLPROMO"
-            />
-          </UFormGroup>
+              <UButton
+                icon="i-heroicons-x-mark-16-solid"
+                color="neutral"
+                size="xl"
+                variant="link"
+                @click="isOpenNewCouponModal = false"
+              />
+            </template>
 
-          <template #footer>
-            <UButton
-              icon="i-heroicons-plus-circle"
-              label="Add Coupon"
-              :disabled="!newCouponNameInput || !newCouponCodeInput"
-              @click="addCouponCode"
-            />
-          </template>
-        </UCard>
+            <UFormField
+              label="Coupon Name"
+              help="For POS Display Only"
+              :required="true"
+            >
+              <UInput
+                v-model="newCouponNameInput"
+                placeholder="Fall Promotion"
+              />
+            </UFormField>
+
+            <UFormField
+              label="Coupon Code"
+              :required="true"
+            >
+              <UInput
+                v-model="newCouponCodeInput"
+                class="font-mono"
+                placeholder="FALLPROMO"
+              />
+            </UFormField>
+
+            <template #footer>
+              <UButton
+                icon="i-heroicons-plus-circle"
+                label="Add Coupon"
+                :disabled="!newCouponNameInput || !newCouponCodeInput"
+                @click="addCouponCode"
+              />
+            </template>
+          </UCard>
+        </template>
       </UModal>
     </PageBody>
   </PageContainer>
 </template>
 
 <script setup lang="ts">
-import type { DropdownItem } from '#ui/types'
+import type { DropdownMenuItem } from '#ui/types'
 const { t: $t } = useI18n()
 
 const route = useRoute()
@@ -349,22 +346,22 @@ watch(isShowAddItemModal, (value) => {
 
 const saleItemTableColumns = computed(() => {
   const columns = [
-    { key: 'name', label: $t('common.name'), class: '' }
+    { accessorKey: 'name', header: $t('common.name'), class: '' }
   ]
   if (isEditMode.value) {
-    columns.push({ key: 'delete-action', label: '', class: 'w-12' })
+    columns.push({ accessorKey: 'delete-action', header: '', class: 'w-12' })
   }
   return columns
 })
 
 const dropdownMenuItems = computed(() => {
-  const items: DropdownItem[][] = []
+  const items: DropdownMenuItem[][] = []
 
   if (saleItemTableRows.value.length) {
     items.push([{
       label: isEditMode.value ? 'Exit Edit Items' : 'Edit Items',
       icon: isEditMode.value ? 'i-heroicons-pencil-solid' : 'i-heroicons-pencil',
-      click: toggleEditMode
+      onSelect: toggleEditMode
     }])
   }
 
@@ -372,7 +369,7 @@ const dropdownMenuItems = computed(() => {
     {
       label: 'New Coupon',
       icon: 'i-heroicons-tag',
-      click: () => {
+      onSelect: () => {
         isOpenNewCouponModal.value = !isOpenNewCouponModal.value
       }
     },
@@ -380,9 +377,8 @@ const dropdownMenuItems = computed(() => {
       class: 'text-red-500',
       label: 'Clear All Coupons',
       icon: 'i-heroicons-trash',
-      iconClass: 'text-red-500',
       disabled: !coupons.value.length,
-      click: clearAllCoupons
+      onSelect: clearAllCoupons
     }
   ])
 
@@ -547,8 +543,8 @@ function addCouponCode () {
   saveSaleCoupons()
   toast.add({
     title: 'Added coupon',
-    timeout: 2000,
-    color: 'green'
+    duration: 2000,
+    color: 'success'
   })
   isOpenNewCouponModal.value = false
 }
@@ -561,8 +557,8 @@ function clearAllCoupons () {
     saveSaleCoupons()
     toast.add({
       title: 'Cleared all coupons',
-      timeout: 2000,
-      color: 'red'
+      duration: 2000,
+      color: 'error'
     })
   }
 }
@@ -576,7 +572,7 @@ function saveSaleCoupons () {
 }
 
 function copyCartUrl () {
-  toast.add({ title: 'Copied URL to clipboard', timeout: 2000 })
+  toast.add({ title: 'Copied URL to clipboard', duration: 2000 })
   navigator.clipboard.writeText(checkoutUrl.value)
 }
 

@@ -3,14 +3,12 @@
     <div class="w-full">
       <!-- Stepper Navigation -->
       <div class="justify-evenly items-center flex space-x-4 relative">
-        <div class="absolute w-full h-[1px] bg-gray-300 top-[50%] left-0 z-[-1]" />
+        <div class="absolute w-full h-px bg-gray-300 top-[50%] left-0 z-[-1]" />
         <div v-for="(s, index) in steps" :key="index" class="flex items-center space-x-2 bg-white p-2 rounded-lg">
           <UAvatar
             :size="index === step ? 'lg' : 'md'"
             :text="(index + 1).toString()"
-            :ui="{
-              background: index === step ? 'bg-primary-100' : 'bg-gray-200',
-            }"
+            :class="index === step ? 'bg-primary-100' : 'bg-gray-200'"
           />
           <p class="text-sm font-semibold">
             {{ s.title }}

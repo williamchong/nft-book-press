@@ -14,8 +14,8 @@
 
     <UCard
       :ui="{
-        header: { base: 'flex justify-between items-center' },
-        body: { padding: '' }
+        header: 'flex justify-between items-center',
+        body: 'p-0'
       }"
     >
       <template #header>
@@ -36,20 +36,20 @@
 
       <UTable
         :columns="[
-          { key: 'id', label: $t('table.id') },
-          { key: 'createdTs', label: $t('table.created') },
-          { key: 'currency', label: $t('table.currency') },
-          { key: 'amount', label: $t('table.payout_amount') },
-          { key: 'status', label: $t('table.status') },
-          { key: 'arrivalTs', label: $t('table.arrived') },
+          { accessorKey: 'id', header: $t('table.id') },
+          { accessorKey: 'createdTs', header: $t('table.created') },
+          { accessorKey: 'currency', header: $t('table.currency') },
+          { accessorKey: 'amount', header: $t('table.payout_amount') },
+          { accessorKey: 'status', header: $t('table.status') },
+          { accessorKey: 'arrivalTs', header: $t('table.arrived') },
         ]"
-        :rows="payoutDataRows"
+        :data="payoutDataRows"
         :loading="isLoading"
-        :ui="{ th: { base: 'text-center' }, td: { base: 'text-center' } }"
+        :ui="{ th: 'text-center', td: 'text-center' }"
       />
     </UCard>
 
-    <UCard :ui="{ body: { padding: '' }, header: { base: 'flex justify-between items-center' } }">
+    <UCard :ui="{ body: 'p-0', header: 'flex justify-between items-center' }">
       <template #header>
         <h3 class="text-sm font-bold font-mono">
           {{ $t('user_settings.payout_details') }}
@@ -67,50 +67,52 @@
       </template>
       <UTable
         :columns="[
-          { key: 'commissionId', label: $t('table.id') },
-          { key: 'createdTs', label: $t('table.created') },
-          { key: 'currency', label: $t('table.currency') },
-          { key: 'amount', label: $t('table.commission_amount') },
-          { key: 'description', label: $t('common.description') },
-          { key: 'status', label: $t('table.status') },
-          { key: 'metadata', label: $t('table.metadata') },
+          { accessorKey: 'commissionId', header: $t('table.id') },
+          { accessorKey: 'createdTs', header: $t('table.created') },
+          { accessorKey: 'currency', header: $t('table.currency') },
+          { accessorKey: 'amount', header: $t('table.commission_amount') },
+          { accessorKey: 'description', header: $t('common.description') },
+          { accessorKey: 'status', header: $t('table.status') },
+          { accessorKey: 'metadata', header: $t('table.metadata') },
         ]"
-        :rows="payoutItemRows"
+        :data="payoutItemRows"
         :loading="isLoading"
-        :ui="{ th: { base: 'text-center' }, td: { base: 'text-center' } }"
+        :ui="{ th: 'text-center', td: 'text-center' }"
       >
-        <template #metadata-data="{ row }">
+        <template #metadata-cell="{ row }">
           <UButton
             :label="$t('buttons.view_edit')"
-            color="gray"
-            @click="modalMetadata = row.metadata"
+            color="neutral"
+            @click="modalMetadata = row.original.metadata"
           />
         </template>
       </UTable>
     </UCard>
 
-    <UModal v-model="isModalMetadataOpen">
-      <UCard
-        :ui="{
-          header: { base: 'flex items-center justify-between gap-2' },
-          body: { base: 'overflow-auto text-sm' }
-        }"
-      >
-        <template #header>
-          <h4 class="font-mono font-bold" v-text="$t('table.metadata')" />
+    <UModal v-model:open="isModalMetadataOpen">
+      <template #content>
+        <UCard
+          :ui="{
+            header: 'flex items-center justify-between gap-2',
+            body: 'overflow-auto text-sm'
+          }"
+        >
+          <template #header>
+            <h4 class="font-mono font-bold" v-text="$t('table.metadata')" />
 
-          <UButton
-            color="gray"
-            variant="ghost"
-            icon="i-heroicons-x-mark-20-solid"
-            square
-            padded
-            @click="isModalMetadataOpen = false"
-          />
-        </template>
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-heroicons-x-mark-20-solid"
+              square
+              padded
+              @click="isModalMetadataOpen = false"
+            />
+          </template>
 
-        <pre v-text="modalMetadata" />
-      </UCard>
+          <pre v-text="modalMetadata" />
+        </UCard>
+      </template>
     </UModal>
   </PageBody>
 </template>
@@ -214,12 +216,12 @@ async function exportPayoutData () {
   const date = new Date().toISOString().split('T')[0]
 
   const columns = [
-    { key: 'id', label: $t('table.id') },
-    { key: 'createdTs', label: $t('table.created') },
-    { key: 'amount', label: $t('table.payout_amount') },
-    { key: 'currency', label: $t('table.currency') },
-    { key: 'status', label: $t('table.status') },
-    { key: 'arrivalTs', label: $t('table.arrived') }
+    { accessorKey: 'id', header: $t('table.id') },
+    { accessorKey: 'createdTs', header: $t('table.created') },
+    { accessorKey: 'amount', header: $t('table.payout_amount') },
+    { accessorKey: 'currency', header: $t('table.currency') },
+    { accessorKey: 'status', header: $t('table.status') },
+    { accessorKey: 'arrivalTs', header: $t('table.arrived') }
   ]
 
   const { id, createdTs, amount, currency, status, arrivalTs } = payoutData.value
@@ -241,13 +243,13 @@ async function exportPayoutItems () {
   const date = new Date().toISOString().split('T')[0]
 
   const columns = [
-    { key: 'commissionId', label: $t('table.id') },
-    { key: 'createdTs', label: $t('table.created') },
-    { key: 'amount', label: $t('table.commission_amount') },
-    { key: 'currency', label: $t('table.currency') },
-    { key: 'description', label: $t('common.description') },
-    { key: 'status', label: $t('table.status') },
-    { key: 'metadata', label: $t('table.metadata') }
+    { accessorKey: 'commissionId', header: $t('table.id') },
+    { accessorKey: 'createdTs', header: $t('table.created') },
+    { accessorKey: 'amount', header: $t('table.commission_amount') },
+    { accessorKey: 'currency', header: $t('table.currency') },
+    { accessorKey: 'description', header: $t('common.description') },
+    { accessorKey: 'status', header: $t('table.status') },
+    { accessorKey: 'metadata', header: $t('table.metadata') }
   ]
 
   const data = payoutItemDetails.value.map((row: any) => ({

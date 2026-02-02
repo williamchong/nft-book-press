@@ -80,11 +80,8 @@ export function useAuth () {
             toast.add({
               icon: 'i-heroicons-exclamation-circle',
               title: (error as Error).toString(),
-              timeout: 10000,
-              color: 'red',
-              ui: {
-                title: 'text-red-400 dark:text-red-400'
-              }
+              duration: 10000,
+              color: 'error'
             })
           }
         }
@@ -119,11 +116,8 @@ export function useAuth () {
       toast.add({
         icon: 'i-heroicons-exclamation-circle',
         title: (err as Error).toString(),
-        timeout: 0,
-        color: 'red',
-        ui: {
-          title: 'text-red-400 dark:text-red-400'
-        }
+        duration: 0,
+        color: 'error'
       })
     } finally {
       isAuthenticating.value = false

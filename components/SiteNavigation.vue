@@ -6,9 +6,9 @@
         v-if="isTestnet"
         :label="$t('app.testnet')"
         variant="subtle"
-        color="amber"
+        color="warning"
         size="xs"
-        :ui="{ rounded: 'rounded-full', font: 'font-mono' }"
+        class="rounded-full font-mono"
       />
     </SiteHeaderBase>
     <div class="flex flex-col gap-4 grow w-full p-3 overflow-y-auto">

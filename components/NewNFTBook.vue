@@ -3,14 +3,13 @@
     <UAlert
       v-if="error"
       icon="i-heroicons-exclamation-triangle"
-      color="red"
+      color="error"
       variant="soft"
       :title="`${error}`"
-      :close-button="{
+      :close="{
         icon: 'i-heroicons-x-mark-20-solid',
-        color: 'red',
-        variant: 'link',
-        padded: false,
+        color: 'error',
+        variant: 'link'
       }"
       @close="error = ''"
     />
@@ -21,8 +20,8 @@
       >
         <UCard
           :ui="{
-            body: { base: 'space-y-5 relative' },
-            base: 'overflow-visible border-none !border-transparent',
+            root: 'overflow-visible border-none border-transparent!',
+            body: 'space-y-5 relative',
           }"
         >
           <li
@@ -31,10 +30,8 @@
           >
             <UCard
               :ui="{
-                body: {
-                  base: 'flex flex-col gap-[20px]',
-                },
-                base: 'overflow-visible border-[4px]'
+                root: 'overflow-visible border-4',
+                body: 'flex flex-col gap-[20px]'
               }"
             >
               <template #header>
@@ -45,21 +42,21 @@
                   />
                   <div class="flex items-center gap-2">
                     <p class="text-sm" v-text="$t('nft_book_form.pause_selling')" />
-                    <UToggle v-model="p.isListed" />
+                    <USwitch v-model="p.isListed" />
                     <p class="text-sm" v-text="$t('nft_book_form.selling')" />
                   </div>
                 </div>
               </template>
-              <UFormGroup
+              <UFormField
                 :label="$t('nft_book_form.unit_price_label')"
               >
                 <USelectMenu
                   v-model="p.price"
-                  :options="USD_PRICING_OPTIONS"
-                  value-attribute="value"
+                  :items="USD_PRICING_OPTIONS"
+                  value-key="value"
                 />
-              </UFormGroup>
-              <UFormGroup
+              </UFormField>
+              <UFormField
                 :label="$t('nft_book_form.copies_label')"
               >
                 <div class="flex flex-col gap-2">
@@ -98,7 +95,7 @@
                     </div>
 
                     <div class="space-y-3">
-                      <UFormGroup :label="$t('nft_book_form.stock')">
+                      <UFormField :label="$t('nft_book_form.stock')">
                         <UInput
                           v-model="p.stock"
                           type="number"
@@ -107,15 +104,15 @@
                           :max="maxSupply"
                           placeholder="100"
                         />
-                      </UFormGroup>
+                      </UFormField>
                     </div>
                   </div>
                 </div>
-              </UFormGroup>
+              </UFormField>
 
-              <UFormGroup :label="$t('nft_book_form.enable_custom_message_page')">
+              <UFormField :label="$t('nft_book_form.enable_custom_message_page')">
                 <div class="space-y-3 w-full">
-                  <UFormGroup
+                  <UFormField
                     :label="$t('nft_book_form.auto_delivery_memo')"
                   >
                     <UInput
@@ -123,9 +120,9 @@
                       :placeholder="$t('nft_book_form.memo_placeholder')"
                       :disabled="p.deliveryMethod === 'manual'"
                     />
-                  </UFormGroup>
+                  </UFormField>
 
-                  <UFormGroup :ui="{ label: { base: 'w-full flex justify-between items-center'} }">
+                  <UFormField :ui="{ label: 'w-full flex justify-between items-center' }">
                     <template #label>
                       <p class="block" v-text="$t('nft_book_form.autograph_image')" />
                       <span
@@ -150,11 +147,11 @@
                       class="mt-2 text-sm text-gray-500"
                       v-text="$t('nft_book_form.autograph_image_uploaded')"
                     />
-                  </UFormGroup>
+                  </UFormField>
                 </div>
-              </UFormGroup>
+              </UFormField>
 
-              <UFormGroup :ui="{ container: 'space-y-2' }">
+              <UFormField :ui="{ container: 'space-y-2' }">
                 <template #label>
                   {{ $t('nft_book_form.product_name') }}
                   <ToolTips :image-style="{ width: '250px' }">
@@ -185,14 +182,14 @@
                   :sanitize="sanitizeHtml"
                   :style="{ height: '200px', width: '100%', marginTop: '0px' }"
                 />
-              </UFormGroup>
+              </UFormField>
             </UCard>
 
             <div class="flex justify-center items-center mt-2">
               <UButton
                 v-if="hasMultiplePrices"
                 :label="$t('common.delete')"
-                color="gray"
+                color="neutral"
                 leading-icon="i-heroicons-trash"
                 @click="deletePrice(index)"
               />
@@ -203,8 +200,8 @@
       <div class="flex justify-center items-center">
         <UButton
           v-if="props.isNewClassPage && prices.length < 2"
-          :ui="{ rounded: 'rounded-full' }"
-          color="gray"
+          class="rounded-full"
+          color="neutral"
           icon="i-heroicons-plus-solid"
           :label="$t('nft_book_form.add_edition')"
           @click="addMorePrice"
@@ -214,14 +211,14 @@
       <!-- Advanced settings -->
       <UCard
         :ui="{
-          header: { base: 'flex justify-between items-center' },
-          body: { padding: '12px', base: 'space-y-4' },
+          header: 'flex justify-between items-center',
+          body: 'p-3 space-y-4',
         }"
       >
         <div class="flex justify-between items-center w-full">
           <h3 class="font-bold font-mono" v-text="$t('nft_book_form.settings')" />
           <UButton
-            color="gray"
+            color="neutral"
             variant="ghost"
             :icon="
               shouldShowAdvanceSettings
@@ -237,7 +234,7 @@
         </div>
         <template v-if="shouldShowAdvanceSettings">
           <div class="mt-[24px] flex flex-col gap-[12px]">
-            <UFormGroup class="flex items-center">
+            <UFormField class="flex items-center">
               <UTooltip class="flex items-center gap-2" :text="$t('nft_book_form.accept_tipping_tooltip')">
                 <UCheckbox
                   v-model="isAllowCustomPrice"
@@ -247,10 +244,10 @@
 
                 <UIcon name="i-heroicons-question-mark-circle" />
               </UTooltip>
-            </UFormGroup>
+            </UFormField>
 
             <!-- Stripe connect list -->
-            <UFormGroup :label="$t('nft_book_form.stripe_connect_wallets')">
+            <UFormField :label="$t('nft_book_form.stripe_connect_wallets')">
               <div
                 v-for="(stripeWallet) in stripeConnectWallets"
                 :key="stripeWallet"
@@ -262,7 +259,7 @@
                   <UBadge
                     v-if="stripeWallet === sessionWallet"
                     variant="soft"
-                    color="green"
+                    color="success"
                     size="xs"
                   >
                     {{ $t('nft_book_form.current_wallet') }}
@@ -276,21 +273,21 @@
                 {{ $t('nft_book_form.no_wallets') }}
                 <UButton
                   variant="outline"
-                  color="red"
+                  color="error"
                   size="xs"
                   :label="$t('nft_book_form.connect_wallet')"
                   @click="navigateToSettings"
                 />
               </div>
-            </UFormGroup>
+            </UFormField>
 
-            <UFormGroup v-if="props.isNewClassPage" :label="$t('form.table_of_content')">
+            <UFormField v-if="props.isNewClassPage" :label="$t('form.table_of_content')">
               <UTextarea
                 v-model="tableOfContents"
                 :rows="8"
                 placeholder="- Chapter 1&#10;- Chapter 2&#10;  - Section 2.1"
               />
-            </UFormGroup>
+            </UFormField>
           </div>
         </template>
       </UCard>
@@ -307,19 +304,21 @@
     </template>
 
     <UModal
-      :model-value="!!isLoading"
-      :prevent-close="true"
-      :ui="{ base: 'p-4 gap-2' }"
+      :open="!!isLoading"
+      :dismissible="false"
+      class="p-4 gap-2"
     >
-      <div class="space-y-3">
-        <div class="flex justify-between items-center">
-          <UBadge variant="soft">
-            {{ $t('common.loading') }}
-          </UBadge>
-          <p class="text-xs text-gray-500" v-text="$t('nft_book_form.loading_progress_text')" />
+      <template #content>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <UBadge variant="soft">
+              {{ $t('common.loading') }}
+            </UBadge>
+            <p class="text-xs text-gray-500" v-text="$t('nft_book_form.loading_progress_text')" />
+          </div>
+          <UProgress animation="carousel" color="primary" class="w-full" />
         </div>
-        <UProgress animation="carousel" color="primary" class="w-full" />
-      </div>
+      </template>
     </UModal>
   </div>
 </template>
@@ -665,13 +664,13 @@ function validate (prices: any[]) {
   prices.forEach((price: any) => {
     if (price.price !== 0 && price.price < MINIMAL_PRICE) {
       errors.push({
-        path: 'price',
+        name: 'price',
         message: $t('errors.price_validation', { minPrice: MINIMAL_PRICE })
       })
     }
     if (!price.name.en || !price.name.zh) {
       errors.push({
-        path: 'name',
+        name: 'name',
         message: $t('errors.product_name_required')
       })
     }

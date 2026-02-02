@@ -1,29 +1,31 @@
 <template>
   <UModal
-    :model-value="true"
-    :ui="{ width: 'sm:max-w-7xl', padding: 'p-4 sm:p-8' }"
+    :open="true"
+    class="sm:max-w-7xl p-4 sm:p-8"
   >
-    <UCard
-      :ui="{ body: { base: 'space-y-4 sm:p-8' } }"
-    >
-      <template #header>
-        <div class="flex justify-end">
-          <UButton
-            color="gray"
-            variant="ghost"
-            icon="i-heroicons-x-mark-20-solid"
-            @click="handleClickBack"
-          />
-        </div>
-      </template>
+    <template #content>
+      <UCard
+        :ui="{ body: 'space-y-4 sm:p-8' }"
+      >
+        <template #header>
+          <div class="flex justify-end">
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-heroicons-x-mark-20-solid"
+              @click="handleClickBack"
+            />
+          </div>
+        </template>
 
-      <NewNFTBook
-        class="flex flex-col gap-4"
-        :class-id="classId"
-        :edition-index="newEditionIndex"
-        @submit="handleNewBookSubmit"
-      />
-    </UCard>
+        <NewNFTBook
+          class="flex flex-col gap-4"
+          :class-id="classId"
+          :edition-index="newEditionIndex"
+          @submit="handleNewBookSubmit"
+        />
+      </UCard>
+    </template>
   </UModal>
 </template>
 
@@ -53,11 +55,8 @@ async function handleNewBookSubmit () {
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: errorData,
-      timeout: 0,
-      color: 'red',
-      ui: {
-        title: 'text-red-400 dark:text-red-400'
-      }
+      duration: 0,
+      color: 'error'
     })
   } finally {
     isLoading.value = false

@@ -7,11 +7,11 @@
     <UAlert
       v-if="error.message"
       icon="i-heroicons-exclamation-triangle"
-      color="red"
+      color="error"
       variant="soft"
       :title="`${error.message}`"
       :actions="error.actions"
-      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      :close="{ icon: 'i-heroicons-x-mark-20-solid', color: 'error', variant: 'link' }"
       @close="error = { message: '', actions: [] }"
     />
 
@@ -24,11 +24,11 @@
     <UCard
       v-if="bookstoreApiStore.isAuthenticated"
       :ui="{
-        body: { base: 'space-y-6' },
-        footer: { base: 'flex justify-center gap-2' }
+        body: 'space-y-6',
+        footer: 'flex justify-center gap-2'
       }"
     >
-      <UCard :ui="{ body: { padding: '' } }">
+      <UCard :ui="{ body: 'p-0' }">
         <table class="divide-y w-full">
           <tbody>
             <tr>
@@ -97,7 +97,7 @@
           <p v-text="orderInfo.message" />
         </div>
 
-        <UFormGroup
+        <UFormField
           :label="$t('nft_book_form.author_message')"
           :error="isLimitReached"
           :hint="`${messageCharCount} / ${AUTHOR_MESSAGE_LIMIT}`"
@@ -105,10 +105,10 @@
           <UTextarea
             v-model="memo"
           />
-        </UFormGroup>
+        </UFormField>
       </UCard>
 
-      <UFormGroup
+      <UFormField
         :label="$t('form.nft_id_label')"
         class="mb-4"
         :error="nftIdError"
@@ -117,7 +117,7 @@
         <div class="flex flex-wrap items-center justify-center gap-2 w-full">
           <div
             v-if="orderInfo.quantity"
-            :class="[orderInfo.quantity > 1 ? 'w-full' : 'flex-grow', 'space-y-1', 'relative']"
+            :class="[orderInfo.quantity > 1 ? 'w-full' : 'grow', 'space-y-1', 'relative']"
           >
             <UInput
               v-for="i in orderInfo.quantity"
@@ -143,9 +143,9 @@
             color="primary"
             @click="handleConfirmNFTId"
           />
-          <UDivider v-if="isSingleQuantity" :class="['text-sm text-gray-600', 'sm:w-min']">
+          <USeparator v-if="isSingleQuantity" :class="['text-sm text-gray-600', 'sm:w-min']">
             OR
-          </UDivider>
+          </USeparator>
           <UButton
             v-if="isSingleQuantity"
             :label="$t('button.check_all_nft_ids')"
@@ -154,7 +154,7 @@
             @click="onCheckOwnedIds"
           />
         </div>
-      </UFormGroup>
+      </UFormField>
 
       <PlaceholderCard class="h-[300px]">
         <img
@@ -174,12 +174,14 @@
         />
       </template>
     </UCard>
-    <UModal v-model="showRestockModal">
-      <LiteMintNFT
-        :is-restock="true"
-        :iscn-id="classId"
-        @submit="handleFinishRestock"
-      />
+    <UModal v-model:open="showRestockModal">
+      <template #content>
+        <LiteMintNFT
+          :is-restock="true"
+          :iscn-id="classId"
+          @submit="handleFinishRestock"
+        />
+      </template>
     </UModal>
   </PageBody>
 </template>
@@ -377,7 +379,7 @@ async function fetchNextNFTId (_count = 1) {
         {
           label: $t('button.restock_nft'),
           variant: 'outline',
-          color: 'red',
+          color: 'error',
           click: () => {
             showRestockModal.value = true
           }

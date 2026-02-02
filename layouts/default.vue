@@ -14,18 +14,20 @@
     <UButton
       icon="i-heroicons-bars-3-16-solid"
       size="xl"
-      color="gray"
+      color="neutral"
       variant="link"
       class="fixed top-[12px] left-1 z-50 lg:hidden"
       @click="isSlideoverOpen = true"
     />
 
     <USlideover
-      v-model="isSlideoverOpen"
+      v-model:open="isSlideoverOpen"
       side="left"
-      :ui="{ width: 'w-full max-w-[180px]'}"
+      class="w-full max-w-[180px]"
     >
-      <SiteNavigation class="h-full" />
+      <template #content>
+        <SiteNavigation class="h-full" />
+      </template>
     </USlideover>
 
     <AuthRequiredView>

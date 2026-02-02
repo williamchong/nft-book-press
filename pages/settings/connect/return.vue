@@ -1,65 +1,67 @@
 <template>
-  <UModal :model-value="true">
-    <!-- Loading -->
-    <UCard v-if="isLoading">
-      <template #header>
-        <h2 class="text-sm font-bold font-mono">
-          Refreshing Stripe Connect Payout Account Status
-        </h2>
-      </template>
-
-      <UProgress animation="carousel">
-        <template #indicator>
-          Refreshing...
+  <UModal :open="true">
+    <template #content>
+      <!-- Loading -->
+      <UCard v-if="isLoading">
+        <template #header>
+          <h2 class="text-sm font-bold font-mono">
+            Refreshing Stripe Connect Payout Account Status
+          </h2>
         </template>
-      </UProgress>
-    </UCard>
 
-    <!-- Success case -->
-    <UCard v-else-if="isDone && !error">
-      <template #header>
-        <h2 class="text-sm font-bold font-mono">
-          Stripe Connect Account Status Refreshed
-        </h2>
-      </template>
+        <UProgress animation="carousel">
+          <template #indicator>
+            Refreshing...
+          </template>
+        </UProgress>
+      </UCard>
 
-      <UProgress :value="100">
-        <template #indicator>
-          Refreshed! Redirect back in 3 seconds...
+      <!-- Success case -->
+      <UCard v-else-if="isDone && !error">
+        <template #header>
+          <h2 class="text-sm font-bold font-mono">
+            Stripe Connect Account Status Refreshed
+          </h2>
         </template>
-      </UProgress>
-    </UCard>
 
-    <!-- Error case -->
-    <UCard
-      v-else
-      :ui="{
-        body: { base: 'space-y-4' },
-        footer: { base: 'text-center' }
-      }"
-    >
-      <template #header>
-        <h2 class="text-sm font-bold font-mono">
-          An error occurred when refreshing the Stripe Connect Account Status
-        </h2>
-      </template>
+        <UProgress :value="100">
+          <template #indicator>
+            Refreshed! Redirect back in 3 seconds...
+          </template>
+        </UProgress>
+      </UCard>
 
-      <UProgress :value="100" color="red" />
+      <!-- Error case -->
+      <UCard
+        v-else
+        :ui="{
+          body: 'space-y-4',
+          footer: 'text-center'
+        }"
+      >
+        <template #header>
+          <h2 class="text-sm font-bold font-mono">
+            An error occurred when refreshing the Stripe Connect Account Status
+          </h2>
+        </template>
 
-      <UAlert
-        icon="i-heroicons-exclamation-triangle"
-        color="red"
-        variant="soft"
-        :title="error || 'Unknown error'"
-      />
+        <UProgress :value="100" color="error" />
 
-      <template #footer>
-        <UButton
-          label="Go Back"
-          :to="localeRoute({ name: 'settings' })"
+        <UAlert
+          icon="i-heroicons-exclamation-triangle"
+          color="error"
+          variant="soft"
+          :title="error || 'Unknown error'"
         />
-      </template>
-    </UCard>
+
+        <template #footer>
+          <UButton
+            label="Go Back"
+            :to="localeRoute({ name: 'settings' })"
+          />
+        </template>
+      </UCard>
+    </template>
   </UModal>
 </template>
 

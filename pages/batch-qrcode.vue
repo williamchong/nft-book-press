@@ -4,14 +4,14 @@
       {{ $t('batch_qrcode.page_title') }}
     </h1>
 
-    <UFormGroup
+    <UFormField
       :label="$t('batch_qrcode.upload_csv')"
       class="print:hidden"
     >
       <UInput type="file" accept="csv" @change="handleFileChange" />
-    </UFormGroup>
-    <UDivider class="print:hidden" :label="$t('batch_qrcode.or_divider')" />
-    <UFormGroup
+    </UFormField>
+    <USeparator class="print:hidden" :label="$t('batch_qrcode.or_divider')" />
+    <UFormField
       class="print:hidden"
       :label="$t('batch_qrcode.input_csv')"
     >
@@ -21,7 +21,7 @@
         :placeholder="csvInputPlaceholder"
         :resize="true"
       />
-    </UFormGroup>
+    </UFormField>
 
     <div class="print:hidden flex justify-center">
       <UButton
@@ -31,29 +31,31 @@
       />
     </div>
 
-    <UModal v-model="isEditingQRCodeConfig">
-      <QRCodeGenerator
-        v-model:icon="selectedQRCodeIcon"
-        v-model:color="selectedQRCodeColor"
-        v-model:dot-style="selectedQRCodeDotStyle"
-        :data="`${BOOK3_URL}/store`"
-        :width="500"
-        :height="500"
-        mode="config"
-        @save="isEditingQRCodeConfig = false"
-      >
-        <template #header>
-          <h3 class="font-bold font-mono">
-            {{ $t('batch_qrcode.qr_config') }}
-          </h3>
-          <UButton
-            icon="i-heroicons-x-mark"
-            color="gray"
-            variant="ghost"
-            @click="isEditingQRCodeConfig = false"
-          />
-        </template>
-      </QRCodeGenerator>
+    <UModal v-model:open="isEditingQRCodeConfig">
+      <template #content>
+        <QRCodeGenerator
+          v-model:icon="selectedQRCodeIcon"
+          v-model:color="selectedQRCodeColor"
+          v-model:dot-style="selectedQRCodeDotStyle"
+          :data="`${BOOK3_URL}/store`"
+          :width="500"
+          :height="500"
+          mode="config"
+          @save="isEditingQRCodeConfig = false"
+        >
+          <template #header>
+            <h3 class="font-bold font-mono">
+              {{ $t('batch_qrcode.qr_config') }}
+            </h3>
+            <UButton
+              icon="i-heroicons-x-mark"
+              color="neutral"
+              variant="ghost"
+              @click="isEditingQRCodeConfig = false"
+            />
+          </template>
+        </QRCodeGenerator>
+      </template>
     </UModal>
 
     <nav class="flex justify-center items-center gap-2 print:hidden">
@@ -192,11 +194,8 @@ async function drawQRCodes () {
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: $t('batch_qrcode.parse_csv_error'),
-      timeout: 0,
-      color: 'red',
-      ui: {
-        title: 'text-red-400 dark:text-red-400'
-      }
+      duration: 0,
+      color: 'error'
     })
   }
 
@@ -218,7 +217,8 @@ async function drawQRCodes () {
   })
 }
 
-function handleFileChange (files: FileList) {
+function handleFileChange (event: Event) {
+  const files = (event.target as HTMLInputElement)?.files
   if (!files?.length) { return }
   const file = files[0]
   if (!file) { return }

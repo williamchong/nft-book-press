@@ -43,7 +43,7 @@ export function downloadBlob (content: string, filename: string, contentType: st
  */
 export async function downloadCSV (
   data: Record<string, any>[],
-  columns: { key: string; label: string }[],
+  columns: { accessorKey: string; header: string }[],
   filename: string
 ) {
   if (data.length === 0) {
@@ -54,12 +54,12 @@ export async function downloadCSV (
 
   // Map data to columns and use csv-stringify for proper escaping
   const rows = data.map(row =>
-    columns.map(col => row[col.key] ?? '')
+    columns.map(col => row[col.accessorKey] ?? '')
   )
 
   const csvContent = csvStringify(rows, {
     header: true,
-    columns: columns.map(col => col.label)
+    columns: columns.map(col => col.header)
   })
 
   // Add BOM for Excel compatibility with Chinese characters
@@ -213,13 +213,13 @@ export function copyToClipboard (text: string): void {
     toast.add({
       icon: 'i-heroicons-clipboard',
       title: 'Copied to clipboard',
-      timeout: 3000
+      duration: 3000
     })
   }).catch(() => {
     toast.add({
       icon: 'i-heroicons-warning',
       title: 'Failed to copy',
-      timeout: 3000
+      duration: 3000
     })
   })
 }

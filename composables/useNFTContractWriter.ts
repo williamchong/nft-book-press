@@ -21,12 +21,12 @@ export const useNFTContractWriter = () => {
         currentBalance: currentBalanceFormatted,
         neededBalance: neededBalanceFormatted
       }),
-      timeout: 0,
-      color: 'orange',
+      duration: 0,
+      color: 'warning',
       actions: [
         {
           label: $t('errors.contact_support'),
-          click: () => {
+          onClick: () => {
             if (window.Intercom) {
               window.Intercom('showNewMessage', $t('errors.insufficient_gas_fee_support_message', {
                 walletAddress,

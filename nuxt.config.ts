@@ -174,14 +174,6 @@ exports.randomFillSync = randomFillSync`
     layoutTransition: { name: 'page', mode: 'out-in' }
   },
 
-  colorMode: {
-    preference: 'light'
-  },
-
-  tailwindcss: {
-    cssPath: '~/assets/css/tailwind.css'
-  },
-
   future: {
     compatibilityVersion: 4
   },

@@ -2,7 +2,7 @@
   <div class="flex items-center justify-center grow min-h-svh p-5 laptop:p-12 bg-[#f9f9f9]">
     <UCard
       class="overflow-hidden ring-[#131313] ring-2"
-      :ui="{ header: { base: 'bg-[#131313]' } }"
+      :ui="{ header: 'bg-[#131313]' }"
     >
       <template #header>
         <img
