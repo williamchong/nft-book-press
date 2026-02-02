@@ -325,7 +325,6 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import { MdEditor, config, type ToolbarNames } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 
@@ -338,10 +337,6 @@ import {
   DEFAULT_MAX_SUPPLY,
   MINIMAL_PRICE
 } from '~/constant'
-import { useBookstoreApiStore } from '~/stores/book-store-api'
-import { useStripeStore } from '~/stores/stripe'
-import { useNftStore } from '~/stores/nft'
-import { escapeHtml, sanitizeHtml } from '~/utils/newClass'
 import { getApiEndpoints } from '~/constant/api'
 import { getUploadFileData } from '~/utils/uploadFile'
 const { t: $t } = useI18n()
