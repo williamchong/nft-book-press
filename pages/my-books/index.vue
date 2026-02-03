@@ -38,7 +38,7 @@
                 <div class="flex gap-2 items-center">
                   <UPagination
                     v-model:page="tablePage"
-                    :page-count="tableRowsPerPage"
+                    :items-per-page="tableRowsPerPage"
                     :total="tableRows.length"
                   />
                   <span class="text-sm leading-5">
@@ -142,20 +142,11 @@ const tabItems = computed(() => [
   { label: $t('bookstore.viewable_listing'), value: 'viewable' }
 ])
 
-const selectedTabItemIndex = computed({
-  get () {
-    const index = tabItems.value.findIndex(item => item.value === route.query.tab)
-    if (index === -1) {
-      return 0
-    }
+const selectedTabItemIndex = ref(route.query.tab as string || 'current')
 
-    return index
-  },
-  set (value) {
-    const item = tabItems.value[value]
-    if (item) {
-      navigateTo(localeRoute({ query: { tab: item.value } }), { replace: true })
-    }
+watch(selectedTabItemIndex, (value) => {
+  if (value) {
+    navigateTo(localeRoute({ query: { tab: value } }), { replace: true })
   }
 })
 
@@ -175,7 +166,7 @@ const tablePageRowFrom = computed(() => (tablePage.value - 1) * tableRowsPerPage
 const tablePageRowTo = computed(() => Math.min(tablePage.value * tableRowsPerPage.value, tableRows.value.length))
 
 // Rows
-const tableRows = computed(() => (tabItems.value[selectedTabItemIndex.value]?.value === 'viewable' ? moderatedBookList : bookList).value.map(b => ({
+const tableRows = computed(() => (selectedTabItemIndex.value === 'viewable' ? moderatedBookList : bookList).value.map(b => ({
   classId: b.classId,
   className: nftStore.getClassMetadataById(b.classId)?.name,
   priceInUSD: b.prices?.[0].price,
@@ -185,12 +176,12 @@ const tableRows = computed(() => (tabItems.value[selectedTabItemIndex.value]?.va
 })).filter((b) => {
   if (!searchInput.value) { return true }
   const normalizedSearchInput = searchInput.value.toLowerCase()
-  return b.classId.toLowerCase().includes(normalizedSearchInput) || b.className.toLowerCase().includes(normalizedSearchInput)
+  return b.classId.toLowerCase().includes(normalizedSearchInput) || b.className?.toLowerCase().includes(normalizedSearchInput)
 }))
 
 const sortedTableRows = computed(() => {
   const { column, direction } = sort.value
-  return tableRows.value.sort((a: any, b: any) => {
+  return [...tableRows.value].sort((a: any, b: any) => {
     if (a[column] < b[column]) {
       return direction === 'asc' ? -1 : 1
     }
@@ -226,7 +217,7 @@ const tableColumns = computed(() => [
   {
     accessorKey: 'classId',
     header: $t('bookstore.class_id'),
-    class: 'font-mono'
+    meta: { class: { td: 'font-mono' } }
   }
 ])
 
@@ -261,7 +252,7 @@ onMounted(async () => {
 async function selectTableRow (row: any) {
   await navigateTo(localeRoute({
     name: 'my-books-status-classId',
-    params: { classId: row.classId }
+    params: { classId: row.original.classId }
   }))
 }
 </script>

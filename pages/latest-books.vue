@@ -83,7 +83,7 @@ const error = ref('')
 const isStripeConnectReady = ref(false)
 const latestBookList = ref([])
 const bestSellerBookList = ref([] as any[])
-const selectedTabItemIndex = ref(0)
+const selectedTabItemIndex = ref('latest')
 const q = ref(route.query.q as string || '')
 
 const channelId = computed(() => {
@@ -116,7 +116,7 @@ const tableColumns = computed(() => [
     header: isAffiliationReady.value ? $t('latest_books.affiliation_link') : $t('common.link')
   }
 ])
-const selectedTabItemKey = computed(() => tabItems.value[selectedTabItemIndex.value]?.value || 'latest')
+const selectedTabItemKey = computed(() => selectedTabItemIndex.value || 'latest')
 const bookList = computed(() => selectedTabItemKey.value === 'latest' ? latestBookList.value : bestSellerBookList.value)
 const tableRows = computed(() => bookList.value.map((b: any) => {
   const className = b.name || b.title
