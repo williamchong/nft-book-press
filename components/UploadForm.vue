@@ -88,7 +88,7 @@
       :dismissible="false"
       class="p-4 gap-2"
     >
-      <template #content>
+      <template #body>
         <div class="space-y-3">
           <div class="flex justify-between items-center">
             <UBadge variant="soft">
@@ -107,8 +107,8 @@
       </template>
     </UModal>
     <UModal v-model:open="showValidationWarning">
-      <template #content>
-        <UCard :ui="{ body: 'flex items-start gap-3', footer: 'flex justify-end gap-2' }">
+      <template #body>
+        <div class="flex items-start gap-3 p-4">
           <UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-yellow-500 shrink-0 mt-0.5" />
           <div class="space-y-2">
             <h3 class="font-semibold text-gray-900">
@@ -130,63 +130,63 @@
               {{ $t('upload_form.help_link') }}
             </a>
           </div>
-          <template #footer>
-            <UButton
-              variant="outline"
-              color="neutral"
-              @click="showValidationWarning = false; pendingSubmitAfterConfirm = false"
-            >
-              {{ $t('upload_form.fix_files') }}
-            </UButton>
-            <UButton
-              v-if="canProceedAnyway"
-              color="warning"
-              @click="confirmProceedAnyway"
-            >
-              {{ $t('upload_form.proceed_anyway') }}
-            </UButton>
-          </template>
-        </UCard>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <UButton
+            variant="outline"
+            color="neutral"
+            @click="showValidationWarning = false; pendingSubmitAfterConfirm = false"
+          >
+            {{ $t('upload_form.fix_files') }}
+          </UButton>
+          <UButton
+            v-if="canProceedAnyway"
+            color="warning"
+            @click="confirmProceedAnyway"
+          >
+            {{ $t('upload_form.proceed_anyway') }}
+          </UButton>
+        </div>
       </template>
     </UModal>
     <UModal v-model:open="showEpubValidationModal">
-      <template #content>
-        <UCard :ui="{ body: 'space-y-2', footer: 'flex justify-end gap-2' }">
-          <template #header>
-            <div class="flex items-center gap-3">
-              <UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-yellow-500 shrink-0" />
-              <h3 class="font-semibold text-gray-900">
-                {{ $t('upload_form.epub_validation_title') }}
-              </h3>
-            </div>
-            <p class="text-sm text-gray-500 mt-2">
-              {{ $t('upload_form.epub_validation_notice') }}
+      <template #header>
+        <div class="flex items-center gap-3">
+          <UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-yellow-500 shrink-0" />
+          <h3 class="font-semibold text-gray-900">
+            {{ $t('upload_form.epub_validation_title') }}
+          </h3>
+        </div>
+        <p class="text-sm text-gray-500 mt-2">
+          {{ $t('upload_form.epub_validation_notice') }}
+        </p>
+      </template>
+      <template #body>
+        <div class="max-h-[300px] overflow-y-auto space-y-2 text-sm">
+          <div v-if="epubValidationErrors" class="text-red-600">
+            <p class="font-semibold mb-1">
+              {{ $t('upload_form.epub_validation_errors') }}:
             </p>
-          </template>
-          <div class="max-h-[300px] overflow-y-auto space-y-2 text-sm">
-            <div v-if="epubValidationErrors" class="text-red-600">
-              <p class="font-semibold mb-1">
-                {{ $t('upload_form.epub_validation_errors') }}:
-              </p>
-              <pre class="whitespace-pre-wrap text-xs">{{ epubValidationErrors }}</pre>
-            </div>
-            <div v-if="epubValidationWarnings" class="text-yellow-600">
-              <p class="font-semibold mb-1">
-                {{ $t('upload_form.epub_validation_warnings') }}:
-              </p>
-              <pre class="whitespace-pre-wrap text-xs">{{ epubValidationWarnings }}</pre>
-            </div>
+            <pre class="whitespace-pre-wrap text-xs">{{ epubValidationErrors }}</pre>
           </div>
-          <template #footer>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              @click="showEpubValidationModal = false"
-            >
-              {{ $t('auth_state.close') }}
-            </UButton>
-          </template>
-        </UCard>
+          <div v-if="epubValidationWarnings" class="text-yellow-600">
+            <p class="font-semibold mb-1">
+              {{ $t('upload_form.epub_validation_warnings') }}:
+            </p>
+            <pre class="whitespace-pre-wrap text-xs">{{ epubValidationWarnings }}</pre>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          @click="showEpubValidationModal = false"
+        >
+          {{ $t('auth_state.close') }}
+        </UButton>
       </template>
     </UModal>
   </div>

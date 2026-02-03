@@ -236,17 +236,11 @@
       :dismissible="false"
       class="w-full max-w-[80vw]"
     >
-      <template #content>
-        <UCard
-          :ui="{
-            header: 'flex justify-between items-center',
-            body: 'space-y-4',
-            footer: 'flex justify-end items-center',
-          }"
-        >
-          <template #header>
-            <h2 class="font-bold font-mono" v-text="$t('iscn_form.upload_files')" />
-          </template>
+      <template #header>
+        <h2 class="font-bold font-mono" v-text="$t('iscn_form.upload_files')" />
+      </template>
+      <template #body>
+        <div class="space-y-4">
           <UploadForm
             ref="uploadFormRef"
             :default-encrypted="isContentFingerprintsEncrypted"
@@ -254,21 +248,21 @@
             @file-ready="(records: FileRecord[]) => (fileRecords = records)"
             @submit="handleUploadSubmit"
           />
-          <template #footer>
-            <div class="w-full flex justify-center items-center gap-2">
-              <UButton color="neutral" variant="soft" @click="shouldShowUploadModal = false">
-                Cancel
-              </UButton>
-              <UButton
-                color="primary"
-                :loading="false"
-                :disabled="!hasFiles || shouldDisableAction"
-                :label="$t('iscn_form.confirm_upload')"
-                @click="startUpload"
-              />
-            </div>
-          </template>
-        </UCard>
+        </div>
+      </template>
+      <template #footer>
+        <div class="w-full flex justify-center items-center gap-2">
+          <UButton color="neutral" variant="soft" @click="shouldShowUploadModal = false">
+            Cancel
+          </UButton>
+          <UButton
+            color="primary"
+            :loading="false"
+            :disabled="!hasFiles || shouldDisableAction"
+            :label="$t('iscn_form.confirm_upload')"
+            @click="startUpload"
+          />
+        </div>
       </template>
     </UModal>
   </div>

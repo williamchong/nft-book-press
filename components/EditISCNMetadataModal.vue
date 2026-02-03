@@ -1,52 +1,44 @@
 <template>
   <UModal :open="showOpenModal" class="min-w-[80vw]">
-    <template #content>
-      <UCard
-        :ui="{
-          header: 'flex justify-between items-center',
-          body: 'space-y-4',
-          footer: 'flex justify-end items-center',
-        }"
-      >
-        <template #header>
-          <h2 class="font-bold font-mono">
-            {{ $t('iscn.metadata_title') }}
-          </h2>
+    <template #header>
+      <h2 class="font-bold font-mono">
+        {{ $t('iscn.metadata_title') }}
+      </h2>
 
-          <UButton
-            color="neutral"
-            variant="ghost"
-            icon="i-heroicons-x-mark-20-solid"
-            class="-my-1"
-            @click="handleClickBack"
-          />
-        </template>
-        <UProgress
-          v-if="isISCNLoading"
-          animation="carousel"
+      <UButton
+        color="neutral"
+        variant="ghost"
+        icon="i-heroicons-x-mark-20-solid"
+        class="-my-1"
+        @click="handleClickBack"
+      />
+    </template>
+    <template #body>
+      <UProgress
+        v-if="isISCNLoading"
+        animation="carousel"
+        color="primary"
+        class="w-full"
+      />
+      <ISCNForm
+        v-else
+        ref="iscnFormRef"
+        v-model="iscnFormData"
+      />
+    </template>
+    <template #footer>
+      <div class="w-full flex justify-center items-center gap-2">
+        <UButton color="neutral" variant="soft" @click="handleClickBack">
+          {{ $t('edit_iscn_modal.cancel') }}
+        </UButton>
+        <UButton
           color="primary"
-          class="w-full"
-        />
-        <ISCNForm
-          v-else
-          ref="iscnFormRef"
-          v-model="iscnFormData"
-        />
-        <template #footer>
-          <div class="w-full flex justify-center items-center gap-2">
-            <UButton color="neutral" variant="soft" @click="handleClickBack">
-              {{ $t('edit_iscn_modal.cancel') }}
-            </UButton>
-            <UButton
-              color="primary"
-              :loading="isSaving"
-              @click="handleSave"
-            >
-              {{ $t('common.save') }}
-            </UButton>
-          </div>
-        </template>
-      </UCard>
+          :loading="isSaving"
+          @click="handleSave"
+        >
+          {{ $t('common.save') }}
+        </UButton>
+      </div>
     </template>
   </UModal>
 </template>

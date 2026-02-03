@@ -90,27 +90,20 @@
     </UCard>
 
     <UModal v-model:open="isModalMetadataOpen">
-      <template #content>
-        <UCard
-          :ui="{
-            header: 'flex items-center justify-between gap-2',
-            body: 'overflow-auto text-sm'
-          }"
-        >
-          <template #header>
-            <h4 class="font-mono font-bold" v-text="$t('table.metadata')" />
+      <template #header>
+        <h4 class="font-mono font-bold" v-text="$t('table.metadata')" />
 
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-heroicons-x-mark-20-solid"
-              square
-              @click="isModalMetadataOpen = false"
-            />
-          </template>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          icon="i-heroicons-x-mark-20-solid"
+          square
+          @click="isModalMetadataOpen = false"
+        />
+      </template>
 
-          <pre v-text="modalMetadata" />
-        </UCard>
+      <template #body>
+        <pre v-text="modalMetadata" />
       </template>
     </UModal>
   </PageBody>

@@ -186,28 +186,20 @@
         </template>
       </UCard>
 
-      <UModal
-        v-model:open="isShowAddItemModal"
-      >
-        <template #content>
-          <UCard
-            class="max-sm:rounded-b-none"
-            :ui="{
-              header: 'flex justify-between items-center gap-4',
-              body: 'space-y-4',
-              footer: 'flex justify-center items-center'
-            }"
-          >
-            <template #header>
-              <h3 class="font-bold font-mono" v-text="'Add Item(s)'" />
+      <UModal v-model:open="isShowAddItemModal">
+        <template #header>
+          <h3 class="font-bold font-mono" v-text="'Add Item(s)'" />
 
-              <UButton
-                icon="i-heroicons-x-mark"
-                color="neutral"
-                variant="link"
-                @click="toggleAddItemModal"
-              />
-            </template>
+          <UButton
+            icon="i-heroicons-x-mark"
+            color="neutral"
+            variant="link"
+            @click="toggleAddItemModal"
+          />
+        </template>
+
+        <template #body>
+          <div class="space-y-4">
             <UFormField
               v-for="(input, index) in newProductIdInputs"
               :key="`input-${input.id}`"
@@ -240,41 +232,32 @@
                 @click="addNewItemInput"
               />
             </div>
+          </div>
+        </template>
 
-            <template #footer>
-              <UButton
-                label="Confirm"
-                @click="addSaleItem"
-              />
-            </template>
-          </UCard>
+        <template #footer>
+          <UButton
+            label="Confirm"
+            @click="addSaleItem"
+          />
         </template>
       </UModal>
 
-      <UModal
-        v-model:open="isOpenNewCouponModal"
-      >
-        <template #content>
-          <UCard
-            class="max-sm:rounded-b-none"
-            :ui="{
-              header: 'flex justify-between items-center gap-4',
-              body: 'space-y-4',
-              footer: 'flex justify-end items-center gap-4'
-            }"
-          >
-            <template #header>
-              <h3 class="font-bold" v-text="'Add Coupon'" />
+      <UModal v-model:open="isOpenNewCouponModal">
+        <template #header>
+          <h3 class="font-bold" v-text="'Add Coupon'" />
 
-              <UButton
-                icon="i-heroicons-x-mark-16-solid"
-                color="neutral"
-                size="xl"
-                variant="link"
-                @click="isOpenNewCouponModal = false"
-              />
-            </template>
+          <UButton
+            icon="i-heroicons-x-mark-16-solid"
+            color="neutral"
+            size="xl"
+            variant="link"
+            @click="isOpenNewCouponModal = false"
+          />
+        </template>
 
+        <template #body>
+          <div class="space-y-4">
             <UFormField
               label="Coupon Name"
               help="For POS Display Only"
@@ -296,16 +279,16 @@
                 placeholder="FALLPROMO"
               />
             </UFormField>
+          </div>
+        </template>
 
-            <template #footer>
-              <UButton
-                icon="i-heroicons-plus-circle"
-                label="Add Coupon"
-                :disabled="!newCouponNameInput || !newCouponCodeInput"
-                @click="addCouponCode"
-              />
-            </template>
-          </UCard>
+        <template #footer>
+          <UButton
+            icon="i-heroicons-plus-circle"
+            label="Add Coupon"
+            :disabled="!newCouponNameInput || !newCouponCodeInput"
+            @click="addCouponCode"
+          />
         </template>
       </UModal>
     </PageBody>

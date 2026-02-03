@@ -3,70 +3,70 @@
     class="w-full !max-w-[390px]"
     :overlay="true"
   >
-    <template #content>
-      <UCard>
-        <template #header>
-          <div class="flex justify-between items-center">
-            <h3 class="text-lg font-bold">
-              {{ $t('registration_modal_title') }}
-            </h3>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-heroicons-x-mark-20-solid"
-              class="-my-1"
-              @click="emit('close')"
-            />
-          </div>
-        </template>
-        <UFormField
-          v-if="!isAccountIdHidden"
-          :label="$t('registration_modal_account_id_label')"
-          :error="accountIdError"
-          required
-        >
-          <UInput
-            v-model="accountId"
-            class="w-full"
-          />
-        </UFormField>
+    <template #header>
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-bold">
+          {{ $t('registration_modal_title') }}
+        </h3>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          icon="i-heroicons-x-mark-20-solid"
+          class="-my-1"
+          @click="emit('close')"
+        />
+      </div>
+    </template>
 
-        <UFormField
-          :label="$t('registration_modal_email_label')"
-          :error="emailError"
-          required
-        >
-          <UInput
-            v-model="email"
-            class="w-full"
-            placeholder="you@example.com"
-            type="email"
-          />
-        </UFormField>
+    <template #body>
+      <UFormField
+        v-if="!isAccountIdHidden"
+        :label="$t('registration_modal_account_id_label')"
+        :error="accountIdError"
+        required
+      >
+        <UInput
+          v-model="accountId"
+          class="w-full"
+        />
+      </UFormField>
 
-        <UFormField
-          v-if="!props.isDisplayNameHidden"
-          :label="$t('registration_modal_display_name_label')"
-          :hint="$t('registration_modal_optional_label')"
-        >
-          <UInput
-            v-model="displayName"
-            class="w-full"
-            :placeholder="$t('registration_modal_display_name_placeholder')"
-          />
-        </UFormField>
-        <template #footer>
-          <div class="flex justify-end w-full items-center">
-            <UButton
-              :label="$t('registration_modal_register_button_label')"
-              size="md"
-              color="neutral"
-              variant="solid"
-              @click="handleRegisterButtonClick"
-            />
-          </div>
-        </template>
-      </UCard>
+      <UFormField
+        :label="$t('registration_modal_email_label')"
+        :error="emailError"
+        required
+      >
+        <UInput
+          v-model="email"
+          class="w-full"
+          placeholder="you@example.com"
+          type="email"
+        />
+      </UFormField>
+
+      <UFormField
+        v-if="!props.isDisplayNameHidden"
+        :label="$t('registration_modal_display_name_label')"
+        :hint="$t('registration_modal_optional_label')"
+      >
+        <UInput
+          v-model="displayName"
+          class="w-full"
+          :placeholder="$t('registration_modal_display_name_placeholder')"
+        />
+      </UFormField>
+    </template>
+
+    <template #footer>
+      <div class="flex justify-end w-full items-center">
+        <UButton
+          :label="$t('registration_modal_register_button_label')"
+          size="md"
+          color="neutral"
+          variant="solid"
+          @click="handleRegisterButtonClick"
+        />
+      </div>
     </template>
   </UModal>
 </template>

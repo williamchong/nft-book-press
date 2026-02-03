@@ -3,28 +3,24 @@
     :open="true"
     class="sm:max-w-7xl p-4 sm:p-8"
   >
-    <template #content>
-      <UCard
-        :ui="{ body: 'space-y-4 sm:p-8' }"
-      >
-        <template #header>
-          <div class="flex justify-end">
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-heroicons-x-mark-20-solid"
-              @click="handleClickBack"
-            />
-          </div>
-        </template>
-
-        <NewNFTBook
-          class="flex flex-col gap-4"
-          :class-id="classId"
-          :edition-index="newEditionIndex"
-          @submit="handleNewBookSubmit"
+    <template #header>
+      <div class="flex justify-end">
+        <UButton
+          color="neutral"
+          variant="ghost"
+          icon="i-heroicons-x-mark-20-solid"
+          @click="handleClickBack"
         />
-      </UCard>
+      </div>
+    </template>
+
+    <template #body>
+      <NewNFTBook
+        class="flex flex-col gap-4"
+        :class-id="classId"
+        :edition-index="newEditionIndex"
+        @submit="handleNewBookSubmit"
+      />
     </template>
   </UModal>
 </template>

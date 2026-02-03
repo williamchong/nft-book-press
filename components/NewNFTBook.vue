@@ -308,7 +308,7 @@
       :dismissible="false"
       class="p-4 gap-2"
     >
-      <template #content>
+      <template #body>
         <div class="space-y-3">
           <div class="flex justify-between items-center">
             <UBadge variant="soft">
