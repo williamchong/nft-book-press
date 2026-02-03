@@ -109,7 +109,6 @@
                 target="_blank"
                 rel="noopener"
                 variant="link"
-                :padded="false"
               >
                 {{ row.original.url }}
               </UButton>
@@ -121,7 +120,6 @@
                 target="_blank"
                 rel="noopener"
                 variant="link"
-                :padded="false"
               >
                 {{ row.original.destination }}
               </UButton>

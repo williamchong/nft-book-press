@@ -105,7 +105,6 @@
               variant="ghost"
               icon="i-heroicons-x-mark-20-solid"
               square
-              padded
               @click="isModalMetadataOpen = false"
             />
           </template>

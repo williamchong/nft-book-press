@@ -12,7 +12,6 @@
         :to="`${OPENSEA_URL}/${encodeURIComponent(iscnOwner)}`"
         target="_blank"
         variant="link"
-        :padded="false"
       />
     </UFormField>
 
@@ -21,7 +20,6 @@
         :model-value="iscnData?.contentMetadata?.name"
         :readonly="true"
         variant="none"
-        :padded="false"
       />
     </UFormField>
 
@@ -30,7 +28,6 @@
         :model-value="iscnData?.contentMetadata?.alternativeHeadline"
         :readonly="true"
         variant="none"
-        :padded="false"
       />
     </UFormField>
 
@@ -39,7 +36,6 @@
         :model-value="iscnData?.contentMetadata?.description"
         :readonly="true"
         variant="none"
-        :padded="false"
       />
     </UFormField>
 
@@ -48,7 +44,6 @@
         :model-value="iscnData?.contentMetadata?.descriptionFull"
         :readonly="true"
         variant="none"
-        :padded="false"
         autoresize
       />
     </UFormField>

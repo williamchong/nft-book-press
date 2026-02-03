@@ -81,12 +81,12 @@
               <UIcon name="i-heroicons-trash-solid" />
             </div>
           </template>
-          <template #delete-action-data="{ row }">
+          <template #delete-action-cell="{ row }">
             <UButton
               icon="i-heroicons-x-mark"
               color="error"
               variant="link"
-              @click="removeSaleItem(row)"
+              @click="removeSaleItem(row.original)"
             />
           </template>
         </UTable>
