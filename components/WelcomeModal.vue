@@ -1,7 +1,7 @@
 <template>
   <UModal
     v-model:open="showModal"
-    class="w-full !max-w-[390px]"
+    class="w-full max-w-[390px]!"
   >
     <template #content>
       <div class="flex justify-end p-4">
