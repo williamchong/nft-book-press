@@ -42,12 +42,12 @@
           :columns="saleItemTableColumns"
           :data="saleItemTableRows"
           :ui="{ root: 'static h-full', thead: 'sticky top-0' }"
-          @select="(row: any) => {
-            const idx = selectedSaleItemTableRows.findIndex(r => r.index === row.index)
+          @select="(row: TableRow<SaleItem>) => {
+            const idx = selectedSaleItemTableRows.findIndex(r => r.index === row.original.index)
             if (idx >= 0) {
               selectedSaleItemTableRows.splice(idx, 1)
             } else {
-              selectedSaleItemTableRows.push(row)
+              selectedSaleItemTableRows.push(row.original)
             }
           }"
         >
@@ -313,7 +313,7 @@
 </template>
 
 <script setup lang="ts">
-import type { DropdownMenuItem } from '#ui/types'
+import type { DropdownMenuItem, TableRow } from '#ui/types'
 const { t: $t } = useI18n()
 
 const route = useRoute()
