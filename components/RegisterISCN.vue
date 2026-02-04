@@ -2,21 +2,23 @@
   <div>
     <ISCNForm v-model="iscnFormData" />
     <UModal
-      :model-value="!!uploadStatus"
-      :prevent-close="true"
-      :ui="{ base: 'p-4 gap-2' }"
+      :open="!!uploadStatus"
+      :dismissible="false"
+      class="p-4 gap-2"
     >
-      <div class="space-y-3">
-        <div class="flex justify-between items-center">
-          <UBadge variant="soft">
-            {{ uploadStatus }}
-          </UBadge>
-          <p class="text-xs text-gray-500">
-            {{ $t('notifications.iscn_registration_complete') }}
-          </p>
+      <template #body>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <UBadge variant="soft">
+              {{ uploadStatus }}
+            </UBadge>
+            <p class="text-xs text-gray-500">
+              {{ $t('notifications.iscn_registration_complete') }}
+            </p>
+          </div>
+          <UProgress animation="carousel" color="primary" class="w-full" />
         </div>
-        <UProgress animation="carousel" color="primary" class="w-full" />
-      </div>
+      </template>
     </UModal>
   </div>
 </template>
@@ -27,7 +29,6 @@ import { LIKE_NFT_ABI } from '~/contracts/likeNFT'
 import { DEFAULT_MAX_SUPPLY } from '~/constant'
 
 const walletStore = useWalletStore()
-const { getFileType } = useFileUpload()
 const {
   LIKE_EVM_NFT_TARGET_ADDRESS
 } = useRuntimeConfig().public
@@ -35,7 +36,7 @@ const {
 const { wallet, signer } = storeToRefs(walletStore)
 const { validateWalletConsistency } = walletStore
 const { assertSufficientBalanceForTransaction, waitForTransactionReceipt } = useNFTContractWriter()
-const { stripHtmlTags, formatLanguage } = useFileUpload()
+const { stripHtmlTags, formatLanguage, getFileType } = useFileUploadLocal()
 const { showErrorToast } = useToastComposable()
 const { LIKE_NFT_CONTRACT_ADDRESS } = useRuntimeConfig().public
 

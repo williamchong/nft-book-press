@@ -4,10 +4,10 @@
       v-if="error"
       class="mt-4"
       icon="i-heroicons-exclamation-triangle"
-      color="red"
+      color="error"
       variant="soft"
       :title="`${error}`"
-      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      :close="{ icon: 'i-heroicons-x-mark-20-solid', color: 'error', variant: 'link' }"
       @close="error = ''"
     />
 
@@ -18,30 +18,27 @@
     </UProgress>
 
     <UCard
-      :ui="{ header: { base: 'flex justify-between items-center gap-4' } }"
+      :ui="{ header: 'flex justify-between items-center gap-4' }"
     >
       <UTabs
         v-model="selectedTabItemIndex"
         class="w-full"
         :items="tabItems"
       >
-        <template #item="{ item }">
+        <template #content="{ item }">
           <UCard
-            :key="item.key"
+            :key="item.value"
             :ui="{
-              header: { base: 'flex justify-between items-center gap-4' },
-              body: {
-                base: 'divide-y divide-gray-200 dark:divide-gray-700',
-                padding: '',
-              },
+              header: 'flex justify-between items-center gap-4',
+              body: 'divide-y divide-gray-200 dark:divide-gray-700 p-0',
             }"
           >
             <template #header>
               <div class="flex justify-between items-center w-full">
                 <div class="flex gap-2 items-center">
                   <UPagination
-                    v-model="tablePage"
-                    :page-count="tableRowsPerPage"
+                    v-model:page="tablePage"
+                    :items-per-page="tableRowsPerPage"
                     :total="tableRows.length"
                   />
                   <span class="text-sm leading-5">
@@ -53,33 +50,32 @@
             </template>
             <!-- Table -->
             <UTable
-              v-model:sort="sort"
               :columns="tableColumns"
-              :rows="paginatedTableRows"
+              :data="paginatedTableRows"
               @select="selectTableRow"
             >
-              <template #priceInUSD-data="{ row }">
+              <template #priceInUSD-cell="{ row }">
                 <ul class="flex gap-1">
                   <li
-                    v-for="price in row.prices"
+                    v-for="price in row.original.prices"
                     :key="price"
                   >
                     <UBadge
                       :label="`$${price}`"
                       variant="solid"
                       size="xs"
-                      color="gray"
-                      :ui="{ rounded: 'rounded-full' }"
+                      color="neutral"
+                      class="rounded-full"
                     />
                   </li>
                 </ul>
               </template>
-              <template #className-data="{ row }">
-                <NFTClassMetadataLoader :class-id="row.classId">
+              <template #className-cell="{ row }">
+                <NFTClassMetadataLoader :class-id="row.original.classId">
                   <template #default="{ isLoading: isLoadingMetadata }">
-                    <UProgress v-if="isLoadingMetadata || !row.className" />
+                    <UProgress v-if="isLoadingMetadata || !row.original.className" />
                     <div v-else class="max-w-xs truncate">
-                      {{ row.className }}
+                      {{ row.original.className }}
                     </div>
                   </template>
                 </NFTClassMetadataLoader>
@@ -142,24 +138,15 @@ useSeoMeta({
 
 // Tabs
 const tabItems = computed(() => [
-  { label: $t('bookstore.current_listing'), key: 'current' },
-  { label: $t('bookstore.viewable_listing'), key: 'viewable' }
+  { label: $t('bookstore.current_listing'), value: 'current' },
+  { label: $t('bookstore.viewable_listing'), value: 'viewable' }
 ])
 
-const selectedTabItemIndex = computed({
-  get () {
-    const index = tabItems.value.findIndex(item => item.key === route.query.tab)
-    if (index === -1) {
-      return 0
-    }
+const selectedTabItemIndex = ref(route.query.tab as string || 'current')
 
-    return index
-  },
-  set (value) {
-    const item = tabItems.value[value]
-    if (item) {
-      navigateTo(localeRoute({ query: { tab: item.key } }), { replace: true })
-    }
+watch(selectedTabItemIndex, (value) => {
+  if (value) {
+    navigateTo(localeRoute({ query: { tab: value } }), { replace: true })
   }
 })
 
@@ -179,7 +166,7 @@ const tablePageRowFrom = computed(() => (tablePage.value - 1) * tableRowsPerPage
 const tablePageRowTo = computed(() => Math.min(tablePage.value * tableRowsPerPage.value, tableRows.value.length))
 
 // Rows
-const tableRows = computed(() => (tabItems.value[selectedTabItemIndex.value]?.key === 'viewable' ? moderatedBookList : bookList).value.map(b => ({
+const tableRows = computed(() => (selectedTabItemIndex.value === 'viewable' ? moderatedBookList : bookList).value.map(b => ({
   classId: b.classId,
   className: nftStore.getClassMetadataById(b.classId)?.name,
   priceInUSD: b.prices?.[0].price,
@@ -189,12 +176,12 @@ const tableRows = computed(() => (tabItems.value[selectedTabItemIndex.value]?.ke
 })).filter((b) => {
   if (!searchInput.value) { return true }
   const normalizedSearchInput = searchInput.value.toLowerCase()
-  return b.classId.toLowerCase().includes(normalizedSearchInput) || b.className.toLowerCase().includes(normalizedSearchInput)
+  return b.classId.toLowerCase().includes(normalizedSearchInput) || b.className?.toLowerCase().includes(normalizedSearchInput)
 }))
 
 const sortedTableRows = computed(() => {
   const { column, direction } = sort.value
-  return tableRows.value.sort((a: any, b: any) => {
+  return [...tableRows.value].sort((a: any, b: any) => {
     if (a[column] < b[column]) {
       return direction === 'asc' ? -1 : 1
     }
@@ -212,30 +199,25 @@ const paginatedTableRows = computed(() => {
 // Columns
 const tableColumns = computed(() => [
   {
-    key: 'pendingAction',
-    label: $t('table.pending_action'),
-    sortable: true
+    accessorKey: 'pendingAction',
+    header: $t('table.pending_action')
   },
   {
-    key: 'className',
-    label: $t('table.class_name'),
-    sortable: true
+    accessorKey: 'className',
+    header: $t('table.class_name')
   },
   {
-    key: 'priceInUSD',
-    label: $t('table.price_in_usd'),
-    sortable: true
+    accessorKey: 'priceInUSD',
+    header: $t('table.price_in_usd')
   },
   {
-    key: 'sold',
-    label: $t('table.sold'),
-    sortable: true
+    accessorKey: 'sold',
+    header: $t('table.sold')
   },
   {
-    key: 'classId',
-    label: $t('bookstore.class_id'),
-    sortable: true,
-    class: 'font-mono'
+    accessorKey: 'classId',
+    header: $t('bookstore.class_id'),
+    meta: { class: { td: 'font-mono' } }
   }
 ])
 
@@ -270,7 +252,7 @@ onMounted(async () => {
 async function selectTableRow (row: any) {
   await navigateTo(localeRoute({
     name: 'my-books-status-classId',
-    params: { classId: row.classId }
+    params: { classId: row.original.classId }
   }))
 }
 </script>

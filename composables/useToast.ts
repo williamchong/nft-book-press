@@ -5,8 +5,8 @@ export const useToastComposable = () => {
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: message,
-      timeout: 3000,
-      color: 'red'
+      duration: 3000,
+      color: 'error'
     })
   }
 

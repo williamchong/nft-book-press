@@ -19,13 +19,13 @@
 
       <UCard
         v-else-if="!productDataList"
-        :ui="{ body: { base: 'space-y-4' }, footer: { base: 'flex justify-end' } }"
+        :ui="{ body: 'space-y-4', footer: 'flex justify-end' }"
       >
-        <UFormGroup :label="$t('purchase_link.destination')">
-          <USelect v-model="destinationSetting" :options="destinationSettings" option-attribute="name" />
-        </UFormGroup>
+        <UFormField :label="$t('purchase_link.destination')">
+          <USelect v-model="destinationSetting" :items="destinationSettings" option-attribute="name" />
+        </UFormField>
 
-        <UFormGroup
+        <UFormField
           v-if="isUsingCustomDestination"
           :label="$t('purchase_link.custom_page_url')"
           :required="true"
@@ -36,9 +36,9 @@
             placeholder="https://3ook.com/store?tag=blockchain"
             name="custom_destination_url"
           />
-        </UFormGroup>
+        </UFormField>
 
-        <UFormGroup
+        <UFormField
           v-else
           :label="$t('purchase_link.product_ids')"
           :error="productIdError"
@@ -51,9 +51,9 @@
             :autoresize="true"
             name="product_id"
           />
-        </UFormGroup>
+        </UFormField>
 
-        <UFormGroup
+        <UFormField
           :label="$t('purchase_link.channel_ids')"
           :hint="$t('purchase_link.optional')"
           :error="customChannelInputError"
@@ -70,21 +70,21 @@
               v-show="!customChannelInput && userLikerInfo"
               class="relative"
               :label="$t('purchase_link.prefill_from_account')"
-              color="gray"
+              color="neutral"
               variant="outline"
-              size="2xs"
+              size="xs"
               @click="prefillChannelIdIfPossible"
             />
           </div>
 
           <template #help>
-            <UToggle v-model="isIncludeDefaultChannels" :disabled="!customChannelInput" />
+            <USwitch v-model="isIncludeDefaultChannels" :disabled="!customChannelInput" />
             <span v-text="$t('purchase_link.include_default_channels')" />
           </template>
-        </UFormGroup>
+        </UFormField>
 
         <UAccordion
-          color="gray"
+          color="neutral"
           variant="soft"
           size="md"
           :items="[{
@@ -92,48 +92,48 @@
             defaultOpen: true,
             slot: 'body'
           }]"
-          :ui="{ item: { padding: 'p-0' } }"
+          :ui="{ content: 'p-0' }"
         >
           <template #body>
-            <UCard :ui="{ body: { base: 'space-y-4' } }">
+            <UCard :ui="{ body: 'space-y-4' }">
               <div class="relative flex max-md:flex-col flex-wrap gap-4">
-                <UFormGroup class="flex-1" :label="$t('purchase_link.utm_campaign')">
+                <UFormField class="flex-1" :label="$t('purchase_link.utm_campaign')">
                   <UInput
                     v-model="utmCampaignInput"
                     class="font-mono"
                     name="utm_campaign"
                     :placeholder="`e.g. ${utmCampaignDefault}`"
                   />
-                </UFormGroup>
-                <UFormGroup class="flex-1" :label="$t('purchase_link.utm_source')">
+                </UFormField>
+                <UFormField class="flex-1" :label="$t('purchase_link.utm_source')">
                   <UInput
                     v-model="utmSourceInput"
                     class="font-mono"
                     name="utm_source"
                     :placeholder="`e.g. ${utmSourceDefault}`"
                   />
-                </UFormGroup>
-                <UFormGroup class="flex-1" :label="$t('purchase_link.utm_medium')">
+                </UFormField>
+                <UFormField class="flex-1" :label="$t('purchase_link.utm_medium')">
                   <UInput
                     v-model="utmMediumInput"
                     class="font-mono"
                     name="utm_medium"
                     :placeholder="`e.g. ${utmMediumDefault}`"
                   />
-                </UFormGroup>
+                </UFormField>
               </div>
 
-              <UFormGroup :label="$t('purchase_link.additional_query_string')">
+              <UFormField :label="$t('purchase_link.additional_query_string')">
                 <UInput
                   v-model="additionalQueryStringInput"
                   class="font-mono"
                   :placeholder="additionalQueryStringInputPlaceholder"
                   name="query_params"
                 />
-              </UFormGroup>
+              </UFormField>
 
               <div class="flex items-center gap-2">
-                <UToggle v-model="shouldPrefixChannelIdForUTMCampaign" />
+                <USwitch v-model="shouldPrefixChannelIdForUTMCampaign" />
                 <span v-text="$t('purchase_link.prefix_channel_id')" />
               </div>
             </UCard>
@@ -160,28 +160,28 @@
           />
         </header>
 
-        <UCard v-if="hasMoreThanOneChannel && productTableRows.length" :ui="{ body: { padding: '' } }">
+        <UCard v-if="hasMoreThanOneChannel && productTableRows.length" :ui="{ body: 'p-0' }">
           <template #header>
             <h3 class="text-lg font-bold" v-text="$t('purchase_link.product_list')" />
           </template>
 
           <UTable
             :columns="[
-              { key: 'name', label: $t('table.name') },
-              { key: 'editionSelect', label: $t('table.selected_edition') }
+              { accessorKey: 'name', header: $t('table.name') },
+              { accessorKey: 'editionSelect', header: $t('table.selected_edition') }
             ]"
-            :rows="productTableRows"
+            :data="productTableRows"
           >
-            <template #name-data="{ row }">
-              <span v-text="row.name" />
+            <template #name-cell="{ row }">
+              <span v-text="row.original.name" />
             </template>
-            <template #editionSelect-data="{ row }">
+            <template #editionSelect-cell="{ row }">
               <USelect
-                v-if="row.editionOptions.length"
+                v-if="row.original.editionOptions.length"
                 class="min-w-[200px]"
-                :model-value="productEditionSelectModelValue[row.id] || 0"
-                :options="row.editionOptions"
-                @update:model-value="productEditionSelectModelValue[row.id] = $event"
+                :model-value="productEditionSelectModelValue[row.original.id] || 0"
+                :items="row.original.editionOptions"
+                @update:model-value="productEditionSelectModelValue[row.original.id] = $event"
               />
             </template>
           </UTable>
@@ -189,7 +189,7 @@
 
         <UCard
           v-if="!isSharingMode && commonQueryStringTableRows.length"
-          :ui="{ body: { padding: '' } }"
+          :ui="{ body: 'p-0' }"
         >
           <template #header>
             <h3 class="text-lg font-bold" v-text="$t('purchase_link.common_query_string')" />
@@ -197,21 +197,18 @@
 
           <UTable
             :columns="[
-              { key: 'key', label: $t('table.key') },
-              { key: 'value', label: $t('table.value') }
+              { accessorKey: 'key', header: $t('table.key') },
+              { accessorKey: 'value', header: $t('table.value') }
             ]"
-            :rows="commonQueryStringTableRows"
-            :ui="{ td: { font: 'font-mono' } }"
+            :data="commonQueryStringTableRows"
+            :ui="{ td: 'font-mono' }"
           />
         </UCard>
 
         <UCard
           :ui="{
-            header: { base: 'flex justify-between items-center gap-4' },
-            body: {
-              base: 'space-y-8',
-              padding: hasMoreThanOneChannel ? undefined : ''
-            }
+            header: 'flex justify-between items-center gap-4',
+            body: hasMoreThanOneChannel ? 'space-y-8' : 'space-y-8 p-0'
           }"
         >
           <template v-if="hasMoreThanOneChannel" #header>
@@ -220,7 +217,7 @@
               v-text="$t('purchase_link.affiliation_links')"
             />
 
-            <UDropdown
+            <UDropdownMenu
               :items="[
                 [
                   {
@@ -249,21 +246,19 @@
             >
               <UButton
                 icon="i-heroicons-ellipsis-horizontal-20-solid"
-                color="gray"
+                color="neutral"
                 variant="soft"
               />
-            </UDropdown>
+            </UDropdownMenu>
           </template>
 
           <UCard
             v-for="channel in allChannelTableRows"
             :key="channel.id"
+            :class="['overflow-hidden', hasMoreThanOneChannel ? '' : 'ring-0 shadow-none']"
             :ui="{
-              base: 'overflow-hidden',
-              ring: hasMoreThanOneChannel ? undefined : '',
-              shadow: hasMoreThanOneChannel ? undefined : '',
-              header: { base: 'flex justify-between items-center gap-4' },
-              body: { padding: '' }
+              header: 'flex justify-between items-center gap-4',
+              body: 'p-0'
             }"
           >
             <template #header>
@@ -282,7 +277,7 @@
                 />
               </h3>
 
-              <UDropdown
+              <UDropdownMenu
                 :items="[
                   [
                     {
@@ -316,51 +311,51 @@
               >
                 <UButton
                   icon="i-heroicons-ellipsis-horizontal-20-solid"
-                  color="gray"
+                  color="neutral"
                   size="sm"
                   variant="soft"
                 />
-              </UDropdown>
+              </UDropdownMenu>
             </template>
 
             <UTable
               :columns="linkTableColumns"
-              :rows="linkTableRowsMapByChannel.get(channel.id)"
+              :data="linkTableRowsMapByChannel.get(channel.id)"
             >
-              <template #productId-data="{ row }">
-                <div v-text="row.productName" />
+              <template #productId-cell="{ row }">
+                <div v-text="row.original.productName" />
               </template>
-              <template v-if="!hasMoreThanOneChannel" #selectedEditionLabel-data="{ row }">
+              <template v-if="!hasMoreThanOneChannel" #selectedEditionLabel-cell="{ row }">
                 <USelect
-                  v-if="productEditionOptionsMap?.[row.productId]?.length"
+                  v-if="productEditionOptionsMap?.[row.original.productId]?.length"
                   class="min-w-[200px]"
-                  :model-value="productEditionSelectModelValue[row.productId] || 0"
-                  :options="productEditionOptionsMap?.[row.productId] || []"
-                  @update:model-value="productEditionSelectModelValue[row.productId] = $event"
+                  :model-value="productEditionSelectModelValue[row.original.productId] || 0"
+                  :items="productEditionOptionsMap?.[row.original.productId] || []"
+                  @update:model-value="productEditionSelectModelValue[row.original.productId] = $event"
                 />
               </template>
-              <template #utmCampaign-data="{ row }">
-                <UKbd class="font-mono" :value="row.utmCampaign" />
+              <template #utmCampaign-cell="{ row }">
+                <UKbd class="font-mono" :value="row.original.utmCampaign" />
               </template>
-              <template #link-data="{ row }">
+              <template #link-cell="{ row }">
                 <div class="flex items-center gap-2">
                   <UButton
                     icon="i-heroicons-qr-code"
                     variant="outline"
                     size="xs"
-                    @click="selectedPurchaseLink = row"
+                    @click="selectedPurchaseLink = row.original"
                   />
                   <UButton
                     icon="i-heroicons-document-duplicate"
                     variant="outline"
                     size="xs"
-                    @click="copyLink(row.url || '')"
+                    @click="copyLink(row.original.url || '')"
                   />
                   <UButton
                     class="font-mono break-all"
-                    :label="row.url"
-                    :to="row.url"
-                    color="gray"
+                    :label="row.original.url"
+                    :to="row.original.url"
+                    color="neutral"
                     variant="outline"
                     size="xs"
                     target="_blank"
@@ -371,26 +366,28 @@
           </UCard>
         </UCard>
 
-        <UModal v-model="isOpenQRCodeModal">
-          <QRCodeGenerator
-            v-if="selectedPurchaseLink"
-            :data="selectedPurchaseLink.qrCodeUrl"
-            :file-name="getQRCodeFilename(selectedPurchaseLink)"
-            :width="500"
-            :height="500"
-          >
-            <template #header>
-              <h3 class="font-bold font-mono">
-                {{ $t('purchase_link.download_qr_modal') }}
-              </h3>
-              <UButton
-                icon="i-heroicons-x-mark"
-                color="gray"
-                variant="ghost"
-                @click="isOpenQRCodeModal = false"
-              />
-            </template>
-          </QRCodeGenerator>
+        <UModal v-model:open="isOpenQRCodeModal">
+          <template #content>
+            <QRCodeGenerator
+              v-if="selectedPurchaseLink"
+              :data="selectedPurchaseLink.qrCodeUrl"
+              :file-name="getQRCodeFilename(selectedPurchaseLink)"
+              :width="500"
+              :height="500"
+            >
+              <template #header>
+                <h3 class="font-bold font-mono">
+                  {{ $t('purchase_link.download_qr_modal') }}
+                </h3>
+                <UButton
+                  icon="i-heroicons-x-mark"
+                  color="neutral"
+                  variant="ghost"
+                  @click="isOpenQRCodeModal = false"
+                />
+              </template>
+            </QRCodeGenerator>
+          </template>
         </UModal>
       </template>
     </PageBody>
@@ -688,29 +685,27 @@ const productTableRows = computed(() => {
 })
 
 const linkTableColumns = computed(() => {
-  const cols: { key: string, label: string, sortable?: boolean }[] = []
+  const cols: { accessorKey: string, header: string }[] = []
   if (!isUsingCustomDestination.value) {
     cols.push({
-      key: 'productId',
-      label: $t('common.title'),
-      sortable: true
+      accessorKey: 'productId',
+      header: $t('common.title')
     },
     {
-      key: 'selectedEditionLabel',
-      label: $t('table.selected_edition')
+      accessorKey: 'selectedEditionLabel',
+      header: $t('table.selected_edition')
     })
   }
 
   if (!isSharingMode.value) {
     cols.push({
-      key: 'utmCampaign',
-      label: $t('purchase_link.utm_campaign'),
-      sortable: true
+      accessorKey: 'utmCampaign',
+      header: $t('purchase_link.utm_campaign')
     })
   }
   cols.push({
-    key: 'link',
-    label: $t('common.link')
+    accessorKey: 'link',
+    header: $t('common.link')
   })
   return cols
 })
@@ -865,11 +860,8 @@ async function createAffiliationLink () {
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: $t('purchase_link.failed_create_link'),
-      timeout: 0,
-      color: 'red',
-      ui: {
-        title: 'text-red-400 dark:text-red-400'
-      }
+      duration: 0,
+      color: 'error'
     })
     isSharingMode.value = false
   } finally {
@@ -896,8 +888,8 @@ async function copyLink (text = '') {
   toast.add({
     icon: 'i-heroicons-check-circle',
     title: $t('purchase_link.copied_to_clipboard'),
-    timeout: 2000,
-    color: 'green'
+    duration: 2000,
+    color: 'success'
   })
 }
 
@@ -937,11 +929,8 @@ function printQRCodesByTableRows (rows: AffiliationLink[] = []) {
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: $t('purchase_link.failed_print_qr'),
-      timeout: 0,
-      color: 'red',
-      ui: {
-        title: 'text-red-400 dark:text-red-400'
-      }
+      duration: 0,
+      color: 'error'
     })
   }
 }
@@ -967,11 +956,8 @@ function shortenLinksByTableRows (rows: AffiliationLink[] = []) {
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: $t('purchase_link.failed_shorten_links'),
-      timeout: 0,
-      color: 'red',
-      ui: {
-        title: 'text-red-400 dark:text-red-400'
-      }
+      duration: 0,
+      color: 'error'
     })
   }
 }

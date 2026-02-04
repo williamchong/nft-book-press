@@ -29,25 +29,27 @@ export function useReadersTable () {
   const selectionCount = computed(() => selectedRows.value.length)
 
   const baseColumnsConfig = computed(() => [
-    { key: 'readerEmail', label: t('table.reader_email') },
-    { key: 'readerWallet', label: t('table.reader_wallet') },
-    { key: 'firstPurchaseTime', label: t('table.first_purchase') },
-    { key: 'lastPurchaseTime', label: t('table.last_purchase') },
-    { key: 'lifetimeValue', label: t('table.lifetime_value') },
-    { key: 'hasMessage', label: t('table.has_message') }
+    { key: 'readerEmail', label: t('table.reader_email'), accessorKey: 'readerEmail', header: t('table.reader_email') },
+    { key: 'readerWallet', label: t('table.reader_wallet'), accessorKey: 'readerWallet', header: t('table.reader_wallet') },
+    { key: 'firstPurchaseTime', label: t('table.first_purchase'), accessorKey: 'firstPurchaseTime', header: t('table.first_purchase') },
+    { key: 'lastPurchaseTime', label: t('table.last_purchase'), accessorKey: 'lastPurchaseTime', header: t('table.last_purchase') },
+    { key: 'lifetimeValue', label: t('table.lifetime_value'), accessorKey: 'lifetimeValue', header: t('table.lifetime_value') },
+    { key: 'hasMessage', label: t('table.has_message'), accessorKey: 'hasMessage', header: t('table.has_message') }
   ])
 
   const columns = computed(() => {
     const baseColumns = baseColumnsConfig.value.map(col => ({
       key: col.key,
       label: col.label,
-      sortable: true
+      accessorKey: col.accessorKey,
+      header: col.header
     }))
 
     const bookColumns = Object.values(ordersStore.booksInfo).map((book: any) => ({
       key: `book_${book.classId}`,
       label: book.name?.slice(0, 1) || book.classId.slice(0, 1),
-      sortable: true
+      accessorKey: `book_${book.classId}`,
+      header: book.name?.slice(0, 1) || book.classId.slice(0, 1)
     }))
 
     return [...baseColumns, ...bookColumns]
@@ -188,7 +190,7 @@ export function useReadersTable () {
     })
 
     // Use column labels as keys for the utility
-    const columns = columnConfig.map(col => ({ key: col.label, label: col.label }))
+    const columns = columnConfig.map(col => ({ accessorKey: col.label, header: col.label }))
     const finalFilename = filename || `export_${new Date().toISOString().split('T')[0]}.csv`
 
     await downloadCSV(processedData, columns, finalFilename)

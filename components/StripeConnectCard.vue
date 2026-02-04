@@ -1,18 +1,15 @@
 <template>
   <UCard
     :ui="{
-      divide: isStripeConnectChecked ? undefined : '',
-      header: { base: 'flex flex-wrap justify-between items-center gap-2' },
-      body: {
-        padding: isStripeConnectChecked ? undefined : '',
-      },
+      header: 'flex flex-wrap justify-between items-center gap-2',
+      body: isStripeConnectChecked ? undefined : 'p-0',
     }"
   >
     <template #header>
       <h3 class="font-bold font-mono">
         {{ $t('stripe_connect.connect_title') }}
       </h3>
-      <UToggle
+      <USwitch
         v-model="isStripeConnectChecked"
         name="stripe"
         :label="$t('stripe_connect.connect_description')"
@@ -76,7 +73,7 @@
             <div class="flex flex-col mt-[14px] w-[80%]">
               <UInput
                 v-model="inputWallet"
-                :color="stripeConnectInputError ? 'rose' : 'white'"
+                :color="stripeConnectInputError ? 'error' : 'neutral'"
                 class="font-mono w-full"
                 placeholder="0x..."
                 @input="onStripeConnectWalletInput"
@@ -106,7 +103,7 @@
               <UAlert
                 v-else
                 icon="i-heroicons-x-mark"
-                color="red"
+                color="error"
                 variant="outline"
                 :title="$t('stripe_connect.no_account_connected')"
               />
@@ -117,7 +114,7 @@
           <UButton
             :label="$t('stripe_connect.save_changes')"
             :loading="isUpdatingStripeAccount"
-            :color="isStripeConnectWalletReadyToSave ? 'primary' : 'gray'"
+            :color="isStripeConnectWalletReadyToSave ? 'primary' : 'neutral'"
             :disabled="
               !isStripeConnectWalletReadyToSave || !!props.shouldDisableSetting
             "

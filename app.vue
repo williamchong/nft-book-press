@@ -1,57 +1,61 @@
 <template>
-  <div>
+  <UApp :toaster="{ position: 'top-right' }">
     <MaintenancePage v-if="isShowMaintenancePage" />
     <NuxtLayout v-show="!isShowMaintenancePage">
       <NuxtPage class="grow overflow-y-auto" />
     </NuxtLayout>
 
     <USlideover
-      v-model="isMobileMenuOpen"
+      v-model:open="isMobileMenuOpen"
       side="left"
     >
-      <UButton
-        color="gray"
-        variant="ghost"
-        icon="i-heroicons-x-mark-20-solid"
-        class="absolute top-4 right-4 z-20"
-        square
-        padded
-        @click="isMobileMenuOpen = false"
-      />
-      <SiteNavigation />
+      <template #content>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          icon="i-heroicons-x-mark-20-solid"
+          class="absolute top-4 right-4 z-20"
+          square
+          @click="isMobileMenuOpen = false"
+        />
+        <SiteNavigation />
+      </template>
     </USlideover>
 
     <UModal
-      :model-value="isRestoringSession"
-      :prevent-close="true"
-      :ui="{ base: 'p-4 items-center gap-2' }"
+      :open="isRestoringSession"
+      :dismissible="false"
     >
-      <span>{{ $t('app.restoring_session') }}</span>
-      <UProgress animation="carousel" />
+      <template #content>
+        <div class="p-4 flex flex-col items-center gap-2">
+          <span>{{ $t('app.restoring_session') }}</span>
+          <UProgress animation="carousel" />
+        </div>
+      </template>
     </UModal>
     <UModal
-      v-model="isAuthenticating"
-      prevent-close
-      :ui="{ width: '!max-w-[200px]' }"
+      v-model:open="isAuthenticating"
+      :dismissible="false"
+      class="max-w-[200px]!"
     >
-      <BlockingModal :title="loginStatus" />
+      <template #content>
+        <BlockingModal :title="loginStatus" />
+      </template>
     </UModal>
     <UModal
-      v-model="bookstoreApiStore.isShowLoginPanel"
-      :close="{ onClick: () => bookstoreApiStore.closeLoginPanel() }"
-      :ui="{ width: '!max-w-[348px]' }"
+      v-model:open="bookstoreApiStore.isShowLoginPanel"
+      class="max-w-[348px]!"
     >
-      <LoginPanel
-        @connect="authenticateByConnectorId"
-      />
+      <template #content>
+        <LoginPanel
+          @connect="authenticateByConnectorId"
+        />
+      </template>
     </UModal>
     <WelcomeModal />
 
     <NuxtLoadingIndicator />
-
-    <UNotifications />
-    <UModals />
-  </div>
+  </UApp>
 </template>
 
 <script setup lang="ts">
@@ -135,11 +139,8 @@ onMounted(async () => {
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: `${(error as Error).toString()}, please re-login`,
-      timeout: 0,
-      color: 'red',
-      ui: {
-        title: 'text-red-400 dark:text-red-400'
-      }
+      duration: 0,
+      color: 'error'
     })
     clearSession()
   } finally {

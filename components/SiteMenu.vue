@@ -15,8 +15,9 @@
               :leading-icon="link.icon"
               size="xl"
               :to="link.to"
-              color="white"
-              @click="link.click"
+              color="neutral"
+              variant="outline"
+              @click="link.onSelect"
             />
           </li>
         </ul>
@@ -29,9 +30,9 @@
       <h3 class="text-sm font-mono text-gray-400 dark:text-gray-300 px-3">
         {{ item.label }}
       </h3>
-      <UVerticalNavigation
-        :links="item.links"
-        :ui="{ label: 'font-bold', badge: { base: 'rounded-[10px] bg-[#50E3C2] font-bold' }}"
+      <UNavigationMenu
+        :items="item.links"
+        orientation="vertical"
       />
     </div>
   </div>
@@ -90,7 +91,7 @@ const items = computed(() => {
       ...item,
       links: item.links.map(link => ({
         ...link,
-        click: () => handleLinkClick({ label: link.label })
+        onSelect: () => handleLinkClick({ label: link.label })
       }))
     }))
   }
@@ -167,7 +168,7 @@ const items = computed(() => {
     ...item,
     links: item.links.map(link => ({
       ...link,
-      click: () => handleLinkClick({ label: link.label })
+      onSelect: () => handleLinkClick({ label: link.label })
     }))
   }))
 })

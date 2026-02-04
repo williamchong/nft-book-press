@@ -1,6 +1,6 @@
 <template>
   <UForm :state="state" class="flex flex-col gap-[12px]">
-    <UFormGroup
+    <UFormField
       :label="$t('form_labels.nft_mint_count')"
       class="text-left"
       :error="(state.mintCount === undefined || state.mintCount < 0) && $t('nft_mint_form.mint_count_greater_than_zero')"
@@ -10,9 +10,9 @@
         disabled
         type="number"
       />
-    </UFormGroup>
+    </UFormField>
 
-    <UFormGroup
+    <UFormField
       :label="$t('form_labels.image_url')"
       name="imageUrl"
       class="text-left"
@@ -20,7 +20,7 @@
       required
     >
       <UInput v-model="state.imageUrl" :placeholder="$t('nft_mint_form.ipfs_placeholder')" />
-    </UFormGroup>
+    </UFormField>
   </UForm>
 </template>
 

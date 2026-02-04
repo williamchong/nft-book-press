@@ -3,17 +3,17 @@
     <UAlert
       v-if="error"
       icon="i-heroicons-exclamation-triangle"
-      color="red"
+      color="error"
       variant="soft"
       :title="`${error}`"
-      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      :close="{ icon: 'i-heroicons-x-mark-20-solid', color: 'error', variant: 'link' }"
       @close="error = ''"
     />
 
     <UAlert
       v-if="!isStripeConnectReady"
       icon="i-heroicons-exclamation-circle"
-      color="orange"
+      color="warning"
       variant="soft"
       :title="$t('user_settings.stripe_express_notice')"
       :description="$t('user_settings.stripe_express_description')"
@@ -22,9 +22,9 @@
     <template v-if="bookstoreApiStore.isAuthenticated">
       <UCard
         :ui="{
-          header: { base: 'flex justify-between items-center' },
-          body: { padding: '' },
-          footer: { base: 'text-center' },
+          header: 'flex justify-between items-center',
+          body: 'p-0',
+          footer: 'text-center',
         }"
       >
         <template #header>
@@ -57,7 +57,8 @@
               size="md"
               :loading="isLoading"
               :disabled="isLoading"
-              color="black"
+              color="neutral"
+              variant="solid"
               @click="handleClickStripeButton"
             />
           </div>

@@ -3,16 +3,16 @@
     <UAlert
       v-if="error"
       icon="i-heroicons-exclamation-triangle"
-      color="red"
+      color="error"
       variant="soft"
       :title="`${error}`"
-      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      :close="{ icon: 'i-heroicons-x-mark-20-solid', color: 'error', variant: 'link' }"
       @close="error = ''"
     />
 
     <UCard
       class="flex-1"
-      :ui="{ body: { base: 'space-y-4' } }"
+      :ui="{ body: 'space-y-4' }"
     >
       <template #header>
         <h3 class="font-bold text-center" v-text="headerText" />

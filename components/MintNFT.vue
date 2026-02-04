@@ -3,10 +3,10 @@
     <UAlert
       v-if="error"
       icon="i-heroicons-exclamation-triangle"
-      color="red"
+      color="error"
       variant="soft"
       :title="`${error}`"
-      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      :close="{ icon: 'i-heroicons-x-mark-20-solid', color: 'error', variant: 'link' }"
       :actions="errorActions"
       @close="error = ''"
     />
@@ -44,8 +44,8 @@ const errorActions = computed(() => {
   return [{
     label: $t('button.retry'),
     variant: 'solid' as const,
-    color: 'red' as const,
-    click: () => window.location.reload()
+    color: 'error' as const,
+    onClick: () => window.location.reload()
   }]
 })
 

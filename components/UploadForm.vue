@@ -42,7 +42,7 @@
                 { fileData, fileName, fileSize, fileType }, index
               ) of fileRecords"
               :key="fileName"
-              class="flex justify-between items-center border-b-shade-gray border-b-[1px] text-dark-gray hover:bg-light-gray transition-colors w-full"
+              class="flex justify-between items-center border-b-shade-gray border-b text-dark-gray hover:bg-light-gray transition-colors w-full"
             >
               <td class="py-[4px]">
                 <ImgPreviewer
@@ -84,82 +84,86 @@
       <UCheckbox v-model="isEncryptEBookData" :label="$t('upload_form.drm_encrypt_disable')" />
     </div>
     <UModal
-      :model-value="!!uploadStatus"
-      :prevent-close="true"
-      :ui="{
-        base: 'p-4 gap-2'
-      }"
+      :open="!!uploadStatus"
+      :dismissible="false"
+      class="p-4 gap-2"
     >
-      <div class="space-y-3">
-        <div class="flex justify-between items-center">
-          <UBadge variant="soft">
-            {{ uploadStatus }}
-          </UBadge>
-          <p class="text-xs text-gray-500">
-            {{ $t('upload_form.do_not_close_upload') }}
-          </p>
+      <template #body>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <UBadge variant="soft">
+              {{ uploadStatus }}
+            </UBadge>
+            <p class="text-xs text-gray-500">
+              {{ $t('upload_form.do_not_close_upload') }}
+            </p>
+          </div>
+          <UProgress
+            animation="carousel"
+            color="primary"
+            class="w-full"
+          />
         </div>
-        <UProgress
-          animation="carousel"
-          color="primary"
-          class="w-full"
-        />
-      </div>
+      </template>
     </UModal>
-    <UModal v-model="showValidationWarning">
-      <UCard :ui="{ body: { base: 'flex items-start gap-3' }, footer: { base: 'flex justify-end gap-2' } }">
-        <UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-yellow-500 flex-shrink-0 mt-0.5" />
-        <div class="space-y-2">
-          <h3 class="font-semibold text-gray-900">
-            {{ $t('upload_form.validation_error') }}
-          </h3>
-          <p class="text-gray-600">
-            {{ validationErrorMessage }}
-          </p>
-          <p class="text-sm text-gray-500 whitespace-pre-line">
-            {{ $t('upload_form.valid_combinations') }}
-          </p>
-          <a
-            :href="PUBLISH_GUIDE_URL"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-sm text-primary-500 hover:text-primary-600 flex items-center gap-1"
-          >
-            <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" />
-            {{ $t('upload_form.help_link') }}
-          </a>
+    <UModal v-model:open="showValidationWarning">
+      <template #body>
+        <div class="flex items-start gap-3 p-4">
+          <UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-yellow-500 shrink-0 mt-0.5" />
+          <div class="space-y-2">
+            <h3 class="font-semibold text-gray-900">
+              {{ $t('upload_form.validation_error') }}
+            </h3>
+            <p class="text-gray-600">
+              {{ validationErrorMessage }}
+            </p>
+            <p class="text-sm text-gray-500 whitespace-pre-line">
+              {{ $t('upload_form.valid_combinations') }}
+            </p>
+            <a
+              :href="PUBLISH_GUIDE_URL"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm text-primary-500 hover:text-primary-600 flex items-center gap-1"
+            >
+              <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" />
+              {{ $t('upload_form.help_link') }}
+            </a>
+          </div>
         </div>
-        <template #footer>
+      </template>
+      <template #footer>
+        <div class="flex justify-end gap-2">
           <UButton
             variant="outline"
-            color="gray"
+            color="neutral"
             @click="showValidationWarning = false; pendingSubmitAfterConfirm = false"
           >
             {{ $t('upload_form.fix_files') }}
           </UButton>
           <UButton
             v-if="canProceedAnyway"
-            color="yellow"
+            color="warning"
             @click="confirmProceedAnyway"
           >
             {{ $t('upload_form.proceed_anyway') }}
           </UButton>
-        </template>
-      </UCard>
+        </div>
+      </template>
     </UModal>
-    <UModal v-model="showEpubValidationModal">
-      <UCard :ui="{ body: { base: 'space-y-2' }, footer: { base: 'flex justify-end gap-2' } }">
-        <template #header>
-          <div class="flex items-center gap-3">
-            <UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-yellow-500 flex-shrink-0" />
-            <h3 class="font-semibold text-gray-900">
-              {{ $t('upload_form.epub_validation_title') }}
-            </h3>
-          </div>
-          <p class="text-sm text-gray-500 mt-2">
-            {{ $t('upload_form.epub_validation_notice') }}
-          </p>
-        </template>
+    <UModal v-model:open="showEpubValidationModal">
+      <template #header>
+        <div class="flex items-center gap-3">
+          <UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-yellow-500 shrink-0" />
+          <h3 class="font-semibold text-gray-900">
+            {{ $t('upload_form.epub_validation_title') }}
+          </h3>
+        </div>
+        <p class="text-sm text-gray-500 mt-2">
+          {{ $t('upload_form.epub_validation_notice') }}
+        </p>
+      </template>
+      <template #body>
         <div class="max-h-[300px] overflow-y-auto space-y-2 text-sm">
           <div v-if="epubValidationErrors" class="text-red-600">
             <p class="font-semibold mb-1">
@@ -174,16 +178,16 @@
             <pre class="whitespace-pre-wrap text-xs">{{ epubValidationWarnings }}</pre>
           </div>
         </div>
-        <template #footer>
-          <UButton
-            color="gray"
-            variant="ghost"
-            @click="showEpubValidationModal = false"
-          >
-            {{ $t('auth_state.close') }}
-          </UButton>
-        </template>
-      </UCard>
+      </template>
+      <template #footer>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          @click="showEpubValidationModal = false"
+        >
+          {{ $t('auth_state.close') }}
+        </UButton>
+      </template>
     </UModal>
   </div>
 </template>
@@ -282,7 +286,7 @@ const computedFormClasses = computed(() => [
   'justify-between',
   'p-[28px]',
   'mb-[12px]',
-  'border-[2px]',
+  'border-2',
   'border-dashed',
   'border-gray-300',
   'rounded-[12px]',
@@ -336,8 +340,8 @@ const getFileInfo = async (file: Blob) => {
       icon: 'i-heroicons-exclamation-circle',
       title: $t('upload_form.error_during_upload'),
       description: (error as Error).message || $t('upload_form.upload_error_occurred'),
-      timeout: 3000,
-      color: 'red'
+      duration: 3000,
+      color: 'error'
     })
     return null
   }
@@ -419,8 +423,8 @@ const onFileUpload = async (event: Event) => {
                     icon: 'i-heroicons-exclamation-circle',
                     title: $t('upload_form.warning'),
                     description: $t('upload_form.only_one_cover_image'),
-                    timeout: 3000,
-                    color: 'yellow'
+                    duration: 3000,
+                    color: 'warning'
                   })
                   return
                 }
@@ -600,8 +604,8 @@ const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer; file: File }
       icon: 'i-heroicons-exclamation-circle',
       title: $t('upload_form.error_during_upload'),
       description: (err as Error).message || $t('upload_form.epub_processing_error'),
-      timeout: 3000,
-      color: 'red'
+      duration: 3000,
+      color: 'error'
     })
   }
 }
@@ -683,8 +687,8 @@ const estimateArweaveFee = async (): Promise<void> => {
       icon: 'i-heroicons-exclamation-circle',
       title: $t('upload_form.error_during_upload'),
       description: (err as Error).message || $t('upload_form.fee_estimation_error'),
-      timeout: 3000,
-      color: 'red'
+      duration: 3000,
+      color: 'error'
     })
   } finally {
     uploadStatus.value = ''
@@ -916,8 +920,8 @@ const onSubmitInternal = async () => {
       icon: 'i-heroicons-exclamation-circle',
       title: $t('upload_form.error_during_upload'),
       description: (error as Error).message || $t('upload_form.upload_error_occurred'),
-      timeout: 3000,
-      color: 'red'
+      duration: 3000,
+      color: 'error'
     })
     return
   } finally {

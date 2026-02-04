@@ -1,4 +1,4 @@
-export const useFileUpload = () => {
+export const useFileUploadLocal = () => {
   const getFileType = (fileType: string): string => {
     if (fileType.startsWith('image/')) {
       return 'image'

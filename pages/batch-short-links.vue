@@ -3,28 +3,28 @@
     <PageHeader :title="$t('batch_short_links.page_title')" />
 
     <PageBody>
-      <UFormGroup
+      <UFormField
         :label="$t('batch_short_links.provider_label')"
         :required="true"
       >
         <USelect
           v-model="shortLinkProvider"
-          :options="shortLinkProviders"
+          :items="shortLinkProviders"
         />
-      </UFormGroup>
+      </UFormField>
 
-      <UFormGroup
+      <UFormField
         :label="apiKeyLabel"
         :required="true"
       >
         <UInput
           v-model="apiKey"
           class="font-mono"
-          :autocomplete="false"
+          autocomplete="off"
         />
-      </UFormGroup>
+      </UFormField>
 
-      <UFormGroup
+      <UFormField
         v-if="shouldShowShortLinkDomain"
         :label="$t('batch_short_links.shortio_domain')"
         :required="true"
@@ -33,30 +33,30 @@
           v-model="shortLinkDomain"
           class="font-mono"
           placeholder="link.liker.land"
-          :autocomplete="false"
+          autocomplete="off"
         />
-      </UFormGroup>
+      </UFormField>
 
-      <UFormGroup :label="$t('batch_short_links.title_prefix')">
+      <UFormField :label="$t('batch_short_links.title_prefix')">
         <UInput
           v-model="titlePrefix"
           :hint="$t('batch_short_links.optional')"
         />
-      </UFormGroup>
+      </UFormField>
 
-      <UCard :ui="{ body: { base: 'space-y-2' } }">
-        <UFormGroup :label="$t('batch_short_links.upload_csv')">
+      <UCard :ui="{ body: 'space-y-2' }">
+        <UFormField :label="$t('batch_short_links.upload_csv')">
           <UInput type="file" accept="csv" @change="handleFileChange" />
-        </UFormGroup>
-        <UDivider class="print:hidden" :label="$t('batch_short_links.or_divider')" />
-        <UFormGroup :label="$t('batch_short_links.input_csv')">
+        </UFormField>
+        <USeparator class="print:hidden" :label="$t('batch_short_links.or_divider')" />
+        <UFormField :label="$t('batch_short_links.input_csv')">
           <UTextarea
             v-model="csvInput"
             class="font-mono"
             :placeholder="csvInputPlaceholder"
             :resize="true"
           />
-        </UFormGroup>
+        </UFormField>
       </UCard>
 
       <div class="flex justify-center">
@@ -71,8 +71,8 @@
       <template v-if="shortenedURLItems.length">
         <UCard
           :ui="{
-            header: { base: 'flex justify-between items-center gap-2' },
-            body: { padding: '' }
+            header: 'flex justify-between items-center gap-2',
+            body: 'p-0'
           }"
         >
           <template #header>
@@ -96,34 +96,32 @@
 
           <UTable
             :columns="[
-              { key: 'key', label: $t('batch_short_links.key_column') },
-              { key: 'url', label: $t('batch_short_links.url_column') },
-              { key: 'destination', label: $t('batch_short_links.destination_column') },
+              { accessorKey: 'key', header: $t('batch_short_links.key_column') },
+              { accessorKey: 'url', header: $t('batch_short_links.url_column') },
+              { accessorKey: 'destination', header: $t('batch_short_links.destination_column') },
             ]"
-            :rows="shortenedURLItems"
+            :data="shortenedURLItems"
           >
-            <template #url-data="{ row }">
+            <template #url-cell="{ row }">
               <UButton
                 class="font-mono"
-                :to="row.url"
+                :to="row.original.url"
                 target="_blank"
                 rel="noopener"
                 variant="link"
-                :padded="false"
               >
-                {{ row.url }}
+                {{ row.original.url }}
               </UButton>
             </template>
-            <template #destination-data="{ row }">
+            <template #destination-cell="{ row }">
               <UButton
                 class="font-mono"
-                :to="row.destination"
+                :to="row.original.destination"
                 target="_blank"
                 rel="noopener"
                 variant="link"
-                :padded="false"
               >
-                {{ row.destination }}
+                {{ row.original.destination }}
               </UButton>
             </template>
           </UTable>
@@ -159,7 +157,7 @@ const shortLinkProviders = [
     value: ShortLinkProvider.ShortIO
   }
 ]
-const shortLinkProvider = ref(route.query.provider as string || ShortLinkProvider.Bitly)
+const shortLinkProvider = ref<ShortLinkProvider>(route.query.provider as ShortLinkProvider || ShortLinkProvider.Bitly)
 const shouldShowShortLinkDomain = computed(() => shortLinkProvider.value === ShortLinkProvider.ShortIO)
 const shortLinkDomain = ref('')
 
@@ -225,11 +223,8 @@ async function shortenURLWithBitly ({ url, key }: { url: string, key: string }) 
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: (error as Error).toString(),
-      timeout: 0,
-      color: 'red',
-      ui: {
-        title: 'text-red-400 dark:text-red-400'
-      }
+      duration: 0,
+      color: 'error'
     })
     return 'error'
   }
@@ -262,11 +257,8 @@ async function shortenURLWithShortIO ({ url, key }: { url: string, key: string }
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: (error as Error).toString(),
-      timeout: 0,
-      color: 'red',
-      ui: {
-        title: 'text-red-400 dark:text-red-400'
-      }
+      duration: 0,
+      color: 'error'
     })
     return 'error'
   }
@@ -289,11 +281,8 @@ async function startShorteningURLs () {
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: (error as Error).toString(),
-      timeout: 0,
-      color: 'red',
-      ui: {
-        title: 'text-red-400 dark:text-red-400'
-      }
+      duration: 0,
+      color: 'error'
     })
     return
   }
@@ -323,11 +312,8 @@ async function startShorteningURLs () {
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: (error as Error).toString(),
-      timeout: 0,
-      color: 'red',
-      ui: {
-        title: 'text-red-400 dark:text-red-400'
-      }
+      duration: 0,
+      color: 'error'
     })
   }
 }
@@ -345,7 +331,8 @@ async function convertToQRCode () {
   await navigateTo(localeRoute({ name: 'batch-qrcode' }))
 }
 
-function handleFileChange (files: FileList) {
+function handleFileChange (event: Event) {
+  const files = (event.target as HTMLInputElement)?.files
   if (!files?.length) { return }
   const file = files[0]
   if (!file) { return }

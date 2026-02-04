@@ -4,24 +4,24 @@
     <UAlert
       v-if="error"
       icon="i-heroicons-exclamation-triangle"
-      color="red"
+      color="error"
       variant="soft"
       :title="`${error}`"
-      :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'red', variant: 'link', padded: false }"
+      :close="{ icon: 'i-heroicons-x-mark-20-solid', color: 'error', variant: 'link' }"
       @close="error = ''"
     />
     <UAlert
       v-if="!isAffiliationReady"
       icon="i-heroicons-exclamation-circle"
-      color="orange"
+      color="warning"
       variant="soft"
       :title="$t('latest_books.join_affiliation')"
       :description="$t('latest_books.affiliation_description')"
       :actions="[{
         label: $t('common.setup'),
-        color: 'orange',
+        color: 'warning',
         variant: 'outline',
-        click: handleAffiliationSetupButtonClick,
+        onClick: handleAffiliationSetupButtonClick,
       }]"
     />
     <UCard v-else>
@@ -30,27 +30,27 @@
       </UKbd>{{ $t('latest_books_extended.append_suffix') }}
     </UCard>
     <UTabs v-model="selectedTabItemIndex" class="w-full" :items="tabItems">
-      <template #item="{ item }">
+      <template #content="{ item }">
         <UCard
-          :key="item.key"
+          :key="item.value"
           :ui="{
-            header: { base: 'flex justify-between items-center' },
-            body: { padding: '' },
-            footer: { base: 'text-center' },
+            header: 'flex justify-between items-center',
+            body: 'p-0',
+            footer: 'text-center',
           }"
         >
           <div class="flex px-3 py-3.5 border-b border-gray-200">
             <UInput v-model="q" :placeholder="$t('latest_books.filter_placeholder')" />
           </div>
-          <UTable :columns="tableColumns" :rows="filteredRows" @select="selectTableRow">
-            <template #image-data="{ row }">
-              <img v-if="row.image" :src="row.image" :alt="row.className" class="w-12 h-12 object-cover rounded-lg">
+          <UTable :columns="tableColumns" :data="filteredRows" @select="selectTableRow">
+            <template #image-cell="{ row }">
+              <img v-if="row.original.image" :src="row.original.image" :alt="row.original.className" class="w-12 h-12 object-cover rounded-lg">
             </template>
-            <template #className-data="{ row }">
-              <div class="max-w-[20vw] whitespace-normal" v-text="row.className" />
+            <template #className-cell="{ row }">
+              <div class="max-w-[20vw] whitespace-normal" v-text="row.original.className" />
             </template>
-            <template #url-data="{ row }">
-              <UButton :label="$t('common.copy')" :disabled="!isAffiliationReady" @click="handleCopyButtonClick($event, row.url)" />
+            <template #url-cell="{ row }">
+              <UButton :label="$t('common.copy')" :disabled="!isAffiliationReady" @click="handleCopyButtonClick($event, row.original.url)" />
             </template>
           </UTable>
         </UCard>
@@ -75,15 +75,15 @@ const { userLikerInfo } = storeToRefs(userStore)
 const { isAuthenticated, wallet: sessionWallet } = storeToRefs(bookstoreApiStore)
 
 const tabItems = computed(() => [
-  { label: $t('latest_books.latest_releases'), key: 'latest' },
-  { label: $t('latest_books.best_sellers'), key: 'bestselling' }
+  { label: $t('latest_books.latest_releases'), value: 'latest' },
+  { label: $t('latest_books.best_sellers'), value: 'bestselling' }
 ])
 
 const error = ref('')
 const isStripeConnectReady = ref(false)
 const latestBookList = ref([])
 const bestSellerBookList = ref([] as any[])
-const selectedTabItemIndex = ref(0)
+const selectedTabItemIndex = ref('latest')
 const q = ref(route.query.q as string || '')
 
 const channelId = computed(() => {
@@ -97,31 +97,26 @@ const isAffiliationReady = computed(() => isStripeConnectReady.value && channelI
 
 const tableColumns = computed(() => [
   {
-    key: 'image',
-    label: $t('table.cover'),
-    sortable: false
+    accessorKey: 'image',
+    header: $t('table.cover')
   },
   {
-    key: 'className',
-    label: $t('latest_books.book_name'),
-    sortable: true
+    accessorKey: 'className',
+    header: $t('latest_books.book_name')
   },
   {
-    key: 'author',
-    label: $t('common.author'),
-    sortable: true
+    accessorKey: 'author',
+    header: $t('common.author')
   },
   {
-    key: 'priceInUSD',
-    label: $t('common.price'),
-    sortable: true
+    accessorKey: 'priceInUSD',
+    header: $t('common.price')
   }, {
-    key: 'url',
-    label: isAffiliationReady.value ? $t('latest_books.affiliation_link') : $t('common.link'),
-    sortable: false
+    accessorKey: 'url',
+    header: isAffiliationReady.value ? $t('latest_books.affiliation_link') : $t('common.link')
   }
 ])
-const selectedTabItemKey = computed(() => tabItems.value[selectedTabItemIndex.value]?.key || 'latest')
+const selectedTabItemKey = computed(() => selectedTabItemIndex.value || 'latest')
 const bookList = computed(() => selectedTabItemKey.value === 'latest' ? latestBookList.value : bestSellerBookList.value)
 const tableRows = computed(() => bookList.value.map((b: any) => {
   const className = b.name || b.title
