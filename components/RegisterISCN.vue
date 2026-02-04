@@ -27,7 +27,6 @@
 import { useWriteContract } from '@wagmi/vue'
 import { LIKE_NFT_ABI } from '~/contracts/likeNFT'
 import { DEFAULT_MAX_SUPPLY } from '~/constant'
-import { useFileUploadLocal } from '~/composables/useFileUploadLocal'
 
 const walletStore = useWalletStore()
 const {
