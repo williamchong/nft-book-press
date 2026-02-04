@@ -211,6 +211,7 @@ const { writeContractAsync } = useWriteContract()
 const { getBalanceOf, getTokenIdByOwnerIndex } = useNFTContractReader()
 const { assertSufficientBalanceForTransaction, waitForTransactionReceipt } = useNFTContractWriter()
 
+const { showErrorToast } = useToastComposable()
 const error = ref({ message: '', actions: [] as any[] })
 const isLoading = ref(false)
 const classId = computed(() => route.params.classId as string)
@@ -328,6 +329,7 @@ async function fetchNFTMetadata () {
       message: (err as Error).toString(),
       actions: []
     }
+    showErrorToast((err as Error).toString())
   } finally {
     isVerifyingNFTId.value = false
   }
@@ -386,6 +388,7 @@ async function fetchNextNFTId (_count = 1) {
         }
       ]
     }
+    showErrorToast(message)
   }
 }
 
@@ -458,6 +461,7 @@ async function onSendNFTStart () {
       message: (err as Error).toString(),
       actions: []
     }
+    showErrorToast((err as Error).toString())
   } finally {
     isLoading.value = false
   }

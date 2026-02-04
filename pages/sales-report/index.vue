@@ -151,6 +151,7 @@ const localeRoute = useLocaleRoute()
 const stripeStore = useStripeStore()
 const { getStripeConnectStatusByWallet } = storeToRefs(stripeStore)
 
+const { showErrorToast } = useToastComposable()
 const error = ref('')
 const isLoading = ref(false)
 
@@ -232,6 +233,7 @@ async function loadCommissionHistory () {
   } catch (e) {
     console.error(e)
     error.value = (e as Error).toString()
+    showErrorToast((e as Error).toString())
   } finally {
     isLoading.value = false
   }
@@ -248,6 +250,7 @@ async function loadPayoutHistory () {
     payoutHistory.value = (data as any)?.payouts || []
   } catch (e) {
     error.value = (e as Error).toString()
+    showErrorToast((e as Error).toString())
   } finally {
     isLoading.value = false
   }

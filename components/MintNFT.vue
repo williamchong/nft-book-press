@@ -29,6 +29,7 @@ const {
   checkNFTClassIsBookNFT
 } = useNFTContractReader()
 
+const { showErrorToast } = useToastComposable()
 const error = ref('')
 const isLoading = ref(false)
 const maxRetries = 3
@@ -108,6 +109,7 @@ async function fetchISCNById (iscnId?: string, retryCount = 0) {
       }, delay)
     } else {
       error.value = $t('error.fetch_classid_failed') + err
+      showErrorToast($t('error.fetch_classid_failed') + err)
       isLoading.value = false
     }
   }

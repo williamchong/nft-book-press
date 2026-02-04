@@ -339,6 +339,7 @@ const editionIndex = computed(() => {
   return props.editionIndex
 })
 const { lazyFetchClassMetadataById } = nftStore
+const { showErrorToast } = useToastComposable()
 const error = ref('')
 const isLoading = ref(false)
 
@@ -585,11 +586,13 @@ function onImgUpload (
   }
   if (file.type !== 'image/png') {
     error.value = $t('errors.png_only')
+    showErrorToast($t('errors.png_only'))
     input.value = ''
     return
   }
   if (file.size > UPLOAD_FILESIZE_MAX) {
     error.value = $t('errors.file_size_limit')
+    showErrorToast($t('errors.file_size_limit'))
     input.value = ''
     return
   }
@@ -660,6 +663,7 @@ function validate (prices: any[]) {
 
   if (errors.length > 0) {
     error.value = errors.map(e => e.message).join('\n')
+    showErrorToast(error.value)
     return false
   }
   return true
@@ -743,6 +747,7 @@ async function submitNewClass () {
     // eslint-disable-next-line no-console
     console.error(errorData)
     error.value = errorData
+    showErrorToast(`${errorData}`)
   } finally {
     isLoading.value = false
   }
@@ -768,6 +773,7 @@ async function submitEditedClass () {
     // eslint-disable-next-line no-console
     console.error(errorData)
     error.value = errorData
+    showErrorToast(`${errorData}`)
   } finally {
     isLoading.value = false
   }

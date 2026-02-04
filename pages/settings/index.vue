@@ -77,6 +77,7 @@ const stripeStore = useStripeStore()
 const { token, wallet } = storeToRefs(bookstoreApiStore)
 const { getStripeConnectStatusByWallet } = storeToRefs(stripeStore)
 
+const { showErrorToast } = useToastComposable()
 const error = ref('')
 const isLoading = ref(false)
 
@@ -107,6 +108,7 @@ async function refreshStripeConnectStatus () {
     await stripeStore.refreshStripeConnectStatus(wallet.value)
   } catch (e) {
     error.value = (e as Error).toString()
+    showErrorToast((e as Error).toString())
   } finally {
     isLoading.value = false
   }
@@ -133,6 +135,7 @@ async function onLoginToStripe () {
     // eslint-disable-next-line no-console
     console.error(e)
     error.value = (e as Error).toString()
+    showErrorToast((e as Error).toString())
   } finally {
     isLoading.value = false
   }
@@ -159,6 +162,7 @@ async function onSetupStripe () {
     // eslint-disable-next-line no-console
     console.error(e)
     error.value = (e as Error).toString()
+    showErrorToast((e as Error).toString())
   } finally {
     isLoading.value = false
   }
@@ -176,6 +180,7 @@ async function handleClickStripeButton () {
     // eslint-disable-next-line no-console
     console.error(e)
     error.value = (e as Error).toString()
+    showErrorToast((e as Error).toString())
   } finally {
     isLoading.value = false
   }
