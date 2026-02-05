@@ -80,7 +80,7 @@ onMounted(async () => {
         }
       }
     )
-    isDone.value = (data as any).isReady || false
+    isDone.value = (data as { isReady?: boolean }).isReady || false
 
     setTimeout(async () => {
       await navigateTo(localeRoute({ name: 'settings' }), { replace: true })

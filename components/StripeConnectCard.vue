@@ -183,9 +183,9 @@ watch(() => props.stripeConnectWallet, (wallet) => {
   }
 }, { immediate: true })
 
-async function onStripeConnectWalletInput (input: any) {
+async function onStripeConnectWalletInput (input: Event) {
   if (!isStripeConnectChecked.value) { return }
-  const inputValue = input.target.value.trim()
+  const inputValue = (input.target as HTMLInputElement).value.trim()
   inputWallet.value = inputValue
   stripeConnectInputError.value = ''
 

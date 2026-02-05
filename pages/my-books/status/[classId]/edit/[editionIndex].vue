@@ -40,8 +40,8 @@ const localeRoute = useLocaleRoute()
 const classId = ref(route.params.classId?.toString() || '')
 const editionIndex = ref(route.params.editionIndex as string)
 
-const classData = ref<any>({})
-const hasMultiplePrices = computed(() => classData?.value?.prices?.length > 1)
+const classData = ref<{ prices?: unknown[] }>({})
+const hasMultiplePrices = computed(() => (classData?.value?.prices?.length ?? 0) > 1)
 
 const priceItemLabel = computed(() => hasMultiplePrices.value ? 'edition' : 'book')
 

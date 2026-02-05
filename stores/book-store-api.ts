@@ -1,4 +1,5 @@
 import { jwtDecode } from 'jwt-decode'
+import type { AuthResponse, BookListingItem, BookListingResponse } from '~/utils/api'
 
 export const useBookstoreApiStore = defineStore('book-api', () => {
   const { LIKE_CO_API } = useRuntimeConfig().public
@@ -7,8 +8,8 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
   const intercomToken = ref('')
   const isShowLoginPanel = ref(false)
 
-  const listingList = ref([] as any[])
-  const moderatedBookList = ref([] as any[])
+  const listingList = ref([] as BookListingItem[])
+  const moderatedBookList = ref([] as BookListingItem[])
   const getTotalPendingNFTCount = computed(() => listingList.value.reduce((acc, item) => acc + (item.pendingNFTCount || 0), 0))
 
   const isAuthenticated = computed(() => {
@@ -54,22 +55,22 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
     } catch {}
   }
 
-  async function authenticate (inputWallet: string, signature: any) {
-    const data = await $fetch(`${LIKE_CO_API}/wallet/authorize`, {
+  async function authenticate (inputWallet: string, signature: { signature: string; message: string; wallet: string; signMethod: string; expiresIn: string }) {
+    const data = await $fetch<AuthResponse>(`${LIKE_CO_API}/wallet/authorize`, {
       method: 'POST',
       body: {
         ...signature
       }
     })
-    if ((!data as any)?.token) { throw new Error('INVALID_SIGNATURE') }
-    token.value = (data as any).token
-    intercomToken.value = (data as any).intercomToken
+    if (!data?.token) { throw new Error('INVALID_SIGNATURE') }
+    token.value = data.token
+    intercomToken.value = data.intercomToken
     sessionWallet.value = inputWallet
     saveAuthSession({ wallet: inputWallet, token: token.value, intercomToken: intercomToken.value })
   }
 
   async function fetchBookListing (params: { key?: number, limit?: number } = {}) {
-    const qsPayload: any = {
+    const qsPayload: Record<string, string | number> = {
       wallet: sessionWallet.value,
       limit: params.limit || 100,
       chain: 'base'
@@ -77,14 +78,14 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
     if (params.key) {
       qsPayload.key = params.key
     }
-    const data = await $fetch(`${LIKE_CO_API}/likernft/book/store/list?${Object.entries(qsPayload).map(([key, value]) => `${key}=${value}`).join('&')}`,
+    const data = await $fetch<BookListingResponse>(`${LIKE_CO_API}/likernft/book/store/list?${Object.entries(qsPayload).map(([key, value]) => `${key}=${value}`).join('&')}`,
       {
         headers: {
           authorization: token.value ? `Bearer ${token.value}` : ''
         }
       })
 
-    const { nextKey, list = [] } = (data as any) || {}
+    const { nextKey, list = [] } = data || {}
     if (params.key) {
       listingList.value.push(...list)
     } else {
@@ -97,7 +98,7 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
   }
 
   async function fetchModeratedBookList (params: { key?: number, limit?: number } = {}) {
-    const qsPayload: any = {
+    const qsPayload: Record<string, string | number> = {
       wallet: sessionWallet.value,
       limit: params.limit || 100,
       chain: 'base'
@@ -105,14 +106,14 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
     if (params.key) {
       qsPayload.key = params.key
     }
-    const data = await $fetch(`${LIKE_CO_API}/likernft/book/store/list/moderated?${Object.entries(qsPayload).map(([key, value]) => `${key}=${value}`).join('&')}`,
+    const data = await $fetch<BookListingResponse>(`${LIKE_CO_API}/likernft/book/store/list/moderated?${Object.entries(qsPayload).map(([key, value]) => `${key}=${value}`).join('&')}`,
       {
         headers: {
           authorization: `Bearer ${token.value}`
         }
       }
     )
-    moderatedBookList.value = (data as any)?.list || []
+    moderatedBookList.value = data?.list || []
   }
 
   function reduceListingPendingNFTCountById (classId: string, count: number) {
@@ -121,10 +122,12 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
       return
     }
     const targetItem = listingList.value[targetIndex]
-    targetItem.pendingNFTCount -= count
+    if (targetItem && targetItem.pendingNFTCount !== undefined) {
+      targetItem.pendingNFTCount -= count
+    }
   }
 
-  async function newBookListing (classId: string, payload: any) {
+  async function newBookListing (classId: string, payload: Record<string, unknown>) {
     const data = await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId}/new`, {
       method: 'POST',
       body: payload,
@@ -135,7 +138,7 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
     return data
   }
 
-  async function updateBookListingSetting (classId: string, payload: any) {
+  async function updateBookListingSetting (classId: string, payload: Record<string, unknown>) {
     const data = await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId}/settings`, {
       method: 'POST',
       body: payload,
@@ -146,7 +149,7 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
     return data
   }
 
-  async function updateEditionPrice (classId: string, priceIndex:any, payload: any) {
+  async function updateEditionPrice (classId: string, priceIndex: number | string, payload: Record<string, unknown>) {
     const data = await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId}/price/${priceIndex}`, {
       method: 'PUT',
       body: payload,
@@ -157,7 +160,7 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
     return data
   }
 
-  async function addEditionPrice (classId: string, priceIndex: string, payload: any) {
+  async function addEditionPrice (classId: string, priceIndex: string, payload: Record<string, unknown>) {
     const data = await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId}/price/${priceIndex}`, {
       method: 'POST',
       body: payload,

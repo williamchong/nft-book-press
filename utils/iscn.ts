@@ -1,4 +1,4 @@
-import type { ISCNRegisterPayload } from './iscn.type'
+import type { ISCNRegisterPayload, ISCNTxPayload, ISCNValidationData } from './iscn.type'
 import { MAX_DESCRIPTION_LENGTH } from '~/constant'
 
 function isValidImageUrl (urlString: string): boolean {
@@ -18,7 +18,7 @@ function isValidImageUrl (urlString: string): boolean {
   }
 }
 
-export function formatISCNTxPayload (payload: ISCNRegisterPayload): any {
+export function formatISCNTxPayload (payload: ISCNRegisterPayload): ISCNTxPayload {
   const {
     tagsString = '',
     license,
@@ -48,7 +48,7 @@ export function formatISCNTxPayload (payload: ISCNRegisterPayload): any {
   }
 }
 
-export function validateISCNForm (data: any, maxDescriptionLength = MAX_DESCRIPTION_LENGTH): string[] {
+export function validateISCNForm (data: ISCNValidationData, maxDescriptionLength = MAX_DESCRIPTION_LENGTH): string[] {
   const errors: string[] = []
   const desc = data.description || ''
 
@@ -66,7 +66,7 @@ export function validateISCNForm (data: any, maxDescriptionLength = MAX_DESCRIPT
     errors.push('Please fill in the author name')
   }
 
-  if (!Array.isArray(data.contentFingerprints) || !data.contentFingerprints.some((f: any) => !!f.url)) {
+  if (!Array.isArray(data.contentFingerprints) || !data.contentFingerprints.some((f: { url: string }) => !!f.url)) {
     errors.push('Please provide at least one content URL')
   }
 

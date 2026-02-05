@@ -66,11 +66,8 @@
                 <USelect
                   v-if="!!row.original.classId && (row.original.prices?.length ?? 0) > 1"
                   class="mt-2"
-                  :model-value="saleItemList[row.original.index].priceIndex || 0"
-                  :items="row.original.prices?.map((price: any) => ({
-                    label: price.name?.zh || price.name?.en || price.name,
-                    value: price.index
-                  }))"
+                  :model-value="saleItemList[row.original.index]?.priceIndex || 0"
+                  :items="getPriceSelectItems(row.original.prices)"
                   @update:model-value="changePriceIndex($event, row.original)"
                 />
               </div>
@@ -315,7 +312,7 @@ const newCouponCodeInput = ref('')
 const coupons = ref<{name: string, code: string}[]>([])
 const selectedCouponCode = ref('')
 
-const saleItemList = ref<any[]>([])
+const saleItemList = ref<{ classId: string; priceIndex?: number }[]>([])
 const isShowAddItemModal = ref(false)
 const isOpenQRCodeModal = ref(false)
 const isEditMode = ref(false)
@@ -370,19 +367,35 @@ const dropdownMenuItems = computed(() => {
 
 interface SaleItem {
   classId?: string;
-  prices?: any[];
+  prices?: Record<string, unknown>[];
   name: string;
   image: string;
   index: number;
 }
 
+function getPriceSelectItems (prices?: Record<string, unknown>[]) {
+  if (!prices) { return [] }
+  return prices.map((price) => {
+    const name = price.name as { zh?: string; en?: string } | string | undefined
+    return {
+      label: (typeof name === 'object' ? (name?.zh || name?.en) : name) || '',
+      value: (price.index as number) || 0
+    }
+  })
+}
+
 const saleItemTableRows = computed<SaleItem[]>(() => {
   return saleItemList.value?.map((item, index) => {
+    const listingInfo = nftStore.getClassListingInfoById(item.classId)
+    const listingPrices = listingInfo?.prices as Record<string, unknown>[] | undefined
+    const metadata = nftStore.getClassMetadataById(item.classId)
+    const imageData = (metadata as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined
+    const nestedMetadata = imageData?.metadata as Record<string, unknown> | undefined
     return {
       classId: item.classId,
-      name: nftStore.getClassMetadataById(item.classId)?.name,
-      prices: nftStore.getClassListingInfoById(item.classId)?.prices?.map((price: any) => ({ ...price })),
-      image: parseImageURLFromMetadata(nftStore.getClassMetadataById(item.classId)?.data?.metadata?.image),
+      name: metadata?.name || '',
+      prices: listingPrices?.map((price: Record<string, unknown>) => ({ ...price })),
+      image: parseImageURLFromMetadata((nestedMetadata?.image as string) || ''),
       index
     }
   })
@@ -413,9 +426,11 @@ const checkoutUrl = computed(() => {
     utm_source: 'direct-checkout',
     utm_medium: 'pos'
   })
-  const productsString = selectedItems.value.map(({ classId, priceIndex }) => {
-    return `${classId}${priceIndex ? `:${priceIndex}` : ''}`
-  }).join(',')
+  const productsString = selectedItems.value
+    .filter((item): item is { classId: string; priceIndex?: number } => !!item)
+    .map(({ classId, priceIndex }) => {
+      return `${classId}${priceIndex ? `:${priceIndex}` : ''}`
+    }).join(',')
   params.append('products', productsString)
   if (selectedCouponCode.value) {
     params.append('coupon', selectedCouponCode.value)
@@ -435,7 +450,7 @@ onMounted(() => {
     if (storedItemString) {
       const items = JSON.parse(storedItemString)
       saleItemList.value = items
-        .map((item: any) => ({
+        .map((item: { classId: string; priceIndex?: number }) => ({
           classId: item.classId,
           priceIndex: item.priceIndex
         }))
@@ -444,7 +459,7 @@ onMounted(() => {
     if (storedCouponString) {
       const items = JSON.parse(storedCouponString)
       coupons.value = items
-        .map((item: any) => ({
+        .map((item: { name: string; code: string }) => ({
           name: item.name,
           code: item.code
         }))
@@ -501,7 +516,10 @@ function addSaleItem () {
 }
 
 function changePriceIndex (value: number, { index }: { index: number }) {
-  saleItemList.value[index].priceIndex = Number(value)
+  const item = saleItemList.value[index]
+  if (item) {
+    item.priceIndex = Number(value)
+  }
   saveSaleProductIds()
 }
 

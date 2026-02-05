@@ -320,6 +320,7 @@ import {
 } from '~/constant'
 import { getApiEndpoints } from '~/constant/api'
 import { getUploadFileData } from '~/utils/uploadFile'
+import type { ClassListingData, ClassListingPrice } from '~/types'
 const { t: $t } = useI18n()
 
 const { LIKE_CO_API } = useRuntimeConfig().public
@@ -356,9 +357,23 @@ const hideDownload = ref(false)
 const isAllowCustomPrice = ref(true)
 const tableOfContents = ref(getUploadFileData()?.epubMetadata?.tableOfContents || '')
 
-const prices = ref<any[]>([
+interface PriceFormItem {
+  index?: string
+  price: string
+  deliveryMethod: string
+  autoMemo: string
+  stock: number
+  name: string
+  description: string
+  isAllowCustomPrice: boolean
+  isListed: boolean
+  oldIsAutoDeliver?: boolean
+  oldStock?: number
+}
+
+const prices = ref<PriceFormItem[]>([
   {
-    price: -1,
+    price: '-1',
     deliveryMethod: 'auto',
     autoMemo: '',
     stock: 100,
@@ -430,7 +445,7 @@ watch(isLoading, (val: boolean) => {
 }, { immediate: true })
 
 config({
-  markdownItConfig (mdit: any) {
+  markdownItConfig (mdit) {
     mdit.options.html = false
   }
 })
@@ -461,7 +476,7 @@ onMounted(async () => {
     ownedCount.value = Number(balance) || 0
 
     if (isEditMode.value || editionIndex.value !== undefined) {
-      const classResData: any = await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId.value}`, {
+      const classResData = await $fetch<ClassListingData>(`${LIKE_CO_API}/likernft/book/store/${classId.value}`, {
         headers: {
           authorization: `Bearer ${token.value}`
         }
@@ -481,17 +496,17 @@ onMounted(async () => {
 
         if (editionIndex.value !== undefined) {
           if (classResData.prices.length) {
-            const currentEdition = classResData.prices.find((e: any) => e.index.toString() === editionIndex.value)
+            const currentEdition = classResData.prices.find((e: ClassListingPrice) => e.index.toString() === editionIndex.value?.toString())
             if (!currentEdition) {
               throw new Error('Edition not found')
             }
             prices.value = [{
-              price: currentEdition.price?.toString(),
+              price: currentEdition.price?.toString() || '',
               deliveryMethod: currentEdition.isAutoDeliver ? 'auto' : 'manual',
-              autoMemo: currentEdition.autoMemo,
+              autoMemo: currentEdition.autoMemo || '',
               stock: currentEdition.stock,
-              name: currentEdition.name.zh,
-              description: currentEdition.description.zh,
+              name: typeof currentEdition.name === 'object' ? currentEdition.name.zh || '' : currentEdition.name || '',
+              description: typeof currentEdition.description === 'object' ? currentEdition.description.zh || '' : currentEdition.description || '',
               isAllowCustomPrice: currentEdition.isAllowCustomPrice,
               isListed: !currentEdition.isUnlisted,
               oldIsAutoDeliver: currentEdition.isAutoDeliver,
@@ -501,17 +516,17 @@ onMounted(async () => {
           } else {
             throw new Error('No prices found')
           }
-        } else {
+        } else if (prices.value[0]) {
           prices.value[0].price = DEFAULT_PRICE_STRING
         }
-        otherExistingStock.value = classResData.prices.reduce((acc: number, price: any) => {
-          if (price.index.toString() !== editionIndex.value) {
+        otherExistingStock.value = classResData.prices.reduce((acc: number, price: ClassListingPrice) => {
+          if (price.index.toString() !== editionIndex.value?.toString()) {
             return acc + price.stock
           }
           return acc
         }, 0)
-        otherExistingManualStock.value = classResData.prices.reduce((acc: number, price: any) => {
-          if (price.index.toString() !== editionIndex.value && !price.isAutoDeliver) {
+        otherExistingManualStock.value = classResData.prices.reduce((acc: number, price: ClassListingPrice) => {
+          if (price.index.toString() !== editionIndex.value?.toString() && !price.isAutoDeliver) {
             return acc + price.stock
           }
           return acc
@@ -541,7 +556,7 @@ onMounted(async () => {
 })
 
 watch(isAllowCustomPrice, (newValue: boolean) => {
-  prices.value.forEach((price: any) => {
+  prices.value.forEach((price: PriceFormItem) => {
     price.isAllowCustomPrice = newValue
   })
 })
@@ -556,7 +571,7 @@ watch(classId, async (newClassId) => {
   }
 }, { immediate: true })
 
-function isContentFingerprintEncrypted (contentFingerprints: any[]) {
+function isContentFingerprintEncrypted (contentFingerprints: string[]) {
   const apiEndpoints = getApiEndpoints()
   const arweaveLinkEndpoint = apiEndpoints.API_GET_ARWEAVE_V2_LINK
   return contentFingerprints.some((fingerprint) => {
@@ -618,8 +633,8 @@ function deletePrice (index: number) {
   prices.value.splice(index, 1)
 }
 
-function mapPrices (prices: any) {
-  return prices.map((p: any) => ({
+function mapPrices (prices: PriceFormItem[]) {
+  return prices.map((p: PriceFormItem) => ({
     name: {
       en: escapeHtml(p.name),
       zh: escapeHtml(p.name)
@@ -638,9 +653,21 @@ function mapPrices (prices: any) {
   }))
 }
 
-function validate (prices: any[]) {
+interface MappedPrice {
+  name: { en: string; zh: string }
+  description: { en: string; zh: string }
+  priceInDecimal: number
+  price: number
+  stock: number
+  isAutoDeliver: boolean
+  isAllowCustomPrice: boolean
+  isUnlisted: boolean
+  autoMemo: string
+}
+
+function validate (prices: MappedPrice[]) {
   const errors: FormError[] = []
-  prices.forEach((price: any) => {
+  prices.forEach((price: MappedPrice) => {
     if (price.price !== 0 && price.price < MINIMAL_PRICE) {
       errors.push({
         name: 'price',
@@ -714,7 +741,7 @@ async function submitNewClass () {
     isLoading.value = true
 
     const data = await lazyFetchClassMetadataById(classId.value)
-    const collectionId = data?.nft_meta_collection_id || ''
+    const collectionId = String(data?.nft_meta_collection_id || '')
     if (
       !collectionId.includes('nft_book') &&
       !collectionId.includes('book_nft')
@@ -724,7 +751,7 @@ async function submitNewClass () {
 
     const p = mapPrices(prices.value)
 
-    const shouldEnableCustomMessagePage = p.some((price: any) => !price.isAutoDeliver || price.autoMemo)
+    const shouldEnableCustomMessagePage = p.some((price: MappedPrice) => !price.isAutoDeliver || price.autoMemo)
 
     await newBookListing(classId.value as string, {
       defaultPaymentCurrency: 'USD',
@@ -737,11 +764,11 @@ async function submitNewClass () {
       tableOfContents: tableOfContents.value || undefined
     })
   } catch (err) {
-    const errorData = (err as any).data || err
+    const errorData = (err as { data?: string }).data || err
     // eslint-disable-next-line no-console
     console.error(errorData)
-    error.value = errorData
-    showErrorToast(`${errorData}`)
+    error.value = String(errorData)
+    showErrorToast(String(errorData))
   } finally {
     isLoading.value = false
   }
@@ -759,15 +786,18 @@ async function submitEditedClass () {
 
     isLoading.value = true
 
+    if (editionIndex.value === undefined) {
+      throw new Error($t('errors.missing_edition_data'))
+    }
     await updateEditionPrice(classId.value as string, editionIndex.value, {
       price: editedPrice
     })
   } catch (err) {
-    const errorData = (err as any).data || err
+    const errorData = (err as { data?: string }).data || err
     // eslint-disable-next-line no-console
     console.error(errorData)
-    error.value = errorData
-    showErrorToast(`${errorData}`)
+    error.value = String(errorData)
+    showErrorToast(String(errorData))
   } finally {
     isLoading.value = false
   }

@@ -73,6 +73,7 @@
 
 <script setup lang="ts">
 import { useWriteContract } from '@wagmi/vue'
+import type { ISCNData } from '~/types'
 import { NFT_DEFAULT_MINT_AMOUNT, NFT_DEFAULT_RESTOCK_AMOUNT } from '~/constant'
 import { LIKE_NFT_CLASS_ABI } from '~/contracts/likeNFT'
 
@@ -116,11 +117,11 @@ const props = defineProps({
 const error = ref('')
 const isLoading = ref(false)
 
-const localISCNData = ref<any>(null)
+const localISCNData = ref<ISCNData | null>(null)
 const localISCNId = ref('')
 
-const nftMintListData = ref<any>([])
-const nftMintDefaultData = ref<any>(null)
+const nftMintListData = ref<{ image: string; metadata: string }[]>([])
+const nftMintDefaultData = ref<{ metadata: Record<string, unknown> } | null>(null)
 
 const classId = ref<string>(props.iscnId || '')
 
@@ -173,7 +174,7 @@ watch(isLoading, (val: boolean) => {
 
 watchEffect(async () => {
   if (props.iscnData) {
-    localISCNData.value = props.iscnData
+    localISCNData.value = props.iscnData as ISCNData
     localISCNId.value = props.iscnData['@id']
     formState.imageUrl = props.iscnData.contentMetadata?.thumbnailUrl || ''
     classId.value = props.iscnData['@id']
@@ -215,7 +216,12 @@ function generateNFTMintListData ({
 
 async function startNFTMintFlow () {
   try {
-    const { contentMetadata } = localISCNData.value
+    const iscnData = localISCNData.value
+    if (!iscnData) {
+      showErrorToast($t('errors.no_mint_data'))
+      return
+    }
+    const { contentMetadata } = iscnData
 
     if (!isFormValid.value) {
       const missingFields = formError.value.join(', ')

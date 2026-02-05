@@ -1,7 +1,9 @@
+import type { ClassMetadata } from '~/utils/iscn.type'
+
 export const useNftStore = defineStore('nft', () => {
   const { LIKE_CO_API } = useRuntimeConfig().public
-  const classMetadataByIdMap = ref({} as Record<string, any>)
-  const classListingInfoByIdMap = ref({} as Record<string, any>)
+  const classMetadataByIdMap = ref({} as Record<string, ClassMetadata | null>)
+  const classListingInfoByIdMap = ref({} as Record<string, Record<string, unknown>>)
 
   const getClassMetadataById = computed(() => (classId: string) => classMetadataByIdMap.value[classId])
 
@@ -20,8 +22,8 @@ export const useNftStore = defineStore('nft', () => {
   }
 
   async function fetchClassListingInfoById (classId: string) {
-    const data = await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId}`)
-    const listingInfo = data as any
+    const data = await $fetch<Record<string, unknown>>(`${LIKE_CO_API}/likernft/book/store/${classId}`)
+    const listingInfo = data
     classListingInfoByIdMap.value[classId] = listingInfo
     return listingInfo
   }

@@ -1,6 +1,6 @@
 import { stringify as csvStringify } from 'csv-stringify/sync'
 import { useClipboard } from '@vueuse/core'
-import { importer } from 'ipfs-unixfs-importer'
+import { importer, type WritableStorage } from 'ipfs-unixfs-importer'
 import { keccak256, toBytes } from 'viem'
 
 const ACCOUNT_ID_CHARS = 'abcdefghjkmnpqrstuvwxyz' as const
@@ -42,7 +42,7 @@ export function downloadBlob (content: string, filename: string, contentType: st
  * @param filename - Output filename
  */
 export async function downloadCSV (
-  data: Record<string, any>[],
+  data: Record<string, unknown>[],
   columns: { accessorKey: string; header: string }[],
   filename: string
 ) {
@@ -74,14 +74,14 @@ export function parseImageURLFromMetadata (image: string): string {
   return image.replace('ar://', `${ARWEAVE_ENDPOINT}/`).replace('ipfs://', 'https://ipfs.io/ipfs/')
 }
 
-export function downloadFile ({ data, fileName, fileType }:{data:any, fileName:string, fileType:string}) {
+export function downloadFile ({ data, fileName, fileType }:{data: Record<string, unknown> | Record<string, unknown>[], fileName:string, fileType:string}) {
   let fileData
   let mimeType
   if (fileType === 'json') {
     fileData = JSON.stringify(data, null, 2)
     mimeType = 'application/json'
   } else if (fileType === 'csv') {
-    fileData = convertArrayOfObjectsToCSV(data)
+    fileData = convertArrayOfObjectsToCSV(Array.isArray(data) ? data : [data])
     mimeType = 'text/csv'
   } else {
     throw new Error('Unsupported file type')
@@ -103,7 +103,7 @@ export function sleep (time: number) {
   return new Promise((resolve) => { setTimeout(resolve, time) })
 }
 
-export function convertArrayOfObjectsToCSV (data: Record<string, any>[]): string {
+export function convertArrayOfObjectsToCSV (data: Record<string, unknown>[]): string {
   if (data.length === 0) {
     return ''
   }
@@ -259,24 +259,23 @@ export function digestFileSHA256 (buffer: ArrayBuffer) {
   return hashHex
 }
 
-export async function calculateIPFSHash (fileBytes: any, options?: any) {
+export async function calculateIPFSHash (fileBytes: Uint8Array | Buffer, options?: Record<string, unknown>) {
   try {
     options = options || {}
 
     const block = {
-      get: (cid: any) => { throw new Error(`unexpected block API get for ${cid}`) },
-      put: (_: any) => { }
-    }
+      put: async () => {}
+    } as unknown as WritableStorage
 
     let lastCid
     for await (const { cid } of importer([{
       content: fileBytes
-    }], block as any, {
+    }], block, {
       ...options,
       cidVersion: 0,
       rawLeaves: false,
       onlyHash: true
-    })) {
+    } as Parameters<typeof importer>[2])) {
       lastCid = cid
     }
 

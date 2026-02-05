@@ -68,8 +68,8 @@
         :ui="{ th: 'text-center', td: 'text-center' }"
       >
         <template #classId-cell="{ row }">
-          <a :href="`${BOOK3_URL}/store/${row.original.classId}`" target="_blank">
-            {{ nftStore.getClassMetadataById(row.original.classId)?.name || row.original.classId }}
+          <a :href="`${BOOK3_URL}/store/${row.original.classId || ''}`" target="_blank">
+            {{ (row.original.classId ? nftStore.getClassMetadataById(row.original.classId)?.name : '') || row.original.classId || '' }}
           </a>
         </template>
       </UTable>
@@ -129,7 +129,7 @@
             :to="localeRoute({
               name: 'sales-report-payouts-payoutId',
               params: {
-                payoutId: (row.original as any).id
+                payoutId: row.original.id
               }
             })"
           />
@@ -140,6 +140,8 @@
 </template>
 
 <script setup lang="ts">
+import type { CommissionRow, PayoutRow } from '~/types'
+
 const { LIKE_CO_API, BOOK3_URL } = useRuntimeConfig().public
 const { t: $t } = useI18n()
 
@@ -155,8 +157,8 @@ const { showErrorToast } = useToastComposable()
 const error = ref('')
 const isLoading = ref(false)
 
-const commissionHistory = ref<any>([])
-const payoutHistory = ref<any>([])
+const commissionHistory = ref<CommissionRow[]>([])
+const payoutHistory = ref<PayoutRow[]>([])
 
 watch(isLoading, (newIsLoading) => {
   if (newIsLoading) { error.value = '' }
@@ -175,7 +177,7 @@ const currentStripeAccount = computed(() => getStripeConnectStatusByWallet.value
 const isStripeConnectReady = computed(() => currentStripeAccount.value?.isReady)
 
 const commissionHistoryRows = computed(() => {
-  return commissionHistory.value.map((row: any) => {
+  return commissionHistory.value.map((row: CommissionRow) => {
     let type = row.type
     switch (type) {
       case 'connectedWallet':
@@ -197,7 +199,7 @@ const commissionHistoryRows = computed(() => {
 })
 
 const payoutHistoryRows = computed(() => {
-  return payoutHistory.value.map((row: any) => {
+  return payoutHistory.value.map((row: PayoutRow) => {
     const {
       id,
       amount,
@@ -224,11 +226,11 @@ async function loadCommissionHistory () {
         authorization: `Bearer ${token.value}`
       }
     })
-    commissionHistory.value = (data as any)?.commissions || []
+    commissionHistory.value = (data as { commissions?: CommissionRow[] })?.commissions || []
 
     const classIds = new Set<string>(commissionHistory.value
-      .filter((row: any) => row.classId)
-      .map((row: any) => row.classId))
+      .filter((row: CommissionRow) => !!row.classId)
+      .map((row: CommissionRow) => row.classId as string))
     classIds.forEach((classId: string) => nftStore.lazyFetchClassMetadataById(classId))
   } catch (e) {
     console.error(e)
@@ -247,7 +249,7 @@ async function loadPayoutHistory () {
         authorization: `Bearer ${token.value}`
       }
     })
-    payoutHistory.value = (data as any)?.payouts || []
+    payoutHistory.value = (data as { payouts?: PayoutRow[] })?.payouts || []
   } catch (e) {
     error.value = (e as Error).toString()
     showErrorToast((e as Error).toString())
@@ -269,7 +271,7 @@ async function exportCommissionHistory () {
     { accessorKey: 'currency', header: $t('user_settings.currency') }
   ]
 
-  const data = commissionHistory.value.map((row: any) => ({
+  const data = commissionHistory.value.map((row: CommissionRow) => ({
     timestamp: new Date(row.timestamp).toLocaleString(),
     type: (() => {
       let type = row.type
@@ -283,8 +285,8 @@ async function exportCommissionHistory () {
       }
       return type
     })(),
-    bookName: nftStore.getClassMetadataById(row.classId)?.name || '',
-    classId: row.classId,
+    bookName: (row.classId ? nftStore.getClassMetadataById(row.classId)?.name : '') || '',
+    classId: row.classId || '',
     amount: convertDecimalToAmount(row.amount, row.currency),
     currency: formatCurrency(row.currency),
     amountTotal: convertDecimalToAmount(row.amountTotal, row.currency)
@@ -304,7 +306,7 @@ async function exportPayoutHistory () {
     { accessorKey: 'id', header: 'ID' }
   ]
 
-  const data = payoutHistory.value.map((row: any) => ({
+  const data = payoutHistory.value.map((row: PayoutRow) => ({
     createdTs: new Date(row.createdTs * 1000).toLocaleString(),
     amount: convertDecimalToAmount(row.amount, row.currency),
     status: row.status,

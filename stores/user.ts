@@ -5,7 +5,7 @@ export const useUserStore = defineStore('user', () => {
   const { token, isAuthenticated, wallet } = storeToRefs(bookstoreApiStore)
   const likerStore = useLikerStore()
 
-  const bookUser = ref<any>(null)
+  const bookUser = ref<Record<string, unknown> | null>(null)
   const userLikerInfo = computed(() => {
     if (isAuthenticated.value && wallet.value) {
       return likerStore.getLikerInfoByWallet(wallet.value)
@@ -23,7 +23,7 @@ export const useUserStore = defineStore('user', () => {
         }
       }
     )
-    bookUser.value = data
+    bookUser.value = data as Record<string, unknown>
     return bookUser.value
   }
 

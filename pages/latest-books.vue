@@ -60,6 +60,8 @@
 </template>
 
 <script setup lang="ts">
+import type { BookRecord } from '~/types'
+
 const { t: $t } = useI18n()
 
 const { BOOK3_URL } = useRuntimeConfig().public
@@ -81,8 +83,9 @@ const tabItems = computed(() => [
 
 const error = ref('')
 const isStripeConnectReady = ref(false)
-const latestBookList = ref([])
-const bestSellerBookList = ref([] as any[])
+
+const latestBookList = ref<BookRecord[]>([])
+const bestSellerBookList = ref<BookRecord[]>([])
 const selectedTabItemIndex = ref('latest')
 const q = ref(route.query.q as string || '')
 
@@ -118,10 +121,10 @@ const tableColumns = computed(() => [
 ])
 const selectedTabItemKey = computed(() => selectedTabItemIndex.value || 'latest')
 const bookList = computed(() => selectedTabItemKey.value === 'latest' ? latestBookList.value : bestSellerBookList.value)
-const tableRows = computed(() => bookList.value.map((b: any) => {
+const tableRows = computed(() => bookList.value.map((b) => {
   const className = b.name || b.title
   const image = b.thumbnailUrl || b.imageUrl
-  const author = b.author?.name || b.author
+  const author = typeof b.author === 'object' ? b.author.name : b.author
   return {
     className,
     image: image ? getImageResizeURL(parseImageURLFromMetadata(image)) : undefined,
@@ -136,7 +139,7 @@ const filteredRows = computed(() => {
     return tableRows.value
   }
   const query = q.value.toLowerCase()
-  return tableRows.value.filter((row: any) => {
+  return tableRows.value.filter((row) => {
     return [row.className, row.author].some((value) => {
       return value && value.toLowerCase().includes(query)
     })
@@ -168,12 +171,12 @@ onMounted(async () => {
 
 async function fetchBookList () {
   const data = await $fetch(`${BOOK3_URL}/api/store/products?tag=latest`)
-  latestBookList.value = (data as any)?.records || []
+  latestBookList.value = (data as { records?: BookRecord[] })?.records || []
 }
 
 async function fetchBestSellersList () {
   const data = await $fetch(`${BOOK3_URL}/api/store/products?tag=bestselling`)
-  bestSellerBookList.value = (data as any)?.records || []
+  bestSellerBookList.value = (data as { records?: BookRecord[] })?.records || []
 }
 
 async function fetchUserStripeInfo () {
@@ -196,9 +199,9 @@ function handleAffiliationSetupButtonClick () {
   navigateTo(localeRoute({ name: 'settings' }))
 }
 
-function selectTableRow (row: any) {
+function selectTableRow (row: { original: { url: string } }) {
   useTrackEvent('latest_books_click_table_row')
-  window.open(row.url, '_blank')
+  window.open(row.original.url, '_blank')
 }
 
 function handleCopyButtonClick (e: MouseEvent, text: string) {

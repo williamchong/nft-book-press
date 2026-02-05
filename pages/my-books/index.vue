@@ -169,8 +169,8 @@ const tablePageRowTo = computed(() => Math.min(tablePage.value * tableRowsPerPag
 const tableRows = computed(() => (selectedTabItemIndex.value === 'viewable' ? moderatedBookList : bookList).value.map(b => ({
   classId: b.classId,
   className: nftStore.getClassMetadataById(b.classId)?.name,
-  priceInUSD: b.prices?.[0].price,
-  prices: b.prices?.map((p :any) => p.price),
+  priceInUSD: b.prices?.[0]?.price,
+  prices: b.prices?.map(p => p.price),
   pendingAction: b.pendingNFTCount,
   sold: b.sold
 })).filter((b) => {
@@ -181,11 +181,13 @@ const tableRows = computed(() => (selectedTabItemIndex.value === 'viewable' ? mo
 
 const sortedTableRows = computed(() => {
   const { column, direction } = sort.value
-  return [...tableRows.value].sort((a: any, b: any) => {
-    if (a[column] < b[column]) {
+  return [...tableRows.value].sort((a, b) => {
+    const aVal = a[column as keyof typeof a] ?? ''
+    const bVal = b[column as keyof typeof b] ?? ''
+    if (aVal < bVal) {
       return direction === 'asc' ? -1 : 1
     }
-    if (a[column] > b[column]) {
+    if (aVal > bVal) {
       return direction === 'asc' ? 1 : -1
     }
     return 0
@@ -249,7 +251,7 @@ onMounted(async () => {
   classIds.forEach(classId => lazyFetchClassMetadataById(classId))
 })
 
-async function selectTableRow (row: any) {
+async function selectTableRow (row: { original: { classId: string } }) {
   await navigateTo(localeRoute({
     name: 'my-books-status-classId',
     params: { classId: row.original.classId }

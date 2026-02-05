@@ -59,14 +59,7 @@
 </template>
 
 <script setup lang="ts">
-interface ISCNData {
-  contentMetadata?: {
-    name?: string
-    description?: string
-    descriptionFull?: string
-    alternativeHeadline?: string
-  }
-}
+import type { ISCNData } from '~/types'
 
 interface Props {
   iscnId: string

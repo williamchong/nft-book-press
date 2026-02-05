@@ -110,6 +110,7 @@
 </template>
 
 <script setup lang="ts">
+import type { PayoutData, PayoutItemDetail } from '~/types'
 
 const { t: $t } = useI18n()
 
@@ -118,8 +119,9 @@ const bookstoreApiStore = useBookstoreApiStore()
 const { token } = storeToRefs(bookstoreApiStore)
 
 const route = useRoute()
-const payoutData = ref<any>({})
-const payoutItemDetails = ref<any>([])
+
+const payoutData = ref<PayoutData>({} as PayoutData)
+const payoutItemDetails = ref<PayoutItemDetail[]>([])
 
 const error = ref('')
 const isLoading = ref(false)
@@ -162,7 +164,7 @@ const payoutDataRows = computed(() => {
 })
 
 const payoutItemRows = computed(() => {
-  return payoutItemDetails.value.map((row: any) => {
+  return payoutItemDetails.value.map((row) => {
     const {
       commissionId,
       createdTs,
@@ -193,7 +195,7 @@ onMounted(async () => {
           authorization: `Bearer ${token.value}`
         }
       })
-    payoutData.value = (data as any)
+    payoutData.value = data as PayoutData
     if (payoutData.value.items) {
       payoutItemDetails.value = payoutData.value.items
     }
@@ -244,7 +246,7 @@ async function exportPayoutItems () {
     { accessorKey: 'metadata', header: $t('table.metadata') }
   ]
 
-  const data = payoutItemDetails.value.map((row: any) => ({
+  const data = payoutItemDetails.value.map(row => ({
     commissionId: row.commissionId,
     createdTs: new Date(row.createdTs * 1000).toLocaleString(),
     currency: formatCurrency(row.currency),

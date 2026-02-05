@@ -278,7 +278,7 @@
 
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core'
-import type { FileRecord } from '~/components/UploadForm.vue'
+import type { FileRecord } from '~/types'
 
 import { licenseOptions, languageOptions, MAX_DESCRIPTION_LENGTH, MAX_DESCRIPTION_FULL_LENGTH, MAX_ALTERNATIVE_HEADLINE_LENGTH, BOOK_CATEGORIES } from '~/constant/index'
 import { getApiEndpoints } from '~/constant/api'
@@ -417,26 +417,26 @@ const startUpload = async () => {
 
 const { getFileType } = useFileUploadLocal()
 
-const handleUploadSubmit = (uploadData: any) => {
+const handleUploadSubmit = (uploadData: { fileRecords: FileRecord[]; epubMetadata?: { thumbnailArweaveId?: string } }) => {
   const { fileRecords, epubMetadata } = uploadData
   if (!fileRecords.length) {
     return
   }
 
   const downloadableUrls = fileRecords
-    .filter((r: any) => r.fileType === 'application/pdf' || r.fileType === 'application/epub+zip')
-    .map((file: any) => ({
-      url: file.arweaveKey ? file.arweaveLink : `ar://${file.arweaveId}`,
-      type: getFileType(file.fileType),
-      fileName: file.fileName
+    .filter((r: FileRecord) => r.fileType === 'application/pdf' || r.fileType === 'application/epub+zip')
+    .map((file: FileRecord) => ({
+      url: file.arweaveKey ? (file.arweaveLink || '') : `ar://${file.arweaveId}`,
+      type: getFileType(file.fileType || ''),
+      fileName: file.fileName || ''
     }))
 
   const contentFingerprints = [
     ...new Set<string>(
       fileRecords
-        .map((r: any) => {
+        .map((r: FileRecord) => {
           const arweaveUrl: string = r.arweaveKey
-            ? r.arweaveLink
+            ? (r.arweaveLink || '')
             : `ar://${r.arweaveId}`
           return r.fileType === 'application/epub+zip' || r.fileType === 'application/pdf'
             ? arweaveUrl

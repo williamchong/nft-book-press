@@ -75,12 +75,12 @@ class Provider {
         },
         headers: { Authorization: this.token ? `Bearer ${this.token}` : '' }
       })
-      const { signature } = res as any
+      const { signature } = res as { signature: string }
       const bSig = Buffer.from(signature, 'base64')
       // pad & convert so it's in the format the signer expects to have to convert from.
       const pad = Buffer.concat([
         Buffer.from([0]) as Buffer,
-        bSig as any
+        bSig
       ]).toString(
         'hex'
       )
@@ -91,7 +91,7 @@ class Provider {
   _ready () {}
 }
 
-let WebIrys: any = null
+let WebIrys: typeof import('@irys/sdk').WebIrys | null = null
 
 async function getProvider ({
   fileSize,
@@ -124,6 +124,9 @@ async function getBundler ({
 }) {
   if (!WebIrys) {
     ({ WebIrys } = (await import('@irys/sdk')))
+  }
+  if (!WebIrys) {
+    throw new Error('Failed to load WebIrys from @irys/sdk')
   }
   const p = await getProvider({ fileSize, ipfsHash, txHash, token })
   const { IS_TESTNET } = useRuntimeConfig().public
