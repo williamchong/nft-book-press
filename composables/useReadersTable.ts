@@ -169,7 +169,12 @@ export function useReadersTable () {
   }
 
   function getNestedValue (obj: Record<string, unknown>, path: string): unknown {
-    return path.split('.').reduce((current: unknown, key: string) => (current as Record<string, unknown>)?.[key], obj as unknown)
+    return path.split('.').reduce<unknown>((current, key) => {
+      if (current && typeof current === 'object') {
+        return (current as Record<string, unknown>)[key]
+      }
+      return undefined
+    }, obj)
   }
 
   async function exportToCSV (

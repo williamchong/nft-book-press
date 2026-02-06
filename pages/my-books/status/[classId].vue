@@ -510,7 +510,7 @@
 
 <script setup lang="ts">
 import { getPortfolioURL, downloadFile, convertArrayOfObjectsToCSV, getPurchaseLink, copyToClipboard } from '~/utils'
-import type { PurchaseItem, ClassListingData, ClassListingPrice } from '~/types'
+import type { PurchaseItem, ClassListingData, ClassListingPrice, EditionTableRow } from '~/types'
 import { getApiEndpoints } from '~/constant/api'
 const { t: $t } = useI18n()
 
@@ -857,7 +857,7 @@ const editionsTableColumns = computed(() => {
 })
 
 const editionsTableRows = computed(() => {
-  const rows: Array<Omit<ClassListingPrice, 'stock'> & { stock: number | string; originalIndex: number; isStockBalancePlaceholderRow: boolean }> = prices.value.map((element, index) => ({
+  const rows: EditionTableRow[] = prices.value.map((element, index) => ({
     ...element,
     originalIndex: index,
     isStockBalancePlaceholderRow: false

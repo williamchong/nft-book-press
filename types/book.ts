@@ -11,6 +11,12 @@ export interface ClassListingPrice {
   autoMemo?: string
 }
 
+export interface EditionTableRow extends Omit<ClassListingPrice, 'stock'> {
+  stock: number | string
+  originalIndex: number
+  isStockBalancePlaceholderRow: boolean
+}
+
 export interface ClassListingData {
   ownerWallet?: string
   prices: ClassListingPrice[]
