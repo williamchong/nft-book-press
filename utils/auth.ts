@@ -79,11 +79,12 @@ export function checkJwtTokenValidity (token: string) {
     return false
   }
   const isExpired = decoded.exp && decoded.exp * 1000 < Date.now()
+  const decodedWithPermissions = decoded as { permissions?: string[] }
   const isMatchPermissions =
-      Array.isArray((decoded as any).permissions) &&
-      (decoded as any).permissions.length === SIGN_AUTHORIZATION_PERMISSIONS.length &&
-      (decoded as any).permissions.every((perm: typeof SIGN_AUTHORIZATION_PERMISSIONS[number]) =>
-        SIGN_AUTHORIZATION_PERMISSIONS.includes(perm)
+      Array.isArray(decodedWithPermissions.permissions) &&
+      decodedWithPermissions.permissions.length === SIGN_AUTHORIZATION_PERMISSIONS.length &&
+      decodedWithPermissions.permissions.every((perm: string) =>
+        (SIGN_AUTHORIZATION_PERMISSIONS as readonly string[]).includes(perm)
       )
   return !isExpired && isMatchPermissions
 }

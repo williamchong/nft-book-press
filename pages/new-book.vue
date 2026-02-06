@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FileRecord } from '~/components/UploadForm.vue'
+import type { FileRecord } from '~/types'
 const { t: $t } = useI18n()
 
 const walletStore = useWalletStore()
@@ -223,7 +223,7 @@ const handleIscnSubmit = async (res: { iscnId: string, txHash: string }) => {
   iscnId.value = newIscnId
 }
 
-const handleMintNFTSubmit = async (res: any) => {
+const handleMintNFTSubmit = async (res: { classId: string; nftMintCount?: number }) => {
   const { classId: newClassId, nftMintCount } = res
   if (newClassId) {
     classId.value = newClassId

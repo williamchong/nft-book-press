@@ -202,6 +202,8 @@ import {
   uploadSingleFileToBundlr
 } from '~/utils/arweave'
 import { PUBLISH_GUIDE_URL } from '~/constant'
+
+import type { FileRecord, EpubMetadata, ArweaveEstimate } from '~/types'
 const { t: $t } = useI18n()
 
 const UPLOAD_FILESIZE_MAX = 200 * 1024 * 1024
@@ -214,38 +216,7 @@ const bookstoreApiStore = useBookstoreApiStore()
 const { token } = storeToRefs(bookstoreApiStore)
 const toast = useToast()
 const imageFile = ref<HTMLInputElement | null>(null)
-
-export interface FileRecord {
-  fileName?: string;
-  fileSize?: number;
-  fileType?: string;
-  fileBlob?: Blob;
-  ipfsHash?: string;
-  fileSHA256?: string;
-  encryptedIpfsHash?: string | null;
-  encryptedBuffer?: Buffer<ArrayBuffer> | null;
-  encryptionKey?: string | null;
-  fileData?: string;
-  arweaveId?: string
-  arweaveLink?: string
-  arweaveKey?: string
-  validationErrors?: string;
-  validationWarnings?: string;
-  hasValidationIssues?: boolean;
-}
-
-interface epubMetadata {
-  title?: string;
-  author?: string;
-  language?: string;
-  description?: string;
-  tags?: string[];
-  epubFileName?: string;
-  thumbnailIpfsHash?: string | null;
-  thumbnailArweaveId?: string | null;
-  coverData?: string | null;
-  tableOfContents?: string;
-}
+export type { FileRecord }
 
 const props = defineProps({
   defaultEncrypted: { type: Boolean, default: true }
@@ -256,10 +227,10 @@ const { sendTransactionAsync } = useSendTransaction()
 
 const isSizeExceeded = ref(false)
 const isDragging = ref(false)
-const epubMetadataList = ref<epubMetadata[]>([])
+const epubMetadataList = ref<EpubMetadata[]>([])
 
 const arweaveFee = ref(new BigNumber(0))
-const arweaveFeeMap = ref({} as any)
+const arweaveFeeMap = ref({} as Record<string, string>)
 const arweaveFeeTargetAddress = ref('')
 const sentArweaveTransactionInfo = ref(new Map())
 const isEncryptEBookData = ref(props.defaultEncrypted)
@@ -407,7 +378,7 @@ const onFileUpload = async (event: Event) => {
               await processEPub({ buffer: fileBytes, file })
             } else if (fileRecord.fileType?.startsWith('image/')) {
               let emptyCoverMetadata = epubMetadataList.value.find(
-                (metadata: any) => !metadata.thumbnailIpfsHash
+                (metadata: EpubMetadata) => !metadata.thumbnailIpfsHash
               )
               if (!emptyCoverMetadata) {
                 if (epubMetadataList.value.length === 0) {
@@ -508,7 +479,7 @@ const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer; file: File }
     const book = ePub(buffer)
     await book.ready
 
-    const epubMetadata: any = {}
+    const epubMetadata: EpubMetadata = {}
 
     // Get metadata
     const { metadata } = book.packaging
@@ -522,7 +493,11 @@ const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer; file: File }
 
     // Get table of contents
     if (book.navigation?.toc?.length) {
-      const tocToMarkdown = (items: any[], indent = 0): string => {
+      interface TocItem {
+        label?: string
+        subitems?: TocItem[]
+      }
+      const tocToMarkdown = (items: TocItem[], indent = 0): string => {
         return items.map((item) => {
           const prefix = ' '.repeat(indent * 2) + '- '
           const line = prefix + (item.label?.trim() || '')
@@ -534,7 +509,7 @@ const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer; file: File }
     }
 
     // Get tags
-    const opfFilePath = await (book.path as any).path
+    const opfFilePath = book.path.toString()
     const opfContent = await book.archive.getText(opfFilePath)
     const parser = new DOMParser()
     const opfDocument = parser.parseFromString(opfContent, 'application/xml')
@@ -573,12 +548,12 @@ const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer; file: File }
 
           epubMetadata.thumbnailIpfsHash = ipfsThumbnailHash
 
-          const coverFileRecord: any = {
+          const coverFileRecord: FileRecord = {
             fileName: coverFile.name,
             fileSize: coverFile.size,
             fileType: coverFile.type,
             fileBlob: coverFile,
-            ipfsHash: ipfsThumbnailHash,
+            ipfsHash: ipfsThumbnailHash ?? undefined,
             fileSHA256
           }
           const coverReader = new FileReader()
@@ -623,18 +598,18 @@ const handleDeleteFile = (index: number) => {
   if (!removedFile) { return }
   if (removedFile.fileType?.startsWith('image/')) {
     epubMetadataList.value = epubMetadataList.value
-      .map((metadata: any) => {
+      .map((metadata: EpubMetadata) => {
         if (metadata.thumbnailIpfsHash === removedFile.ipfsHash) {
           return { ...metadata, thumbnailIpfsHash: null, coverData: null }
         }
         return metadata
       })
-      .filter((metadata: any) =>
+      .filter((metadata: EpubMetadata) =>
         metadata.epubFileName || metadata.thumbnailIpfsHash
       )
   } else if (removedFile.fileType === 'application/epub+zip') {
     epubMetadataList.value = epubMetadataList.value.filter(
-      (metadata: any) => metadata.epubFileName !== removedFile.fileName
+      (metadata: EpubMetadata) => metadata.epubFileName !== removedFile.fileName
     )
   }
 }
@@ -642,16 +617,16 @@ const handleDeleteFile = (index: number) => {
 const estimateArweaveFee = async (): Promise<void> => {
   try {
     uploadStatus.value = $t('upload_form.estimating_fees')
-    const results = []
+    const results: ArweaveEstimate[] = []
     for (const record of fileRecords.value) {
       await sleep(100)
       const isEbook = record.fileType === 'application/epub+zip' || record.fileType === 'application/pdf'
-      const priceResult: any = await estimateBundlrFilePrice({
+      const priceResult = await estimateBundlrFilePrice({
         fileSize: record.fileBlob?.size || 0,
         ipfsHash: (isEbook && isEncryptEBookData.value) ? undefined : record.ipfsHash
       })
       results.push({
-        ...priceResult,
+        ...(priceResult as ArweaveEstimate),
         ipfsHash: record.ipfsHash
       })
     }
@@ -659,6 +634,7 @@ const estimateArweaveFee = async (): Promise<void> => {
     let totalFee = new BigNumber(0)
     results.forEach((result) => {
       const { evmAddress, arweaveId, ETH, ipfsHash } = result
+      if (!ipfsHash) { return }
       if (ETH) {
         totalFee = totalFee.plus(new BigNumber(ETH))
         arweaveFeeMap.value[ipfsHash] = ETH
@@ -669,13 +645,13 @@ const estimateArweaveFee = async (): Promise<void> => {
           arweaveId
         })
         const metadata = epubMetadataList.value.find(
-          (data: any) => data.thumbnailIpfsHash === ipfsHash
+          (data: EpubMetadata) => data.thumbnailIpfsHash === ipfsHash
         )
         if (metadata) {
           metadata.thumbnailArweaveId = arweaveId
         }
       }
-      if (!arweaveFeeTargetAddress.value) {
+      if (!arweaveFeeTargetAddress.value && evmAddress) {
         arweaveFeeTargetAddress.value = evmAddress
       }
     })
@@ -765,7 +741,7 @@ const submitToArweave = async (record: FileRecord): Promise<void> => {
   })
   if (record.fileName?.endsWith('cover.jpeg')) {
     const metadata = epubMetadataList.value.find(
-      (file: any) => file.thumbnailIpfsHash === record.ipfsHash
+      (file: EpubMetadata) => file.thumbnailIpfsHash === record.ipfsHash
     )
     if (metadata) {
       metadata.thumbnailArweaveId = arweaveId
@@ -774,10 +750,14 @@ const submitToArweave = async (record: FileRecord): Promise<void> => {
   emit('arweaveUploaded', { arweaveId, arweaveLink })
 }
 
-const sendArweaveFeeTx = async (record: any, memoIpfsOveride?: string): Promise<string> => {
-  if (sentArweaveTransactionInfo.value.has(record.ipfsHash)) {
+const sendArweaveFeeTx = async (record: FileRecord, memoIpfsOveride?: string): Promise<string> => {
+  const recordIpfsHash = record.ipfsHash
+  if (!recordIpfsHash) {
+    throw new Error('IPFS_HASH_NOT_SET')
+  }
+  if (sentArweaveTransactionInfo.value.has(recordIpfsHash)) {
     const transactionInfo = sentArweaveTransactionInfo.value.get(
-      record.ipfsHash
+      recordIpfsHash
     )
     if (transactionInfo && transactionInfo.transactionHash) {
       return transactionInfo.transactionHash
@@ -792,25 +772,25 @@ const sendArweaveFeeTx = async (record: any, memoIpfsOveride?: string): Promise<
   if (!arweaveFeeTargetAddress.value) {
     throw new Error('TARGET_ADDRESS_NOT_SET')
   }
-  if (!arweaveFeeMap.value[record.ipfsHash]) {
+  if (!arweaveFeeMap.value[recordIpfsHash]) {
     throw new Error('ARWEAVE_FEE_NOT_SET')
   }
   uploadStatus.value = $t('upload_form.checking_balance')
   const memo = JSON.stringify({
-    ipfs: memoIpfsOveride || record.ipfsHash,
+    ipfs: memoIpfsOveride || recordIpfsHash,
     fileSize: record.fileBlob?.size || 0
   })
   try {
     await assertSufficientBalanceForTransfer({
       wallet: wallet.value,
       to: arweaveFeeTargetAddress.value as `0x${string}`,
-      value: parseEther(arweaveFeeMap.value[record.ipfsHash] as string),
+      value: parseEther(arweaveFeeMap.value[recordIpfsHash]),
       data: `0x${Buffer.from(memo, 'utf-8').toString('hex')}` as `0x${string}`
     })
     uploadStatus.value = $t('upload_form.waiting_signature')
     const transactionHash = await sendTransactionAsync({
       to: arweaveFeeTargetAddress.value as `0x${string}`,
-      value: parseEther(arweaveFeeMap.value[record.ipfsHash] as string),
+      value: parseEther(arweaveFeeMap.value[recordIpfsHash]),
       data: `0x${Buffer.from(memo, 'utf-8').toString('hex')}`
     })
     uploadStatus.value = $t('upload_form.waiting_confirmation')
@@ -818,8 +798,8 @@ const sendArweaveFeeTx = async (record: any, memoIpfsOveride?: string): Promise<
     if (!receipt || receipt.status !== 'success') { throw new Error('INVALID_RECEIPT') }
     if (transactionHash) {
       const existingData =
-        sentArweaveTransactionInfo.value.get(record.ipfsHash) || {}
-      sentArweaveTransactionInfo.value.set(record.ipfsHash, {
+        sentArweaveTransactionInfo.value.get(recordIpfsHash) || {}
+      sentArweaveTransactionInfo.value.set(recordIpfsHash, {
         ...existingData,
         transactionHash
       })
@@ -832,11 +812,14 @@ const sendArweaveFeeTx = async (record: any, memoIpfsOveride?: string): Promise<
   return ''
 }
 
-const uploadFileAndGetArweaveId = async (file: any, txHash: string) => {
+const uploadFileAndGetArweaveId = async (file: FileRecord, txHash: string) => {
+  if (!file.fileBlob || !file.ipfsHash) {
+    throw new Error('FILE_BLOB_OR_IPFS_HASH_NOT_SET')
+  }
   const arrayBuffer = await file.fileBlob.arrayBuffer()
   const buffer = Buffer.from(arrayBuffer)
   const { arweaveId, arweaveLink } = await uploadSingleFileToBundlr(buffer, {
-    fileSize: file.fileBlob?.size || 0,
+    fileSize: file.fileBlob.size || 0,
     ipfsHash: file.ipfsHash,
     fileType: file.fileType,
     txHash,
@@ -847,7 +830,7 @@ const uploadFileAndGetArweaveId = async (file: any, txHash: string) => {
 
 const setEbookCoverFromImages = async () => {
   const metadata = epubMetadataList.value.find(
-    (m: any) => m.coverData || m.thumbnailIpfsHash
+    (m: EpubMetadata) => m.coverData || m.thumbnailIpfsHash
   )
   if (metadata?.thumbnailArweaveId) { return }
 
@@ -933,7 +916,7 @@ const onSubmitInternal = async () => {
     uploadStatus.value = ''
   }
 
-  fileRecords.value.forEach((record: any, index: number) => {
+  fileRecords.value.forEach((record: FileRecord, index: number) => {
     if (!record || !fileRecords.value[index]) { return }
     if (sentArweaveTransactionInfo.value.has(record.ipfsHash)) {
       const info = sentArweaveTransactionInfo.value.get(record.ipfsHash)

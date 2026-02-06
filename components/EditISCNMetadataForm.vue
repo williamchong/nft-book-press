@@ -27,11 +27,12 @@
 import { useWriteContract } from '@wagmi/vue'
 import { LIKE_NFT_CLASS_ABI } from '~/contracts/likeNFT'
 import { DEFAULT_MAX_SUPPLY } from '~/constant'
+import type { ClassMetadata } from '~/utils/iscn.type'
 import type ISCNForm from '~/components/ISCNForm.vue'
 
 // eslint-disable-next-line func-call-spacing
 const emit = defineEmits<{
-  (e: 'iscnUpdated', payload: { classId: string; metadata: Record<string, any> }): void
+  (e: 'iscnUpdated', payload: { classId: string; metadata: Record<string, unknown> & { name: string; description: string; symbol: string } }): void
 }>()
 
 const nftStore = useNftStore()
@@ -48,7 +49,7 @@ const props = defineProps<{
   classId: string
 }>()
 
-const classData = ref({} as any)
+const classData = ref<ClassMetadata>({})
 const isSaving = ref(false)
 const isISCNLoading = ref(false)
 const iscnFormRef = ref<InstanceType<typeof ISCNForm> | null>(null)
@@ -83,7 +84,7 @@ const iscnFormData = ref<ISCNFormData>({
   genre: ''
 })
 
-const iscnChainData = ref({} as any)
+const iscnChainData = ref({} as ClassMetadata)
 
 const { payload, getFileTypeFromMime } = useISCN({ iscnFormData, iscnChainData })
 
@@ -96,7 +97,9 @@ watch(
     if (newClassId) {
       try {
         isISCNLoading.value = true
-        classData.value = await nftStore.lazyFetchClassMetadataById(newClassId)
+        const fetchedData = await nftStore.lazyFetchClassMetadataById(newClassId)
+        if (!fetchedData) { return }
+        classData.value = fetchedData
         const metadata = classData.value
 
         // Parse sameAs URLs into downloadableUrls
@@ -106,10 +109,10 @@ watch(
           fileName: ''
         }]
         if (metadata.potentialAction?.target && Array.isArray(metadata.potentialAction.target)) {
-          downloadableUrls = metadata.potentialAction.target.map((target: any) => ({
+          downloadableUrls = metadata.potentialAction.target.map((target: { contentType: string; url?: string; name?: string }) => ({
             type: getFileTypeFromMime(target.contentType),
-            url: target.url,
-            fileName: target.name
+            url: target.url || '',
+            fileName: target.name || ''
           }))
         } else if (metadata.sameAs && Array.isArray(metadata.sameAs)) {
           downloadableUrls = metadata.sameAs.map(parseDownloadableUrl)
@@ -134,8 +137,8 @@ watch(
           publisher: metadata.publisher || '',
           publicationDate: metadata.datePublished || '',
           author: {
-            name: metadata.author?.name || metadata.author || '',
-            description: metadata.author?.description || ''
+            name: (typeof metadata.author === 'object' ? metadata.author?.name : metadata.author) || '',
+            description: (typeof metadata.author === 'object' ? metadata.author?.description : '') || ''
           },
           license: metadata.usageInfo || 'All Rights Reserved',
           contentFingerprints: metadata.contentFingerprints?.map((url: string) => ({
@@ -163,9 +166,9 @@ function parseDownloadableUrl (url: string) {
   try {
     const urlObj = new URL(url)
     const fileName = urlObj.searchParams.get('name') || ''
-    const [name, type] = fileName.split('.')
+    const [name = '', type] = fileName.split('.')
     return {
-      url: url.split('?')[0],
+      url: url.split('?')[0] || '',
       fileName: name,
       type: type || ''
     }
@@ -198,8 +201,6 @@ async function handleSave () {
   try {
     const contentMetadata = formatISCNTxPayload(payload.value)
     const metadata = {
-      name: contentMetadata.name,
-      description: contentMetadata.description,
       ...contentMetadata,
       symbol: 'BOOK',
       external_link: contentMetadata?.url || '',

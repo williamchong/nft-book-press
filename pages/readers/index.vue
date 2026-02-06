@@ -153,8 +153,8 @@
         >
           <div class="flex justify-center w-full">
             <UBadge
-              :color="(row.original as any)[`book_${book.classId}`] ? 'success' : 'neutral'"
-              :label="(row.original as any)[`book_${book.classId}`] ? 'Y' : 'N'"
+              :color="(row.original as Record<string, unknown>)[`book_${book.classId}`] ? 'success' : 'neutral'"
+              :label="(row.original as Record<string, unknown>)[`book_${book.classId}`] ? 'Y' : 'N'"
               variant="soft"
             />
           </div>

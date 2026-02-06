@@ -45,12 +45,12 @@ async function handleNewBookSubmit () {
       params: { classId: classId.value }
     }))
   } catch (err) {
-    const errorData = (err as any).data || err
+    const errorData = (err as { data?: string }).data || err
     // eslint-disable-next-line no-console
     console.error(errorData)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
-      title: errorData,
+      title: String(errorData),
       duration: 0,
       color: 'error'
     })

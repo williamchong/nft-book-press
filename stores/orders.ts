@@ -1,3 +1,5 @@
+import type { OrderData, BookListingItem } from '~/utils/api'
+
 export interface ReaderData {
   readerEmail: string
   readerWallet?: string
@@ -6,7 +8,7 @@ export interface ReaderData {
   lifetimeValue: number
   hasMessage: boolean
   purchasedBooks: Record<string, boolean>
-  [key: string]: any
+  [key: string]: string | number | boolean | Record<string, boolean> | undefined
 }
 
 export interface BookInfo {
@@ -19,7 +21,7 @@ export const useOrdersStore = defineStore('orders', () => {
   const { token, isAuthenticated } = storeToRefs(bookstoreApiStore)
 
   const booksInfo = ref<Record<string, BookInfo>>({})
-  const allOrders = ref<any[]>([])
+  const allOrders = ref<(OrderData & { classId: string })[]>([])
   const isLoading = ref(false)
   const error = ref('')
 
@@ -32,7 +34,8 @@ export const useOrdersStore = defineStore('orders', () => {
   })
 
   const ordersByClassIdMap = computed(() => {
-    const map = new Map<string, any[]>()
+    // eslint-disable-next-line func-call-spacing
+    const map = new Map<string, (OrderData & { classId: string })[]>()
     allOrders.value.forEach((order) => {
       const classId = order.classId
       if (!map.has(classId)) {
@@ -115,7 +118,7 @@ export const useOrdersStore = defineStore('orders', () => {
   })
 
   async function fetchOrdersByClassId (classIds: string[]) {
-    const orders: any[] = []
+    const orders: (OrderData & { classId: string })[] = []
 
     for (const classId of classIds) {
       try {
@@ -157,8 +160,8 @@ export const useOrdersStore = defineStore('orders', () => {
       await bookstoreApiStore.fetchModeratedBookList()
 
       const allClassIds = [
-        ...bookstoreApiStore.listingList.map((book: any) => book.classId),
-        ...bookstoreApiStore.moderatedBookList.map((book: any) => book.classId)
+        ...bookstoreApiStore.listingList.map((book: BookListingItem) => book.classId),
+        ...bookstoreApiStore.moderatedBookList.map((book: BookListingItem) => book.classId)
       ]
 
       const uniqueClassIds = [...new Set(allClassIds)]
@@ -170,7 +173,7 @@ export const useOrdersStore = defineStore('orders', () => {
 
       const tempBooksInfo: Record<string, BookInfo> = {}
 
-      bookstoreApiStore.listingList.forEach((book: any) => {
+      bookstoreApiStore.listingList.forEach((book: BookListingItem) => {
         if (uniqueClassIds.includes(book.classId)) {
           tempBooksInfo[book.classId] = {
             name: book.name || book.classId,

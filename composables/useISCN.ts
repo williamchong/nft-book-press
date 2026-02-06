@@ -1,5 +1,6 @@
 import { sha256, toHex, fromHex, stringToHex } from 'viem'
 import { getApiEndpoints } from '~/constant/api'
+import type { ISCNFormData, ClassMetadata } from '~/utils/iscn.type'
 
 const getFileMimeType = (fileType: string): string => {
   switch (fileType) {
@@ -16,8 +17,8 @@ export function useISCN ({
   iscnFormData,
   iscnChainData = ref({})
 }: {
-  iscnFormData: Ref<any>;
-  iscnChainData?: Ref<any>;
+  iscnFormData: Ref<ISCNFormData>;
+  iscnChainData?: Ref<ClassMetadata>;
 }) {
   const getFileTypeFromMime = (fileType: string): string => {
     switch (fileType) {
@@ -39,7 +40,7 @@ export function useISCN ({
     }
     return {
       '@type': 'ReadAction',
-      target: iscnFormData.value.downloadableUrls.map((urlObj: any) => {
+      target: iscnFormData.value.downloadableUrls.map((urlObj: { url: string; type: string; fileName: string }) => {
         const isEncrypted = urlObj.url?.startsWith(arweaveLinkEndpoint) || urlObj.url?.includes('?key=')
         return {
           '@type': 'EntryPoint',
@@ -52,9 +53,9 @@ export function useISCN ({
     }
   })
 
-  const existingIscnData = computed(() => iscnChainData?.value || {})
+  const existingIscnData = computed<ClassMetadata>(() => iscnChainData?.value || {})
 
-  const getAttributes = (data: any) => {
+  const getAttributes = (data: ISCNFormData) => {
     const attributes = []
     if (data.author) {
       attributes.push({
@@ -68,11 +69,11 @@ export function useISCN ({
         value: data.publisher
       })
     }
-    if (data.datePublished) {
+    if (data.publicationDate) {
       attributes.push({
         trait_type: 'Publish Date',
         display_type: 'date',
-        value: ((new Date(data.datePublished)).getTime() || 0) / 1000
+        value: ((new Date(data.publicationDate)).getTime() || 0) / 1000
       })
     }
     return attributes.length ? attributes : undefined
@@ -92,7 +93,7 @@ export function useISCN ({
         ? iscnFormData.value.customLicense
         : iscnFormData.value.license,
     contentFingerprints: iscnFormData.value.contentFingerprints.map(
-      (f: any) => f.url
+      (f: { url: string }) => f.url
     ),
     inLanguage: iscnFormData.value.language,
     publisher: iscnFormData.value.publisher,
@@ -109,7 +110,7 @@ export function useISCN ({
   }))
 
   const computeISCNSalt = (msgSender: `0x${string}`) => {
-    const saltData: string = formattedPotentialActionList.value?.target[0].url || ''
+    const saltData: string = formattedPotentialActionList.value?.target[0]?.url || ''
     const nonce = fromHex('0x0001', 'bytes') // 1 for book press
 
     const hash = sha256(stringToHex(saltData))

@@ -212,7 +212,7 @@ const { getBalanceOf, getTokenIdByOwnerIndex } = useNFTContractReader()
 const { assertSufficientBalanceForTransaction, waitForTransactionReceipt } = useNFTContractWriter()
 
 const { showErrorToast } = useToastComposable()
-const error = ref({ message: '', actions: [] as any[] })
+const error = ref({ message: '', actions: [] as { label: string; variant: 'solid' | 'outline' | 'soft' | 'subtle' | 'ghost' | 'link'; color: 'error' | 'primary' | 'neutral'; click: () => void }[] })
 const isLoading = ref(false)
 const classId = computed(() => route.params.classId as string)
 const paymentId = computed(() => route.query.payment_id as string)
@@ -226,9 +226,20 @@ const nftIds = ref([] as number[])
 const isVerifyingNFTId = ref(false)
 const nftIdError = ref('')
 const isNftIdConfirmed = ref(false)
-const nftIdInputRef = ref<any[] | undefined>(undefined)
+const nftIdInputRef = ref<string[] | undefined>(undefined)
 
-const orderInfo = ref<any>({})
+interface OrderInfo {
+  email?: string
+  giftInfo?: { toEmail?: string }
+  status?: string
+  wallet?: string
+  priceName?: string
+  price?: number
+  quantity?: number
+  from?: string
+  message?: string
+}
+const orderInfo = ref<OrderInfo>({})
 const nftImage = ref('')
 
 const showRestockModal = ref(false)
@@ -260,7 +271,7 @@ onMounted(async () => {
         authorization: `Bearer ${token.value}`
       }
     })
-  orderInfo.value = (data as any)
+  orderInfo.value = data as OrderInfo
   lazyFetchClassMetadataById(classId.value as string)
   await fetchNextNFTId(orderInfo.value.quantity || 1)
 })
@@ -314,11 +325,11 @@ async function fetchNFTMetadata () {
     }
     try {
       const metadata = await getNFTMetadata(classId.value, nftIds.value[0])
-      nftImage.value = parseImageURLFromMetadata(metadata?.image)
+      nftImage.value = parseImageURLFromMetadata(metadata?.image || '')
       return metadata
     } catch (err) {
       nftImage.value = ''
-      if ((err as any)?.data?.code === 2) {
+      if ((err as { data?: { code?: number } })?.data?.code === 2) {
         nftIdError.value = 'NFT not found'
       } else {
         nftIdError.value = (err as Error).toString()
@@ -412,11 +423,11 @@ async function onSendNFTStart () {
         throw new Error(`NFT classId: ${classId.value} nftId:${mismatchNftId} is not owned by sender!`)
       }
     } else {
-      await fetchNextNFTId(orderInfo.value.quantity)
+      await fetchNextNFTId(orderInfo.value.quantity || 1)
     }
 
     const txParams = {
-      address: classId.value as any,
+      address: classId.value as `0x${string}`,
       abi: LIKE_NFT_CLASS_ABI,
       functionName: 'batchTransferWithMemo',
       args: [

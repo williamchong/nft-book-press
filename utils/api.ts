@@ -92,6 +92,7 @@ export interface OrderData {
   wallet: string
   classId: string
   price: number
+  status: string
   timestamp: number
   message: string
 }
@@ -108,4 +109,31 @@ export async function fetchBookOrders (classId: string, token: string) {
     }
   })
   return result
+}
+
+export interface AuthResponse {
+  token: string
+  intercomToken: string
+}
+
+export interface BookListingItem {
+  classId: string
+  name?: string
+  pendingNFTCount?: number
+  prices?: { price: number }[]
+  sold?: number
+}
+
+export interface BookListingResponse {
+  nextKey?: number
+  list: BookListingItem[]
+}
+
+export interface BookListingSettingPayload {
+  moderationData?: Record<string, unknown>
+  [key: string]: unknown
+}
+
+export interface StripeRefreshResponse {
+  isReady: boolean
 }

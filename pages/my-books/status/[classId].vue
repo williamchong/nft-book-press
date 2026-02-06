@@ -111,7 +111,7 @@
             <span v-if="!row.original.isStockBalancePlaceholderRow && prices.length === 1" v-text="String(row.original.originalIndex + 1)" />
           </template>
           <template #name-cell="{ row }">
-            <h4 class="font-medium" v-text="row.original.name.zh" />
+            <h4 class="font-medium" v-text="typeof row.original.name === 'object' ? row.original.name.zh : row.original.name" />
           </template>
           <template #delivery-cell="{ row }">
             <h4
@@ -136,7 +136,7 @@
               icon="i-heroicons-document"
               :to="localeRoute({
                 name: 'my-books-status-classId-edit-editionIndex',
-                params: { classId, editionIndex: row.original.index }
+                params: { classId, editionIndex: String(row.original.index) }
               })"
               variant="soft"
               color="neutral"
@@ -431,7 +431,7 @@
                   size="xs"
                   variant="outline"
                   :disabled="!purchaseLinks[0]?.url"
-                  @click="copyPurchaseLink(purchaseLinks[0]?.url)"
+                  @click="copyPurchaseLink(purchaseLinks[0]?.url || '')"
                 />
                 <UButton
                   icon="i-heroicons-arrow-top-right-on-square"
@@ -510,6 +510,7 @@
 
 <script setup lang="ts">
 import { getPortfolioURL, downloadFile, convertArrayOfObjectsToCSV, getPurchaseLink, copyToClipboard } from '~/utils'
+import type { PurchaseItem, ClassListingData, ClassListingPrice, EditionTableRow } from '~/types'
 import { getApiEndpoints } from '~/constant/api'
 const { t: $t } = useI18n()
 
@@ -539,8 +540,8 @@ const isLoading = ref(false)
 const classId = ref<string>(route.params.classId as string)
 const fromChannelInput = ref('')
 const priceIndex = ref(0)
-const classListingInfo = ref<any>({})
-const prices = ref<any[]>([])
+const classListingInfo = ref<ClassListingData>({} as ClassListingData)
+const prices = ref<ClassListingPrice[]>([])
 const isUpdatingPricesOrder = ref(false)
 const shouldShowAdvanceSettings = ref<boolean>(false)
 const showEditISCN = ref(false)
@@ -555,7 +556,7 @@ const moderatorWalletInput = ref('')
 const notificationEmailInput = ref('')
 const isStripeConnectChecked = ref(false)
 const stripeConnectWallet = ref('')
-const connectedWallets = ref<any>({})
+const connectedWallets = ref<Record<string, number>>({})
 const mustClaimToView = ref(true)
 const hideDownload = ref(false)
 const enableCustomMessagePage = ref(true)
@@ -616,7 +617,7 @@ const salesChannelMap = computed(() => {
       count: number,
       totalUSD: number
     };
-  } = purchaseList.value.reduce((acc: any, cur: any) => {
+  } = purchaseList.value.reduce((acc: Record<string, { count: number; totalUSD: number }>, cur: PurchaseItem) => {
     const from = cur.from || 'empty'
     if (!acc[from]) {
       acc[from] = {
@@ -633,12 +634,12 @@ const salesChannelMap = computed(() => {
 
 const purchaseList = computed(() => {
   if (ordersData.value?.length) {
-    return ordersData.value.map((purchase: any) => {
+    return ordersData.value.map((purchase: PurchaseItem) => {
       const timestamp = purchase.timestamp
       const date = new Date(timestamp)
       const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
       return { ...purchase, formattedDate }
-    }).sort((a: any, b: any) => b.timestamp - a.timestamp)
+    }).sort((a, b) => b.timestamp - a.timestamp)
   }
   return []
 })
@@ -673,7 +674,7 @@ function getQRCodeFilename (channel = '') {
   return filenameParts.join('_')
 }
 
-function getOrdersTableActionItems (purchaseListItem: any) {
+function getOrdersTableActionItems (purchaseListItem: PurchaseItem) {
   const actionItems = []
 
   if (purchaseListItem.status === 'completed' && purchaseListItem.txHash) {
@@ -723,7 +724,7 @@ function getOrdersTableActionItems (purchaseListItem: any) {
   return actionItems
 }
 
-function getStatusLabel (purchaseListItem: any) {
+function getStatusLabel (purchaseListItem: PurchaseItem) {
   switch (purchaseListItem.status) {
     case 'paid':
       return 'Paid'
@@ -739,7 +740,7 @@ function getStatusLabel (purchaseListItem: any) {
   }
 }
 
-function getStatusLabelColor (purchaseListItem: any): 'info' | 'warning' | 'success' | 'neutral' {
+function getStatusLabelColor (purchaseListItem: PurchaseItem): 'info' | 'warning' | 'success' | 'neutral' {
   switch (purchaseListItem.status) {
     case 'paid':
       return 'info'
@@ -755,7 +756,7 @@ function getStatusLabelColor (purchaseListItem: any): 'info' | 'warning' | 'succ
   }
 }
 
-const ordersTableRows = computed(() => purchaseList.value?.map((p: any, index: number) => ({
+const ordersTableRows = computed(() => purchaseList.value?.map((p, index) => ({
   index,
   readerEmail: p.giftInfo?.toEmail || p.email,
   buyerEmail: p.email,
@@ -774,7 +775,7 @@ const ordersTableRows = computed(() => purchaseList.value?.map((p: any, index: n
   from: p.from || '',
   quantity: p.quantity || 1,
   actions: getOrdersTableActionItems(p)
-})).filter((p: any) => {
+})).filter((p) => {
   if (!searchInput.value) { return true }
   const normalizedSearchInput = searchInput.value.toLowerCase()
   return (
@@ -827,11 +828,11 @@ const salesChannelTableRows = computed(() => Object.entries(salesChannelMap.valu
   totalUSD: (value.totalUSD || 0).toFixed(2)
 })))
 
-const priceIndexOptions = computed(() => classListingInfo.value.prices?.map((p: any, index: number) => ({
-  label: `${p.name.en || p.name} - $${p.price}`,
+const priceIndexOptions = computed(() => classListingInfo.value.prices?.map((p: ClassListingPrice, index: number) => ({
+  label: `${typeof p.name === 'object' ? (p.name.en || '') : p.name} - $${p.price}`,
   value: index,
   disabled: index === priceIndex.value
-})))
+})) || [])
 
 const editionsTableColumns = computed(() => {
   const columns = []
@@ -856,20 +857,24 @@ const editionsTableColumns = computed(() => {
 })
 
 const editionsTableRows = computed(() => {
-  const rows = prices.value.map((element: any, index: number) => ({
+  const rows: EditionTableRow[] = prices.value.map((element, index) => ({
     ...element,
     originalIndex: index,
     isStockBalancePlaceholderRow: false
   }))
 
-  // If it’s a manual edition, add a row for stock balance.
+  // If it's a manual edition, add a row for stock balance.
   if (prices.value.some(price => !price.isAutoDeliver)) {
     rows.push({
       name: '',
       isAutoDeliver: false,
       stock: $t('table.stock_balance', { count: stockBalance.value }),
       price: '',
-      isStockBalancePlaceholderRow: true
+      isStockBalancePlaceholderRow: true,
+      originalIndex: -1,
+      index: -1,
+      description: '',
+      isAllowCustomPrice: false
     })
   }
 
@@ -891,7 +896,7 @@ watch(sessionWallet, async (newWallet) => {
 onMounted(async () => {
   isLoading.value = true
   try {
-    const classData = await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId.value}`,
+    const classData = await $fetch<ClassListingData>(`${LIKE_CO_API}/likernft/book/store/${classId.value}`,
       {
         headers: {
           authorization: `Bearer ${token.value}`
@@ -906,10 +911,10 @@ onMounted(async () => {
       tableOfContents: classTableOfContent,
       enableCustomMessagePage: classEnableCustomMessagePage,
       hideDownload: classHideDownload
-    } = classData as any
-    moderatorWallets.value = classModeratorWallets
+    } = classData
+    moderatorWallets.value = classModeratorWallets || []
     isStripeConnectChecked.value = !!(classConnectedWallets && Object.keys(classConnectedWallets).length)
-    connectedWallets.value = classConnectedWallets
+    connectedWallets.value = classConnectedWallets || {}
 
     const classStripeWallet = classConnectedWallets && Object.keys(classConnectedWallets)[0]
     if (classStripeWallet) {
@@ -924,10 +929,10 @@ onMounted(async () => {
         }
       }
     }
-    mustClaimToView.value = classMustClaimToView
-    hideDownload.value = classHideDownload
-    enableCustomMessagePage.value = classEnableCustomMessagePage
-    tableOfContents.value = classTableOfContent
+    mustClaimToView.value = classMustClaimToView ?? true
+    hideDownload.value = classHideDownload ?? false
+    enableCustomMessagePage.value = classEnableCustomMessagePage ?? true
+    tableOfContents.value = classTableOfContent ?? ''
     await ordersStore.fetchOrdersByClassId([classId.value])
 
     if (sessionWallet.value) {
@@ -972,8 +977,11 @@ async function movePrice (fromIndex: number, toIndex: number) {
 
     const newPrices = [...prices.value]
     const [movedItem] = newPrices.splice(fromIndex, 1)
+    if (!movedItem) { return }
     newPrices.splice(toIndex, 0, movedItem)
-    const priceIndex = prices.value[fromIndex].index
+    const edition = prices.value[fromIndex]
+    if (!edition) { return }
+    const priceIndex = edition.index
     await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId.value}/price/${priceIndex}/order`, {
       method: 'PUT',
       headers: {
@@ -999,8 +1007,8 @@ async function movePrice (fromIndex: number, toIndex: number) {
   }
 }
 
-async function sendReminderEmail (purchase: any) {
-  const orderData = ordersData.value?.find((p: any) => p.id === purchase.id)
+async function sendReminderEmail (purchase: PurchaseItem) {
+  const orderData = ordersData.value?.find(p => p.id === purchase.id)
   if (!orderData) {
     throw new Error('ORDER_NOT_FOUND')
   }
@@ -1021,19 +1029,20 @@ async function sendReminderEmail (purchase: any) {
   })
 }
 
-async function hardSetStatusToCompleted (purchase: any) {
+async function hardSetStatusToCompleted (purchase: PurchaseItem) {
   const userConfirmed = confirm('Do you want to skip the \'Send NFT\' action and override this payment status to \'completed\'?')
   if (!userConfirmed) {
     return
   }
 
-  const orderData = ordersData.value?.find((p: any) => p.id === purchase.id)
+  const orderData = ordersData.value?.find(p => p.id === purchase.id)
   if (!orderData) {
     throw new Error('ORDER_NOT_FOUND')
   }
 
-  const previousStatus = orderData.status
-  orderData.status = 'completed'
+  const mutableOrder = orderData as { status: string }
+  const previousStatus = mutableOrder.status
+  mutableOrder.status = 'completed'
 
   try {
     await $fetch(`${LIKE_CO_API}/likernft/book/purchase/${classId.value}/sent/${purchase.id}`,
@@ -1048,12 +1057,12 @@ async function hardSetStatusToCompleted (purchase: any) {
         }
       })
   } catch (err) {
-    orderData.status = previousStatus
+    mutableOrder.status = previousStatus
     throw err
   }
 
   if (previousStatus === 'pendingNFT') {
-    classListingInfo.value.pendingNFTCount -= 1
+    classListingInfo.value.pendingNFTCount = (classListingInfo.value.pendingNFTCount || 0) - 1
     reduceListingPendingNFTCountById(classId.value, 1)
   }
 }
@@ -1089,9 +1098,9 @@ async function updateSettings () {
       name: 'my-books'
     }))
   } catch (err) {
-    const errorData = (err as any).data || err
+    const errorData = (err as { data?: string }).data || err
     console.error(errorData)
-    error.value = errorData
+    error.value = String(errorData)
   } finally {
     isLoading.value = false
     shouldDisableStripeConnectSetting.value = false
@@ -1163,7 +1172,7 @@ async function handleMintNFTSubmit () {
   showRestockModal.value = false
 }
 
-function isContentFingerprintEncrypted (contentFingerprints: any[]) {
+function isContentFingerprintEncrypted (contentFingerprints: string[]) {
   const apiEndpoints = getApiEndpoints()
   const arweaveLinkEndpoint = apiEndpoints.API_GET_ARWEAVE_V2_LINK
   return contentFingerprints.some((fingerprint) => {
@@ -1176,7 +1185,7 @@ async function handleISCNUpdated ({
   metadata
 }: {
   classId: string
-  metadata: any
+  metadata: Record<string, unknown> & { contentFingerprints?: string[] }
 }) {
   const { contentFingerprints } = metadata
   if (contentFingerprints) {

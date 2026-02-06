@@ -1,3 +1,5 @@
+import type { BookInfo, ReaderData } from '~/stores/orders'
+
 export function useReadersTable () {
   const { t } = useI18n()
 
@@ -24,7 +26,7 @@ export function useReadersTable () {
     { label: '200', value: 200 }
   ]
 
-  const selectedRows = ref<any[]>([])
+  const selectedRows = ref<ReaderData[]>([])
   const hasSelection = computed(() => selectedRows.value.length > 0)
   const selectionCount = computed(() => selectedRows.value.length)
 
@@ -45,7 +47,7 @@ export function useReadersTable () {
       header: col.header
     }))
 
-    const bookColumns = Object.values(ordersStore.booksInfo).map((book: any) => ({
+    const bookColumns = Object.values(ordersStore.booksInfo).map((book: BookInfo) => ({
       key: `book_${book.classId}`,
       label: book.name?.slice(0, 1) || book.classId.slice(0, 1),
       accessorKey: `book_${book.classId}`,
@@ -69,8 +71,8 @@ export function useReadersTable () {
       let comparison = 0
 
       if (sortState.value.column!.includes('Time')) {
-        const aTime = new Date(aValue).getTime()
-        const bTime = new Date(bValue).getTime()
+        const aTime = new Date(aValue as string | number).getTime()
+        const bTime = new Date(bValue as string | number).getTime()
         comparison = aTime - bTime
       } else if (typeof aValue === 'string' && typeof bValue === 'string') {
         comparison = aValue.localeCompare(bValue)
@@ -104,7 +106,7 @@ export function useReadersTable () {
     return Math.ceil(pagination.value.total / pagination.value.limit)
   })
 
-  function onSelect (rows: any[]) {
+  function onSelect (rows: ReaderData[]) {
     selectedRows.value = rows
   }
 
@@ -166,13 +168,18 @@ export function useReadersTable () {
     return 'i-heroicons-arrows-up-down-20-solid'
   }
 
-  function getNestedValue (obj: any, path: string) {
-    return path.split('.').reduce((current, key) => current?.[key], obj)
+  function getNestedValue (obj: Record<string, unknown>, path: string): unknown {
+    return path.split('.').reduce<unknown>((current, key) => {
+      if (current && typeof current === 'object') {
+        return (current as Record<string, unknown>)[key]
+      }
+      return undefined
+    }, obj)
   }
 
   async function exportToCSV (
-    data: any[],
-    columnConfig: { key: string; label: string; formatter?: (value: any) => string }[],
+    data: Record<string, unknown>[],
+    columnConfig: { key: string; label: string; formatter?: (value: unknown) => string }[],
     filename?: string
   ) {
     if (data.length === 0) {
@@ -181,7 +188,7 @@ export function useReadersTable () {
 
     // Pre-process data with formatters and nested properties
     const processedData = data.map((row) => {
-      const result: Record<string, any> = {}
+      const result: Record<string, unknown> = {}
       columnConfig.forEach((col) => {
         const value = getNestedValue(row, col.key)
         result[col.label] = col.formatter ? col.formatter(value) : value
@@ -199,22 +206,22 @@ export function useReadersTable () {
   async function exportReadersToCSV () {
     const dataToExport = hasSelection.value ? selectedRows.value : ordersStore.readers
 
-    const columnConfig = [
+    const columnConfig: { key: string; label: string; formatter?: (value: unknown) => string }[] = [
       { key: 'readerEmail', label: t('table.reader_email') },
       { key: 'readerWallet', label: t('table.reader_wallet') },
-      { key: 'firstPurchaseTime', label: t('table.first_purchase'), formatter: formatDate },
-      { key: 'lastPurchaseTime', label: t('table.last_purchase'), formatter: formatDate },
-      { key: 'lifetimeValue', label: `${t('table.lifetime_value')} (USD)`, formatter: (val: number) => formatValue(val) },
-      { key: 'hasMessage', label: t('table.has_message'), formatter: (val: boolean) => val ? 'Y' : 'N' },
-      ...Object.values(ordersStore.booksInfo).map((book: any) => ({
+      { key: 'firstPurchaseTime', label: t('table.first_purchase'), formatter: (val: unknown) => formatDate(val as string | number) },
+      { key: 'lastPurchaseTime', label: t('table.last_purchase'), formatter: (val: unknown) => formatDate(val as string | number) },
+      { key: 'lifetimeValue', label: `${t('table.lifetime_value')} (USD)`, formatter: (val: unknown) => formatValue(val as number) },
+      { key: 'hasMessage', label: t('table.has_message'), formatter: (val: unknown) => (val as boolean) ? 'Y' : 'N' },
+      ...Object.values(ordersStore.booksInfo).map((book: BookInfo) => ({
         key: `purchasedBooks.${book.classId}`,
         label: book.name || book.classId,
-        formatter: (val: boolean) => val ? 'Y' : 'N'
+        formatter: (val: unknown) => (val as boolean) ? 'Y' : 'N'
       }))
     ]
 
     const filename = `readers_export_${new Date().toISOString().split('T')[0]}.csv`
-    await exportToCSV(dataToExport, columnConfig, filename)
+    await exportToCSV(dataToExport as Record<string, unknown>[], columnConfig, filename)
   }
 
   return {

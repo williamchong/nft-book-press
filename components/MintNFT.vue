@@ -13,7 +13,7 @@
 
     <LiteMintNFT
       ref="liteMintNFTRef"
-      :iscn-data="iscnData"
+      :iscn-data="iscnData ?? undefined"
       :iscn-id="iscnId"
       :should-show-submit="false"
       @submit="handleFinishMintNFT"
@@ -22,6 +22,7 @@
 </template>
 
 <script setup lang="ts">
+import type { ISCNData } from '~/types'
 
 const {
   getClassOwner,
@@ -35,9 +36,9 @@ const isLoading = ref(false)
 const maxRetries = 3
 
 const iscnOwner = ref('')
-const iscnData = ref<any>(null)
+const iscnData = ref<ISCNData | null>(null)
 const classId = ref('')
-const liteMintNFTRef = ref<any>(null)
+const liteMintNFTRef = ref<{ startNFTMintFlow:() => void } | null>(null)
 
 const emit = defineEmits(['submit', 'loadingChange'])
 

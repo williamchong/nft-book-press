@@ -27,6 +27,7 @@
 import { useWriteContract } from '@wagmi/vue'
 import { LIKE_NFT_ABI } from '~/contracts/likeNFT'
 import { DEFAULT_MAX_SUPPLY } from '~/constant'
+import type { ISCNFormData } from '~/utils/iscn.type'
 
 const walletStore = useWalletStore()
 const {
@@ -40,7 +41,7 @@ const { stripHtmlTags, formatLanguage, getFileType } = useFileUploadLocal()
 const { showErrorToast } = useToastComposable()
 const { LIKE_NFT_CONTRACT_ADDRESS } = useRuntimeConfig().public
 
-const iscnFormData = ref({
+const iscnFormData = ref<ISCNFormData>({
   type: 'Book',
   title: '',
   description: '',
@@ -95,25 +96,28 @@ const initializeFromSessionStorage = () => {
   const data = getUploadFileData()
   if (!data) { return null }
 
-  const baseData: any = {
+  const baseData: ISCNFormData = {
     type: 'Book',
     title: data.epubMetadata?.title || '',
     description: stripHtmlTags(data.epubMetadata?.description || ''),
     isbn: '',
     publisher: '',
-    publicationDate: new Date().toISOString().split('T')[0],
+    publicationDate: new Date().toISOString().split('T')[0] || '',
     author: {
-      name: data.epubMetadata?.author || '',
+      name: data.epubMetadata?.author ?? '',
       description: ''
     },
     license: 'All Rights Reserved',
+    customLicense: '',
     contentFingerprints: [],
     downloadableUrls: [],
     coverUrl: data.epubMetadata?.thumbnailArweaveId
       ? `ar://${data.epubMetadata.thumbnailArweaveId}`
       : '',
     language: formatLanguage(data.epubMetadata?.language || 'zh'),
-    tags: data.epubMetadata?.tags || []
+    bookInfoUrl: '',
+    tags: data.epubMetadata?.tags || [],
+    genre: ''
   }
 
   baseData.downloadableUrls = data.fileRecords
@@ -170,9 +174,9 @@ const submitToISCN = async (): Promise<void> => {
     uploadStatus.value = 'signing'
     const contentMetadata = formatISCNTxPayload(payload.value)
     const metadata = {
+      ...contentMetadata,
       name: contentMetadata.name,
       description: contentMetadata.description,
-      ...contentMetadata,
       symbol: 'BOOK',
       image: contentMetadata?.thumbnailUrl || '',
       external_link: contentMetadata?.url || '',

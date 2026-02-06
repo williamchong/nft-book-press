@@ -125,7 +125,7 @@ async function onLoginToStripe () {
         }
       }
     )
-    const url = (data as any).url
+    const url = (data as { url?: string }).url
     if (url) {
       window.open(url)
     } else {
@@ -152,7 +152,7 @@ async function onSetupStripe () {
         }
       }
     )
-    const url = (data as any).url
+    const url = (data as { url?: string }).url
     if (url) {
       window.open(url)
     } else {

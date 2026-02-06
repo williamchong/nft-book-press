@@ -1,3 +1,5 @@
+import type { StripeRefreshResponse } from '~/utils/api'
+
 interface StripeConnectStatus {
   hasAccount: boolean
   isReady: boolean
@@ -51,14 +53,14 @@ export const useStripeStore = defineStore('stripe-connect', () => {
     const currentStatus = stripeConnectStatusWalletMap.value[wallet]
 
     if (currentStatus?.hasAccount && !currentStatus?.isReady) {
-      const data = await $fetch(`${LIKE_CO_API}/likernft/book/user/connect/refresh`, {
+      const data = await $fetch<StripeRefreshResponse>(`${LIKE_CO_API}/likernft/book/user/connect/refresh`, {
         method: 'POST',
         headers: {
           authorization: `Bearer ${token.value}`
         }
       })
 
-      if ((data as any).isReady) {
+      if (data.isReady) {
         stripeConnectStatusWalletMap.value[wallet] = {
           ...currentStatus,
           isReady: true

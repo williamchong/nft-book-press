@@ -13,7 +13,7 @@ export function useAuth () {
 
   async function authenticateBySignature (signature: {
     signature: string,
-    message: any,
+    message: string,
     wallet: string,
     signMethod: string,
     expiresIn: string,
@@ -45,7 +45,7 @@ export function useAuth () {
   }
 
   async function authenticateByConnectorId (connectorId = 'magic') {
-    let connectResult: any
+    let connectResult: { walletAddress: string; email?: string; loginMethod: string; magicUserId?: string; magicDIDToken?: string } | undefined
     loginStatus.value = $t('auth_state.connecting')
 
     try {
@@ -54,7 +54,7 @@ export function useAuth () {
       bookstoreApiStore.closeLoginPanel()
 
       if (!wallet.value) {
-        connectResult = await connect(connectorId)
+        connectResult = await connect(connectorId) || undefined
       }
 
       isAuthenticating.value = true

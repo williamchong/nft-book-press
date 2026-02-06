@@ -396,6 +396,7 @@
 
 <script setup lang="ts">
 import { AFFILIATION_CHANNEL_DEFAULT, AFFILIATION_CHANNELS } from '~/constant'
+import type { ProductData } from '~/types'
 
 const { LIKE_CO_API, SITE_URL } = useRuntimeConfig().public
 const likerStore = useLikerStore()
@@ -648,19 +649,19 @@ const canCreateAffiliationLink = computed(() => {
   return !!productId.value && !isCreatingAffiliationLinks.value
 })
 
-const productDataList = ref<{ id: string, data: any }[] | undefined>(undefined)
+const productDataList = ref<{ id: string, data: ProductData }[] | undefined>(undefined)
 
 const productEditionOptionsMap = computed(() => {
   const optionsMap: Record<string, { label: string, value: number }[]> = {}
   if (productDataList.value) {
     for (const { id, data } of productDataList.value) {
       if (data.prices) {
-        optionsMap[id] = data.prices.map((price: any) => {
+        optionsMap[id] = data.prices.map((price) => {
           let name = ''
           if (typeof price.name === 'object') {
             name = price.name?.zh || price.name?.en || ''
           } else {
-            name = price.name
+            name = price.name || ''
           }
           return {
             label: [name, `$${price.price}`].filter(Boolean).join(' - '),
@@ -679,7 +680,7 @@ const productEditionSelectModelValue = ref<Record<string, number>>({})
 const productTableRows = computed(() => {
   return productDataList.value?.map(({ id, data }) => ({
     id,
-    name: data.name?.zh || data.name?.en || data.name,
+    name: typeof data.name === 'object' ? (data.name?.zh || data.name?.en) : data.name,
     editionOptions: productEditionOptionsMap.value[id] || []
   })) || []
 })
@@ -745,7 +746,15 @@ const linkTableRowsMapByChannel = computed(() => {
       }
 
       const priceIndex = productEditionSelectModelValue.value[id] || 0
-      const urlConfig: any = {
+      const urlConfig: {
+        classId: string
+        channel: string
+        priceIndex: number
+        customLink?: string
+        isUseLikerLandLink: boolean
+        query: Record<string, string>
+        isForQRCode?: boolean
+      } = {
         classId: id || '',
         channel: channel.id,
         priceIndex,
@@ -759,7 +768,7 @@ const linkTableRowsMapByChannel = computed(() => {
 
       map.get(channel.id)?.push({
         productId: id,
-        productName: data.name?.zh || data.name?.en || data.name,
+        productName: (typeof data.name === 'object' ? (data.name?.zh || data.name?.en) : data.name) || '',
         selectedEditionIndex: priceIndex,
         selectedEditionLabel: productEditionOptionsMap.value?.[id]?.[priceIndex]?.label || '',
         channelId: channel.id,
@@ -796,7 +805,7 @@ const isOpenQRCodeModal = computed({
 })
 
 async function fetchProductData (id: string) {
-  const classData = await $fetch<any>(`${LIKE_CO_API}/likernft/book/store/${id}`)
+  const classData = await $fetch<ProductData>(`${LIKE_CO_API}/likernft/book/store/${id}`)
   return {
     id,
     data: classData
