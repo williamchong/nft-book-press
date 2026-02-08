@@ -449,6 +449,7 @@ watch(isLoading, (val: boolean) => {
 config({
   markdownItConfig (mdit) {
     mdit.options.html = false
+    mdit.disable('fence')
   }
 })
 
