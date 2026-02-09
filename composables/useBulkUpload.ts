@@ -1,7 +1,6 @@
 import type { BulkUploadBook } from '~/types/bulk-upload'
 import { BookUploadStatus } from '~/types/bulk-upload'
 import { NFT_DEFAULT_MINT_AMOUNT } from '~/constant'
-import { getApiEndpoints } from '~/constant/api'
 import type { NFTTokenMetadata } from '~/composables/useNFTMinter'
 
 interface ProcessingCallbacks {
@@ -117,10 +116,12 @@ export function useBulkUpload () {
       })
       book.bookArweaveId = bookResult.arweaveId
       book.bookArweaveKey = bookResult.arweaveKey
+      book.bookArweaveLink = bookResult.arweaveLink
       book.bookIpfsHash = bookResult.ipfsHash
       onProgress?.(book.id, {
         bookArweaveId: bookResult.arweaveId,
         bookArweaveKey: bookResult.arweaveKey,
+        bookArweaveLink: bookResult.arweaveLink,
         bookIpfsHash: bookResult.ipfsHash
       })
     }
@@ -133,13 +134,9 @@ export function useBulkUpload () {
     const { onProgress } = callbacks
     currentStep.value = 'creating_nft_class'
 
-    const apiEndpoints = getApiEndpoints()
-
     const ebookFile = book.epubFile || book.pdfFile
     const fileType = book.epubFile ? 'epub' : 'pdf'
-    const arweaveLink = book.bookArweaveKey
-      ? `${apiEndpoints.API_GET_ARWEAVE_V2_LINK}/${book.bookArweaveId}?key=${book.bookArweaveKey}`
-      : `ar://${book.bookArweaveId}`
+    const arweaveLink = book.bookArweaveLink || `ar://${book.bookArweaveId}`
 
     const contentFingerprints = [
       { url: `ar://${book.coverArweaveId}` },
