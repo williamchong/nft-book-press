@@ -41,6 +41,7 @@ export const CSV_RESULT_COLUMNS = [
   'cover_arweave_id',
   'book_arweave_id',
   'book_arweave_key',
+  'book_arweave_link',
   'status',
   'remark'
 ]
@@ -187,6 +188,7 @@ export function serializeBook (book: BulkUploadBook): SerializedBulkUploadBook {
     coverIpfsHash: book.coverIpfsHash,
     bookArweaveId: book.bookArweaveId,
     bookArweaveKey: book.bookArweaveKey,
+    bookArweaveLink: book.bookArweaveLink,
     bookIpfsHash: book.bookIpfsHash,
     classId: book.classId,
     mintTxHash: book.mintTxHash
@@ -218,6 +220,10 @@ export function validateProgressFieldFormats (row: BulkUploadCSVRow): ValidatedP
 
   if (row.book_arweave_key && row.book_arweave_key.trim()) {
     result.bookArweaveKey = row.book_arweave_key.trim()
+  }
+
+  if (row.book_arweave_link && row.book_arweave_link.trim()) {
+    result.bookArweaveLink = row.book_arweave_link.trim()
   }
 
   if (row.class_id && row.class_id.startsWith('0x')) {
@@ -259,6 +265,7 @@ export async function generateResultCSV (books: BulkUploadBook[]): Promise<void>
     book.coverArweaveId || '',
     book.bookArweaveId || '',
     book.bookArweaveKey || '',
+    book.bookArweaveLink || '',
     book.status,
     book.error || ''
   ])
