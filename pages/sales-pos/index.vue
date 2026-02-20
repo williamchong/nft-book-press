@@ -294,6 +294,7 @@
 
 <script setup lang="ts">
 import type { DropdownMenuItem, TableRow } from '#ui/types'
+import { copyToClipboard } from '~/utils'
 const { t: $t } = useI18n()
 
 const route = useRoute()
@@ -573,8 +574,7 @@ function saveSaleCoupons () {
 }
 
 function copyCartUrl () {
-  toast.add({ title: 'Copied URL to clipboard', duration: 2000 })
-  navigator.clipboard.writeText(checkoutUrl.value)
+  copyToClipboard(checkoutUrl.value)
 }
 
 function goToCartUrl () {
