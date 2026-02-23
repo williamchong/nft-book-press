@@ -372,6 +372,7 @@
   "iscn_form.filename": "檔案名稱",
   "iscn_form.image": "圖片",
   "iscn_form.license": "授權",
+  "iscn_form.no_read_action_warning": "尚未提供可下載檔案，讀者將無法閱讀此書。",
   "iscn_form.other": "其他",
   "iscn_form.pdf": "PDF",
   "iscn_form.preview": "預覽",

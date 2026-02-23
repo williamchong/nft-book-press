@@ -372,6 +372,7 @@
   "iscn_form.filename": "Filename",
   "iscn_form.image": "Image",
   "iscn_form.license": "License",
+  "iscn_form.no_read_action_warning": "No downloadable files have been provided. Readers will not be able to read this book.",
   "iscn_form.other": "Other",
   "iscn_form.pdf": "PDF",
   "iscn_form.preview": "Preview",

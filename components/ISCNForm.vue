@@ -213,6 +213,13 @@
       <div class="flex justify-between items-center mb-4">
         <h3 class="font-medium" v-text="$t('iscn_form.downloadable_url')" />
       </div>
+      <UAlert
+        v-if="!hasValidReadAction"
+        color="warning"
+        icon="i-heroicons-exclamation-triangle"
+        :description="$t('iscn_form.no_read_action_warning')"
+        class="mb-4"
+      />
       <div
         v-for="(download, index) in formData.downloadableUrls"
         :key="index"
@@ -401,6 +408,10 @@ const alternativeHeadlineError = computed(() => {
     return $t('validation.text_cannot_exceed', { max: MAX_ALTERNATIVE_HEADLINE_LENGTH })
   }
   return false
+})
+
+const hasValidReadAction = computed(() => {
+  return formData.value.downloadableUrls?.some(d => !!d.url)
 })
 
 const isContentFingerprintsEncrypted = computed(() => {
