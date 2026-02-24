@@ -46,13 +46,24 @@
       style="height: 70vh"
     />
 
-    <div v-if="isBookLoaded" class="flex justify-center gap-4">
+    <div
+      v-if="isPdfLoaded"
+      class="w-full border rounded-lg overflow-auto bg-gray-100 flex justify-center"
+      style="height: 70vh"
+    >
+      <canvas ref="pdfCanvasRef" class="shadow-lg" />
+    </div>
+
+    <div v-if="isBookLoaded || isPdfLoaded" class="flex justify-center gap-4 items-center">
       <UButton
         :label="$t('preview_book.prev_page')"
         variant="outline"
         icon="i-heroicons-chevron-left"
         @click="prevPage"
       />
+      <span v-if="isPdfLoaded" class="text-sm text-gray-500">
+        {{ pdfCurrentPage }} / {{ pdfTotalPages }}
+      </span>
       <UButton
         :label="$t('preview_book.next_page')"
         variant="outline"
@@ -64,6 +75,7 @@
 </template>
 
 <script setup lang="ts">
+import type { PDFDocumentProxy } from 'pdfjs-dist'
 import { getApiEndpoints } from '~/constant/api'
 import { decryptDataWithAES } from '~/utils/encryption'
 
@@ -79,8 +91,14 @@ const errorMessage = ref('')
 const imageObjectUrl = ref('')
 const detectedType = ref('')
 const viewerRef = ref<HTMLElement | null>(null)
+const pdfCanvasRef = ref<HTMLCanvasElement | null>(null)
+const isPdfLoaded = ref(false)
+const pdfCurrentPage = ref(1)
+const pdfTotalPages = ref(0)
 
 let rendition: { display: () => Promise<unknown>; prev: () => void; next: () => void; destroy: () => void } | null = null
+let pdfDocument: PDFDocumentProxy | null = null
+let pdfjsLib: typeof import('pdfjs-dist') | null = null
 
 function detectImageType (buffer: ArrayBuffer): string | null {
   const bytes = new Uint8Array(buffer.slice(0, 12))
@@ -94,6 +112,41 @@ function detectImageType (buffer: ArrayBuffer): string | null {
   ) { return 'WebP' }
   if (bytes.length >= 2 && bytes[0] === 0x42 && bytes[1] === 0x4D) { return 'BMP' }
   return null
+}
+
+function detectPdfType (buffer: ArrayBuffer): boolean {
+  const bytes = new Uint8Array(buffer.slice(0, 5))
+  // %PDF-
+  return bytes.length >= 5 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46 && bytes[4] === 0x2D
+}
+
+async function loadPdfJs () {
+  if (pdfjsLib) { return pdfjsLib }
+  const pdfjs = await import('pdfjs-dist')
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.min.mjs',
+    import.meta.url
+  ).toString()
+  pdfjsLib = pdfjs
+  return pdfjs
+}
+
+async function renderPdfPage (pageNum: number) {
+  if (!pdfDocument || !pdfCanvasRef.value) { return }
+  const page = await pdfDocument.getPage(pageNum)
+  const scale = 1.5
+  const viewport = page.getViewport({ scale })
+  const canvas = pdfCanvasRef.value
+  const pixelRatio = window.devicePixelRatio || 1
+  canvas.height = viewport.height * pixelRatio
+  canvas.width = viewport.width * pixelRatio
+  canvas.style.width = `${viewport.width}px`
+  canvas.style.height = `${viewport.height}px`
+  await page.render({
+    canvas,
+    transform: pixelRatio !== 1 ? [pixelRatio, 0, 0, pixelRatio, 0, 0] : undefined,
+    viewport
+  }).promise
 }
 
 async function resolveUrl (rawUrl: string): Promise<{ fileUrl: string; key?: string }> {
@@ -167,6 +220,12 @@ async function loadBook () {
     rendition = null
   }
 
+  if (pdfDocument) {
+    pdfDocument.destroy()
+    pdfDocument = null
+    isPdfLoaded.value = false
+  }
+
   try {
     let fileUrl: string
     let key: string | undefined
@@ -206,6 +265,28 @@ async function loadBook () {
       return
     }
 
+    if (detectPdfType(arrayBuffer)) {
+      try {
+        const pdfjs = await loadPdfJs()
+        const loadingTask = pdfjs.getDocument({
+          data: arrayBuffer,
+          wasmUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/wasm/`,
+          cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`,
+          cMapPacked: true
+        })
+        pdfDocument = await loadingTask.promise
+        pdfTotalPages.value = pdfDocument.numPages
+        pdfCurrentPage.value = 1
+        isPdfLoaded.value = true
+        detectedType.value = 'PDF'
+        await nextTick()
+        await renderPdfPage(1)
+      } catch {
+        errorMessage.value = $t('preview_book.error_render_pdf')
+      }
+      return
+    }
+
     try {
       const { default: ePub } = await import('@likecoin/epub-ts')
       const book = ePub(arrayBuffer)
@@ -222,10 +303,20 @@ async function loadBook () {
 }
 
 function prevPage () {
+  if (isPdfLoaded.value && pdfCurrentPage.value > 1) {
+    pdfCurrentPage.value--
+    renderPdfPage(pdfCurrentPage.value)
+    return
+  }
   rendition?.prev()
 }
 
 function nextPage () {
+  if (isPdfLoaded.value && pdfCurrentPage.value < pdfTotalPages.value) {
+    pdfCurrentPage.value++
+    renderPdfPage(pdfCurrentPage.value)
+    return
+  }
   rendition?.next()
 }
 
@@ -233,6 +324,10 @@ onBeforeUnmount(() => {
   if (rendition) {
     rendition.destroy()
     rendition = null
+  }
+  if (pdfDocument) {
+    pdfDocument.destroy()
+    pdfDocument = null
   }
   if (imageObjectUrl.value) {
     URL.revokeObjectURL(imageObjectUrl.value)
