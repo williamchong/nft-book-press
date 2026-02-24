@@ -100,7 +100,9 @@ let rendition: { display: () => Promise<unknown>; prev: () => void; next: () => 
 let pdfDocument: PDFDocumentProxy | null = null
 let pdfjsLib: typeof import('pdfjs-dist') | null = null
 
-function detectImageType (buffer: ArrayBuffer): string | null {
+type DetectedFileType = 'PNG' | 'JPEG' | 'GIF' | 'WebP' | 'BMP' | 'PDF' | 'EPUB' | null
+
+function detectFileType (buffer: ArrayBuffer): DetectedFileType {
   const bytes = new Uint8Array(buffer.slice(0, 12))
   if (bytes.length >= 4 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) { return 'PNG' }
   if (bytes.length >= 3 && bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) { return 'JPEG' }
@@ -111,13 +113,11 @@ function detectImageType (buffer: ArrayBuffer): string | null {
     bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50
   ) { return 'WebP' }
   if (bytes.length >= 2 && bytes[0] === 0x42 && bytes[1] === 0x4D) { return 'BMP' }
-  return null
-}
-
-function detectPdfType (buffer: ArrayBuffer): boolean {
-  const bytes = new Uint8Array(buffer.slice(0, 5))
   // %PDF-
-  return bytes.length >= 5 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46 && bytes[4] === 0x2D
+  if (bytes.length >= 5 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46 && bytes[4] === 0x2D) { return 'PDF' }
+  // EPUB is a ZIP archive (PK\x03\x04)
+  if (bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4B && bytes[2] === 0x03 && bytes[3] === 0x04) { return 'EPUB' }
+  return null
 }
 
 async function loadPdfJs () {
@@ -256,46 +256,56 @@ async function loadBook () {
       }
     }
 
-    const imageType = detectImageType(arrayBuffer)
-    if (imageType) {
-      detectedType.value = imageType
-      const mimeType = imageType === 'PNG' ? 'image/png' : 'image/jpeg'
-      const blob = new Blob([arrayBuffer], { type: mimeType })
-      imageObjectUrl.value = URL.createObjectURL(blob)
-      return
-    }
+    const fileType = detectFileType(arrayBuffer)
+    detectedType.value = fileType || ''
 
-    if (detectPdfType(arrayBuffer)) {
-      try {
-        const pdfjs = await loadPdfJs()
-        const loadingTask = pdfjs.getDocument({
-          data: arrayBuffer,
-          wasmUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/wasm/`,
-          cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`,
-          cMapPacked: true
-        })
-        pdfDocument = await loadingTask.promise
-        pdfTotalPages.value = pdfDocument.numPages
-        pdfCurrentPage.value = 1
-        isPdfLoaded.value = true
-        detectedType.value = 'PDF'
-        await nextTick()
-        await renderPdfPage(1)
-      } catch {
-        errorMessage.value = $t('preview_book.error_render_pdf')
+    switch (fileType) {
+      case 'PNG':
+      case 'JPEG':
+      case 'GIF':
+      case 'WebP':
+      case 'BMP': {
+        const mimeMap: Record<string, string> = { PNG: 'image/png', JPEG: 'image/jpeg', GIF: 'image/gif', WebP: 'image/webp', BMP: 'image/bmp' }
+        const blob = new Blob([arrayBuffer], { type: mimeMap[fileType] })
+        imageObjectUrl.value = URL.createObjectURL(blob)
+        break
       }
-      return
-    }
 
-    try {
-      const { default: ePub } = await import('@likecoin/epub-ts')
-      const book = ePub(arrayBuffer)
-      rendition = book.renderTo(viewerRef.value!, { width: '100%', height: '100%' })
-      await rendition!.display()
-      isBookLoaded.value = true
-      detectedType.value = 'EPUB'
-    } catch {
-      errorMessage.value = $t('preview_book.error_render')
+      case 'PDF':
+        try {
+          const pdfjs = await loadPdfJs()
+          const loadingTask = pdfjs.getDocument({
+            data: arrayBuffer,
+            wasmUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/wasm/`,
+            cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`,
+            cMapPacked: true
+          })
+          pdfDocument = await loadingTask.promise
+          pdfTotalPages.value = pdfDocument.numPages
+          pdfCurrentPage.value = 1
+          isPdfLoaded.value = true
+          await nextTick()
+          await renderPdfPage(1)
+        } catch {
+          errorMessage.value = $t('preview_book.error_render_pdf')
+        }
+        break
+
+      case 'EPUB':
+        try {
+          const { default: ePub } = await import('@likecoin/epub-ts')
+          const book = ePub(arrayBuffer)
+          rendition = book.renderTo(viewerRef.value!, { width: '100%', height: '100%' })
+          await rendition!.display()
+          isBookLoaded.value = true
+        } catch {
+          errorMessage.value = $t('preview_book.error_render')
+        }
+        break
+
+      default:
+        errorMessage.value = $t('preview_book.error_unsupported_format')
+        break
     }
   } finally {
     isLoading.value = false
