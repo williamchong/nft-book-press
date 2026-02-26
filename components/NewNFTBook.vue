@@ -229,7 +229,7 @@
               </UTooltip>
             </UFormField>
 
-            <UFormField class="flex items-center">
+            <UFormField v-if="props.isNewClassPage" class="flex items-center">
               <UTooltip class="flex items-center gap-2" :text="$t('nft_book_form.is_adult_only_tooltip')">
                 <UCheckbox
                   v-model="isAdultOnly"
