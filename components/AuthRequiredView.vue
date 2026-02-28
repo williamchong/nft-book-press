@@ -53,7 +53,7 @@
           color="primary"
           size="sm"
           :label="`${$t('landing.learn_more')} →`"
-          @click="navigateTo(localeRoute({ name: 'about' }))"
+          :to="localeRoute({ name: 'about' })"
         />
       </div>
     </main>
@@ -71,9 +71,10 @@ const { isAuthenticating } = useAuth()
 
 const router = useRouter()
 const isPublicRoute = ref(route.meta.requiresAuth === false)
-router.afterEach((to) => {
+const unregisterAfterEach = router.afterEach((to) => {
   isPublicRoute.value = to.meta.requiresAuth === false
 })
+onUnmounted(unregisterAfterEach)
 
 const showLanding = computed(() => !bookstoreApiStore.isAuthenticated && !isPublicRoute.value)
 

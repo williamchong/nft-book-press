@@ -145,7 +145,7 @@
           <p class="text-gray-500 text-sm">
             {{ $t('about.cta_contact') }}
             <a
-              href="#"
+              href="mailto:publish@3ook.com"
               class="text-[color:var(--ui-primary)] hover:underline"
               @click.prevent="handleContact"
             >publish@3ook.com</a>
