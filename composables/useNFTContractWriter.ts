@@ -5,7 +5,7 @@ import { LIKE_NFT_CLASS_ABI } from '~/contracts/likeNFT'
 import { sleep } from '~/utils'
 
 export const useNFTContractWriter = () => {
-  const { writeContractAsync } = useContractWrite()
+  const { writeContractAsync, isSponsoredMode } = useContractWrite()
   const { $wagmiConfig: config } = useNuxtApp()
   const { t: $t } = useI18n()
   const toast = useToast()
@@ -79,16 +79,6 @@ export const useNFTContractWriter = () => {
   const checkAndGrantMinter = ({ classId, wallet }: { classId: string, wallet: string }) => {
     return checkAndGrantRole({ classId, wallet }, 'MINTER_ROLE')
   }
-  const assertPositiveWalletBalance = async ({ wallet }: { wallet: string }) => {
-    const balance = await getBalance(config, {
-      address: wallet as `0x${string}`
-    })
-    if (balance.value <= 0n) {
-      throw new Error('WALLET_HAS_NO_BASE_ETH_BALANCE')
-    }
-    return balance
-  }
-
   const assertSufficientBalanceForTransaction = async (params: {
     wallet: string
     address: `0x${string}`
@@ -97,6 +87,7 @@ export const useNFTContractWriter = () => {
     args?: unknown[]
     value?: bigint
   }) => {
+    if (isSponsoredMode.value) { return }
     const data = encodeFunctionData({
       abi: params.abi,
       functionName: params.functionName,
@@ -130,6 +121,7 @@ export const useNFTContractWriter = () => {
     value: bigint
     data?: `0x${string}`
   }) => {
+    if (isSponsoredMode.value) { return }
     await assertSufficientBalanceForTx({
       wallet: params.wallet,
       tx: { to: params.to, value: params.value, data: params.data },
@@ -174,7 +166,6 @@ export const useNFTContractWriter = () => {
   return {
     checkAndGrantUpdater,
     checkAndGrantMinter,
-    assertPositiveWalletBalance,
     assertSufficientBalanceForTransaction,
     assertSufficientBalanceForTransfer,
     waitForTransactionReceipt
