@@ -1,6 +1,6 @@
 /**
  * Lightweight ANS-104 DataItem builder and Irys uploader.
- * Replaces @irys/sdk + arbundles with ~150 lines of pure WebCrypto code.
+ * Replaces @irys/sdk + arbundles using pure WebCrypto code.
  *
  * References:
  * - ANS-104 spec: https://github.com/ArweaveTeam/arweave-standards/blob/master/ans/ANS-104.md
@@ -121,15 +121,16 @@ type DeepHashChunk = Uint8Array | DeepHashChunk[]
 
 async function deepHash (data: DeepHashChunk): Promise<Uint8Array> {
   if (Array.isArray(data)) {
-    const tag = concatBytes(await sha384(strToBytes('list')), await sha384(strToBytes(data.length.toString())))
+    const tag = concatBytes(strToBytes('list'), strToBytes(data.length.toString()))
     let acc = await sha384(tag)
     for (const chunk of data) {
       acc = await sha384(concatBytes(acc, await deepHash(chunk)))
     }
     return acc
   }
-  const tag = concatBytes(await sha384(strToBytes('blob')), await sha384(strToBytes(data.byteLength.toString())))
-  return sha384(concatBytes(tag, await sha384(data)))
+  const tag = concatBytes(strToBytes('blob'), strToBytes(data.byteLength.toString()))
+  const taggedHash = concatBytes(await sha384(tag), await sha384(data))
+  return sha384(taggedHash)
 }
 
 // ── DataItem construction (ANS-104, TypedEthereum sig type 7) ────────────────
@@ -224,7 +225,9 @@ export async function uploadToIrys (
 
   // 1. Get Ethereum address that owns the Irys node account
   const { publicKey } = await $fetch<{ publicKey: string }>(apiEndpoints.API_GET_ARWEAVE_V2_PUBLIC_KEY)
-  const ownerBytes = Uint8Array.from(atob(publicKey), c => c.charCodeAt(0))
+  // Decode base64 public key to address string, then lowercase to match
+  // InjectedTypedEthereumSigner behaviour (this.address = getAddress().toLowerCase())
+  const ownerBytes = strToBytes(atob(publicKey).toLowerCase())
 
   // 2. Generate random 32-byte anchor (matches SDK: randomBytes(32).toString('base64').slice(0,32))
   const rawRandom = crypto.getRandomValues(new Uint8Array(32))
