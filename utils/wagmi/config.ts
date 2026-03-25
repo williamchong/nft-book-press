@@ -28,19 +28,19 @@ export function createWagmiConfig ({
       appLogoUrl: logoURL
     })
   ]
-  if (walletConnectProjectId) {
-    connectors.push(
-      walletConnect({
-        projectId: walletConnectProjectId,
-        metadata: {
-          name: '3ook.com',
-          description: '3ook.com is an AI reading companion coupled with a decentralized bookstore on web3',
-          url: 'https://3ook.com',
-          icons: [logoURL]
-        }
-      }))
-  }
   if (!isServer) {
+    if (walletConnectProjectId) {
+      connectors.push(
+        walletConnect({
+          projectId: walletConnectProjectId,
+          metadata: {
+            name: '3ook.com',
+            description: '3ook.com is an AI reading companion coupled with a decentralized bookstore on web3',
+            url: 'https://3ook.com',
+            icons: [logoURL]
+          }
+        }))
+    }
     connectors.push(dedicatedWalletConnector({
       chains: [chain],
       options: {
@@ -63,6 +63,7 @@ export function createWagmiConfig ({
   return createConfig({
     chains: [chain],
     connectors,
+    ssr: true,
     transports: {
       [base.id]: http(customRpcUrl),
       [baseSepolia.id]: http(customRpcUrl)
