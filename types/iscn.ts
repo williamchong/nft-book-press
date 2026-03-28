@@ -1,3 +1,9 @@
+export interface ClassMetadataHasPart {
+  '@type'?: string
+  isAccessibleForFree?: boolean
+  text?: string
+}
+
 export interface ISCNContentMetadata {
   name?: string
   description?: string
@@ -5,6 +11,7 @@ export interface ISCNContentMetadata {
   alternativeHeadline?: string
   thumbnailUrl?: string
   url?: string
+  hasPart?: ClassMetadataHasPart | ClassMetadataHasPart[]
   [key: string]: unknown
 }
 
@@ -47,6 +54,7 @@ export interface ClassMetadata {
   contentFingerprints?: string[]
   sameAs?: string[]
   potentialAction?: PotentialAction
+  hasPart?: ClassMetadataHasPart | ClassMetadataHasPart[]
   recordNotes?: string
   [key: string]: unknown
 }
@@ -76,6 +84,7 @@ export interface ISCNFormData {
   title: string
   description: string
   descriptionFull?: string
+  previewContent?: string
   alternativeHeadline?: string
   isbn: string
   publisher: string
@@ -116,6 +125,8 @@ export interface ISCNTxPayload {
 export interface ISCNValidationData {
   title?: string
   description?: string
+  descriptionFull?: string
+  previewContent?: string
   author?: { name: string }
   contentFingerprints?: Array<{ url: string }>
   coverUrl?: string

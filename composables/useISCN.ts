@@ -105,6 +105,13 @@ export function useISCN ({
     tagsString: iscnFormData.value.tags?.join(', ') || '',
     thumbnailUrl: iscnFormData.value.coverUrl,
     genre: iscnFormData.value.genre || undefined,
+    hasPart: iscnFormData.value.previewContent
+      ? {
+          '@type': 'Chapter',
+          isAccessibleForFree: true,
+          text: iscnFormData.value.previewContent
+        }
+      : undefined,
     potentialAction: formattedPotentialActionList.value,
     attributes: getAttributes(iscnFormData.value)
   }))

@@ -1,5 +1,5 @@
-import type { ISCNRegisterPayload, ISCNTxPayload, ISCNValidationData } from '~/types/iscn'
-import { MAX_DESCRIPTION_LENGTH } from '~/constant'
+import type { ClassMetadata, ISCNRegisterPayload, ISCNTxPayload, ISCNValidationData } from '~/types/iscn'
+import { MAX_DESCRIPTION_LENGTH, MAX_DESCRIPTION_FULL_LENGTH, MAX_PREVIEW_CONTENT_LENGTH } from '~/constant'
 
 function isValidImageUrl (urlString: string): boolean {
   if (!urlString) { return false }
@@ -16,6 +16,16 @@ function isValidImageUrl (urlString: string): boolean {
   } catch {
     return false
   }
+}
+
+export function getPreviewContentFromHasPart (
+  hasPart?: ClassMetadata['hasPart']
+): string | undefined {
+  if (!hasPart) { return undefined }
+  if (!Array.isArray(hasPart)) {
+    return (hasPart.isAccessibleForFree === true && hasPart.text) ? hasPart.text : undefined
+  }
+  return hasPart.find(p => p.isAccessibleForFree === true && !!p.text)?.text
 }
 
 export function formatISCNTxPayload (payload: ISCNRegisterPayload): ISCNTxPayload {
@@ -68,6 +78,14 @@ export function validateISCNForm (data: ISCNValidationData, maxDescriptionLength
 
   if (!Array.isArray(data.contentFingerprints) || !data.contentFingerprints.some((f: { url: string }) => !!f.url)) {
     errors.push('Please provide at least one content URL')
+  }
+
+  if (data.descriptionFull && data.descriptionFull.length > MAX_DESCRIPTION_FULL_LENGTH) {
+    errors.push(`Full description cannot exceed ${MAX_DESCRIPTION_FULL_LENGTH} characters`)
+  }
+
+  if (data.previewContent && data.previewContent.length > MAX_PREVIEW_CONTENT_LENGTH) {
+    errors.push(`Preview content cannot exceed ${MAX_PREVIEW_CONTENT_LENGTH} characters`)
   }
 
   if (!data.coverUrl) {
