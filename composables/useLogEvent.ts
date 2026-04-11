@@ -1,5 +1,48 @@
 import { setUser as setSentryUser } from '@sentry/nuxt'
 
+// Intercom caps event *names* at 120 per workspace. New names beyond that are
+// silently dropped, so we allowlist only events a CS agent would want to see
+// in the user's recent-activity strip when a conversation opens. The bar for
+// adding new entries is "does this give CS context during a live chat?" —
+// funnel milestones, failure states, and concrete user actions qualify;
+// intermediate wiring events and high-volume nav clicks do not. GA and
+// PostHog still receive every event regardless of this set.
+export const INTERCOM_TRACKED_EVENTS: ReadonlySet<string> = new Set([
+  // Auth
+  'login',
+  'login_failed',
+  'sign_up_started',
+  'sign_up_failed',
+  // Publish funnel
+  'book_publish_started',
+  'book_publish_upload_completed',
+  'iscn_registration_success',
+  'nft_mint_success',
+  'book_listing_created',
+  'iscn_metadata_updated',
+  // Book management
+  'my_books_view_detail',
+  // Affiliation intent
+  'latest_books_click_affiliation_setup',
+  // Bulk upload
+  'bulk_upload_book_completed',
+  'bulk_upload_book_failed',
+  // Purchase links
+  'purchase_link_create_started',
+  'purchase_link_created',
+  'purchase_link_copy',
+  'purchase_link_download_csv',
+  'purchase_link_print_qr',
+  'purchase_link_download_qr',
+  // Exports
+  'readers_export_csv',
+  'sales_report_export_commission',
+  'sales_report_export_payout',
+  // Stripe payout setup
+  'stripe_setup_started',
+  'stripe_login'
+])
+
 interface EventParams {
   [key: string]: unknown
 }
@@ -11,7 +54,7 @@ export function useLogEvent (eventName: string, eventParams: EventParams = {}) {
     console.error(`Failed to track event to GA: ${eventName}`, eventParams)
   }
 
-  if (window?.Intercom) {
+  if (window?.Intercom && INTERCOM_TRACKED_EVENTS.has(eventName)) {
     try {
       const { items, ...params } = eventParams
       if (items) {
