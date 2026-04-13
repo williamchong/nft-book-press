@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-const { t: $t } = useI18n()
+const { t: $t, locale } = useI18n()
 
 const { SITE_URL } = useRuntimeConfig().public
 const { isShowMaintenancePage } = useMaintenanceMode()
@@ -68,8 +68,29 @@ const bookstoreApiStore = useBookstoreApiStore()
 const { restoreAuthSession, fetchBookListing, clearSession } = bookstoreApiStore
 const { wallet, intercomToken, isAuthenticated } = storeToRefs(bookstoreApiStore)
 const { isAuthenticating, loginStatus, authenticateByConnectorId, authenticateBySignature } = useAuth()
+const userStore = useUserStore()
+const { userLikerInfo } = storeToRefs(userStore)
 const uiStore = useUIStore()
 const toast = useToast()
+
+// Re-identify Intercom once likerId is known. Intercom's identity
+// verification requires `user_id === likerId` (see `useSetIntercomUser`),
+// so this path only fires after the liker info store has hydrated and
+// the JWT is available. Sentry/PostHog were already identified at login
+// and are intentionally left alone here to avoid overwriting fields
+// like `email` with undefined.
+watch(() => userLikerInfo.value?.user, (likerId) => {
+  if (!isAuthenticated.value || !wallet.value || !likerId || !intercomToken.value) { return }
+  const info = userLikerInfo.value!
+  useSetIntercomUser(wallet.value, {
+    likerId,
+    displayName: info.displayName,
+    likeWallet: info.likeWallet,
+    avatar: info.avatar,
+    locale: locale.value,
+    intercomToken: intercomToken.value
+  })
+})
 
 const isRestoringSession = ref(false)
 
@@ -128,7 +149,7 @@ onMounted(async () => {
   try {
     await restoreAuthSession()
     if (isAuthenticated.value && wallet.value) {
-      useSetLogUser(wallet.value, { intercomToken: intercomToken.value })
+      useSetLogUser(wallet.value)
     }
   } catch (error) {
     console.error(error)
