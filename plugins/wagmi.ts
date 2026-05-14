@@ -12,18 +12,18 @@ export default defineNuxtPlugin((nuxtApp) => {
     walletConnectProjectId: config.public.WALLET_CONNECT_PROJECT_ID,
     customRpcUrl: config.public.CUSTOM_RPC_URL,
     isServer: !!nuxtApp.ssrContext,
-    isTestnet: !!config.public.IS_TESTNET
+    isTestnet: !!config.public.IS_TESTNET,
   })
 
   nuxtApp.vueApp
     .use(WagmiPlugin, {
-      config: wagmiConfig as Config
+      config: wagmiConfig as Config,
     })
     .use(VueQueryPlugin, {})
 
   return {
     provide: {
-      wagmiConfig
-    }
+      wagmiConfig,
+    },
   }
 })

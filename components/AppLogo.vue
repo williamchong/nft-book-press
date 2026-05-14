@@ -1,5 +1,8 @@
 <template>
-  <NuxtLink to="/my-books" class="inline-block">
+  <NuxtLink
+    to="/my-books"
+    class="inline-block"
+  >
     <img
       src="~/assets/images/3ook-store.png"
       alt="3ook.com Logo"
@@ -13,7 +16,7 @@
 const props = defineProps({
   height: {
     type: Number,
-    default: 40
-  }
+    default: 40,
+  },
 })
 </script>

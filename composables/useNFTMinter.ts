@@ -5,32 +5,32 @@ export interface NFTTokenMetadata {
   external_url: string
   description: string
   name: string
-  attributes?: Array<{ trait_type: string; value: string | number; display_type?: string }>
+  attributes?: Array<{ trait_type: string, value: string | number, display_type?: string }>
 }
 
-export function useNFTMinter () {
+export function useNFTMinter() {
   const walletStore = useWalletStore()
   const { wallet } = storeToRefs(walletStore)
   const { checkAndGrantMinter, assertSufficientBalanceForTransaction, waitForTransactionReceipt } = useNFTContractWriter()
   const { getClassCurrentTokenId } = useNFTContractReader()
   const { writeContractAsync } = useContractWrite()
 
-  async function mintNFT (params: {
+  async function mintNFT(params: {
     classId: string
     mintCount: number
     buildTokenMetadata: (index: number, fromTokenId: bigint) => NFTTokenMetadata
-  }): Promise<{ txHash: string; fromTokenId: bigint }> {
+  }): Promise<{ txHash: string, fromTokenId: bigint }> {
     const { classId, mintCount, buildTokenMetadata } = params
 
     await checkAndGrantMinter({
       classId,
-      wallet: wallet.value!
+      wallet: wallet.value!,
     })
 
     const fromTokenId = await getClassCurrentTokenId(classId) as bigint
 
     const nfts = [...Array(mintCount).keys()].map(i =>
-      buildTokenMetadata(i, fromTokenId)
+      buildTokenMetadata(i, fromTokenId),
     )
 
     const txParams = {
@@ -41,13 +41,13 @@ export function useNFTMinter () {
         fromTokenId,
         Array(mintCount).fill(wallet.value),
         Array(mintCount).fill(''),
-        nfts.map(nft => JSON.stringify(nft))
-      ]
+        nfts.map(nft => JSON.stringify(nft)),
+      ],
     }
 
     await assertSufficientBalanceForTransaction({
       wallet: wallet.value!,
-      ...txParams
+      ...txParams,
     })
 
     const txHash = await writeContractAsync(txParams)

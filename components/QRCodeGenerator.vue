@@ -4,10 +4,13 @@
       root: 'rounded-none ring-0',
       header: 'flex justify-between items-center gap-2',
       body: '!p-0',
-      footer: 'flex justify-center items-center gap-2'
+      footer: 'flex justify-center items-center gap-2',
     }"
   >
-    <div v-if="!isReadonlyMode" class="grid grid-cols-2 gap-4 p-4 print:hidden">
+    <div
+      v-if="!isReadonlyMode"
+      class="grid grid-cols-2 gap-4 p-4 print:hidden"
+    >
       <UFormField :label="$t('qr_generator.pick_dot')">
         <URadioGroup
           v-model="selectedDotStyle"
@@ -24,7 +27,10 @@
       class="qr-code-container flex justify-center items-center p-2 h-full"
     />
 
-    <template v-if="!isReadonlyMode" #footer>
+    <template
+      v-if="!isReadonlyMode"
+      #footer
+    >
       <template v-if="isDownloadMode">
         <USelect
           v-model="downloadFileExtension"
@@ -56,41 +62,42 @@
 </template>
 
 <script setup lang="ts">
-import QRCodeStyling, { type FileExtension } from '@likecoin/qr-code-styling'
+import type QRCodeStyling from '@likecoin/qr-code-styling'
+import type { FileExtension } from '@likecoin/qr-code-styling'
 
 const props = defineProps({
   data: {
     type: String,
-    default: ''
+    default: '',
   },
   fileName: {
     type: String,
-    default: ''
+    default: '',
   },
   icon: {
     type: String,
-    default: DEFAULT_QR_CODE_ICON
+    default: DEFAULT_QR_CODE_ICON,
   },
   color: {
     type: String,
-    default: DEFAULT_QR_CODE_COLOR
+    default: DEFAULT_QR_CODE_COLOR,
   },
   dotStyle: {
     type: String,
-    default: DEFAULT_QR_CODE_DOT_STYLE
+    default: DEFAULT_QR_CODE_DOT_STYLE,
   },
   width: {
     type: Number,
-    default: 300
+    default: 300,
   },
   height: {
     type: Number,
-    default: 300
+    default: 300,
   },
   mode: {
     type: String,
-    default: 'download'
-  }
+    default: 'download',
+  },
 })
 
 const isReadonlyMode = computed(() => props.mode === 'readonly')
@@ -111,7 +118,7 @@ const options = computed(() => getQRCodeOptions({
   data: props.data,
   fillColor: selectedColor.value,
   image: selectedIcon.value === 'none' ? undefined : getQRCodeIcon(selectedIcon.value),
-  dotStyle: selectedDotStyle.value
+  dotStyle: selectedDotStyle.value,
 }))
 const qrCode = ref<QRCodeStyling | null>(null)
 const qrCodeRef = ref(null)
@@ -128,13 +135,13 @@ onMounted(async () => {
   }
 })
 
-async function download () {
+async function download() {
   const { default: QRCodeStyling } = await import('@likecoin/qr-code-styling')
   const tempInstance = new QRCodeStyling(options.value)
   tempInstance.download({ extension: downloadFileExtension.value as FileExtension, name: props.fileName })
 }
 
-function saveConfig () {
+function saveConfig() {
   emit('update:icon', selectedIcon.value)
   emit('update:color', selectedColor.value)
   emit('update:dotStyle', selectedDotStyle.value)

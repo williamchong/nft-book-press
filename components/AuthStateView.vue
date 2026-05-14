@@ -1,15 +1,25 @@
 <template>
   <div class="flex flex-col items-stretch gap-6">
     <template v-if="bookstoreApiStore.isAuthenticated">
-      <div v-if="isFetchingUserLikerInfo" class="flex items-center space-x-4">
+      <div
+        v-if="isFetchingUserLikerInfo"
+        class="flex items-center space-x-4"
+      >
         <USkeleton class="h-12 w-12 rounded-full" />
         <div class="space-y-2">
           <USkeleton class="h-4 w-[250px]" />
           <USkeleton class="h-4 w-[200px]" />
         </div>
       </div>
-      <div v-else class="flex flex-col justify-center items-center gap-1">
-        <UAvatar v-if="userLikerInfo" :src="userLikerInfo?.avatar" size="sm" />
+      <div
+        v-else
+        class="flex flex-col justify-center items-center gap-1"
+      >
+        <UAvatar
+          v-if="userLikerInfo"
+          :src="userLikerInfo?.avatar"
+          size="sm"
+        />
         <p
           class="font-mono text-center text-sm truncate text-gray-600 w-full"
           v-text="userLikerInfo?.displayName || userLikerInfo?.user || wallet"
@@ -45,7 +55,7 @@ onMounted(async () => {
   }
 })
 
-function onClickDisconnect () {
+function onClickDisconnect() {
   useLogEvent('logout')
   useSetLogUser(null)
   disconnect()

@@ -7,12 +7,12 @@ interface StripeConnectStatus {
   stripeConnectAccountId?: string
 }
 
-function getStripeConnectStatusDefault (): StripeConnectStatus {
+function getStripeConnectStatusDefault(): StripeConnectStatus {
   return {
     isReady: false,
     hasAccount: false,
     email: '',
-    stripeConnectAccountId: ''
+    stripeConnectAccountId: '',
   }
 }
 
@@ -28,17 +28,17 @@ export const useStripeStore = defineStore('stripe-connect', () => {
     return stripeConnectStatusWalletMap.value[wallet] || getStripeConnectStatusDefault()
   })
 
-  async function fetchStripeConnectStatusByWallet (wallet: string) {
+  async function fetchStripeConnectStatusByWallet(wallet: string) {
     if (!stripeConnectStatusWalletMap.value[wallet]) {
       stripeConnectStatusWalletMap.value[wallet] = getStripeConnectStatusDefault()
     }
     const data = await $fetch<StripeConnectStatus>(`${LIKE_CO_API}/likernft/book/user/connect/status`, {
       headers: {
-        authorization: `Bearer ${token.value}`
+        authorization: `Bearer ${token.value}`,
       },
       query: {
-        wallet
-      }
+        wallet,
+      },
     })
     if (!data) {
       return stripeConnectStatusWalletMap.value[wallet]
@@ -47,7 +47,7 @@ export const useStripeStore = defineStore('stripe-connect', () => {
     return data
   }
 
-  async function refreshStripeConnectStatus (wallet: string) {
+  async function refreshStripeConnectStatus(wallet: string) {
     await fetchStripeConnectStatusByWallet(wallet)
 
     const currentStatus = stripeConnectStatusWalletMap.value[wallet]
@@ -56,14 +56,14 @@ export const useStripeStore = defineStore('stripe-connect', () => {
       const data = await $fetch<StripeRefreshResponse>(`${LIKE_CO_API}/likernft/book/user/connect/refresh`, {
         method: 'POST',
         headers: {
-          authorization: `Bearer ${token.value}`
-        }
+          authorization: `Bearer ${token.value}`,
+        },
       })
 
       if (data.isReady) {
         stripeConnectStatusWalletMap.value[wallet] = {
           ...currentStatus,
-          isReady: true
+          isReady: true,
         }
       }
     }
@@ -74,6 +74,6 @@ export const useStripeStore = defineStore('stripe-connect', () => {
     stripeConnectStatusWalletMap,
     getStripeConnectStatusByWallet,
     fetchStripeConnectStatusByWallet,
-    refreshStripeConnectStatus
+    refreshStripeConnectStatus,
   }
 })

@@ -11,12 +11,15 @@ export const useToastComposable = () => {
       const data = error.data
       if (typeof data === 'string') {
         description = data
-      } else if (data) {
+      }
+      else if (data) {
         description = data.message || data.error || JSON.stringify(data)
       }
-    } else if (typeof error === 'string') {
+    }
+    else if (typeof error === 'string') {
       title = error
-    } else {
+    }
+    else {
       title = (error as Error)?.message || String(error)
     }
     toast.add({
@@ -24,11 +27,11 @@ export const useToastComposable = () => {
       title,
       description,
       duration: 3000,
-      color: 'error'
+      color: 'error',
     })
   }
 
   return {
-    showErrorToast
+    showErrorToast,
   }
 }

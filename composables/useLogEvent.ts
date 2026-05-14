@@ -40,7 +40,7 @@ export const INTERCOM_TRACKED_EVENTS: ReadonlySet<string> = new Set([
   'sales_report_export_payout',
   // Stripe payout setup
   'stripe_setup_started',
-  'stripe_login'
+  'stripe_login',
 ])
 const INTERCOM_SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000
 
@@ -48,11 +48,12 @@ interface EventParams {
   [key: string]: unknown
 }
 
-export function useLogEvent (eventName: string, eventParams: EventParams = {}) {
+export function useLogEvent(eventName: string, eventParams: EventParams = {}) {
   try {
     const { proxy } = useScriptGoogleAnalytics()
     proxy.gtag('event', eventName, eventParams)
-  } catch {
+  }
+  catch {
     console.error(`Failed to track event to GA: ${eventName}`, eventParams)
   }
 
@@ -63,7 +64,8 @@ export function useLogEvent (eventName: string, eventParams: EventParams = {}) {
         params.items = JSON.stringify(items)
       }
       window.Intercom('trackEvent', eventName, params)
-    } catch (error) {
+    }
+    catch (error) {
       console.error(`Failed to log event to Intercom: ${eventName}`, error)
     }
   }
@@ -81,12 +83,13 @@ export function useLogEvent (eventName: string, eventParams: EventParams = {}) {
       }
     }
     proxy.posthog.capture(eventName, { app: 'book-press', ...posthogParams })
-  } catch (error) {
+  }
+  catch (error) {
     console.error(`Failed to log event to PostHog: ${eventName}`, error)
   }
 }
 
-export function useSetIntercomUser (
+export function useSetIntercomUser(
   wallet: string | null,
   options: {
     email?: string
@@ -96,7 +99,7 @@ export function useSetIntercomUser (
     avatar?: string
     locale?: string
     intercomToken?: string
-  } = {}
+  } = {},
 ) {
   // The identity-verification JWT is signed with the LikeCoin user id as
   // `user_id`, so the client-supplied `user_id` must equal `likerId` or
@@ -119,26 +122,27 @@ export function useSetIntercomUser (
       avatar: avatar
         ? {
             type: 'avatar',
-            image_url: avatar
+            image_url: avatar,
           }
         : undefined,
       evm_wallet: wallet,
       like_wallet: likeWallet,
-      locale
+      locale,
     })
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Failed to set user data in Intercom', error)
   }
 }
 
-export function useSetLogUser (
+export function useSetLogUser(
   wallet: string | null,
   options: {
     email?: string
     displayName?: string
     likeWallet?: string
     locale?: string
-  } = {}
+  } = {},
 ) {
   const { email, displayName, likeWallet, locale } = options
   const nameFallback = displayName || wallet || likeWallet
@@ -146,11 +150,12 @@ export function useSetLogUser (
   // Set user in Sentry
   if (!wallet) {
     setSentryUser(null)
-  } else {
+  }
+  else {
     setSentryUser({
       id: wallet,
       email,
-      username: nameFallback
+      username: nameFallback,
     })
   }
 
@@ -166,14 +171,16 @@ export function useSetLogUser (
     const { proxy } = useScriptPostHog()
     if (!wallet) {
       proxy.posthog.reset()
-    } else {
+    }
+    else {
       proxy.posthog.identify(wallet, {
         email: email || undefined,
         name: nameFallback,
-        locale
+        locale,
       })
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Failed to set user data in PostHog', error)
   }
 }

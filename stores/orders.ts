@@ -28,13 +28,13 @@ export const useOrdersStore = defineStore('orders', () => {
   watch(isAuthenticated, () => {
     if (isAuthenticated.value) {
       lazyFetchReaders()
-    } else {
+    }
+    else {
       clearCache()
     }
   })
 
   const ordersByClassIdMap = computed(() => {
-    // eslint-disable-next-line func-call-spacing
     const map = new Map<string, (OrderData & { classId: string })[]>()
     allOrders.value.forEach((order) => {
       const classId = order.classId
@@ -85,7 +85,8 @@ export const useOrdersStore = defineStore('orders', () => {
         if (wallet && !existing.readerWallet) {
           existing.readerWallet = wallet
         }
-      } else {
+      }
+      else {
         const purchasedBooks: Record<string, boolean> = {}
         uniqueClassIds.forEach((classId) => {
           purchasedBooks[classId] = false
@@ -99,7 +100,7 @@ export const useOrdersStore = defineStore('orders', () => {
           lastPurchaseTime: purchaseTime,
           lifetimeValue: amount,
           hasMessage,
-          purchasedBooks
+          purchasedBooks,
         })
       }
     })
@@ -112,12 +113,12 @@ export const useOrdersStore = defineStore('orders', () => {
 
       return {
         ...reader,
-        ...bookSortFields
+        ...bookSortFields,
       }
     })
   })
 
-  async function fetchOrdersByClassId (classIds: string[]) {
+  async function fetchOrdersByClassId(classIds: string[]) {
     const orders: (OrderData & { classId: string })[] = []
 
     for (const classId of classIds) {
@@ -127,7 +128,8 @@ export const useOrdersStore = defineStore('orders', () => {
         if (classOrders.length > 0) {
           orders.push(...classOrders.map(order => ({ ...order, classId })))
         }
-      } catch (err) {
+      }
+      catch (err) {
         console.error(`Failed to fetch orders for classId ${classId}:`, err)
       }
     }
@@ -136,7 +138,7 @@ export const useOrdersStore = defineStore('orders', () => {
     return orders
   }
 
-  async function lazyFetchOrdersByClassId (classIds: string[], force = false) {
+  async function lazyFetchOrdersByClassId(classIds: string[], force = false) {
     if (!force && allOrders.value.length > 0) {
       const fetchedClassIds = new Set(allOrders.value.map(order => order.classId))
       const hasAllClassIds = classIds.every(id => fetchedClassIds.has(id))
@@ -147,7 +149,7 @@ export const useOrdersStore = defineStore('orders', () => {
     return await fetchOrdersByClassId(classIds)
   }
 
-  async function fetchReaders (force = false) {
+  async function fetchReaders(force = false) {
     if (!force && readers.value.length > 0) {
       return
     }
@@ -161,7 +163,7 @@ export const useOrdersStore = defineStore('orders', () => {
 
       const allClassIds = [
         ...bookstoreApiStore.listingList.map((book: BookListingItem) => book.classId),
-        ...bookstoreApiStore.moderatedBookList.map((book: BookListingItem) => book.classId)
+        ...bookstoreApiStore.moderatedBookList.map((book: BookListingItem) => book.classId),
       ]
 
       const uniqueClassIds = [...new Set(allClassIds)]
@@ -177,7 +179,7 @@ export const useOrdersStore = defineStore('orders', () => {
         if (uniqueClassIds.includes(book.classId)) {
           tempBooksInfo[book.classId] = {
             name: book.name || book.classId,
-            classId: book.classId
+            classId: book.classId,
           }
         }
       })
@@ -186,7 +188,7 @@ export const useOrdersStore = defineStore('orders', () => {
         if (uniqueClassIds.includes(book.classId)) {
           tempBooksInfo[book.classId] = {
             name: book.name || book.classId,
-            classId: book.classId
+            classId: book.classId,
           }
         }
       })
@@ -194,15 +196,17 @@ export const useOrdersStore = defineStore('orders', () => {
       booksInfo.value = tempBooksInfo
 
       await lazyFetchOrdersByClassId(uniqueClassIds, force)
-    } catch (err) {
+    }
+    catch (err) {
       error.value = (err as Error).message || 'Failed to load readers data'
       throw err
-    } finally {
+    }
+    finally {
       isLoading.value = false
     }
   }
 
-  async function lazyFetchReaders () {
+  async function lazyFetchReaders() {
     if (readers.value.length > 0) {
       return readers.value
     }
@@ -210,11 +214,11 @@ export const useOrdersStore = defineStore('orders', () => {
     return readers.value
   }
 
-  function clearError () {
+  function clearError() {
     error.value = ''
   }
 
-  function clearCache () {
+  function clearCache() {
     allOrders.value = []
     booksInfo.value = {}
   }
@@ -232,6 +236,6 @@ export const useOrdersStore = defineStore('orders', () => {
     fetchOrdersByClassId,
     lazyFetchOrdersByClassId,
     clearError,
-    clearCache
+    clearCache,
   }
 })

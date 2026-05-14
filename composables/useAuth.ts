@@ -1,4 +1,4 @@
-export function useAuth () {
+export function useAuth() {
   const bookstoreApiStore = useBookstoreApiStore()
   const store = useWalletStore()
   const { wallet, isConnected } = storeToRefs(store)
@@ -10,12 +10,12 @@ export function useAuth () {
   const isAuthenticating = ref(false)
   const loginStatus = ref<string | undefined>('')
 
-  async function authenticateBySignature (signature: {
-    signature: string,
-    message: string,
-    wallet: string,
-    signMethod: string,
-    expiresIn: string,
+  async function authenticateBySignature(signature: {
+    signature: string
+    message: string
+    wallet: string
+    signMethod: string
+    expiresIn: string
   }, context?: { email?: string }) {
     loginStatus.value = $t('auth_state.connecting')
 
@@ -28,18 +28,20 @@ export function useAuth () {
       loginStatus.value = $t('auth_state.success')
       try {
         await fetchBookListing()
-      } catch (err) {
+      }
+      catch (err) {
         // eslint-disable-next-line no-console
         console.error(err)
       }
-    } finally {
+    }
+    finally {
       isAuthenticating.value = false
       loginStatus.value = ''
     }
   }
 
-  async function authenticateByConnectorId (connectorId = 'magic') {
-    let connectResult: { walletAddress: string; email?: string; loginMethod: string; magicUserId?: string; magicDIDToken?: string } | undefined
+  async function authenticateByConnectorId(connectorId = 'magic') {
+    let connectResult: { walletAddress: string, email?: string, loginMethod: string, magicUserId?: string, magicDIDToken?: string } | undefined
     loginStatus.value = $t('auth_state.connecting')
 
     try {
@@ -76,7 +78,8 @@ export function useAuth () {
         for (let retryCount = 0; retryCount < maxRetries && !isRegistered; retryCount++) {
           try {
             isRegistered = await store.register({ walletAddress, email, loginMethod, magicUserId, magicDIDToken })
-          } catch (error) {
+          }
+          catch (error) {
             showErrorToast(error)
           }
         }
@@ -85,7 +88,7 @@ export function useAuth () {
           useLogEvent('sign_up_failed', { method: loginMethod, wallet: walletAddress })
           if (window.Intercom) {
             window.Intercom('showNewMessage', $t('intercom.registration_failed_message', {
-              walletAddress
+              walletAddress,
             }))
           }
           return
@@ -94,7 +97,7 @@ export function useAuth () {
 
       const signature = await signMessageMemo(
         'authorize',
-        SIGN_AUTHORIZATION_PERMISSIONS
+        SIGN_AUTHORIZATION_PERMISSIONS,
       )
 
       if (!signature) {
@@ -102,7 +105,8 @@ export function useAuth () {
       }
 
       await authenticateBySignature(signature, { email: connectResult?.email })
-    } catch (err) {
+    }
+    catch (err) {
       useLogEvent('login_failed', { method: connectorId, error: (err as Error)?.message })
       clearSession()
       if (isConnected.value) {
@@ -111,7 +115,8 @@ export function useAuth () {
       // eslint-disable-next-line no-console
       console.error(err)
       showErrorToast(err)
-    } finally {
+    }
+    finally {
       isAuthenticating.value = false
       loginStatus.value = ''
       clearPostAuthRedirect()
@@ -122,6 +127,6 @@ export function useAuth () {
     isAuthenticating,
     authenticateBySignature,
     authenticateByConnectorId,
-    loginStatus
+    loginStatus,
   }
 }

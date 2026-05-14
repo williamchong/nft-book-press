@@ -4,7 +4,11 @@
       <!-- Stepper Navigation -->
       <div class="justify-evenly items-center flex space-x-4 relative">
         <div class="absolute w-full h-px bg-gray-300 top-[50%] left-0 z-[-1]" />
-        <div v-for="(s, index) in steps" :key="index" class="flex items-center space-x-2 bg-white p-2 rounded-lg">
+        <div
+          v-for="(s, index) in steps"
+          :key="index"
+          class="flex items-center space-x-2 bg-white p-2 rounded-lg"
+        >
           <UAvatar
             :size="index === step ? 'lg' : 'md'"
             :text="(index + 1).toString()"
@@ -67,6 +71,7 @@
 
 <script setup lang="ts">
 import type { FileRecord } from '~/types'
+
 const { t: $t } = useI18n()
 
 const walletStore = useWalletStore()
@@ -93,7 +98,7 @@ const isMintLoading = ref(false)
 
 useSeoMeta({
   title: () => $t('seo_titles.publish_nft_book'),
-  ogTitle: () => $t('seo_titles.publish_nft_book')
+  ogTitle: () => $t('seo_titles.publish_nft_book'),
 })
 
 const currentActionText = computed(() => {
@@ -123,7 +128,8 @@ const shouldShowActionButton = computed(() => {
 const shouldDisableAction = computed(() => {
   if (step.value === 0) {
     return uploadStatus.value !== ''
-  } else if (step.value === 2) {
+  }
+  else if (step.value === 2) {
     return isMintLoading.value
   }
   return false
@@ -132,20 +138,20 @@ const shouldDisableAction = computed(() => {
 const steps = [
   {
     title: $t('publish_steps.upload_files'),
-    description: 'Upload your book file'
+    description: 'Upload your book file',
   },
   {
     title: $t('publish_steps.register_iscn'),
-    description: 'Register ISCN'
+    description: 'Register ISCN',
   },
   {
     title: $t('publish_steps.mint_nft'),
-    description: 'Mint NFT'
+    description: 'Mint NFT',
   },
   {
     title: $t('publish_steps.new_book_publish'),
-    description: 'Publish new book'
-  }
+    description: 'Publish new book',
+  },
 ]
 
 onMounted(() => {
@@ -156,7 +162,8 @@ onMounted(() => {
     if (sessionData) {
       data = JSON.parse(sessionData)
     }
-  } catch (err) {
+  }
+  catch (err) {
     // eslint-disable-next-line no-console
     console.error(err)
   }
@@ -164,9 +171,11 @@ onMounted(() => {
   if (iscnId.value) {
     iscnInputValue.value = iscnId.value
     handleIscnSubmit({ iscnId: iscnId.value, txHash: '' })
-  } else if (classId.value) {
+  }
+  else if (classId.value) {
     handleMintNFTSubmit({ classId: classId.value })
-  } else if (data?.epubMetadata && data?.fileRecords) {
+  }
+  else if (data?.epubMetadata && data?.fileRecords) {
     bookName.value = data?.epubMetadata?.title
   }
 })
@@ -199,7 +208,8 @@ const nextStep = async () => {
     if (step.value < steps.length - 1) {
       step.value++
     }
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error during form submission:', error)
   }
@@ -209,7 +219,7 @@ const handleUploadSubmit = (uploadFileData: UploadFileData) => {
   const { fileRecords, epubMetadata } = uploadFileData
   useLogEvent('book_publish_upload_completed', {
     file_count: fileRecords.length,
-    has_epub_metadata: !!epubMetadata
+    has_epub_metadata: !!epubMetadata,
   })
   if (epubMetadata?.coverData) {
     epubMetadata.coverData = undefined
@@ -229,7 +239,7 @@ const handleIscnSubmit = async (res: { iscnId: string, txHash: string }) => {
   iscnId.value = newIscnId
 }
 
-const handleMintNFTSubmit = async (res: { classId: string; nftMintCount?: number }) => {
+const handleMintNFTSubmit = async (res: { classId: string, nftMintCount?: number }) => {
   const { classId: newClassId, nftMintCount } = res
   useLogEvent('nft_mint_success', { class_id: newClassId, mint_count: nftMintCount })
   if (newClassId) {
@@ -245,5 +255,4 @@ const handleNewBookSubmit = async () => {
   clearUploadFileData()
   await navigateTo(localeRoute({ name: 'my-books' }))
 }
-
 </script>

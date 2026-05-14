@@ -18,7 +18,7 @@ export const useNFTContractWriter = () => {
       title: $t('errors.insufficient_gas_fee'),
       description: $t('errors.insufficient_gas_fee_description', {
         currentBalance: currentBalanceFormatted,
-        neededBalance: neededBalanceFormatted
+        neededBalance: neededBalanceFormatted,
       }),
       duration: 0,
       color: 'warning',
@@ -30,29 +30,29 @@ export const useNFTContractWriter = () => {
               window.Intercom('showNewMessage', $t('errors.insufficient_gas_fee_support_message', {
                 walletAddress,
                 currentBalance: currentBalanceFormatted,
-                neededBalance: neededBalanceFormatted
+                neededBalance: neededBalanceFormatted,
               }))
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     })
   }
 
   const checkAndGrantRole = async (
-    { classId, wallet }: { classId: string; wallet: string },
-    role: 'UPDATER_ROLE' | 'MINTER_ROLE'
+    { classId, wallet }: { classId: string, wallet: string },
+    role: 'UPDATER_ROLE' | 'MINTER_ROLE',
   ) => {
     const roleData = await readContract(config, {
       abi: LIKE_NFT_CLASS_ABI,
       address: classId as `0x${string}`,
-      functionName: role as 'UPDATER_ROLE'
+      functionName: role as 'UPDATER_ROLE',
     })
     const hasRole = await readContract(config, {
       abi: LIKE_NFT_CLASS_ABI,
       address: classId as `0x${string}`,
       functionName: 'hasRole',
-      args: [roleData as `0x${string}`, wallet as `0x${string}`]
+      args: [roleData as `0x${string}`, wallet as `0x${string}`],
     })
     if (!hasRole) {
       await assertSufficientBalanceForTransaction({
@@ -60,13 +60,13 @@ export const useNFTContractWriter = () => {
         address: classId as `0x${string}`,
         abi: LIKE_NFT_CLASS_ABI,
         functionName: 'ownerGrantRole',
-        args: [roleData as `0x${string}`, wallet as `0x${string}`]
+        args: [roleData as `0x${string}`, wallet as `0x${string}`],
       })
       const txHash = await writeContractAsync({
         abi: LIKE_NFT_CLASS_ABI,
         address: classId as `0x${string}`,
         functionName: 'ownerGrantRole',
-        args: [roleData as `0x${string}`, wallet as `0x${string}`]
+        args: [roleData as `0x${string}`, wallet as `0x${string}`],
       })
       await waitForTransactionReceipt({ hash: txHash, confirmations: 2 })
       // eslint-disable-next-line no-console
@@ -91,22 +91,23 @@ export const useNFTContractWriter = () => {
     const data = encodeFunctionData({
       abi: params.abi,
       functionName: params.functionName,
-      args: params.args
+      args: params.args,
     })
     await assertSufficientBalanceForTx({
       wallet: params.wallet,
       tx: { to: params.address, data, value: params.value },
-      value: params.value
+      value: params.value,
     })
   }
 
   const waitForTransactionReceipt = async (
-    parameters: Parameters<typeof wagmiWaitForTransactionReceipt>[1]
+    parameters: Parameters<typeof wagmiWaitForTransactionReceipt>[1],
   ) => {
     let receipt
     try {
       receipt = await wagmiWaitForTransactionReceipt(config, parameters)
-    } catch (error) {
+    }
+    catch (error) {
       // Sometimes a TransactionReceiptNotFoundError would be thrown
       // https://github.com/wevm/viem/issues/1056
       await sleep(3000)
@@ -127,7 +128,7 @@ export const useNFTContractWriter = () => {
     await assertSufficientBalanceForTx({
       wallet: params.wallet,
       tx: { to: params.to, value: params.value, data: params.data },
-      value: params.value
+      value: params.value,
     })
   }
 
@@ -144,7 +145,7 @@ export const useNFTContractWriter = () => {
     const [balanceResult, gasEstimateResult, gasPriceResult] = await Promise.allSettled([
       getBalance(config, { address: wallet as `0x${string}` }),
       estimateGas(config, { ...tx, account: wallet as `0x${string}` }),
-      getGasPrice(config)
+      getGasPrice(config),
     ])
 
     const balance = balanceResult.status === 'fulfilled' ? balanceResult.value : { value: 0n }
@@ -170,6 +171,6 @@ export const useNFTContractWriter = () => {
     checkAndGrantMinter,
     assertSufficientBalanceForTransaction,
     assertSufficientBalanceForTransfer,
-    waitForTransactionReceipt
+    waitForTransactionReceipt,
   }
 }

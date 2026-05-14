@@ -7,7 +7,7 @@ import {
   CSV_DEFAULT_EDITION_NAME,
   CSV_DEFAULT_EDITION_DESCRIPTION,
   MAX_DESCRIPTION_LENGTH,
-  MAX_DESCRIPTION_FULL_LENGTH
+  MAX_DESCRIPTION_FULL_LENGTH,
 } from '~/constant'
 import type { BulkUploadBook, BulkUploadCSVRow, SerializedBulkUploadBook, BulkUploadValidationError, ValidatedProgressFields } from '~/types/bulk-upload'
 import { BookUploadStatus } from '~/types/bulk-upload'
@@ -33,7 +33,7 @@ export const CSV_ALL_COLUMNS = [
   'auto_deliver',
   'auto_memo',
   'enable_drm',
-  'language'
+  'language',
 ]
 
 export const CSV_OPTIONAL_COLUMNS_WITH_DEFAULTS: Record<string, string> = {
@@ -42,7 +42,7 @@ export const CSV_OPTIONAL_COLUMNS_WITH_DEFAULTS: Record<string, string> = {
   edition_description: CSV_DEFAULT_EDITION_DESCRIPTION,
   auto_deliver: String(CSV_DEFAULT_AUTO_DELIVER),
   enable_drm: String(CSV_DEFAULT_ENABLE_DRM),
-  language: CSV_DEFAULT_LANGUAGE
+  language: CSV_DEFAULT_LANGUAGE,
 }
 
 export const CSV_RESULT_COLUMNS = [
@@ -54,10 +54,10 @@ export const CSV_RESULT_COLUMNS = [
   'book_arweave_key',
   'book_arweave_link',
   'status',
-  'remark'
+  'remark',
 ]
 
-export function parseCSVRow (row: BulkUploadCSVRow, rowIndex: number): BulkUploadBook {
+export function parseCSVRow(row: BulkUploadCSVRow, rowIndex: number): BulkUploadBook {
   const tags = row.tags
     ? row.tags.split(',').map(t => t.trim()).filter(Boolean)
     : []
@@ -86,13 +86,13 @@ export function parseCSVRow (row: BulkUploadCSVRow, rowIndex: number): BulkUploa
     autoMemo: row.auto_memo?.trim() || '',
     enableDRM: row.enable_drm?.trim().toLowerCase() === 'true',
     language: row.language?.trim() || CSV_DEFAULT_LANGUAGE,
-    status: BookUploadStatus.PENDING
+    status: BookUploadStatus.PENDING,
   }
 }
 
 const VALID_BOOLEAN_VALUES = ['true', 'false', '']
 
-export function validateBook (book: BulkUploadBook, rawRow?: BulkUploadCSVRow): BulkUploadValidationError[] {
+export function validateBook(book: BulkUploadBook, rawRow?: BulkUploadCSVRow): BulkUploadValidationError[] {
   const errors: BulkUploadValidationError[] = []
   const { rowIndex } = book
 
@@ -113,7 +113,7 @@ export function validateBook (book: BulkUploadBook, rawRow?: BulkUploadCSVRow): 
       rowIndex,
       field: 'book_description_full',
       message: 'bulk_upload.error_book_description_full_too_long',
-      params: { maxLength: MAX_DESCRIPTION_FULL_LENGTH }
+      params: { maxLength: MAX_DESCRIPTION_FULL_LENGTH },
     })
   }
 
@@ -152,12 +152,12 @@ export function validateBook (book: BulkUploadBook, rawRow?: BulkUploadCSVRow): 
   return errors
 }
 
-export function validateBooks (books: BulkUploadBook[]): BulkUploadValidationError[] {
+export function validateBooks(books: BulkUploadBook[]): BulkUploadValidationError[] {
   const errors: BulkUploadValidationError[] = []
-  const seen = new Map<string, { rowIndex: number; field: string }>()
+  const seen = new Map<string, { rowIndex: number, field: string }>()
 
   for (const book of books) {
-    const filenames: { name: string; field: string }[] = []
+    const filenames: { name: string, field: string }[] = []
     if (book.coverImageFilename) { filenames.push({ name: book.coverImageFilename, field: 'cover_image_filename' }) }
     if (book.pdfFilename) { filenames.push({ name: book.pdfFilename, field: 'pdf_filename' }) }
     if (book.epubFilename) { filenames.push({ name: book.epubFilename, field: 'epub_filename' }) }
@@ -170,9 +170,10 @@ export function validateBooks (books: BulkUploadBook[]): BulkUploadValidationErr
           rowIndex: book.rowIndex,
           field,
           message: 'bulk_upload.error_duplicate_filename',
-          params: { filename: name, otherRow: existing.rowIndex, otherField: existing.field }
+          params: { filename: name, otherRow: existing.rowIndex, otherField: existing.field },
         })
-      } else {
+      }
+      else {
         seen.set(key, { rowIndex: book.rowIndex, field })
       }
     }
@@ -181,7 +182,7 @@ export function validateBooks (books: BulkUploadBook[]): BulkUploadValidationErr
   return errors
 }
 
-export function serializeBook (book: BulkUploadBook): SerializedBulkUploadBook {
+export function serializeBook(book: BulkUploadBook): SerializedBulkUploadBook {
   return {
     id: book.id,
     rowIndex: book.rowIndex,
@@ -214,23 +215,23 @@ export function serializeBook (book: BulkUploadBook): SerializedBulkUploadBook {
     bookArweaveLink: book.bookArweaveLink,
     bookIpfsHash: book.bookIpfsHash,
     classId: book.classId,
-    mintTxHash: book.mintTxHash
+    mintTxHash: book.mintTxHash,
   }
 }
 
-export function deserializeBook (serialized: SerializedBulkUploadBook): BulkUploadBook {
+export function deserializeBook(serialized: SerializedBulkUploadBook): BulkUploadBook {
   return {
     ...serialized,
     coverFile: undefined,
     pdfFile: undefined,
-    epubFile: undefined
+    epubFile: undefined,
   }
 }
 
 const ARWEAVE_ID_REGEX = /^[a-zA-Z0-9_-]{43}$/
 const TX_HASH_REGEX = /^0x[a-fA-F0-9]{64}$/
 
-export function validateProgressFieldFormats (row: BulkUploadCSVRow): ValidatedProgressFields {
+export function validateProgressFieldFormats(row: BulkUploadCSVRow): ValidatedProgressFields {
   const result: ValidatedProgressFields = {}
 
   if (row.cover_arweave_id && ARWEAVE_ID_REGEX.test(row.cover_arweave_id)) {
@@ -260,7 +261,7 @@ export function validateProgressFieldFormats (row: BulkUploadCSVRow): ValidatedP
   return result
 }
 
-export async function generateResultCSV (books: BulkUploadBook[]): Promise<void> {
+export async function generateResultCSV(books: BulkUploadBook[]): Promise<void> {
   const { stringify: csvStringify } = await import('csv-stringify/sync')
   const { saveAs } = await import('file-saver')
 
@@ -291,12 +292,12 @@ export async function generateResultCSV (books: BulkUploadBook[]): Promise<void>
     book.bookArweaveKey || '',
     book.bookArweaveLink || '',
     book.status,
-    book.error || ''
+    book.error || '',
   ])
 
   const csvContent = csvStringify(rows, {
     header: true,
-    columns: CSV_RESULT_COLUMNS
+    columns: CSV_RESULT_COLUMNS,
   })
 
   const bom = '\uFEFF'

@@ -3,7 +3,7 @@ import { jwtDecode } from 'jwt-decode'
 const AUTH_SESSION_KEY = 'likecoin_nft_book_press_token'
 const POST_AUTH_REDIRECT_ROUTE_KEY = 'likecoin_nft_book_press_post_auth_redirect'
 
-export function loadAuthSession () {
+export function loadAuthSession() {
   try {
     if (window.localStorage) {
       const data = window.localStorage.getItem(AUTH_SESSION_KEY)
@@ -12,79 +12,85 @@ export function loadAuthSession () {
         return {
           wallet,
           token,
-          intercomToken
+          intercomToken,
         }
       }
     }
-  } catch {}
+  }
+  catch {}
 
   return null
 }
 
-export function saveAuthSession (session: { wallet: string, token: string, intercomToken?: string }) {
+export function saveAuthSession(session: { wallet: string, token: string, intercomToken?: string }) {
   try {
     if (!window.localStorage) { return }
 
     window.localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session))
-  } catch {}
+  }
+  catch {}
 }
 
-export function clearAuthSession () {
+export function clearAuthSession() {
   try {
     if (!window.localStorage) { return }
 
     window.localStorage.removeItem(AUTH_SESSION_KEY)
-  } catch {}
+  }
+  catch {}
 }
 
-export function setupPostAuthRedirect () {
+export function setupPostAuthRedirect() {
   try {
     if (!window.sessionStorage) { return }
 
     const route = useRoute()
     window.sessionStorage.setItem(POST_AUTH_REDIRECT_ROUTE_KEY, route.fullPath)
-  } catch {}
+  }
+  catch {}
 }
 
-export async function executePostAuthRedirect () {
+export async function executePostAuthRedirect() {
   try {
     if (!window.sessionStorage) { return }
 
     const route = window.sessionStorage.getItem(POST_AUTH_REDIRECT_ROUTE_KEY)
     const localeRoute = useLocaleRoute()
     await navigateTo(localeRoute(route || '/'), { replace: true })
-  } finally {
+  }
+  finally {
     clearPostAuthRedirect()
   }
 }
 
-export function clearPostAuthRedirect () {
+export function clearPostAuthRedirect() {
   try {
     if (!window.sessionStorage) { return }
 
     window.sessionStorage.removeItem(POST_AUTH_REDIRECT_ROUTE_KEY)
-  } catch {}
+  }
+  catch {}
 }
 
 export const SIGN_AUTHORIZATION_PERMISSIONS = [
   'read:nftbook',
   'write:nftbook',
   'write:iscn',
-  'read:iscn'
+  'read:iscn',
 ] as const
 
-export function checkJwtTokenValidity (token: string) {
+export function checkJwtTokenValidity(token: string) {
   const decoded = jwtDecode(token)
   if (!decoded) {
     return false
   }
   const isExpired = decoded.exp && decoded.exp * 1000 < Date.now()
   const decodedWithPermissions = decoded as { permissions?: string[] }
-  const isMatchPermissions =
-      Array.isArray(decodedWithPermissions.permissions) &&
-      decodedWithPermissions.permissions.length === SIGN_AUTHORIZATION_PERMISSIONS.length &&
-      decodedWithPermissions.permissions.every((perm: string) =>
-        (SIGN_AUTHORIZATION_PERMISSIONS as readonly string[]).includes(perm)
+  const isMatchPermissions
+    = Array.isArray(decodedWithPermissions.permissions)
+      && decodedWithPermissions.permissions.length === SIGN_AUTHORIZATION_PERMISSIONS.length
+      && decodedWithPermissions.permissions.every((perm: string) =>
+        (SIGN_AUTHORIZATION_PERMISSIONS as readonly string[]).includes(perm),
       )
   return !isExpired && isMatchPermissions
 }
@@ -96,15 +102,15 @@ export interface MigrateMagicEmailUserResponseData {
   isMigratedLikerLand: boolean
 }
 
-export async function migrateMagicEmailUser ({
+export async function migrateMagicEmailUser({
   wallet,
   signature,
-  message
+  message,
 }: {
-    wallet: string
-    signature: string
-    message: string
-  }) {
+  wallet: string
+  signature: string
+  message: string
+}) {
   const { LIKE_CO_API } = useRuntimeConfig().public
 
   const url = `${LIKE_CO_API}/users/new/migrate`
@@ -113,8 +119,8 @@ export async function migrateMagicEmailUser ({
     body: {
       wallet,
       signature,
-      message
-    }
+      message,
+    },
   })
   return result
 }

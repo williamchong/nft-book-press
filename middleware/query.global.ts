@@ -1,7 +1,7 @@
 import type { LocationQueryRaw } from 'vue-router'
 
 const CARRY_ON_QUERY_KEYS = [
-  'maintenance'
+  'maintenance',
 ]
 
 export default defineNuxtRouteMiddleware((to, from) => {

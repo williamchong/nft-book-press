@@ -36,19 +36,19 @@ export const useWalletStore = defineStore('wallet', () => {
     const migrationURL = appendUTMParamsToURL({
       url: baseUrl,
       source: `publish_${utmSource}`,
-      medium: 'publish'
+      medium: 'publish',
     })
 
     return migrationURL.toString()
   })
 
-  async function initIfNecessary () {
+  async function initIfNecessary() {
     if (!isConnected.value) {
       await connect()
     }
   }
 
-  async function validateWalletConsistency () {
+  async function validateWalletConsistency() {
     await initIfNecessary()
 
     if (wallet.value && sessionWallet.value && wallet.value !== sessionWallet.value) {
@@ -56,10 +56,10 @@ export const useWalletStore = defineStore('wallet', () => {
         icon: 'i-heroicons-exclamation-triangle',
         title: $t('wallet_changed_warning', {
           current: wallet.value.slice(0, 6) + '...',
-          session: sessionWallet.value.slice(0, 6) + '...'
+          session: sessionWallet.value.slice(0, 6) + '...',
         }),
         duration: 3000,
-        color: 'warning'
+        color: 'warning',
       })
 
       bookstoreApiStore.clearSession()
@@ -71,7 +71,7 @@ export const useWalletStore = defineStore('wallet', () => {
     return true
   }
 
-  async function connect (connectorId = 'magic') {
+  async function connect(connectorId = 'magic') {
     try {
       // Disconnect any existing connection
       await wagmiDisconnect()
@@ -79,7 +79,7 @@ export const useWalletStore = defineStore('wallet', () => {
       const { IS_TESTNET } = useRuntimeConfig().public
       const chainId = IS_TESTNET ? baseSepolia.id : base.id
       const connector = connectors.find(
-        (c: { id: string }) => c.id === connectorId
+        (c: { id: string }) => c.id === connectorId,
       )
       if (!connector) { return }
       await wagmiConnect({ connector, chainId })
@@ -91,7 +91,7 @@ export const useWalletStore = defineStore('wallet', () => {
         throw createError({
           statusCode: 400,
           message: $t('error_connect_wallet_failed'),
-          fatal: true
+          fatal: true,
         })
       }
 
@@ -111,14 +111,16 @@ export const useWalletStore = defineStore('wallet', () => {
             magicUserId = userInfo.issuer
           }
           magicDIDToken = await magic.user.getIdToken()
-        } catch (error) {
+        }
+        catch (error) {
           console.warn('Failed to fetch user info from Magic SDK', error)
         }
       }
 
       // Return connection info for registration handling in useAuth
       return { walletAddress, email, loginMethod, magicUserId, magicDIDToken }
-    } catch (error) {
+    }
+    catch (error) {
       await wagmiDisconnect().catch(() => {
       })
 
@@ -133,7 +135,7 @@ export const useWalletStore = defineStore('wallet', () => {
     }
   }
 
-  async function signMessageMemo (action: string, permissions?: readonly string[]) {
+  async function signMessageMemo(action: string, permissions?: readonly string[]) {
     if (!wallet.value) {
       await connect()
     }
@@ -146,7 +148,7 @@ export const useWalletStore = defineStore('wallet', () => {
       action,
       permissions,
       evmWallet: wallet.value,
-      ts
+      ts,
     })
     const signed = await signMessageAsync({ message: payload })
     return {
@@ -154,11 +156,11 @@ export const useWalletStore = defineStore('wallet', () => {
       message: payload,
       wallet: wallet.value,
       signMethod: 'personal_sign',
-      expiresIn: '7d'
+      expiresIn: '7d',
     }
   }
 
-  function disconnect () {
+  function disconnect() {
     clearUploadFileData()
     return wagmiDisconnect()
   }
@@ -175,11 +177,11 @@ export const useWalletStore = defineStore('wallet', () => {
     }
   })
 
-  async function checkIsRegistered ({
+  async function checkIsRegistered({
     walletAddress,
     email,
     magicDIDToken,
-    loginMethod
+    loginMethod,
   }: {
     walletAddress: string
     email?: string
@@ -192,7 +194,8 @@ export const useWalletStore = defineStore('wallet', () => {
         // If user info is fetched successfully, it means the wallet address is registered
         return true
       }
-    } catch (error) {
+    }
+    catch (error) {
       if (!(error instanceof FetchError && error.statusCode === 404)) {
         console.warn(`Failed to fetch user info for wallet ${walletAddress} in account refresh`, error)
       }
@@ -201,7 +204,8 @@ export const useWalletStore = defineStore('wallet', () => {
       await postRegisterCheck({ walletAddress, email, magicDIDToken })
       // If the request succeeds, it means there is no account associated with the wallet address and email
       return false
-    } catch (error) {
+    }
+    catch (error) {
       if (error instanceof FetchError) {
         switch (error.data?.error) {
           case 'EMAIL_ALREADY_USED':
@@ -212,18 +216,19 @@ export const useWalletStore = defineStore('wallet', () => {
                   evmWallet: walletAddress,
                   email,
                   magicDIDToken,
-                  ts: Date.now()
+                  ts: Date.now(),
                 }, null, 2)
                 const signature = await signMessageAsync({ message })
                 const res = await migrateMagicEmailUser({
                   wallet: walletAddress,
                   signature,
-                  message
+                  message,
                 })
                 if (res.isMigratedLikerId) {
                   return true
                 }
-              } catch (e) {
+              }
+              catch (e) {
                 if (!(e instanceof UserRejectedRequestError)) {
                   // eslint-disable-next-line no-console
                   console.error('Failed to migrate email user', e)
@@ -235,7 +240,7 @@ export const useWalletStore = defineStore('wallet', () => {
               walletAddress,
               boundEVMWallet: error.data?.evmWallet,
               boundLikeWallet: error.data?.likeWallet,
-              loginMethod
+              loginMethod,
             })?.data.description || error.data?.message)
           case 'EVM_WALLET_ALREADY_EXIST':
             // Already registered
@@ -248,12 +253,12 @@ export const useWalletStore = defineStore('wallet', () => {
     }
   }
 
-  function getEmailAlreadyUsedErrorData ({
+  function getEmailAlreadyUsedErrorData({
     email,
     walletAddress,
     boundEVMWallet,
     boundLikeWallet,
-    loginMethod
+    loginMethod,
   }: {
     email: string
     walletAddress: string
@@ -272,11 +277,11 @@ export const useWalletStore = defineStore('wallet', () => {
         description: getEmailAlreadyUsedErrorMessage({
           email,
           evmWallet: boundEVMWallet,
-          likeWallet: boundLikeWallet
+          likeWallet: boundLikeWallet,
         }),
         tags: [
           { label: loginMethod, icon: 'i-material-symbols-login-rounded', class: 'font-mono' },
-          { label: walletAddress, icon: 'i-material-symbols-key-outline-rounded', class: 'font-mono' }
+          { label: walletAddress, icon: 'i-material-symbols-key-outline-rounded', class: 'font-mono' },
         ],
         actions: shouldMigrate
           ? [{
@@ -286,19 +291,19 @@ export const useWalletStore = defineStore('wallet', () => {
               onClick: async () => {
                 await navigateTo(getLikeCoinV3BookMigrationSiteURL.value({ utmSource: 'login_email_already_used' }), {
                   external: true,
-                  open: { target: '_blank' }
+                  open: { target: '_blank' },
                 })
-              }
+              },
             }]
-          : []
-      }
+          : [],
+      },
     }
   }
 
-  function getEmailAlreadyUsedErrorMessage ({
+  function getEmailAlreadyUsedErrorMessage({
     email,
     evmWallet,
-    likeWallet
+    likeWallet,
   }: {
     email: string
     evmWallet?: string
@@ -313,12 +318,12 @@ export const useWalletStore = defineStore('wallet', () => {
     return $t('account_register_error_email_already_used', { email })
   }
 
-  async function register ({
+  async function register({
     walletAddress,
     email: prefilledEmail,
     loginMethod,
     magicUserId,
-    magicDIDToken
+    magicDIDToken,
   }: {
     walletAddress: string
     email?: string
@@ -329,21 +334,23 @@ export const useWalletStore = defineStore('wallet', () => {
     let tempAccountId = generateAccountIdFromWalletAddress(walletAddress)
     try {
       await postRegisterCheck({ accountId: tempAccountId })
-    } catch (error) {
+    }
+    catch (error) {
       if (error instanceof FetchError && error.data?.error === 'USER_ALREADY_EXIST') {
         tempAccountId = error.data.alternative as string
-      } else {
+      }
+      else {
         throw error
       }
     }
 
     const payload = {
       accountId: tempAccountId,
-      email: prefilledEmail
+      email: prefilledEmail,
     }
 
     if (!payload.email) {
-      type ModalResult = { accountId: string; email: string; displayName?: string }
+      type ModalResult = { accountId: string, email: string, displayName?: string }
       let modalResult: ModalResult | null = null
       // Close login panel first to avoid focus trap
       bookstoreApiStore.closeLoginPanel()
@@ -362,7 +369,7 @@ export const useWalletStore = defineStore('wallet', () => {
           onClose: () => {
             registrationModal.close()
             resolve()
-          }
+          },
         })
       })
       if (!modalResult) {
@@ -379,10 +386,10 @@ export const useWalletStore = defineStore('wallet', () => {
         action: 'register',
         evmWallet: walletAddress,
         email: payload.email,
-        ts: Date.now()
+        ts: Date.now(),
       },
       null,
-      2
+      2,
     )
 
     const signature = await signMessageAsync({ message })
@@ -395,9 +402,10 @@ export const useWalletStore = defineStore('wallet', () => {
         accountId: payload.accountId,
         email: payload.email,
         magicUserId,
-        magicDIDToken
+        magicDIDToken,
       })
-    } catch (error) {
+    }
+    catch (error) {
       if (error instanceof FetchError) {
         switch (error.data) {
           case 'INVALID_USER_ID': {
@@ -409,7 +417,7 @@ export const useWalletStore = defineStore('wallet', () => {
               walletAddress,
               boundEVMWallet: error.data?.evmWallet,
               boundLikeWallet: error.data?.likeWallet,
-              loginMethod
+              loginMethod,
             })?.data.description || error.data?.message)
           }
           default:
@@ -432,6 +440,6 @@ export const useWalletStore = defineStore('wallet', () => {
     disconnect,
     signMessageMemo,
     checkIsRegistered,
-    register
+    register,
   }
 })

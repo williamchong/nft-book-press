@@ -21,9 +21,9 @@ export interface PreparedArweaveUpload {
   sponsored?: boolean
 }
 
-export type PrepareArweaveUploadResult =
-  | PreparedArweaveUpload
-  | { alreadyExists: true; result: ArweaveUploadResult }
+export type PrepareArweaveUploadResult
+  = | PreparedArweaveUpload
+    | { alreadyExists: true, result: ArweaveUploadResult }
 
 interface UploadParams {
   arrayBuffer: ArrayBuffer
@@ -33,22 +33,22 @@ interface UploadParams {
   sponsored?: boolean
 }
 
-export function useArweaveUpload () {
+export function useArweaveUpload() {
   const walletStore = useWalletStore()
   const bookstoreApiStore = useBookstoreApiStore()
   const { wallet } = storeToRefs(walletStore)
   const { token } = storeToRefs(bookstoreApiStore)
   const {
     assertSufficientBalanceForTransfer,
-    waitForTransactionReceipt
+    waitForTransactionReceipt,
   } = useNFTContractWriter()
   const { sendTransactionAsync } = useSendTransaction()
   const { isSponsoredMode } = useSponsoredTransaction()
   const { ARWEAVE_ENDPOINT } = useRuntimeConfig().public
 
-  async function prepareFileAndEstimate (params: UploadParams): Promise<
-    | { alreadyExists: true; result: ArweaveUploadResult }
-    | { buffer: Buffer; ipfsHash: string; key?: string; priceResult: ArweaveEstimate }
+  async function prepareFileAndEstimate(params: UploadParams): Promise<
+    | { alreadyExists: true, result: ArweaveUploadResult }
+    | { buffer: Buffer, ipfsHash: string, key?: string, priceResult: ArweaveEstimate }
   > {
     let buffer = Buffer.from(params.arrayBuffer)
     let key: string | undefined
@@ -67,7 +67,7 @@ export function useArweaveUpload () {
     const priceResult = await estimateBundlrFilePrice({
       fileSize: buffer.length,
       ipfsHash: params.encrypt ? undefined : ipfsHash,
-      token: token.value
+      token: token.value,
     })
 
     const { arweaveId: existingArweaveId } = priceResult
@@ -79,15 +79,15 @@ export function useArweaveUpload () {
           arweaveId: existingArweaveId,
           arweaveLink: `${ARWEAVE_ENDPOINT}/${existingArweaveId}`,
           arweaveKey: key,
-          ipfsHash
-        }
+          ipfsHash,
+        },
       }
     }
 
     return { buffer, ipfsHash, key, priceResult }
   }
 
-  async function prepareArweaveUploadPaid (params: UploadParams, prepared: { buffer: Buffer; ipfsHash: string; key?: string; priceResult: ArweaveEstimate }): Promise<PreparedArweaveUpload> {
+  async function prepareArweaveUploadPaid(params: UploadParams, prepared: { buffer: Buffer, ipfsHash: string, key?: string, priceResult: ArweaveEstimate }): Promise<PreparedArweaveUpload> {
     const { buffer, ipfsHash, key, priceResult } = prepared
     const { evmAddress, ETH } = priceResult
 
@@ -98,12 +98,12 @@ export function useArweaveUpload () {
     await assertSufficientBalanceForTransfer({
       wallet: wallet.value!,
       to: evmAddress as `0x${string}`,
-      value: parseEther(ETH)
+      value: parseEther(ETH),
     })
 
     const txHash = await sendTransactionAsync({
       to: evmAddress as `0x${string}`,
-      value: parseEther(ETH)
+      value: parseEther(ETH),
     })
 
     const receipt = await waitForTransactionReceipt({ hash: txHash, confirmations: 2 })
@@ -114,14 +114,14 @@ export function useArweaveUpload () {
     return { txHash, buffer, ipfsHash, key, fileType: params.fileType, fileSize: buffer.length }
   }
 
-  async function prepareArweaveUpload (params: UploadParams): Promise<PrepareArweaveUploadResult> {
+  async function prepareArweaveUpload(params: UploadParams): Promise<PrepareArweaveUploadResult> {
     const prepared = await prepareFileAndEstimate(params)
     if ('alreadyExists' in prepared) { return prepared }
 
     // Explicit sponsored flag (bulk all-or-nothing) takes precedence over auto-detect
     const useSponsored = params.sponsored ?? (
-      isSponsoredMode.value &&
-      canSponsorArweaveUpload(prepared.priceResult, prepared.buffer.length, 1)
+      isSponsoredMode.value
+      && canSponsorArweaveUpload(prepared.priceResult, prepared.buffer.length, 1)
     )
 
     if (useSponsored) {
@@ -131,7 +131,7 @@ export function useArweaveUpload () {
     return prepareArweaveUploadPaid(params, prepared)
   }
 
-  async function executeArweaveUpload (prepared: PreparedArweaveUpload): Promise<ArweaveUploadResult> {
+  async function executeArweaveUpload(prepared: PreparedArweaveUpload): Promise<ArweaveUploadResult> {
     const { arweaveId, arweaveLink } = await uploadSingleFileToBundlr(prepared.buffer, {
       fileSize: prepared.fileSize,
       ipfsHash: prepared.ipfsHash,
@@ -139,7 +139,7 @@ export function useArweaveUpload () {
       txHash: prepared.txHash,
       token: token.value,
       key: prepared.key,
-      sponsored: prepared.sponsored
+      sponsored: prepared.sponsored,
     })
 
     if (!arweaveId) {
@@ -149,7 +149,7 @@ export function useArweaveUpload () {
     return { arweaveId, arweaveLink, arweaveKey: prepared.key, ipfsHash: prepared.ipfsHash }
   }
 
-  async function uploadToArweave (params: UploadParams): Promise<ArweaveUploadResult> {
+  async function uploadToArweave(params: UploadParams): Promise<ArweaveUploadResult> {
     const prepareResult = await prepareArweaveUpload(params)
     if ('alreadyExists' in prepareResult) {
       return prepareResult.result

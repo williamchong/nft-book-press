@@ -27,7 +27,7 @@ import type { ISCNData } from '~/types'
 const {
   getClassOwner,
   getClassMetadata,
-  checkNFTClassIsBookNFT
+  checkNFTClassIsBookNFT,
 } = useNFTContractReader()
 
 const { showErrorToast } = useToastComposable()
@@ -38,7 +38,7 @@ const maxRetries = 3
 const iscnOwner = ref('')
 const iscnData = ref<ISCNData | null>(null)
 const classId = ref('')
-const liteMintNFTRef = ref<{ startNFTMintFlow:() => void } | null>(null)
+const liteMintNFTRef = ref<{ startNFTMintFlow: () => void } | null>(null)
 
 const emit = defineEmits(['submit', 'loadingChange'])
 
@@ -47,7 +47,7 @@ const errorActions = computed(() => {
     label: $t('button.retry'),
     variant: 'solid' as const,
     color: 'error' as const,
-    onClick: () => window.location.reload()
+    onClick: () => window.location.reload(),
   }]
 })
 
@@ -62,14 +62,14 @@ const { t: $t } = useI18n()
 
 useSeoMeta({
   title: () => $t('seo.mint_nft_book_title'),
-  ogTitle: () => $t('seo.mint_nft_book_title')
+  ogTitle: () => $t('seo.mint_nft_book_title'),
 })
 
 const props = defineProps({
   iscnId: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 })
 
 watch(() => props.iscnId, async (val: string) => {
@@ -78,7 +78,7 @@ watch(() => props.iscnId, async (val: string) => {
   }
 }, { immediate: true })
 
-async function fetchISCNById (iscnId?: string, retryCount = 0) {
+async function fetchISCNById(iscnId?: string, retryCount = 0) {
   if (!iscnId) {
     return
   }
@@ -91,24 +91,26 @@ async function fetchISCNById (iscnId?: string, retryCount = 0) {
     }
     const [data, owner] = await Promise.all([
       getClassMetadata(iscnId),
-      getClassOwner(iscnId)
+      getClassOwner(iscnId),
     ])
     if (!data) {
       throw new Error('Failed to fetch ISCN metadata')
     }
-    iscnData.value = { contentMetadata: data, owner, '@id': iscnId }
+    iscnData.value = { 'contentMetadata': data, owner, '@id': iscnId }
     iscnOwner.value = owner as string
     classId.value = iscnId
     error.value = ''
     isLoading.value = false
-  } catch (err) {
+  }
+  catch (err) {
     if (retryCount < maxRetries) {
       const nextRetryCount = retryCount + 1
       const delay = nextRetryCount * 1000
       setTimeout(() => {
         fetchISCNById(iscnId, nextRetryCount)
       }, delay)
-    } else {
+    }
+    else {
       error.value = $t('error.fetch_classid_failed') + err
       showErrorToast($t('error.fetch_classid_failed') + err)
       isLoading.value = false
@@ -116,21 +118,20 @@ async function fetchISCNById (iscnId?: string, retryCount = 0) {
   }
 }
 
-function startNFTMintFlow () {
+function startNFTMintFlow() {
   liteMintNFTRef.value?.startNFTMintFlow()
 }
 
-function handleFinishMintNFT ({ classId: newClassId, nftMintCount }: { classId?: string, nftMintCount?: number } = {}) {
+function handleFinishMintNFT({ classId: newClassId, nftMintCount }: { classId?: string, nftMintCount?: number } = {}) {
   classId.value = newClassId || ''
 
   emit('submit', {
     classId: newClassId || '',
-    nftMintCount
+    nftMintCount,
   })
 }
 
 defineExpose({
-  startNFTMintFlow
+  startNFTMintFlow,
 })
-
 </script>

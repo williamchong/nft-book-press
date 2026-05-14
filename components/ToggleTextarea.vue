@@ -50,7 +50,7 @@ const error = computed(() => {
   return false
 })
 
-function handleToggle (val: boolean | 'indeterminate') {
+function handleToggle(val: boolean | 'indeterminate') {
   isOpen.value = val === true
   if (!isOpen.value) {
     modelValue.value = undefined

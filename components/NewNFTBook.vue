@@ -9,7 +9,7 @@
       :close="{
         icon: 'i-heroicons-x-mark-20-solid',
         color: 'error',
-        variant: 'link'
+        variant: 'link',
       }"
       @close="error = ''"
     />
@@ -31,7 +31,7 @@
             <UCard
               :ui="{
                 root: 'overflow-visible border-4',
-                body: 'flex flex-col gap-[20px]'
+                body: 'flex flex-col gap-[20px]',
               }"
             >
               <template #header>
@@ -41,9 +41,15 @@
                     v-text="`${$t('nft_book_form.edition_number', { number: (displayEditIndex || (index + 1)) })} - ${p.name || $t('nft_book_form.product_name_placeholder')}`"
                   />
                   <div class="flex items-center gap-2">
-                    <p class="text-sm" v-text="$t('nft_book_form.pause_selling')" />
+                    <p
+                      class="text-sm"
+                      v-text="$t('nft_book_form.pause_selling')"
+                    />
                     <USwitch v-model="p.isListed" />
-                    <p class="text-sm" v-text="$t('nft_book_form.selling')" />
+                    <p
+                      class="text-sm"
+                      v-text="$t('nft_book_form.selling')"
+                    />
                   </div>
                 </div>
               </template>
@@ -78,7 +84,10 @@
                     </UTooltip>
                   </div>
 
-                  <div v-if="p.deliveryMethod === 'manual'" class="space-y-3">
+                  <div
+                    v-if="p.deliveryMethod === 'manual'"
+                    class="space-y-3"
+                  >
                     <UFormField :label="$t('nft_book_form.stock')">
                       <UInput
                         v-model="p.stock"
@@ -107,7 +116,10 @@
 
                   <UFormField :ui="{ label: 'w-full flex justify-between items-center' }">
                     <template #label>
-                      <p class="block" v-text="$t('nft_book_form.autograph_image')" />
+                      <p
+                        class="block"
+                        v-text="$t('nft_book_form.autograph_image')"
+                      />
                       <span
                         class="text-gray-500 text-[12px] block"
                         v-text="$t('nft_book_form.image_requirements')"
@@ -118,7 +130,10 @@
                       accept="image/png"
                       @input="(e: Event) => onImgUpload(e, 'signatureImage')"
                     />
-                    <div v-if="signatureImagePreview" class="mt-2">
+                    <div
+                      v-if="signatureImagePreview"
+                      class="mt-2"
+                    >
                       <img
                         :src="signatureImagePreview"
                         alt="Signature preview"
@@ -199,7 +214,10 @@
         }"
       >
         <div class="flex justify-between items-center w-full">
-          <h3 class="font-bold font-mono" v-text="$t('nft_book_form.settings')" />
+          <h3
+            class="font-bold font-mono"
+            v-text="$t('nft_book_form.settings')"
+          />
           <UButton
             color="neutral"
             variant="ghost"
@@ -218,7 +236,10 @@
         <template v-if="shouldShowAdvanceSettings">
           <div class="mt-[24px] flex flex-col gap-[12px]">
             <UFormField class="flex items-center">
-              <UTooltip class="flex items-center gap-2" :text="$t('nft_book_form.accept_tipping_tooltip')">
+              <UTooltip
+                class="flex items-center gap-2"
+                :text="$t('nft_book_form.accept_tipping_tooltip')"
+              >
                 <UCheckbox
                   v-model="isAllowCustomPrice"
                   name="isAllowCustomPrice"
@@ -229,8 +250,14 @@
               </UTooltip>
             </UFormField>
 
-            <UFormField v-if="props.isNewClassPage" class="flex items-center">
-              <UTooltip class="flex items-center gap-2" :text="$t('nft_book_form.is_adult_only_tooltip')">
+            <UFormField
+              v-if="props.isNewClassPage"
+              class="flex items-center"
+            >
+              <UTooltip
+                class="flex items-center gap-2"
+                :text="$t('nft_book_form.is_adult_only_tooltip')"
+              >
                 <UCheckbox
                   v-model="isAdultOnly"
                   name="isAdultOnly"
@@ -241,7 +268,10 @@
               </UTooltip>
             </UFormField>
 
-            <UFormField v-if="props.isNewClassPage" :label="$t('nft_book_form.ai_audio')">
+            <UFormField
+              v-if="props.isNewClassPage"
+              :label="$t('nft_book_form.ai_audio')"
+            >
               <URadioGroup
                 v-model="hideAudioRadio"
                 :items="[
@@ -252,7 +282,10 @@
               />
             </UFormField>
 
-            <UFormField v-if="props.isNewClassPage" :label="$t('nft_book_form.plus_reading')">
+            <UFormField
+              v-if="props.isNewClassPage"
+              :label="$t('nft_book_form.plus_reading')"
+            >
               <URadioGroup
                 v-model="isPlusReadingEnabledRadio"
                 :items="[
@@ -271,8 +304,14 @@
                 class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
               >
                 <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-wallet" class="text-gray-500" />
-                  <span class="font-mono text-sm" v-text="stripeWallet" />
+                  <UIcon
+                    name="i-heroicons-wallet"
+                    class="text-gray-500"
+                  />
+                  <span
+                    class="font-mono text-sm"
+                    v-text="stripeWallet"
+                  />
                   <UBadge
                     v-if="stripeWallet === sessionWallet"
                     variant="soft"
@@ -311,7 +350,10 @@
               </div>
             </UFormField>
 
-            <UFormField v-if="props.isNewClassPage" :label="$t('form.table_of_content')">
+            <UFormField
+              v-if="props.isNewClassPage"
+              :label="$t('form.table_of_content')"
+            >
               <UTextarea
                 v-model="tableOfContents"
                 :rows="8"
@@ -344,9 +386,16 @@
             <UBadge variant="soft">
               {{ $t('common.loading') }}
             </UBadge>
-            <p class="text-xs text-gray-500" v-text="$t('nft_book_form.loading_progress_text')" />
+            <p
+              class="text-xs text-gray-500"
+              v-text="$t('nft_book_form.loading_progress_text')"
+            />
           </div>
-          <UProgress animation="carousel" color="primary" class="w-full" />
+          <UProgress
+            animation="carousel"
+            color="primary"
+            class="w-full"
+          />
         </div>
       </template>
     </UModal>
@@ -366,11 +415,12 @@ import {
   DEFAULT_STOCK,
   USD_PRICING_OPTIONS,
   DEFAULT_MAX_SUPPLY,
-  MINIMAL_PRICE
+  MINIMAL_PRICE,
 } from '~/constant'
 import { getApiEndpoints } from '~/constant/api'
 import { getUploadFileData } from '~/utils/uploadFile'
 import type { ClassListingData, ClassListingPrice } from '~/types'
+
 const { t: $t } = useI18n()
 
 const { LIKE_CO_API } = useRuntimeConfig().public
@@ -397,7 +447,7 @@ const isLoading = ref(false)
 
 const mdEditorPlaceholder = ref({
   en: 'e.g.: This edition includes EPUB and PDF ebook files.',
-  zh: '例：此版本包含 EPUB 及 PDF 電子書檔'
+  zh: '例：此版本包含 EPUB 及 PDF 電子書檔',
 })
 
 const classId = computed(() => {
@@ -413,12 +463,12 @@ const isAllowCustomPrice = ref(true)
 
 const hideAudioRadio = computed({
   get: () => (hideAudio.value ? 'forbid' : 'allow'),
-  set: (val: string) => { hideAudio.value = val === 'forbid' }
+  set: (val: string) => { hideAudio.value = val === 'forbid' },
 })
 
 const isPlusReadingEnabledRadio = computed({
   get: () => (isPlusReadingEnabled.value ? 'join' : 'skip'),
-  set: (val: string) => { isPlusReadingEnabled.value = val === 'join' }
+  set: (val: string) => { isPlusReadingEnabled.value = val === 'join' },
 })
 const tableOfContents = ref(getUploadFileData()?.epubMetadata?.tableOfContents || '')
 
@@ -445,12 +495,12 @@ const prices = ref<PriceFormItem[]>([
     name: $t('prices.standard_edition'),
     description: '',
     isAllowCustomPrice: isAllowCustomPrice.value,
-    isListed: true
-  }
+    isListed: true,
+  },
 ])
 const hasMultiplePrices = computed(() => prices.value.length > 1)
 const moderatorWallets = ref<string[]>([
-  '0xa037Feb6508A8C2F93bb19f6721730C45921f2D0'
+  '0xa037Feb6508A8C2F93bb19f6721730C45921f2D0',
 ])
 const moderatorWalletInput = ref('')
 const notificationEmailInput = ref('')
@@ -478,14 +528,14 @@ const toolbarOptions = ref<ToolbarNames[]>([
   'code',
   'link',
   '=',
-  'preview'
+  'preview',
 ])
 
 const isEditMode = computed(() =>
-  props.isEditMode
+  props.isEditMode,
 )
 const submitButtonText = computed(() =>
-  isEditMode.value ? $t('common.save') : $t('common.submit')
+  isEditMode.value ? $t('common.save') : $t('common.submit'),
 )
 const shouldShowAdvanceSettings = ref<boolean>(true)
 const stripeConnectWallets = computed(() => Object.keys(connectedWallets.value))
@@ -497,17 +547,17 @@ const sessionWalletStripeStatus = computed(() => {
 whenever(isLoading, () => { error.value = '' })
 
 config({
-  markdownItConfig (mdit) {
+  markdownItConfig(mdit) {
     mdit.options.html = false
     mdit.disable('fence')
-  }
+  },
 })
 
 const props = defineProps({
   isNewClassPage: { type: Boolean, default: false },
   classId: { type: String, default: '' },
   editionIndex: { type: [String, Number], default: undefined },
-  isEditMode: { type: Boolean, default: false }
+  isEditMode: { type: Boolean, default: false },
 })
 
 const displayEditIndex = computed(() => {
@@ -519,7 +569,7 @@ const displayEditIndex = computed(() => {
 
 useSeoMeta({
   title: () => $t('seo_titles.new_book_listing'),
-  ogTitle: () => $t('seo_titles.new_book_listing')
+  ogTitle: () => $t('seo_titles.new_book_listing'),
 })
 
 onMounted(async () => {
@@ -531,8 +581,8 @@ onMounted(async () => {
     if (isEditMode.value || editionIndex.value !== undefined) {
       const classResData = await $fetch<ClassListingData>(`${LIKE_CO_API}/likernft/book/store/${classId.value}`, {
         headers: {
-          authorization: `Bearer ${token.value}`
-        }
+          authorization: `Bearer ${token.value}`,
+        },
       })
       if (classResData) {
         if (classResData?.ownerWallet !== sessionWallet.value) {
@@ -563,13 +613,15 @@ onMounted(async () => {
               isAllowCustomPrice: currentEdition.isAllowCustomPrice,
               isListed: !currentEdition.isUnlisted,
               oldIsAutoDeliver: currentEdition.isAutoDeliver,
-              oldStock: currentEdition.stock
+              oldStock: currentEdition.stock,
             }]
             isAllowCustomPrice.value = currentEdition.isAllowCustomPrice
-          } else {
+          }
+          else {
             throw new Error('No prices found')
           }
-        } else if (prices.value[0]) {
+        }
+        else if (prices.value[0]) {
           prices.value[0].price = DEFAULT_PRICE_STRING
         }
         otherExistingStock.value = classResData.prices.reduce((acc: number, price: ClassListingPrice) => {
@@ -584,7 +636,8 @@ onMounted(async () => {
           }
           return acc
         }, 0)
-      } else {
+      }
+      else {
         throw new Error($t('errors.nft_class_not_found'))
       }
     }
@@ -595,15 +648,18 @@ onMounted(async () => {
         if (isReady) {
           connectedWallets.value = { [sessionWallet.value]: 100 }
         }
-      } catch (e) {
+      }
+      catch (e) {
         // eslint-disable-next-line no-console
         console.error(e)
       }
     }
-  } catch (e) {
+  }
+  catch (e) {
     // eslint-disable-next-line no-console
     console.error(e)
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 })
@@ -624,7 +680,7 @@ watch(classId, async (newClassId) => {
   }
 }, { immediate: true })
 
-function isContentFingerprintEncrypted (contentFingerprints: string[]) {
+function isContentFingerprintEncrypted(contentFingerprints: string[]) {
   const apiEndpoints = getApiEndpoints()
   const arweaveLinkEndpoint = apiEndpoints.API_GET_ARWEAVE_V2_LINK
   return contentFingerprints.some((fingerprint) => {
@@ -632,9 +688,9 @@ function isContentFingerprintEncrypted (contentFingerprints: string[]) {
   })
 }
 
-function onImgUpload (
+function onImgUpload(
   event: Event,
-  key: 'signatureImage' | 'memoImage' = 'signatureImage'
+  key: 'signatureImage' | 'memoImage' = 'signatureImage',
 ) {
   const input = event.target as HTMLInputElement
   const files = input.files
@@ -661,13 +717,14 @@ function onImgUpload (
 
   if (key === 'signatureImage') {
     signatureImage.value = file
-  } else {
+  }
+  else {
     // eslint-disable-next-line no-console
     console.warn(`Unknown upload key: ${key}`)
   }
 }
 
-function addMorePrice () {
+function addMorePrice() {
   nextPriceIndex.value += 1
   prices.value.push({
     index: uuidv4(),
@@ -678,23 +735,23 @@ function addMorePrice () {
     name: '增訂版',
     description: '',
     isAllowCustomPrice: true,
-    isListed: true
+    isListed: true,
   })
 }
 
-function deletePrice (index: number) {
+function deletePrice(index: number) {
   prices.value.splice(index, 1)
 }
 
-function mapPrices (prices: PriceFormItem[]) {
+function mapPrices(prices: PriceFormItem[]) {
   return prices.map((p: PriceFormItem) => ({
     name: {
       en: escapeHtml(p.name),
-      zh: escapeHtml(p.name)
+      zh: escapeHtml(p.name),
     },
     description: {
       en: escapeHtml(p.description),
-      zh: escapeHtml(p.description)
+      zh: escapeHtml(p.description),
     },
     priceInDecimal: Math.round(Number(p.price) * 100),
     price: Number(p.price),
@@ -702,13 +759,13 @@ function mapPrices (prices: PriceFormItem[]) {
     isAutoDeliver: p.deliveryMethod === 'auto',
     isAllowCustomPrice: p.isAllowCustomPrice,
     isUnlisted: !p.isListed,
-    autoMemo: p.deliveryMethod === 'auto' ? p.autoMemo || '' : ''
+    autoMemo: p.deliveryMethod === 'auto' ? p.autoMemo || '' : '',
   }))
 }
 
 interface MappedPrice {
-  name: { en: string; zh: string }
-  description: { en: string; zh: string }
+  name: { en: string, zh: string }
+  description: { en: string, zh: string }
   priceInDecimal: number
   price: number
   stock: number
@@ -718,19 +775,19 @@ interface MappedPrice {
   autoMemo: string
 }
 
-function validate (prices: MappedPrice[]) {
+function validate(prices: MappedPrice[]) {
   const errors: FormError[] = []
   prices.forEach((price: MappedPrice) => {
     if (price.price !== 0 && price.price < MINIMAL_PRICE) {
       errors.push({
         name: 'price',
-        message: $t('errors.price_validation', { minPrice: MINIMAL_PRICE })
+        message: $t('errors.price_validation', { minPrice: MINIMAL_PRICE }),
       })
     }
     if (!price.name.en || !price.name.zh) {
       errors.push({
         name: 'name',
-        message: $t('errors.product_name_required')
+        message: $t('errors.product_name_required'),
       })
     }
   })
@@ -743,7 +800,7 @@ function validate (prices: MappedPrice[]) {
   return true
 }
 
-async function onSubmit () {
+async function onSubmit() {
   try {
     const p = mapPrices(prices.value)
     if (!validate(p)) {
@@ -752,13 +809,16 @@ async function onSubmit () {
 
     if (isEditMode.value) {
       await submitEditedClass()
-    } else if (props.isNewClassPage) { // in /publish-nft-book
+    }
+    else if (props.isNewClassPage) { // in /publish-nft-book
       await submitNewClass()
-    } else {
+    }
+    else {
       const existingListing = await fetch(`${LIKE_CO_API}/likernft/book/store/${classId.value}`)
       if (!existingListing.ok) {
         await submitNewClass()
-      } else {
+      }
+      else {
         await addNewEdition()
       }
     }
@@ -774,12 +834,13 @@ async function onSubmit () {
       hasExistingSignatureImage.value = true
     }
     emit('submit')
-  } catch (error) {
+  }
+  catch (error) {
 
   }
 }
 
-async function submitNewClass () {
+async function submitNewClass() {
   try {
     if (!classId.value) {
       throw new Error($t('errors.nft_class_id_required'))
@@ -796,8 +857,8 @@ async function submitNewClass () {
     const data = await lazyFetchClassMetadataById(classId.value)
     const collectionId = String(data?.nft_meta_collection_id || '')
     if (
-      !collectionId.includes('nft_book') &&
-      !collectionId.includes('book_nft')
+      !collectionId.includes('nft_book')
+      && !collectionId.includes('book_nft')
     ) {
       throw new Error($t('errors.not_nft_book_collection'))
     }
@@ -817,24 +878,26 @@ async function submitNewClass () {
       hideAudio: hideAudio.value,
       isAdultOnly: isAdultOnly.value,
       isPlusReadingEnabled: isPlusReadingEnabled.value,
-      tableOfContents: tableOfContents.value || undefined
+      tableOfContents: tableOfContents.value || undefined,
     })
-  } catch (err) {
+  }
+  catch (err) {
     const errorData = (err as { data?: string }).data || err
     // eslint-disable-next-line no-console
     console.error(errorData)
     error.value = String(errorData)
     showErrorToast(String(errorData))
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
-async function submitEditedClass () {
+async function submitEditedClass() {
   try {
     if (!isEditMode.value) {
       throw new Error(
-        $t('errors.missing_edition_data')
+        $t('errors.missing_edition_data'),
       )
     }
     const p = mapPrices(prices.value)
@@ -846,41 +909,45 @@ async function submitEditedClass () {
       throw new Error($t('errors.missing_edition_data'))
     }
     await updateEditionPrice(classId.value as string, editionIndex.value, {
-      price: editedPrice
+      price: editedPrice,
     })
-  } catch (err) {
+  }
+  catch (err) {
     const errorData = (err as { data?: string }).data || err
     // eslint-disable-next-line no-console
     console.error(errorData)
     error.value = String(errorData)
     showErrorToast(String(errorData))
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
-async function addNewEdition () {
+async function addNewEdition() {
   try {
     isLoading.value = true
     const p = mapPrices(prices.value)
 
     const price = p[0]
     await bookstoreApiStore.addEditionPrice(classId.value.toString(), (editionIndex.value || 0).toString(), {
-      price
+      price,
     })
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
-function navigateToSettings () {
+function navigateToSettings() {
   navigateTo('/settings')
 }
-
 </script>
+
 <style scoped>
 .md-editor {
   width: 60vw;

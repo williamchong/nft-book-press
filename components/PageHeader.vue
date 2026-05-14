@@ -25,11 +25,11 @@ const { isNavigationCollapsed } = useAppLayout()
 const props = defineProps({
   title: {
     type: String,
-    default: ''
+    default: '',
   },
   isShowMenuToggle: {
     type: Boolean,
-    default: true
-  }
+    default: true,
+  },
 })
 </script>

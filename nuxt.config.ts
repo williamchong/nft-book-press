@@ -5,124 +5,38 @@ const {
   SENTRY_AUTH_TOKEN,
   GA_TRACKING_ID,
   POSTHOG_PUBLIC_KEY,
-  POSTHOG_HOST
+  POSTHOG_HOST,
 } = process.env
 
 const isDevelopment = NODE_ENV === 'development'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  css: [
-    '@/assets/styles/global.css'
-  ],
 
   modules: [
     '@sentry/nuxt/module',
     '@pinia/nuxt',
-    '@nuxtjs/eslint-module',
+    '@nuxt/eslint',
     '@nuxt/ui',
     'nuxt-security',
     '@nuxt/scripts',
-    '@nuxtjs/i18n'
+    '@nuxtjs/i18n',
   ],
 
-  scripts: {
-    privacy: false,
-    registry: {
-      intercom: true,
-      googleAnalytics: {
-        bundle: false,
-        proxy: false,
-        id: GA_TRACKING_ID || 'placeholder_id_to_avoid_nuxt_module_error',
-        trigger: 'onNuxtReady'
-      },
-      posthog: {
-        apiKey: POSTHOG_PUBLIC_KEY || 'placeholder_key_to_avoid_nuxt_module_error',
-        apiHost: POSTHOG_HOST,
-        trigger: 'onNuxtReady',
-        config: {
-          person_profiles: 'identified_only'
-        }
-      }
-    }
+  app: {
+    pageTransition: { name: 'page', mode: 'out-in' },
+    layoutTransition: { name: 'page', mode: 'out-in' },
   },
-
-  i18n: {
-    locales: [
-      {
-        code: 'en',
-        language: 'en-US',
-        file: 'en.json'
-      },
-      {
-        code: 'zh',
-        language: 'zh-TW',
-        file: 'zh-TW.json'
-      }
-    ],
-    defaultLocale: 'zh'
-  },
-  sentry: {
-    sourceMapsUploadOptions: SENTRY_AUTH_TOKEN
-      ? {
-          org: SENTRY_ORG,
-          project: SENTRY_PROJECT,
-          authToken: SENTRY_AUTH_TOKEN
-        }
-      : undefined
-  },
-
-  sourcemap: { client: 'hidden' },
-
-  security: {
-    headers: {
-      crossOriginEmbedderPolicy: 'unsafe-none',
-      crossOriginOpenerPolicy: 'same-origin-allow-popups',
-      contentSecurityPolicy: {
-        'script-src': [
-          "'self'", // Fallback value, will be ignored by most modern browsers (level 3)
-          'https:', // Fallback value, will be ignored by most modern browsers (level 3)
-          "'unsafe-inline'", // Fallback value, will be ignored by almost any browser (level 2)
-          "'strict-dynamic'", // Strict CSP via 'strict-dynamic', supported by most modern browsers (level 3)
-          "'nonce-{{nonce}}'", // Enables CSP nonce support for scripts in SSR mode, supported by almost any browser (level 2)
-          "'wasm-unsafe-eval'"
-        ],
-        'worker-src': ["'self'", 'blob:'],
-        'img-src': ["'self'", 'data:', '*', 'blob:'],
-        'base-uri': ["'self'"],
-        // NOTE: Resolve Safari force HTTPS in development
-        'upgrade-insecure-requests': !isDevelopment
-      }
-    },
-    removeLoggers: false
-  },
-
-  experimental: {
-    clientNodeCompat: true
-  },
-  vite: {
-    define: {
-      global: 'globalThis',
-      __SENTRY_DEBUG__: false,
-      __SENTRY_TRACING__: false
-    },
-    optimizeDeps: {
-      include: ['eventemitter3']
-    },
-    vue: {
-      script: {
-        defineModel: true,
-        propsDestructure: true
-      }
-    }
-  },
+  css: [
+    '@/assets/styles/global.css',
+  ],
 
   runtimeConfig: {
     public: {
       scripts: {
         intercom: {
-          app_id: ''
-        }
+          app_id: '',
+        },
       },
       IS_MAINTENANCE: process.env.IS_MAINTENANCE,
       IS_TESTNET: process.env.IS_TESTNET,
@@ -148,18 +62,100 @@ export default defineNuxtConfig({
 
       ARWEAVE_ENDPOINT: process.env.ARWEAVE_ENDPOINT,
       LIKECOIN_V3_BOOK_MIGRATION_SITE_URL: process.env.LIKECOIN_V3_BOOK_MIGRATION_SITE_URL,
-      BOOK3_URL: process.env.BOOK3_URL
-    }
+      BOOK3_URL: process.env.BOOK3_URL,
+    },
   },
 
-  app: {
-    pageTransition: { name: 'page', mode: 'out-in' },
-    layoutTransition: { name: 'page', mode: 'out-in' }
+  sourcemap: { client: 'hidden' },
+
+  experimental: {
+    clientNodeCompat: true,
   },
 
-  future: {
-    compatibilityVersion: 4
+  compatibilityDate: '2026-05-14',
+  vite: {
+    define: {
+      global: 'globalThis',
+      __SENTRY_DEBUG__: false,
+      __SENTRY_TRACING__: false,
+    },
+    optimizeDeps: {
+      include: ['eventemitter3'],
+    },
   },
 
-  compatibilityDate: '2024-12-06'
+  eslint: {
+    config: {
+      stylistic: true,
+    },
+  },
+
+  i18n: {
+    locales: [
+      {
+        code: 'en',
+        language: 'en-US',
+        file: 'en.json',
+      },
+      {
+        code: 'zh',
+        language: 'zh-TW',
+        file: 'zh-TW.json',
+      },
+    ],
+    defaultLocale: 'zh',
+  },
+
+  scripts: {
+    privacy: false,
+    registry: {
+      intercom: true,
+      googleAnalytics: {
+        bundle: false,
+        proxy: false,
+        id: GA_TRACKING_ID || 'placeholder_id_to_avoid_nuxt_module_error',
+        trigger: 'onNuxtReady',
+      },
+      posthog: {
+        apiKey: POSTHOG_PUBLIC_KEY || 'placeholder_key_to_avoid_nuxt_module_error',
+        apiHost: POSTHOG_HOST,
+        trigger: 'onNuxtReady',
+        config: {
+          person_profiles: 'identified_only',
+        },
+      },
+    },
+  },
+
+  security: {
+    headers: {
+      crossOriginEmbedderPolicy: 'unsafe-none',
+      crossOriginOpenerPolicy: 'same-origin-allow-popups',
+      contentSecurityPolicy: {
+        'script-src': [
+          '\'self\'', // Fallback value, will be ignored by most modern browsers (level 3)
+          'https:', // Fallback value, will be ignored by most modern browsers (level 3)
+          '\'unsafe-inline\'', // Fallback value, will be ignored by almost any browser (level 2)
+          '\'strict-dynamic\'', // Strict CSP via 'strict-dynamic', supported by most modern browsers (level 3)
+          '\'nonce-{{nonce}}\'', // Enables CSP nonce support for scripts in SSR mode, supported by almost any browser (level 2)
+          '\'wasm-unsafe-eval\'',
+        ],
+        'worker-src': ['\'self\'', 'blob:'],
+        'img-src': ['\'self\'', 'data:', '*', 'blob:'],
+        'base-uri': ['\'self\''],
+        // NOTE: Resolve Safari force HTTPS in development
+        'upgrade-insecure-requests': !isDevelopment,
+      },
+    },
+    removeLoggers: false,
+  },
+  sentry: {
+    sourceMapsUploadOptions: SENTRY_AUTH_TOKEN
+      ? {
+          org: SENTRY_ORG,
+          project: SENTRY_PROJECT,
+          authToken: SENTRY_AUTH_TOKEN,
+        }
+      : undefined,
+  },
 })

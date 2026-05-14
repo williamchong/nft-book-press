@@ -15,7 +15,10 @@
       :ui="{ body: 'space-y-4' }"
     >
       <template #header>
-        <h3 class="font-bold text-center" v-text="headerText" />
+        <h3
+          class="font-bold text-center"
+          v-text="headerText"
+        />
       </template>
 
       <div class="flex justify-center">
@@ -41,14 +44,17 @@
         :placeholder="$t('nft.mint_count_placeholder')"
       />
 
-      <div v-if="isLoading && bookName" class="w-full">
+      <div
+        v-if="isLoading && bookName"
+        class="w-full"
+      >
         <div class="space-y-3">
           <div class="flex justify-between items-center">
             <UBadge variant="soft">
               {{ isRestock ? $t('nft.minting_restock') : $t('nft.minting') }}
             </UBadge>
             <p class="text-xs text-gray-500">
-              {{ isRestock ? $t('nft.minting_restock_in_progress',{ count: formState.mintCount }) : $t('nft.minting_in_progress') }}
+              {{ isRestock ? $t('nft.minting_restock_in_progress', { count: formState.mintCount }) : $t('nft.minting_in_progress') }}
             </p>
           </div>
           <UProgress
@@ -58,7 +64,10 @@
           />
         </div>
       </div>
-      <div v-if="shouldShowSubmit" class="flex justify-center">
+      <div
+        v-if="shouldShowSubmit"
+        class="flex justify-center"
+      >
         <UButton
           :label="bookName ? $t('common.submit') : $t('loading.progress')"
           :loading="isLoading"
@@ -81,7 +90,7 @@ const { t: $t } = useI18n()
 const {
   getClassOwner,
   getClassMetadata,
-  checkNFTClassIsBookNFT
+  checkNFTClassIsBookNFT,
 } = useNFTContractReader()
 const { mintNFT } = useNFTMinter()
 
@@ -92,24 +101,24 @@ const { validateWalletConsistency } = store
 const props = defineProps({
   iscnData: {
     type: Object,
-    default: null
+    default: null,
   },
   shouldShowSubmit: {
     type: Boolean,
-    default: true
+    default: true,
   },
   iscnId: {
     type: String,
-    default: ''
+    default: '',
   },
   isRestock: {
     type: Boolean,
-    default: false
+    default: false,
   },
   restockCount: {
     type: Number,
-    default: 0
-  }
+    default: 0,
+  },
 })
 
 const error = ref('')
@@ -118,7 +127,7 @@ const isLoading = ref(false)
 const localISCNData = ref<ISCNData | null>(null)
 const localISCNId = ref('')
 
-const nftMintListData = ref<{ image: string; metadata: string }[]>([])
+const nftMintListData = ref<{ image: string, metadata: string }[]>([])
 const nftMintDefaultData = ref<{ metadata: Record<string, unknown> } | null>(null)
 
 const classId = ref<string>(props.iscnId || '')
@@ -126,7 +135,7 @@ const classId = ref<string>(props.iscnId || '')
 const formState = reactive({
   mintCount: NFT_DEFAULT_MINT_AMOUNT,
   imageUrl: '',
-  externalUrl: ''
+  externalUrl: '',
 })
 
 const emit = defineEmits(['submit', 'formValidChange'])
@@ -135,7 +144,7 @@ const { showErrorToast } = useToastComposable()
 const formError = computed(() => {
   const requiredFields = {
     mintCount: formState.mintCount !== undefined,
-    imageUrl: !!formState.imageUrl
+    imageUrl: !!formState.imageUrl,
   }
 
   return Object.entries(requiredFields)
@@ -172,7 +181,8 @@ watchEffect(async () => {
     localISCNId.value = props.iscnData['@id']
     formState.imageUrl = props.iscnData.contentMetadata?.thumbnailUrl || ''
     classId.value = props.iscnData['@id']
-  } else if (props.iscnId) {
+  }
+  else if (props.iscnId) {
     await fetchISCNById(props.iscnId)
   }
 })
@@ -181,30 +191,31 @@ watch(() => props.isRestock, (isRestock: boolean) => {
   if (isRestock) {
     if (props.restockCount < 0) {
       formState.mintCount = Math.abs(props.restockCount)
-    } else {
+    }
+    else {
       formState.mintCount = NFT_DEFAULT_RESTOCK_AMOUNT
     }
   }
 }, { immediate: true })
 
-function generateNFTMintListData ({
+function generateNFTMintListData({
   nftMintCount,
-  imgUrl
+  imgUrl,
 }: {
-  nftMintCount: number;
-  imgUrl: string;
+  nftMintCount: number
+  imgUrl: string
 }) {
   const dataRows = []
   for (let i = 0; i < nftMintCount; i++) {
     dataRows.push({
       image: imgUrl,
-      metadata: ''
+      metadata: '',
     })
   }
   return dataRows
 }
 
-async function startNFTMintFlow () {
+async function startNFTMintFlow() {
   try {
     const iscnData = localISCNData.value
     if (!iscnData) {
@@ -228,8 +239,8 @@ async function startNFTMintFlow () {
         symbol: 'BOOK',
         ...contentMetadata,
         image: formState.imageUrl,
-        external_url: formState.externalUrl
-      }
+        external_url: formState.externalUrl,
+      },
     }
 
     if (typeof formState.mintCount !== 'number') {
@@ -239,7 +250,7 @@ async function startNFTMintFlow () {
     nftMintDefaultData.value = nftsDefaultData
     nftMintListData.value = generateNFTMintListData({
       nftMintCount: formState.mintCount,
-      imgUrl: formState.imageUrl
+      imgUrl: formState.imageUrl,
     })
     formState.mintCount = nftMintListData.value.length
 
@@ -249,19 +260,21 @@ async function startNFTMintFlow () {
     if (classId.value) {
       emit('submit', {
         classId: classId.value,
-        nftMintCount: formState.mintCount
+        nftMintCount: formState.mintCount,
       })
     }
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
     showErrorToast(`${$t('nft.mint_error')}: ${(error as Error).message || error}`)
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
-async function mintNFTs () {
+async function mintNFTs() {
   try {
     isLoading.value = true
     if (!wallet.value) {
@@ -285,7 +298,8 @@ async function mintNFTs () {
         if (value) {
           try {
             data[key] = JSON.parse(value as string)
-          } catch (err) {
+          }
+          catch (err) {
             data[key] = value
           }
         }
@@ -295,23 +309,25 @@ async function mintNFTs () {
         external_url: `${BOOK3_URL}/store/${classId.value}/${Number(fromTokenId) + index}`,
         description: `Copy #${Number(fromTokenId) + index} of ${data.name}`,
         name: `${data.name} #${Number(fromTokenId) + index}`,
-        attributes: data.attributes
+        attributes: data.attributes,
       }
     }
 
     await mintNFT({
       classId: classId.value,
       mintCount: formState.mintCount,
-      buildTokenMetadata
+      buildTokenMetadata,
     })
-  } catch (err) {
+  }
+  catch (err) {
     throw new Error('MINT_NFT_ERROR:' + (err as Error).toString())
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
-async function fetchISCNById (iscnId: string) {
+async function fetchISCNById(iscnId: string) {
   isLoading.value = true
   try {
     localISCNId.value = iscnId
@@ -321,25 +337,26 @@ async function fetchISCNById (iscnId: string) {
     }
     const [data, owner] = await Promise.all([
       getClassMetadata(iscnId),
-      getClassOwner(iscnId)
+      getClassOwner(iscnId),
     ])
     if (!data) {
       throw new Error('Invalid NFT Class ID')
     }
-    localISCNData.value = { contentMetadata: data, owner, '@id': iscnId }
+    localISCNData.value = { 'contentMetadata': data, owner, '@id': iscnId }
     formState.imageUrl = localISCNData.value.contentMetadata?.thumbnailUrl || ''
     formState.externalUrl = localISCNData.value.contentMetadata?.url || ''
     classId.value = iscnId
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
 defineExpose({
-  startNFTMintFlow
+  startNFTMintFlow,
 })
-
 </script>

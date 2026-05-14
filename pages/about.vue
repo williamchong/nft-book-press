@@ -177,30 +177,30 @@ const { isAuthenticating } = useAuth()
 const { BOOK3_URL } = useRuntimeConfig().public
 
 useSeoMeta({
-  title: $t('about.page_title')
+  title: $t('about.page_title'),
 })
 
 const mainFeatures = computed(() => [
   {
     icon: 'i-heroicons-globe-alt',
     title: $t('about.feat1_title'),
-    desc: $t('about.feat1_desc')
+    desc: $t('about.feat1_desc'),
   },
   {
     icon: 'i-heroicons-chart-bar-square',
     title: $t('about.feat2_title'),
-    desc: $t('about.feat2_desc')
+    desc: $t('about.feat2_desc'),
   },
   {
     icon: 'i-heroicons-heart',
     title: $t('about.feat3_title'),
-    desc: $t('about.feat3_desc')
+    desc: $t('about.feat3_desc'),
   },
   {
     icon: 'i-heroicons-rocket-launch',
     title: $t('about.feat4_title'),
-    desc: $t('about.feat4_desc')
-  }
+    desc: $t('about.feat4_desc'),
+  },
 ])
 
 const IBO_URL = 'https://weekly.dhk.org/p/ibo'
@@ -209,24 +209,26 @@ const moreFeatures = computed(() => [
     icon: 'i-heroicons-rocket-launch',
     link: IBO_URL,
     linkText: $t('about.more_ibo_link'),
-    suffix: $t('about.more_ibo_suffix')
+    suffix: $t('about.more_ibo_suffix'),
   },
   { icon: 'i-heroicons-arrow-path', text: $t('about.more_market') },
-  { icon: 'i-heroicons-speaker-wave', text: $t('about.more_ai') }
+  { icon: 'i-heroicons-speaker-wave', text: $t('about.more_ai') },
 ])
 
-function handleCTA () {
+function handleCTA() {
   if (bookstoreApiStore.isAuthenticated) {
     navigateTo(localeRoute({ name: 'my-books' }))
-  } else {
+  }
+  else {
     bookstoreApiStore.openLoginPanel()
   }
 }
 
-function handleContact () {
+function handleContact() {
   if (window.Intercom) {
     window.Intercom('showNewMessage', $t('about.cta_intercom_message'))
-  } else {
+  }
+  else {
     window.location.href = 'mailto:publish@3ook.com'
   }
 }

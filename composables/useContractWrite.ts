@@ -3,17 +3,18 @@ import type { Hash } from 'viem'
 
 import type { SponsoredWriteContractParams } from './useSponsoredTransaction'
 
-export function useContractWrite () {
+export function useContractWrite() {
   const { writeContractAsync: wagmiWriteContract } = useWriteContract()
   const { ensureMagicSession } = useMagicSession()
   const { isSponsoredMode, sponsoredWriteContract } = useSponsoredTransaction()
 
-  async function writeContractAsync (params: SponsoredWriteContractParams): Promise<Hash> {
+  async function writeContractAsync(params: SponsoredWriteContractParams): Promise<Hash> {
     await ensureMagicSession()
     if (isSponsoredMode.value) {
       try {
         return await sponsoredWriteContract(params)
-      } catch (error) {
+      }
+      catch (error) {
         console.warn('[Sponsored TX] Failed, falling back to direct transaction:', error)
       }
     }

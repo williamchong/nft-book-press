@@ -56,7 +56,10 @@
 
     <div class="grid grid-cols-3 gap-4">
       <UFormField :label="$t('form.isbn')">
-        <UInput v-model="formData.isbn" :placeholder="$t('form.enter_isbn')" />
+        <UInput
+          v-model="formData.isbn"
+          :placeholder="$t('form.enter_isbn')"
+        />
       </UFormField>
 
       <UFormField :label="$t('form.publisher')">
@@ -74,7 +77,10 @@
         />
       </UFormField>
 
-      <UFormField :label="$t('form.language')" required>
+      <UFormField
+        :label="$t('form.language')"
+        required
+      >
         <USelect
           v-model="formData.language"
           :items="languageOptions"
@@ -134,7 +140,10 @@
       </UFormField>
     </div>
 
-    <UFormField :label="$t('iscn_form.license')" class="flex-1">
+    <UFormField
+      :label="$t('iscn_form.license')"
+      class="flex-1"
+    >
       <div class="space-y-2">
         <USelect
           v-model="formData.license"
@@ -153,7 +162,10 @@
     <div class="flex flex-col border p-4 rounded-lg gap-4">
       <div class="flex flex-col gap-2 mb-4">
         <div class="flex justify-between items-center">
-          <h3 class="font-medium" v-text="$t('iscn_form.content_fingerprint')" />
+          <h3
+            class="font-medium"
+            v-text="$t('iscn_form.content_fingerprint')"
+          />
         </div>
         <p
           v-if="hasContentFingerprintChanged"
@@ -167,7 +179,10 @@
         class="flex gap-4 items-end"
       >
         <div class="flex justify-between items-end w-full gap-[8px]">
-          <UFormField class="w-full" :label="`URL #${index + 1}`">
+          <UFormField
+            class="w-full"
+            :label="`URL #${index + 1}`"
+          >
             <UInput
               v-model="fingerprint.url"
               class="w-full"
@@ -214,7 +229,10 @@
     <!-- Downloadable URLs -->
     <div class="border p-4 rounded-lg">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="font-medium" v-text="$t('iscn_form.downloadable_url')" />
+        <h3
+          class="font-medium"
+          v-text="$t('iscn_form.downloadable_url')"
+        />
       </div>
       <UAlert
         v-if="!hasValidReadAction"
@@ -237,10 +255,16 @@
             />
           </UFormField>
           <UFormField :label="$t('iscn_form.url')">
-            <UInput v-model="download.url" :placeholder="$t('iscn_form.enter_download_url')" />
+            <UInput
+              v-model="download.url"
+              :placeholder="$t('iscn_form.enter_download_url')"
+            />
           </UFormField>
           <UFormField :label="$t('iscn_form.filename')">
-            <UInput v-model="download.fileName" :placeholder="$t('iscn_form.enter_filename')" />
+            <UInput
+              v-model="download.fileName"
+              :placeholder="$t('iscn_form.enter_filename')"
+            />
           </UFormField>
         </div>
         <UButton
@@ -275,7 +299,10 @@
       class="w-full max-w-[80vw]"
     >
       <template #header>
-        <h2 class="font-bold font-mono" v-text="$t('iscn_form.upload_files')" />
+        <h2
+          class="font-bold font-mono"
+          v-text="$t('iscn_form.upload_files')"
+        />
       </template>
       <template #body>
         <div class="space-y-4">
@@ -290,7 +317,11 @@
       </template>
       <template #footer>
         <div class="w-full flex justify-center items-center gap-2">
-          <UButton color="neutral" variant="soft" @click="shouldShowUploadModal = false">
+          <UButton
+            color="neutral"
+            variant="soft"
+            @click="shouldShowUploadModal = false"
+          >
             Cancel
           </UButton>
           <UButton
@@ -317,9 +348,10 @@ import {
   MAX_DESCRIPTION_FULL_LENGTH,
   MAX_PREVIEW_CONTENT_LENGTH,
   MAX_ALTERNATIVE_HEADLINE_LENGTH,
-  BOOK_CATEGORIES
+  BOOK_CATEGORIES,
 } from '~/constant/index'
 import { getApiEndpoints } from '~/constant/api'
+
 const { t: $t } = useI18n()
 const localeRoute = useLocaleRoute()
 
@@ -327,12 +359,12 @@ const downloadTypeOptions = [
   { label: 'EPUB', value: 'epub' },
   { label: 'PDF', value: 'pdf' },
   { label: 'Image', value: 'image' },
-  { label: 'Other', value: 'other' }
+  { label: 'Other', value: 'other' },
 ]
 
 const bookCategoryOptions = BOOK_CATEGORIES.map(cat => ({
   label: $t(cat.i18nKey),
-  value: cat.value as string
+  value: cat.value as string,
 }))
 
 const shouldShowUploadModal = ref(false)
@@ -351,7 +383,8 @@ const hasContentFingerprintChanged = computed(() => {
     const currentFingerprints = JSON.stringify(formData.value.contentFingerprints)
     const initialFingerprints = JSON.stringify(initial.contentFingerprints)
     return currentFingerprints !== initialFingerprints
-  } catch {
+  }
+  catch {
     return false
   }
 })
@@ -375,7 +408,7 @@ onBeforeRouteLeave(() => {
   }
 })
 
-function resetSnapshot () {
+function resetSnapshot() {
   initialFormDataSnapshot.value = JSON.stringify(formData.value)
 }
 
@@ -384,7 +417,7 @@ nextTick(() => {
 })
 
 defineExpose({
-  resetSnapshot
+  resetSnapshot,
 })
 
 const hasFiles = computed(() => {
@@ -399,7 +432,8 @@ const descriptionError = computed(() => {
   const desc = formData.value.description || ''
   if (!desc) {
     return 'Description is required'
-  } else if (desc.length > MAX_DESCRIPTION_LENGTH) {
+  }
+  else if (desc.length > MAX_DESCRIPTION_LENGTH) {
     return $t('validation.description_cannot_exceed', { max: MAX_DESCRIPTION_LENGTH })
   }
   return false
@@ -452,7 +486,7 @@ const startUpload = async () => {
 
 const { getFileType } = useFileUploadLocal()
 
-const handleUploadSubmit = (uploadData: { fileRecords: FileRecord[]; epubMetadata?: { thumbnailArweaveId?: string } }) => {
+const handleUploadSubmit = (uploadData: { fileRecords: FileRecord[], epubMetadata?: { thumbnailArweaveId?: string } }) => {
   const { fileRecords, epubMetadata } = uploadData
   if (!fileRecords.length) {
     return
@@ -463,7 +497,7 @@ const handleUploadSubmit = (uploadData: { fileRecords: FileRecord[]; epubMetadat
     .map((file: FileRecord) => ({
       url: file.arweaveKey ? (file.arweaveLink || '') : `ar://${file.arweaveId}`,
       type: getFileType(file.fileType || ''),
-      fileName: file.fileName || ''
+      fileName: file.fileName || '',
     }))
 
   const contentFingerprints = [
@@ -477,8 +511,8 @@ const handleUploadSubmit = (uploadData: { fileRecords: FileRecord[]; epubMetadat
             ? arweaveUrl
             : `ar://${r.arweaveId}`
         })
-        .filter((r: string) => !!r)
-    )
+        .filter((r: string) => !!r),
+    ),
   ].map(url => ({ url }))
 
   formData.value.downloadableUrls = downloadableUrls

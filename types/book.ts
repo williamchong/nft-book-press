@@ -1,7 +1,7 @@
 export interface ClassListingPrice {
   index: number
-  name: { en?: string; zh?: string } | string
-  description: { en?: string; zh?: string } | string
+  name: { en?: string, zh?: string } | string
+  description: { en?: string, zh?: string } | string
   price: number | string
   stock: number
   isAutoDeliver: boolean
@@ -45,6 +45,6 @@ export interface BookRecord {
 }
 
 export interface ProductData {
-  name?: string | { en?: string; zh?: string }
-  prices?: { name?: string | { en?: string; zh?: string }; price?: number; index?: number }[]
+  name?: string | { en?: string, zh?: string }
+  prices?: { name?: string | { en?: string, zh?: string }, price?: number, index?: number }[]
 }

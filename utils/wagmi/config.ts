@@ -3,13 +3,13 @@ import { base, baseSepolia } from '@wagmi/vue/chains'
 import { injected, metaMask, walletConnect, coinbaseWallet } from '@wagmi/vue/connectors'
 import { dedicatedWalletConnector } from '@likecoin/wagmi-magic-connector'
 
-export function createWagmiConfig ({
+export function createWagmiConfig({
   apiKey,
   customLogoURL,
   walletConnectProjectId,
   customRpcUrl,
   isServer = false,
-  isTestnet = false
+  isTestnet = false,
 }: {
   apiKey: string
   customLogoURL?: string
@@ -25,8 +25,8 @@ export function createWagmiConfig ({
     metaMask(),
     coinbaseWallet({
       appName: '3ook.com',
-      appLogoUrl: logoURL
-    })
+      appLogoUrl: logoURL,
+    }),
   ]
   if (!isServer) {
     connectors.push(
@@ -42,10 +42,10 @@ export function createWagmiConfig ({
             deferPreload: true,
             network: {
               rpcUrl: chain.rpcUrls.default.http[0],
-              chainId: chain.id
-            }
-          }
-        }
+              chainId: chain.id,
+            },
+          },
+        },
       }) as unknown as CreateConnectorFn)
     if (walletConnectProjectId) {
       connectors.push(
@@ -55,8 +55,8 @@ export function createWagmiConfig ({
             name: '3ook.com',
             description: '3ook.com is an AI reading companion coupled with a decentralized bookstore on web3',
             url: 'https://3ook.com',
-            icons: [logoURL]
-          }
+            icons: [logoURL],
+          },
         }))
     }
   }
@@ -67,8 +67,8 @@ export function createWagmiConfig ({
     ssr: true,
     transports: {
       [base.id]: http(customRpcUrl),
-      [baseSepolia.id]: http(customRpcUrl)
-    }
+      [baseSepolia.id]: http(customRpcUrl),
+    },
   })
 }
 

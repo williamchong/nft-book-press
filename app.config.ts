@@ -2,22 +2,22 @@ export default defineAppConfig({
   ui: {
     colors: {
       primary: 'like-green',
-      neutral: 'slate'
+      neutral: 'slate',
     },
     formField: {
       slots: {
-        root: 'w-full'
-      }
+        root: 'w-full',
+      },
     },
     input: {
       slots: {
-        root: 'w-full'
-      }
+        root: 'w-full',
+      },
     },
     textarea: {
       slots: {
-        root: 'w-full'
-      }
-    }
-  }
+        root: 'w-full',
+      },
+    },
+  },
 })

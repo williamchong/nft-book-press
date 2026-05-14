@@ -12,7 +12,7 @@ import { getIsTestnet } from '~/utils'
 
 // ── Byte utilities ───────────────────────────────────────────────────────────
 
-function concatBytes (...arrays: Uint8Array[]): Uint8Array {
+function concatBytes(...arrays: Uint8Array[]): Uint8Array {
   const total = arrays.reduce((s, a) => s + a.length, 0)
   const out = new Uint8Array(total)
   let offset = 0
@@ -24,15 +24,15 @@ function concatBytes (...arrays: Uint8Array[]): Uint8Array {
 }
 
 const encoder = new TextEncoder()
-function strToBytes (s: string): Uint8Array {
+function strToBytes(s: string): Uint8Array {
   return encoder.encode(s)
 }
 
-function shortTo2ByteArray (n: number): Uint8Array {
+function shortTo2ByteArray(n: number): Uint8Array {
   return new Uint8Array([n & 0xFF, (n >> 8) & 0xFF])
 }
 
-function longTo8ByteArray (n: number): Uint8Array {
+function longTo8ByteArray(n: number): Uint8Array {
   const out = new Uint8Array(8)
   let lo = n >>> 0
   let hi = Math.floor(n / 0x100000000) >>> 0
@@ -41,7 +41,7 @@ function longTo8ByteArray (n: number): Uint8Array {
   return out
 }
 
-function uint8ArrayToBase64 (bytes: Uint8Array): string {
+function uint8ArrayToBase64(bytes: Uint8Array): string {
   let binary = ''
   const chunk = 8192
   for (let i = 0; i < bytes.length; i += chunk) {
@@ -50,7 +50,7 @@ function uint8ArrayToBase64 (bytes: Uint8Array): string {
   return btoa(binary)
 }
 
-function base64urlEncode (bytes: Uint8Array): string {
+function base64urlEncode(bytes: Uint8Array): string {
   return uint8ArrayToBase64(bytes)
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
@@ -62,19 +62,19 @@ function base64urlEncode (bytes: Uint8Array): string {
 
 const MAX_TAG_BYTES = 4096
 
-function serializeTags (tags: { name: string; value: string }[]): Uint8Array {
+function serializeTags(tags: { name: string, value: string }[]): Uint8Array {
   if (tags.length === 0) { return new Uint8Array(0) }
 
   const buf = new Uint8Array(MAX_TAG_BYTES)
   let pos = 0
 
-  function ensureCapacity (additional: number) {
+  function ensureCapacity(additional: number) {
     if (pos + additional > MAX_TAG_BYTES) {
       throw new Error(`Serialized tags would exceed maximum (${MAX_TAG_BYTES} bytes)`)
     }
   }
 
-  function writeLong (n: number) {
+  function writeLong(n: number) {
     if (n >= -1073741824 && n < 1073741824) {
       let m = n >= 0 ? n << 1 : (~n << 1) | 1
       do {
@@ -82,7 +82,8 @@ function serializeTags (tags: { name: string; value: string }[]): Uint8Array {
         buf[pos] = m & 0x7F
         m >>= 7
       } while (m && (buf[pos++]! |= 0x80))
-    } else {
+    }
+    else {
       let f = n >= 0 ? n * 2 : -n * 2 - 1
       do {
         ensureCapacity(1)
@@ -93,7 +94,7 @@ function serializeTags (tags: { name: string; value: string }[]): Uint8Array {
     pos++
   }
 
-  function writeBytes (bytes: Uint8Array) {
+  function writeBytes(bytes: Uint8Array) {
     writeLong(bytes.length)
     ensureCapacity(bytes.length)
     buf.set(bytes, pos)
@@ -113,13 +114,13 @@ function serializeTags (tags: { name: string; value: string }[]): Uint8Array {
 // ── WebCrypto SHA-384 deepHash ───────────────────────────────────────────────
 // Mirrors arbundles/src/deepHash.js using native crypto.subtle.
 
-async function sha384 (data: Uint8Array): Promise<Uint8Array> {
+async function sha384(data: Uint8Array): Promise<Uint8Array> {
   return new Uint8Array(await crypto.subtle.digest('SHA-384', data))
 }
 
 type DeepHashChunk = Uint8Array | DeepHashChunk[]
 
-async function deepHash (data: DeepHashChunk): Promise<Uint8Array> {
+async function deepHash(data: DeepHashChunk): Promise<Uint8Array> {
   if (Array.isArray(data)) {
     const tag = concatBytes(strToBytes('list'), strToBytes(data.length.toString()))
     let acc = await sha384(tag)
@@ -139,12 +140,12 @@ const SIG_TYPE = 7
 const SIG_LENGTH = 65
 const OWNER_LENGTH = 42
 
-function buildDataItem (
+function buildDataItem(
   data: Uint8Array,
   ownerBytes: Uint8Array,
   anchor: Uint8Array,
   tagCount: number,
-  tagBytes: Uint8Array
+  tagBytes: Uint8Array,
 ): Uint8Array {
   if (ownerBytes.length !== OWNER_LENGTH) {
     throw new Error(`Owner must be ${OWNER_LENGTH} bytes, got ${ownerBytes.length}`)
@@ -170,11 +171,11 @@ function buildDataItem (
   return bytes
 }
 
-function getSignatureData (
+function getSignatureData(
   ownerBytes: Uint8Array,
   anchor: Uint8Array,
   tagBytes: Uint8Array,
-  data: Uint8Array
+  data: Uint8Array,
 ): Promise<Uint8Array> {
   return deepHash([
     strToBytes('dataitem'),
@@ -184,22 +185,22 @@ function getSignatureData (
     new Uint8Array(0), // rawTarget — empty (no target)
     anchor,
     tagBytes,
-    data
+    data,
   ])
 }
 
 // ── Signing via LikeCoin backend ─────────────────────────────────────────────
 
-async function signDataItem (
+async function signDataItem(
   sigData: Uint8Array,
-  opts: { fileSize: number; ipfsHash: string; txHash?: string; token: string; sponsored?: boolean }
-): Promise<{ signature: Uint8Array; uploadId: string; signToken: string }> {
+  opts: { fileSize: number, ipfsHash: string, txHash?: string, token: string, sponsored?: boolean },
+): Promise<{ signature: Uint8Array, uploadId: string, signToken: string }> {
   const apiEndpoints = getApiEndpoints()
   const body: Record<string, unknown> = {
     signatureData: uint8ArrayToBase64(sigData),
     fileSize: opts.fileSize,
     ipfsHash: opts.ipfsHash,
-    txToken: opts.sponsored ? 'SPONSORED' : 'BASEETH'
+    txToken: opts.sponsored ? 'SPONSORED' : 'BASEETH',
   }
   if (!opts.sponsored) {
     if (!opts.txHash) {
@@ -207,31 +208,31 @@ async function signDataItem (
     }
     body.txHash = opts.txHash
   }
-  const res = await $fetch<{ signature: string; id: string; token: string }>(apiEndpoints.API_POST_ARWEAVE_V2_SIGN, {
+  const res = await $fetch<{ signature: string, id: string, token: string }>(apiEndpoints.API_POST_ARWEAVE_V2_SIGN, {
     method: 'POST',
     body,
-    headers: opts.token ? { Authorization: `Bearer ${opts.token}` } : {}
+    headers: opts.token ? { Authorization: `Bearer ${opts.token}` } : {},
   })
   return {
     signature: Uint8Array.from(atob(res.signature), c => c.charCodeAt(0)),
     uploadId: res.id,
-    signToken: res.token
+    signToken: res.token,
   }
 }
 
 // ── Main upload function ─────────────────────────────────────────────────────
 
-export async function uploadToIrys (
+export async function uploadToIrys(
   file: Uint8Array,
   opts: {
-    tags: { name: string; value: string }[]
+    tags: { name: string, value: string }[]
     fileSize: number
     ipfsHash: string
     txHash?: string
     token: string
     sponsored?: boolean
-  }
-): Promise<{ id: string; uploadId: string; signToken: string }> {
+  },
+): Promise<{ id: string, uploadId: string, signToken: string }> {
   const apiEndpoints = getApiEndpoints()
 
   // 1. Get Ethereum address that owns the Irys node account
@@ -273,7 +274,7 @@ export async function uploadToIrys (
   const res = await fetch(irysUrl, {
     method: 'POST',
     body: dataItem,
-    headers: { 'Content-Type': 'application/octet-stream' }
+    headers: { 'Content-Type': 'application/octet-stream' },
   })
   if (!res.ok) {
     const text = await res.text()

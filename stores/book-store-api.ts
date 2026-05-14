@@ -23,22 +23,22 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
     return !isExpired
   })
 
-  function clearSession () {
+  function clearSession() {
     token.value = ''
     sessionWallet.value = ''
     isShowLoginPanel.value = false
     clearAuthSession()
   }
 
-  function openLoginPanel () {
+  function openLoginPanel() {
     isShowLoginPanel.value = true
   }
 
-  function closeLoginPanel () {
+  function closeLoginPanel() {
     isShowLoginPanel.value = false
   }
 
-  function restoreAuthSession () {
+  function restoreAuthSession() {
     try {
       const session = loadAuthSession()
       if (!session) { return }
@@ -52,15 +52,16 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
       token.value = sessionToken
       sessionWallet.value = wallet
       intercomToken.value = sessionIntercomToken
-    } catch {}
+    }
+    catch {}
   }
 
-  async function authenticate (inputWallet: string, signature: { signature: string; message: string; wallet: string; signMethod: string; expiresIn: string }) {
+  async function authenticate(inputWallet: string, signature: { signature: string, message: string, wallet: string, signMethod: string, expiresIn: string }) {
     const data = await $fetch<AuthResponse>(`${LIKE_CO_API}/wallet/authorize`, {
       method: 'POST',
       body: {
-        ...signature
-      }
+        ...signature,
+      },
     })
     if (!data?.token) { throw new Error('INVALID_SIGNATURE') }
     token.value = data.token
@@ -69,11 +70,11 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
     saveAuthSession({ wallet: inputWallet, token: token.value, intercomToken: intercomToken.value })
   }
 
-  async function fetchBookListing (params: { key?: number, limit?: number } = {}) {
+  async function fetchBookListing(params: { key?: number, limit?: number } = {}) {
     const qsPayload: Record<string, string | number> = {
       wallet: sessionWallet.value,
       limit: params.limit || 100,
-      chain: 'base'
+      chain: 'base',
     }
     if (params.key) {
       qsPayload.key = params.key
@@ -81,14 +82,15 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
     const data = await $fetch<BookListingResponse>(`${LIKE_CO_API}/likernft/book/store/list?${Object.entries(qsPayload).map(([key, value]) => `${key}=${value}`).join('&')}`,
       {
         headers: {
-          authorization: token.value ? `Bearer ${token.value}` : ''
-        }
+          authorization: token.value ? `Bearer ${token.value}` : '',
+        },
       })
 
     const { nextKey, list = [] } = data || {}
     if (params.key) {
       listingList.value.push(...list)
-    } else {
+    }
+    else {
       listingList.value = list
     }
 
@@ -97,11 +99,11 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
     }
   }
 
-  async function fetchModeratedBookList (params: { key?: number, limit?: number } = {}) {
+  async function fetchModeratedBookList(params: { key?: number, limit?: number } = {}) {
     const qsPayload: Record<string, string | number> = {
       wallet: sessionWallet.value,
       limit: params.limit || 100,
-      chain: 'base'
+      chain: 'base',
     }
     if (params.key) {
       qsPayload.key = params.key
@@ -109,14 +111,14 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
     const data = await $fetch<BookListingResponse>(`${LIKE_CO_API}/likernft/book/store/list/moderated?${Object.entries(qsPayload).map(([key, value]) => `${key}=${value}`).join('&')}`,
       {
         headers: {
-          authorization: `Bearer ${token.value}`
-        }
-      }
+          authorization: `Bearer ${token.value}`,
+        },
+      },
     )
     moderatedBookList.value = data?.list || []
   }
 
-  function reduceListingPendingNFTCountById (classId: string, count: number) {
+  function reduceListingPendingNFTCountById(classId: string, count: number) {
     const targetIndex = listingList.value.findIndex(item => item.classId === classId)
     if (targetIndex === -1) {
       return
@@ -127,67 +129,67 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
     }
   }
 
-  async function newBookListing (classId: string, payload: Record<string, unknown>) {
+  async function newBookListing(classId: string, payload: Record<string, unknown>) {
     const data = await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId}/new`, {
       method: 'POST',
       body: payload,
       headers: {
-        authorization: `Bearer ${token.value}`
-      }
+        authorization: `Bearer ${token.value}`,
+      },
     })
     return data
   }
 
-  async function updateBookListingSetting (classId: string, payload: Record<string, unknown>) {
+  async function updateBookListingSetting(classId: string, payload: Record<string, unknown>) {
     const data = await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId}/settings`, {
       method: 'POST',
       body: payload,
       headers: {
-        authorization: `Bearer ${token.value}`
-      }
+        authorization: `Bearer ${token.value}`,
+      },
     })
     return data
   }
 
-  async function updateEditionPrice (classId: string, priceIndex: number | string, payload: Record<string, unknown>) {
+  async function updateEditionPrice(classId: string, priceIndex: number | string, payload: Record<string, unknown>) {
     const data = await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId}/price/${priceIndex}`, {
       method: 'PUT',
       body: payload,
       headers: {
-        authorization: `Bearer ${token.value}`
-      }
+        authorization: `Bearer ${token.value}`,
+      },
     })
     return data
   }
 
-  async function addEditionPrice (classId: string, priceIndex: string, payload: Record<string, unknown>) {
+  async function addEditionPrice(classId: string, priceIndex: string, payload: Record<string, unknown>) {
     const data = await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId}/price/${priceIndex}`, {
       method: 'POST',
       body: payload,
       headers: {
-        authorization: `Bearer ${token.value}`
-      }
+        authorization: `Bearer ${token.value}`,
+      },
     })
     return data
   }
 
-  async function refreshBookMetadata (classId: string) {
+  async function refreshBookMetadata(classId: string) {
     const data = await $fetch(`${LIKE_CO_API}/likernft/book/store/class/${classId}/refresh`, {
       method: 'POST',
       headers: {
-        authorization: `Bearer ${token.value}`
-      }
+        authorization: `Bearer ${token.value}`,
+      },
     })
     return data
   }
 
-  async function uploadSignImages (payload : FormData, classId: string) {
+  async function uploadSignImages(payload: FormData, classId: string) {
     const data = await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId}/image/upload`, {
       method: 'POST',
       body: payload,
       headers: {
-        authorization: `Bearer ${token.value}`
-      }
+        authorization: `Bearer ${token.value}`,
+      },
     })
     return data
   }
@@ -214,6 +216,6 @@ export const useBookstoreApiStore = defineStore('book-api', () => {
     updateEditionPrice,
     addEditionPrice,
     refreshBookMetadata,
-    uploadSignImages
+    uploadSignImages,
   }
 })

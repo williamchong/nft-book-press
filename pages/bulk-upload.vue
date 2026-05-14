@@ -29,7 +29,10 @@
       </UAlert>
 
       <!-- Step 1: CSV Upload -->
-      <UCard v-if="currentStep === 'csv'" :ui="{ body: 'space-y-4' }">
+      <UCard
+        v-if="currentStep === 'csv'"
+        :ui="{ body: 'space-y-4' }"
+      >
         <template #header>
           <h3 class="font-bold">
             {{ $t('bulk_upload.step1_title') }}
@@ -37,7 +40,10 @@
         </template>
 
         <div class="flex items-end gap-4">
-          <UFormField :label="$t('bulk_upload.upload_csv')" class="flex-1">
+          <UFormField
+            :label="$t('bulk_upload.upload_csv')"
+            class="flex-1"
+          >
             <UInput
               type="file"
               accept=".csv"
@@ -65,9 +71,15 @@
       </UCard>
 
       <!-- Verifying Progress Loading -->
-      <UCard v-if="isVerifyingProgress" :ui="{ body: 'space-y-4' }">
+      <UCard
+        v-if="isVerifyingProgress"
+        :ui="{ body: 'space-y-4' }"
+      >
         <div class="flex items-center gap-3">
-          <UIcon name="i-heroicons-arrow-path" class="animate-spin text-primary" />
+          <UIcon
+            name="i-heroicons-arrow-path"
+            class="animate-spin text-primary"
+          />
           <span>{{ $t('bulk_upload.verifying_progress') }}</span>
         </div>
       </UCard>
@@ -82,7 +94,10 @@
       >
         <template #description>
           <ul class="list-disc pl-4 mt-2">
-            <li v-for="(error, index) in validationErrors" :key="index">
+            <li
+              v-for="(error, index) in validationErrors"
+              :key="index"
+            >
               {{ $t('bulk_upload.error_row', { row: error.rowIndex }) }}: {{ error.field }} - {{ $t(error.message, error.params || {}) }}
             </li>
           </ul>
@@ -99,7 +114,10 @@
       />
 
       <!-- Step 2: File Selection -->
-      <UCard v-if="currentStep === 'files'" :ui="{ body: 'space-y-4' }">
+      <UCard
+        v-if="currentStep === 'files'"
+        :ui="{ body: 'space-y-4' }"
+      >
         <template #header>
           <h3 class="font-bold">
             {{ $t('bulk_upload.step2_title') }}
@@ -115,7 +133,10 @@
         >
           <template #description>
             <ul class="list-disc pl-4 mt-2 text-sm">
-              <li v-for="col in missingOptionalColumns" :key="col.column">
+              <li
+                v-for="col in missingOptionalColumns"
+                :key="col.column"
+              >
                 <code>{{ col.column }}</code> → {{ $t('bulk_upload.csv_col_default') }}: <strong>{{ col.defaultValue }}</strong>
               </li>
             </ul>
@@ -179,7 +200,10 @@
           />
         </UFormField>
 
-        <p v-if="selectedFiles.length > 0" class="text-sm font-medium">
+        <p
+          v-if="selectedFiles.length > 0"
+          class="text-sm font-medium"
+        >
           {{ $t('bulk_upload.files_selected', { count: selectedFiles.length }) }}
         </p>
 
@@ -220,7 +244,10 @@
       </UCard>
 
       <!-- Step 3: Review -->
-      <UCard v-if="currentStep === 'review'" :ui="{ body: 'space-y-4' }">
+      <UCard
+        v-if="currentStep === 'review'"
+        :ui="{ body: 'space-y-4' }"
+      >
         <template #header>
           <h3 class="font-bold">
             {{ $t('bulk_upload.review_title') }}
@@ -300,7 +327,10 @@
       </UCard>
 
       <!-- Step 4: Processing -->
-      <UCard v-if="currentStep === 'processing'" :ui="{ body: 'space-y-4' }">
+      <UCard
+        v-if="currentStep === 'processing'"
+        :ui="{ body: 'space-y-4' }"
+      >
         <template #header>
           <div class="flex justify-between items-center">
             <h3 class="font-bold">
@@ -351,7 +381,10 @@
         />
 
         <!-- Current Processing Status -->
-        <div v-if="currentProcessingBook" class="p-4 bg-gray-50 rounded-lg">
+        <div
+          v-if="currentProcessingBook"
+          class="p-4 bg-gray-50 rounded-lg"
+        >
           <p class="font-medium">
             {{ $t('bulk_upload.currently_processing') }}: {{ currentProcessingBook.title }}
           </p>
@@ -378,7 +411,10 @@
               >
                 {{ getStatusLabel(row.original.status) }}
               </UBadge>
-              <span v-if="row.original.error" class="text-xs text-red-600">
+              <span
+                v-if="row.original.error"
+                class="text-xs text-red-600"
+              >
                 {{ row.original.error }}
               </span>
             </div>
@@ -396,7 +432,10 @@
         </UTable>
 
         <!-- Completion Actions -->
-        <div v-if="!isProcessing && completedBooks.length === books.length" class="flex justify-center gap-4">
+        <div
+          v-if="!isProcessing && completedBooks.length === books.length"
+          class="flex justify-center gap-4"
+        >
           <UButton
             :label="$t('bulk_upload.view_my_books')"
             to="/my-books"
@@ -425,7 +464,7 @@ import {
   loadBulkUploadSession,
   clearBulkUploadSession,
   saveBulkUploadSession,
-  restoreBooksFromSession
+  restoreBooksFromSession,
 } from '~/utils/bulkUploadSession'
 
 const { t: $t } = useI18n()
@@ -442,7 +481,7 @@ const isVerifyingProgress = ref(false)
 const books = ref<BulkUploadBook[]>([])
 const validationErrors = ref<BulkUploadValidationError[]>([])
 const csvError = ref('')
-const missingOptionalColumns = ref<{ column: string; defaultValue: string }[]>([])
+const missingOptionalColumns = ref<{ column: string, defaultValue: string }[]>([])
 const selectedFiles = ref<File[]>([])
 const isProcessing = ref(false)
 const isPaused = ref(false)
@@ -458,7 +497,7 @@ const arweaveQuota = ref<ArweaveQuotaInfo>({
   isSponsored: false,
   isUnlimited: false,
   requiredUploads: 0,
-  requiredBytes: 0
+  requiredBytes: 0,
 })
 const isEvaluatingQuota = ref(false)
 
@@ -480,7 +519,7 @@ const quotaIsPartial = computed(() => {
   return quotaShortfallUploads.value > 0 || quotaShortfallBytes.value > 0
 })
 
-function formatBytes (bytes: number): string {
+function formatBytes(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes <= 0) { return '0 B' }
   const units = ['B', 'KB', 'MB', 'GB']
   const i = Math.min(units.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)))
@@ -490,15 +529,15 @@ function formatBytes (bytes: number): string {
 
 // Computed
 const pendingBooks = computed(() =>
-  books.value.filter(b => b.status === BookUploadStatus.PENDING)
+  books.value.filter(b => b.status === BookUploadStatus.PENDING),
 )
 
 const completedBooks = computed(() =>
-  books.value.filter(b => b.status === BookUploadStatus.COMPLETED)
+  books.value.filter(b => b.status === BookUploadStatus.COMPLETED),
 )
 
 const failedBooks = computed(() =>
-  books.value.filter(b => b.status === BookUploadStatus.FAILED)
+  books.value.filter(b => b.status === BookUploadStatus.FAILED),
 )
 
 const unmatchedBooks = computed(() =>
@@ -506,7 +545,7 @@ const unmatchedBooks = computed(() =>
     if (b.status === BookUploadStatus.COMPLETED) { return false }
     if (b.coverArweaveId && b.bookArweaveId) { return false }
     return !b.coverFile || (!b.pdfFile && !b.epubFile)
-  })
+  }),
 )
 
 const expectedFilenameSet = computed(() => {
@@ -520,7 +559,7 @@ const expectedFilenameSet = computed(() => {
 })
 
 const extraFiles = computed(() =>
-  selectedFiles.value.filter(f => !expectedFilenameSet.value.has(f.name.toLowerCase()))
+  selectedFiles.value.filter(f => !expectedFilenameSet.value.has(f.name.toLowerCase())),
 )
 
 const fileMatchingStatus = computed(() =>
@@ -531,15 +570,15 @@ const fileMatchingStatus = computed(() =>
     hasPdf: !!book.pdfFile,
     pdfFilename: book.pdfFilename || '',
     hasEpub: !!book.epubFile,
-    epubFilename: book.epubFilename || ''
-  }))
+    epubFilename: book.epubFilename || '',
+  })),
 )
 
 const csvColumnRefColumns = [
   { accessorKey: 'column', header: $t('bulk_upload.csv_col_column') },
   { accessorKey: 'required', header: $t('bulk_upload.csv_col_required') },
   { accessorKey: 'defaultValue', header: $t('bulk_upload.csv_col_default') },
-  { accessorKey: 'description', header: $t('bulk_upload.csv_col_description') }
+  { accessorKey: 'description', header: $t('bulk_upload.csv_col_description') },
 ]
 
 const csvColumnRefData = CSV_ALL_COLUMNS.map((col) => {
@@ -548,7 +587,7 @@ const csvColumnRefData = CSV_ALL_COLUMNS.map((col) => {
     column: col,
     required: isRequired ? '✓' : '',
     defaultValue: CSV_OPTIONAL_COLUMNS_WITH_DEFAULTS[col] || '—',
-    description: $t(`bulk_upload.csv_col_desc_${col}`)
+    description: $t(`bulk_upload.csv_col_desc_${col}`),
   }
 })
 
@@ -562,14 +601,14 @@ const reviewData = computed(() =>
     language: book.language,
     enableDRM: book.enableDRM,
     isAutoDeliver: book.isAutoDeliver,
-    autoMemo: book.autoMemo
-  }))
+    autoMemo: book.autoMemo,
+  })),
 )
 
 // SEO
 useSeoMeta({
   title: $t('bulk_upload.page_title'),
-  ogTitle: $t('bulk_upload.page_title')
+  ogTitle: $t('bulk_upload.page_title'),
 })
 
 // Initialize
@@ -578,7 +617,7 @@ onMounted(() => {
 })
 
 // Methods
-function handleCSVFileUpload (event: Event) {
+function handleCSVFileUpload(event: Event) {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
   if (!file) { return }
@@ -594,7 +633,7 @@ function handleCSVFileUpload (event: Event) {
   reader.readAsText(file)
 }
 
-async function parseCSV (csvContent: string) {
+async function parseCSV(csvContent: string) {
   validationErrors.value = []
   csvError.value = ''
 
@@ -602,7 +641,7 @@ async function parseCSV (csvContent: string) {
     const records = csvParse(csvContent, {
       columns: true,
       skip_empty_lines: true,
-      trim: true
+      trim: true,
     }) as Record<string, string>[]
 
     if (records.length === 0) {
@@ -658,7 +697,8 @@ async function parseCSV (csvContent: string) {
       isVerifyingProgress.value = true
       try {
         await verifyProgressFieldsOnChain(parsedBooks)
-      } finally {
+      }
+      finally {
         isVerifyingProgress.value = false
       }
     }
@@ -669,24 +709,26 @@ async function parseCSV (csvContent: string) {
     toast.add({
       icon: 'i-heroicons-check-circle',
       title: $t('bulk_upload.csv_parsed_success', { count: parsedBooks.length }),
-      color: 'success'
+      color: 'success',
     })
-  } catch (error: any) {
+  }
+  catch (error: any) {
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: $t('bulk_upload.csv_parse_error'),
       description: error.message,
-      color: 'error'
+      color: 'error',
     })
   }
 }
 
-async function verifyProgressFieldsOnChain (booksToVerify: BulkUploadBook[]) {
+async function verifyProgressFieldsOnChain(booksToVerify: BulkUploadBook[]) {
   for (const book of booksToVerify) {
     if (book.classId) {
       try {
         await getClassMetadata(book.classId)
-      } catch {
+      }
+      catch {
         book.classId = undefined
         book.mintTxHash = undefined
         if (book.status === BookUploadStatus.COMPLETED) {
@@ -698,14 +740,15 @@ async function verifyProgressFieldsOnChain (booksToVerify: BulkUploadBook[]) {
     if (book.mintTxHash) {
       try {
         await getTransactionReceipt($wagmiConfig, { hash: book.mintTxHash as `0x${string}` })
-      } catch {
+      }
+      catch {
         book.mintTxHash = undefined
       }
     }
   }
 }
 
-async function downloadCSVTemplate () {
+async function downloadCSVTemplate() {
   const { saveAs } = await import('file-saver')
 
   const sampleRow = [
@@ -727,12 +770,12 @@ async function downloadCSVTemplate () {
     '',
     '',
     '',
-    ''
+    '',
   ]
 
   const csvContent = csvStringify([sampleRow], {
     header: true,
-    columns: CSV_ALL_COLUMNS
+    columns: CSV_ALL_COLUMNS,
   })
 
   const bom = '\uFEFF'
@@ -740,7 +783,7 @@ async function downloadCSVTemplate () {
   saveAs(blob, 'bulk-upload-template.csv')
 }
 
-function handleFilesChange (event: Event) {
+function handleFilesChange(event: Event) {
   const target = event.target as HTMLInputElement
   const files = Array.from(target.files || [])
   selectedFiles.value = files
@@ -783,7 +826,7 @@ function handleFilesChange (event: Event) {
   })
 }
 
-function collectPendingFiles () {
+function collectPendingFiles() {
   const files: File[] = []
   for (const b of books.value) {
     if (b.status === BookUploadStatus.COMPLETED) { continue }
@@ -796,7 +839,7 @@ function collectPendingFiles () {
   return files
 }
 
-async function evaluateArweaveQuota (): Promise<ArweaveQuotaInfo> {
+async function evaluateArweaveQuota(): Promise<ArweaveQuotaInfo> {
   const pendingFiles = collectPendingFiles()
   const requiredUploads = pendingFiles.length
   const requiredBytes = pendingFiles.reduce((sum, f) => sum + f.size, 0)
@@ -805,7 +848,7 @@ async function evaluateArweaveQuota (): Promise<ArweaveQuotaInfo> {
     isSponsored: false,
     isUnlimited: false,
     requiredUploads,
-    requiredBytes
+    requiredBytes,
   }
 
   if (requiredUploads === 0) {
@@ -825,24 +868,26 @@ async function evaluateArweaveQuota (): Promise<ArweaveQuotaInfo> {
       remainingUploads: quota.remainingUploads,
       remainingBytes: quota.remainingBytes,
       requiredUploads,
-      requiredBytes
+      requiredBytes,
     }
     arweaveQuota.value = info
     return info
-  } catch {
+  }
+  catch {
     arweaveQuota.value = fallback
     return fallback
-  } finally {
+  }
+  finally {
     isEvaluatingQuota.value = false
   }
 }
 
-async function goToReview () {
+async function goToReview() {
   currentStep.value = 'review'
   await evaluateArweaveQuota()
 }
 
-async function startProcessing () {
+async function startProcessing() {
   // Resumed sessions can skip goToReview — re-evaluate here.
   const quotaInfo = await evaluateArweaveQuota()
 
@@ -876,7 +921,7 @@ async function startProcessing () {
         title: $t('bulk_upload.book_failed'),
         description: error,
         color: 'error',
-        duration: 5000
+        duration: 5000,
       })
     },
     onBookComplete: (book, success) => {
@@ -885,11 +930,11 @@ async function startProcessing () {
           icon: 'i-heroicons-check-circle',
           title: $t('bulk_upload.book_completed', { title: book.title }),
           color: 'success',
-          duration: 3000
+          duration: 3000,
         })
       }
     },
-    shouldContinue: () => !isPaused.value
+    shouldContinue: () => !isPaused.value,
   })
 
   isProcessing.value = false
@@ -899,21 +944,21 @@ async function startProcessing () {
     toast.add({
       icon: 'i-heroicons-check-circle',
       title: $t('bulk_upload.all_completed'),
-      color: 'success'
+      color: 'success',
     })
   }
 }
 
-function pauseProcessing () {
+function pauseProcessing() {
   isPaused.value = true
 }
 
-function resumeProcessing () {
+function resumeProcessing() {
   isPaused.value = false
   startProcessing()
 }
 
-function retryFailed () {
+function retryFailed() {
   books.value.forEach((book) => {
     if (book.status === BookUploadStatus.FAILED) {
       book.status = BookUploadStatus.PENDING
@@ -923,7 +968,7 @@ function retryFailed () {
   startProcessing()
 }
 
-function resumeSession () {
+function resumeSession() {
   const session = loadBulkUploadSession()
   if (!session) { return }
 
@@ -938,18 +983,19 @@ function resumeSession () {
 
   if (needsFiles) {
     currentStep.value = 'files'
-  } else {
+  }
+  else {
     currentStep.value = 'processing'
   }
 }
 
-function clearAndStartNew () {
+function clearAndStartNew() {
   clearBulkUploadSession()
   hasExistingSession.value = false
   resetAll()
 }
 
-function resetAll () {
+function resetAll() {
   books.value = []
   validationErrors.value = []
   csvError.value = ''
@@ -960,7 +1006,7 @@ function resetAll () {
   isPaused.value = false
 }
 
-function getStatusColor (status: BookUploadStatus): 'success' | 'error' | 'neutral' | 'info' {
+function getStatusColor(status: BookUploadStatus): 'success' | 'error' | 'neutral' | 'info' {
   switch (status) {
     case BookUploadStatus.COMPLETED:
       return 'success'
@@ -973,7 +1019,7 @@ function getStatusColor (status: BookUploadStatus): 'success' | 'error' | 'neutr
   }
 }
 
-function getStatusLabel (status: BookUploadStatus): string {
+function getStatusLabel(status: BookUploadStatus): string {
   return $t(`bulk_upload.status_${status}`)
 }
 </script>

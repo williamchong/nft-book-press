@@ -2,139 +2,139 @@ export const LIKE_NFT_ABI = [
   {
     inputs: [],
     stateMutability: 'nonpayable',
-    type: 'constructor'
+    type: 'constructor',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'target',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'AddressEmptyCode',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'implementation',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'BookNFTInvalidImplementation',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'Create2EmptyBytecode',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'implementation',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'ERC1967InvalidImplementation',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'ERC1967NonPayable',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'EnforcedPause',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'ErrInvalidSalt',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'ExpectedPause',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'FailedCall',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'FailedDeployment',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'uint256',
         name: 'balance',
-        type: 'uint256'
+        type: 'uint256',
       },
       {
         internalType: 'uint256',
         name: 'needed',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'InsufficientBalance',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'InvalidInitialization',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'NotInitializing',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'owner',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'OwnableInvalidOwner',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'account',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'OwnableUnauthorizedAccount',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'UUPSUnauthorizedCallContext',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'bytes32',
         name: 'slot',
-        type: 'bytes32'
-      }
+        type: 'bytes32',
+      },
     ],
     name: 'UUPSUnsupportedProxiableUUID',
-    type: 'error'
+    type: 'error',
   },
   {
     anonymous: false,
@@ -143,11 +143,11 @@ export const LIKE_NFT_ABI = [
         indexed: false,
         internalType: 'address',
         name: 'newImplementation',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'BookNFTImplementationUpgraded',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -156,11 +156,11 @@ export const LIKE_NFT_ABI = [
         indexed: false,
         internalType: 'uint64',
         name: 'version',
-        type: 'uint64'
-      }
+        type: 'uint64',
+      },
     ],
     name: 'Initialized',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -169,39 +169,39 @@ export const LIKE_NFT_ABI = [
         indexed: false,
         internalType: 'address',
         name: 'bookNFT',
-        type: 'address'
+        type: 'address',
       },
       {
         components: [
           {
             internalType: 'string',
             name: 'name',
-            type: 'string'
+            type: 'string',
           },
           {
             internalType: 'string',
             name: 'symbol',
-            type: 'string'
+            type: 'string',
           },
           {
             internalType: 'string',
             name: 'metadata',
-            type: 'string'
+            type: 'string',
           },
           {
             internalType: 'uint64',
             name: 'max_supply',
-            type: 'uint64'
-          }
+            type: 'uint64',
+          },
         ],
         indexed: false,
         internalType: 'struct BookConfig',
         name: 'config',
-        type: 'tuple'
-      }
+        type: 'tuple',
+      },
     ],
     name: 'NewBookNFT',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -210,17 +210,17 @@ export const LIKE_NFT_ABI = [
         indexed: true,
         internalType: 'address',
         name: 'previousOwner',
-        type: 'address'
+        type: 'address',
       },
       {
         indexed: true,
         internalType: 'address',
         name: 'newOwner',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'OwnershipTransferred',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -229,11 +229,11 @@ export const LIKE_NFT_ABI = [
         indexed: false,
         internalType: 'address',
         name: 'account',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'Paused',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -242,11 +242,11 @@ export const LIKE_NFT_ABI = [
         indexed: false,
         internalType: 'address',
         name: 'account',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'Unpaused',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -255,11 +255,11 @@ export const LIKE_NFT_ABI = [
         indexed: true,
         internalType: 'address',
         name: 'implementation',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'Upgraded',
-    type: 'event'
+    type: 'event',
   },
   {
     inputs: [],
@@ -268,11 +268,11 @@ export const LIKE_NFT_ABI = [
       {
         internalType: 'string',
         name: '',
-        type: 'string'
-      }
+        type: 'string',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -281,11 +281,11 @@ export const LIKE_NFT_ABI = [
       {
         internalType: 'address',
         name: '',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -294,116 +294,116 @@ export const LIKE_NFT_ABI = [
       {
         internalType: 'address',
         name: '',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'initialOwner',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'initialize',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'classId',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'isBookNFT',
     outputs: [
       {
         internalType: 'bool',
         name: '',
-        type: 'bool'
-      }
+        type: 'bool',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'bytes32',
         name: 'salt',
-        type: 'bytes32'
+        type: 'bytes32',
       },
       {
         components: [
           {
             internalType: 'address',
             name: 'creator',
-            type: 'address'
+            type: 'address',
           },
           {
             internalType: 'address[]',
             name: 'updaters',
-            type: 'address[]'
+            type: 'address[]',
           },
           {
             internalType: 'address[]',
             name: 'minters',
-            type: 'address[]'
+            type: 'address[]',
           },
           {
             components: [
               {
                 internalType: 'string',
                 name: 'name',
-                type: 'string'
+                type: 'string',
               },
               {
                 internalType: 'string',
                 name: 'symbol',
-                type: 'string'
+                type: 'string',
               },
               {
                 internalType: 'string',
                 name: 'metadata',
-                type: 'string'
+                type: 'string',
               },
               {
                 internalType: 'uint64',
                 name: 'max_supply',
-                type: 'uint64'
-              }
+                type: 'uint64',
+              },
             ],
             internalType: 'struct BookConfig',
             name: 'config',
-            type: 'tuple'
-          }
+            type: 'tuple',
+          },
         ],
         internalType: 'struct MsgNewBookNFT',
         name: 'msgNewBookNFT',
-        type: 'tuple'
+        type: 'tuple',
       },
       {
         internalType: 'uint96',
         name: 'royaltyFraction',
-        type: 'uint96'
-      }
+        type: 'uint96',
+      },
     ],
     name: 'newBookNFT',
     outputs: [
       {
         internalType: 'address',
         name: 'bookAddress',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -412,18 +412,18 @@ export const LIKE_NFT_ABI = [
       {
         internalType: 'address',
         name: '',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
     name: 'pause',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -432,79 +432,79 @@ export const LIKE_NFT_ABI = [
       {
         internalType: 'bool',
         name: '',
-        type: 'bool'
-      }
+        type: 'bool',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'bytes32',
         name: 'salt',
-        type: 'bytes32'
+        type: 'bytes32',
       },
       {
         components: [
           {
             internalType: 'address',
             name: 'creator',
-            type: 'address'
+            type: 'address',
           },
           {
             internalType: 'address[]',
             name: 'updaters',
-            type: 'address[]'
+            type: 'address[]',
           },
           {
             internalType: 'address[]',
             name: 'minters',
-            type: 'address[]'
+            type: 'address[]',
           },
           {
             components: [
               {
                 internalType: 'string',
                 name: 'name',
-                type: 'string'
+                type: 'string',
               },
               {
                 internalType: 'string',
                 name: 'symbol',
-                type: 'string'
+                type: 'string',
               },
               {
                 internalType: 'string',
                 name: 'metadata',
-                type: 'string'
+                type: 'string',
               },
               {
                 internalType: 'uint64',
                 name: 'max_supply',
-                type: 'uint64'
-              }
+                type: 'uint64',
+              },
             ],
             internalType: 'struct BookConfig',
             name: 'config',
-            type: 'tuple'
-          }
+            type: 'tuple',
+          },
         ],
         internalType: 'struct MsgNewBookNFT',
         name: 'msgNewBookNFT',
-        type: 'tuple'
-      }
+        type: 'tuple',
+      },
     ],
     name: 'precomputeBookNFTAddress',
     outputs: [
       {
         internalType: 'address',
         name: 'bookAddress',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -513,313 +513,313 @@ export const LIKE_NFT_ABI = [
       {
         internalType: 'bytes32',
         name: '',
-        type: 'bytes32'
-      }
+        type: 'bytes32',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
     name: 'renounceOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'royaltyReceiver',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'setRoyaltyReceiver',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'newOwner',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'transferOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
     name: 'unpause',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'newImplementation',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'upgradeTo',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'newImplementation',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'bytes',
         name: 'data',
-        type: 'bytes'
-      }
+        type: 'bytes',
+      },
     ],
     name: 'upgradeToAndCall',
     outputs: [],
     stateMutability: 'payable',
-    type: 'function'
-  }
+    type: 'function',
+  },
 ] as const
 
 export const LIKE_NFT_CLASS_ABI = [
   {
     inputs: [],
     stateMutability: 'nonpayable',
-    type: 'constructor'
+    type: 'constructor',
   },
   {
     inputs: [],
     name: 'AccessControlBadConfirmation',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'account',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'bytes32',
         name: 'neededRole',
-        type: 'bytes32'
-      }
+        type: 'bytes32',
+      },
     ],
     name: 'AccessControlUnauthorizedAccount',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'ERC721EnumerableForbiddenBatchMint',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'sender',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'uint256',
         name: 'tokenId',
-        type: 'uint256'
+        type: 'uint256',
       },
       {
         internalType: 'address',
         name: 'owner',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'ERC721IncorrectOwner',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'operator',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'uint256',
         name: 'tokenId',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'ERC721InsufficientApproval',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'approver',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'ERC721InvalidApprover',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'operator',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'ERC721InvalidOperator',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'owner',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'ERC721InvalidOwner',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'receiver',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'ERC721InvalidReceiver',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'sender',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'ERC721InvalidSender',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'uint256',
         name: 'tokenId',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'ERC721NonexistentToken',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'owner',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'uint256',
         name: 'index',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'ERC721OutOfBoundsIndex',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'ErrEmptyName',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'ErrInvalidSymbol',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'ErrMaxSupplyZero',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'ErrMemoMetadataLengthMismatch',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'ErrNftNoSupply',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'ErrSupplyDecrease',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'uint256',
         name: 'nextTokenId',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'ErrTokenIdMintFails',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'ErrUnauthorized',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'InvalidInitialization',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [],
     name: 'NotInitializing',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'owner',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'OwnableInvalidOwner',
-    type: 'error'
+    type: 'error',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'account',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'OwnableUnauthorizedAccount',
-    type: 'error'
+    type: 'error',
   },
   {
     anonymous: false,
@@ -828,17 +828,17 @@ export const LIKE_NFT_CLASS_ABI = [
         indexed: false,
         internalType: 'address',
         name: 'previousAdmin',
-        type: 'address'
+        type: 'address',
       },
       {
         indexed: false,
         internalType: 'address',
         name: 'newAdmin',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'AdminChanged',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -847,23 +847,23 @@ export const LIKE_NFT_CLASS_ABI = [
         indexed: true,
         internalType: 'address',
         name: 'owner',
-        type: 'address'
+        type: 'address',
       },
       {
         indexed: true,
         internalType: 'address',
         name: 'approved',
-        type: 'address'
+        type: 'address',
       },
       {
         indexed: true,
         internalType: 'uint256',
         name: 'tokenId',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'Approval',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -872,23 +872,23 @@ export const LIKE_NFT_CLASS_ABI = [
         indexed: true,
         internalType: 'address',
         name: 'owner',
-        type: 'address'
+        type: 'address',
       },
       {
         indexed: true,
         internalType: 'address',
         name: 'operator',
-        type: 'address'
+        type: 'address',
       },
       {
         indexed: false,
         internalType: 'bool',
         name: 'approved',
-        type: 'bool'
-      }
+        type: 'bool',
+      },
     ],
     name: 'ApprovalForAll',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -897,17 +897,17 @@ export const LIKE_NFT_CLASS_ABI = [
         indexed: false,
         internalType: 'uint256',
         name: '_fromTokenId',
-        type: 'uint256'
+        type: 'uint256',
       },
       {
         indexed: false,
         internalType: 'uint256',
         name: '_toTokenId',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'BatchMetadataUpdate',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -916,17 +916,17 @@ export const LIKE_NFT_CLASS_ABI = [
         indexed: true,
         internalType: 'address',
         name: 'beacon',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'BeaconUpgraded',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [],
     name: 'ContractURIUpdated',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -935,11 +935,11 @@ export const LIKE_NFT_CLASS_ABI = [
         indexed: false,
         internalType: 'uint64',
         name: 'version',
-        type: 'uint64'
-      }
+        type: 'uint64',
+      },
     ],
     name: 'Initialized',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -948,11 +948,11 @@ export const LIKE_NFT_CLASS_ABI = [
         indexed: false,
         internalType: 'uint256',
         name: '_tokenId',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'MetadataUpdate',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -961,17 +961,17 @@ export const LIKE_NFT_CLASS_ABI = [
         indexed: true,
         internalType: 'address',
         name: 'previousOwner',
-        type: 'address'
+        type: 'address',
       },
       {
         indexed: true,
         internalType: 'address',
         name: 'newOwner',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'OwnershipTransferred',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -980,23 +980,23 @@ export const LIKE_NFT_CLASS_ABI = [
         indexed: true,
         internalType: 'bytes32',
         name: 'role',
-        type: 'bytes32'
+        type: 'bytes32',
       },
       {
         indexed: true,
         internalType: 'bytes32',
         name: 'previousAdminRole',
-        type: 'bytes32'
+        type: 'bytes32',
       },
       {
         indexed: true,
         internalType: 'bytes32',
         name: 'newAdminRole',
-        type: 'bytes32'
-      }
+        type: 'bytes32',
+      },
     ],
     name: 'RoleAdminChanged',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -1005,23 +1005,23 @@ export const LIKE_NFT_CLASS_ABI = [
         indexed: true,
         internalType: 'bytes32',
         name: 'role',
-        type: 'bytes32'
+        type: 'bytes32',
       },
       {
         indexed: true,
         internalType: 'address',
         name: 'account',
-        type: 'address'
+        type: 'address',
       },
       {
         indexed: true,
         internalType: 'address',
         name: 'sender',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'RoleGranted',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -1030,23 +1030,23 @@ export const LIKE_NFT_CLASS_ABI = [
         indexed: true,
         internalType: 'bytes32',
         name: 'role',
-        type: 'bytes32'
+        type: 'bytes32',
       },
       {
         indexed: true,
         internalType: 'address',
         name: 'account',
-        type: 'address'
+        type: 'address',
       },
       {
         indexed: true,
         internalType: 'address',
         name: 'sender',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'RoleRevoked',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -1055,23 +1055,23 @@ export const LIKE_NFT_CLASS_ABI = [
         indexed: true,
         internalType: 'address',
         name: 'from',
-        type: 'address'
+        type: 'address',
       },
       {
         indexed: true,
         internalType: 'address',
         name: 'to',
-        type: 'address'
+        type: 'address',
       },
       {
         indexed: true,
         internalType: 'uint256',
         name: 'tokenId',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'Transfer',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -1080,29 +1080,29 @@ export const LIKE_NFT_CLASS_ABI = [
         indexed: true,
         internalType: 'address',
         name: 'from',
-        type: 'address'
+        type: 'address',
       },
       {
         indexed: true,
         internalType: 'address',
         name: 'to',
-        type: 'address'
+        type: 'address',
       },
       {
         indexed: true,
         internalType: 'uint256',
         name: 'tokenId',
-        type: 'uint256'
+        type: 'uint256',
       },
       {
         indexed: false,
         internalType: 'string',
         name: 'memo',
-        type: 'string'
-      }
+        type: 'string',
+      },
     ],
     name: 'TransferWithMemo',
-    type: 'event'
+    type: 'event',
   },
   {
     anonymous: false,
@@ -1111,11 +1111,11 @@ export const LIKE_NFT_CLASS_ABI = [
         indexed: true,
         internalType: 'address',
         name: 'implementation',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'Upgraded',
-    type: 'event'
+    type: 'event',
   },
   {
     inputs: [],
@@ -1124,11 +1124,11 @@ export const LIKE_NFT_CLASS_ABI = [
       {
         internalType: 'bytes32',
         name: '',
-        type: 'bytes32'
-      }
+        type: 'bytes32',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -1137,11 +1137,11 @@ export const LIKE_NFT_CLASS_ABI = [
       {
         internalType: 'bytes32',
         name: '',
-        type: 'bytes32'
-      }
+        type: 'bytes32',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -1150,112 +1150,112 @@ export const LIKE_NFT_CLASS_ABI = [
       {
         internalType: 'bytes32',
         name: '',
-        type: 'bytes32'
-      }
+        type: 'bytes32',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'to',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'uint256',
         name: 'tokenId',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'approve',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'owner',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'balanceOf',
     outputs: [
       {
         internalType: 'uint256',
         name: '',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address[]',
         name: 'tos',
-        type: 'address[]'
+        type: 'address[]',
       },
       {
         internalType: 'string[]',
         name: 'memos',
-        type: 'string[]'
+        type: 'string[]',
       },
       {
         internalType: 'string[]',
         name: 'metadataList',
-        type: 'string[]'
-      }
+        type: 'string[]',
+      },
     ],
     name: 'batchMint',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'from',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'address[]',
         name: 'tos',
-        type: 'address[]'
+        type: 'address[]',
       },
       {
         internalType: 'uint256[]',
         name: 'tokenIds',
-        type: 'uint256[]'
+        type: 'uint256[]',
       },
       {
         internalType: 'string[]',
         name: 'memos',
-        type: 'string[]'
-      }
+        type: 'string[]',
+      },
     ],
     name: 'batchTransferWithMemo',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'uint256',
         name: 'tokenId',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'burn',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -1264,30 +1264,30 @@ export const LIKE_NFT_CLASS_ABI = [
       {
         internalType: 'string',
         name: '',
-        type: 'string'
-      }
+        type: 'string',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'uint256',
         name: 'tokenId',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'getApproved',
     outputs: [
       {
         internalType: 'address',
         name: '',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -1298,31 +1298,31 @@ export const LIKE_NFT_CLASS_ABI = [
           {
             internalType: 'string',
             name: 'name',
-            type: 'string'
+            type: 'string',
           },
           {
             internalType: 'string',
             name: 'symbol',
-            type: 'string'
+            type: 'string',
           },
           {
             internalType: 'string',
             name: 'metadata',
-            type: 'string'
+            type: 'string',
           },
           {
             internalType: 'uint64',
             name: 'max_supply',
-            type: 'uint64'
-          }
+            type: 'uint64',
+          },
         ],
         internalType: 'struct BookConfig',
         name: '',
-        type: 'tuple'
-      }
+        type: 'tuple',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -1331,11 +1331,11 @@ export const LIKE_NFT_CLASS_ABI = [
       {
         internalType: 'uint256',
         name: '',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -1344,164 +1344,164 @@ export const LIKE_NFT_CLASS_ABI = [
       {
         internalType: 'address',
         name: '',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'bytes32',
         name: 'role',
-        type: 'bytes32'
-      }
+        type: 'bytes32',
+      },
     ],
     name: 'getRoleAdmin',
     outputs: [
       {
         internalType: 'bytes32',
         name: '',
-        type: 'bytes32'
-      }
+        type: 'bytes32',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'bytes32',
         name: 'role',
-        type: 'bytes32'
+        type: 'bytes32',
       },
       {
         internalType: 'address',
         name: 'account',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'grantRole',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'bytes32',
         name: 'role',
-        type: 'bytes32'
+        type: 'bytes32',
       },
       {
         internalType: 'address',
         name: 'account',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'hasRole',
     outputs: [
       {
         internalType: 'bool',
         name: '',
-        type: 'bool'
-      }
+        type: 'bool',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'creator',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'address[]',
         name: 'minters',
-        type: 'address[]'
+        type: 'address[]',
       },
       {
         internalType: 'address[]',
         name: 'updaters',
-        type: 'address[]'
+        type: 'address[]',
       },
       {
         components: [
           {
             internalType: 'string',
             name: 'name',
-            type: 'string'
+            type: 'string',
           },
           {
             internalType: 'string',
             name: 'symbol',
-            type: 'string'
+            type: 'string',
           },
           {
             internalType: 'string',
             name: 'metadata',
-            type: 'string'
+            type: 'string',
           },
           {
             internalType: 'uint64',
             name: 'max_supply',
-            type: 'uint64'
-          }
+            type: 'uint64',
+          },
         ],
         internalType: 'struct BookConfig',
         name: 'config',
-        type: 'tuple'
-      }
+        type: 'tuple',
+      },
     ],
     name: 'initConfig',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'string',
         name: 'name_',
-        type: 'string'
+        type: 'string',
       },
       {
         internalType: 'string',
         name: 'symbol_',
-        type: 'string'
-      }
+        type: 'string',
+      },
     ],
     name: 'initialize',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'owner',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'address',
         name: 'operator',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'isApprovedForAll',
     outputs: [
       {
         internalType: 'bool',
         name: '',
-        type: 'bool'
-      }
+        type: 'bool',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -1510,34 +1510,34 @@ export const LIKE_NFT_CLASS_ABI = [
       {
         internalType: 'uint64',
         name: '',
-        type: 'uint64'
-      }
+        type: 'uint64',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'to',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'string[]',
         name: 'memos',
-        type: 'string[]'
+        type: 'string[]',
       },
       {
         internalType: 'string[]',
         name: 'metadataList',
-        type: 'string[]'
-      }
+        type: 'string[]',
+      },
     ],
     name: 'mint',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -1546,11 +1546,11 @@ export const LIKE_NFT_CLASS_ABI = [
       {
         internalType: 'string',
         name: '',
-        type: 'string'
-      }
+        type: 'string',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -1559,267 +1559,267 @@ export const LIKE_NFT_CLASS_ABI = [
       {
         internalType: 'address',
         name: '',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'bytes32',
         name: 'role',
-        type: 'bytes32'
+        type: 'bytes32',
       },
       {
         internalType: 'address',
         name: 'account',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'ownerGrantRole',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'uint256',
         name: 'tokenId',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'ownerOf',
     outputs: [
       {
         internalType: 'address',
         name: '',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'bytes32',
         name: 'role',
-        type: 'bytes32'
+        type: 'bytes32',
       },
       {
         internalType: 'address',
         name: 'account',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'ownerRevokeRole',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
     name: 'renounceOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'bytes32',
         name: 'role',
-        type: 'bytes32'
+        type: 'bytes32',
       },
       {
         internalType: 'address',
         name: 'callerConfirmation',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'renounceRole',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'bytes32',
         name: 'role',
-        type: 'bytes32'
+        type: 'bytes32',
       },
       {
         internalType: 'address',
         name: 'account',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'revokeRole',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'uint256',
         name: '',
-        type: 'uint256'
+        type: 'uint256',
       },
       {
         internalType: 'uint256',
         name: 'salePrice',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'royaltyInfo',
     outputs: [
       {
         internalType: 'address',
         name: 'receiver',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'uint256',
         name: 'royaltyAmount',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'uint256',
         name: 'fromTokenId',
-        type: 'uint256'
+        type: 'uint256',
       },
       {
         internalType: 'address[]',
         name: 'tos',
-        type: 'address[]'
+        type: 'address[]',
       },
       {
         internalType: 'string[]',
         name: 'memos',
-        type: 'string[]'
+        type: 'string[]',
       },
       {
         internalType: 'string[]',
         name: 'metadataList',
-        type: 'string[]'
-      }
+        type: 'string[]',
+      },
     ],
     name: 'safeMintWithTokenId',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'from',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'address',
         name: 'to',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'uint256',
         name: 'tokenId',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'safeTransferFrom',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'from',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'address',
         name: 'to',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'uint256',
         name: 'tokenId',
-        type: 'uint256'
+        type: 'uint256',
       },
       {
         internalType: 'bytes',
         name: 'data',
-        type: 'bytes'
-      }
+        type: 'bytes',
+      },
     ],
     name: 'safeTransferFrom',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'operator',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'bool',
         name: 'approved',
-        type: 'bool'
-      }
+        type: 'bool',
+      },
     ],
     name: 'setApprovalForAll',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'uint96',
         name: 'royaltyFraction',
-        type: 'uint96'
-      }
+        type: 'uint96',
+      },
     ],
     name: 'setRoyaltyFraction',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'bytes4',
         name: 'interfaceId',
-        type: 'bytes4'
-      }
+        type: 'bytes4',
+      },
     ],
     name: 'supportsInterface',
     outputs: [
       {
         internalType: 'bool',
         name: '',
-        type: 'bool'
-      }
+        type: 'bool',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -1828,73 +1828,73 @@ export const LIKE_NFT_CLASS_ABI = [
       {
         internalType: 'string',
         name: '',
-        type: 'string'
-      }
+        type: 'string',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'uint256',
         name: 'index',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'tokenByIndex',
     outputs: [
       {
         internalType: 'uint256',
         name: '',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'owner',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'uint256',
         name: 'index',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'tokenOfOwnerByIndex',
     outputs: [
       {
         internalType: 'uint256',
         name: '',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'uint256',
         name: '_tokenId',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'tokenURI',
     outputs: [
       {
         internalType: 'string',
         name: '',
-        type: 'string'
-      }
+        type: 'string',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [],
@@ -1903,75 +1903,75 @@ export const LIKE_NFT_CLASS_ABI = [
       {
         internalType: 'uint256',
         name: '',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'from',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'address',
         name: 'to',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'uint256',
         name: 'tokenId',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     name: 'transferFrom',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'newOwner',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'transferOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'address',
         name: 'from',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'address',
         name: 'to',
-        type: 'address'
+        type: 'address',
       },
       {
         internalType: 'uint256',
         name: '_tokenId',
-        type: 'uint256'
+        type: 'uint256',
       },
       {
         internalType: 'string',
         name: 'memo',
-        type: 'string'
-      }
+        type: 'string',
+      },
     ],
     name: 'transferWithMemo',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
@@ -1980,50 +1980,50 @@ export const LIKE_NFT_CLASS_ABI = [
           {
             internalType: 'string',
             name: 'name',
-            type: 'string'
+            type: 'string',
           },
           {
             internalType: 'string',
             name: 'symbol',
-            type: 'string'
+            type: 'string',
           },
           {
             internalType: 'string',
             name: 'metadata',
-            type: 'string'
+            type: 'string',
           },
           {
             internalType: 'uint64',
             name: 'max_supply',
-            type: 'uint64'
-          }
+            type: 'uint64',
+          },
         ],
         internalType: 'struct BookConfig',
         name: 'config',
-        type: 'tuple'
-      }
+        type: 'tuple',
+      },
     ],
     name: 'update',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
+    type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'uint256',
         name: 'tokenId',
-        type: 'uint256'
+        type: 'uint256',
       },
       {
         internalType: 'string',
         name: 'metadata',
-        type: 'string'
-      }
+        type: 'string',
+      },
     ],
     name: 'updateTokenMetadata',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
-  }
+    type: 'function',
+  },
 ] as const

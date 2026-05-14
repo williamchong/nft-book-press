@@ -1,13 +1,13 @@
 interface UseMessageCharCountReturn {
-  messageCharCount: ComputedRef<number>;
-  isLimitReached: ComputedRef<boolean>;
+  messageCharCount: ComputedRef<number>
+  isLimitReached: ComputedRef<boolean>
 }
 
-function isFullWidthChar (char: string): boolean {
+function isFullWidthChar(char: string): boolean {
   return char.charCodeAt(0) > 255
 }
 
-export function useMessageCharCount (memo: Ref<string | undefined>, limit: number): UseMessageCharCountReturn {
+export function useMessageCharCount(memo: Ref<string | undefined>, limit: number): UseMessageCharCountReturn {
   const messageCharCount = computed((): number => {
     const value = memo.value || ''
     let count = 0
@@ -26,6 +26,6 @@ export function useMessageCharCount (memo: Ref<string | undefined>, limit: numbe
 
   return {
     messageCharCount,
-    isLimitReached
+    isLimitReached,
   }
 }

@@ -10,7 +10,7 @@ export enum BookUploadStatus {
   MINTED = 'minted',
   LISTING = 'listing',
   COMPLETED = 'completed',
-  FAILED = 'failed'
+  FAILED = 'failed',
 }
 
 export interface BulkUploadCSVRow {

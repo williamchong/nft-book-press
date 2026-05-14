@@ -22,7 +22,11 @@
         :ui="{ body: 'space-y-4', footer: 'flex justify-end' }"
       >
         <UFormField :label="$t('purchase_link.destination')">
-          <USelect v-model="destinationSetting" :items="destinationSettings" option-attribute="name" />
+          <USelect
+            v-model="destinationSetting"
+            :items="destinationSettings"
+            option-attribute="name"
+          />
         </UFormField>
 
         <UFormField
@@ -78,7 +82,10 @@
           </div>
 
           <template #help>
-            <USwitch v-model="isIncludeDefaultChannels" :disabled="!customChannelInput" />
+            <USwitch
+              v-model="isIncludeDefaultChannels"
+              :disabled="!customChannelInput"
+            />
             <span v-text="$t('purchase_link.include_default_channels')" />
           </template>
         </UFormField>
@@ -90,14 +97,17 @@
           :items="[{
             label: $t('purchase_link.query_string_optional'),
             defaultOpen: true,
-            slot: 'body'
+            slot: 'body',
           }]"
           :ui="{ content: 'p-0' }"
         >
           <template #body>
             <UCard :ui="{ body: 'space-y-4' }">
               <div class="relative flex max-md:flex-col flex-wrap gap-4">
-                <UFormField class="flex-1" :label="$t('purchase_link.utm_campaign')">
+                <UFormField
+                  class="flex-1"
+                  :label="$t('purchase_link.utm_campaign')"
+                >
                   <UInput
                     v-model="utmCampaignInput"
                     class="font-mono"
@@ -105,7 +115,10 @@
                     :placeholder="`e.g. ${utmCampaignDefault}`"
                   />
                 </UFormField>
-                <UFormField class="flex-1" :label="$t('purchase_link.utm_source')">
+                <UFormField
+                  class="flex-1"
+                  :label="$t('purchase_link.utm_source')"
+                >
                   <UInput
                     v-model="utmSourceInput"
                     class="font-mono"
@@ -113,7 +126,10 @@
                     :placeholder="`e.g. ${utmSourceDefault}`"
                   />
                 </UFormField>
-                <UFormField class="flex-1" :label="$t('purchase_link.utm_medium')">
+                <UFormField
+                  class="flex-1"
+                  :label="$t('purchase_link.utm_medium')"
+                >
                   <UInput
                     v-model="utmMediumInput"
                     class="font-mono"
@@ -160,15 +176,21 @@
           />
         </header>
 
-        <UCard v-if="hasMoreThanOneChannel && productTableRows.length" :ui="{ body: 'p-0' }">
+        <UCard
+          v-if="hasMoreThanOneChannel && productTableRows.length"
+          :ui="{ body: 'p-0' }"
+        >
           <template #header>
-            <h3 class="text-lg font-bold" v-text="$t('purchase_link.product_list')" />
+            <h3
+              class="text-lg font-bold"
+              v-text="$t('purchase_link.product_list')"
+            />
           </template>
 
           <UTable
             :columns="[
               { accessorKey: 'name', header: $t('table.name') },
-              { accessorKey: 'editionSelect', header: $t('table.selected_edition') }
+              { accessorKey: 'editionSelect', header: $t('table.selected_edition') },
             ]"
             :data="productTableRows"
           >
@@ -192,13 +214,16 @@
           :ui="{ body: 'p-0' }"
         >
           <template #header>
-            <h3 class="text-lg font-bold" v-text="$t('purchase_link.common_query_string')" />
+            <h3
+              class="text-lg font-bold"
+              v-text="$t('purchase_link.common_query_string')"
+            />
           </template>
 
           <UTable
             :columns="[
               { accessorKey: 'key', header: $t('table.key') },
-              { accessorKey: 'value', header: $t('table.value') }
+              { accessorKey: 'value', header: $t('table.value') },
             ]"
             :data="commonQueryStringTableRows"
             :ui="{ td: 'font-mono' }"
@@ -208,10 +233,13 @@
         <UCard
           :ui="{
             header: 'flex justify-between items-center gap-4',
-            body: hasMoreThanOneChannel ? 'space-y-8' : 'space-y-8 p-0'
+            body: hasMoreThanOneChannel ? 'space-y-8' : 'space-y-8 p-0',
           }"
         >
-          <template v-if="hasMoreThanOneChannel" #header>
+          <template
+            v-if="hasMoreThanOneChannel"
+            #header
+          >
             <h2
               class="text-lg font-bold"
               v-text="$t('purchase_link.affiliation_links')"
@@ -240,7 +268,7 @@
                     icon: 'i-heroicons-sparkles',
                     onSelect: shortenAllLinks,
                   },
-                ]
+                ],
               ]"
               :popper="{ placement: 'top-end' }"
             >
@@ -258,7 +286,7 @@
             :class="['overflow-hidden', hasMoreThanOneChannel ? '' : 'ring-0 shadow-none']"
             :ui="{
               header: 'flex justify-between items-center gap-4',
-              body: 'p-0'
+              body: 'p-0',
             }"
           >
             <template #header>
@@ -305,7 +333,7 @@
                       icon: 'i-heroicons-document-duplicate',
                       onSelect: shareTableLinkByChannelId(channel.id),
                     },
-                  ]
+                  ],
                 ]"
                 :popper="{ placement: 'top-end' }"
               >
@@ -325,7 +353,10 @@
               <template #productId-cell="{ row }">
                 <div v-text="row.original.productName" />
               </template>
-              <template v-if="!hasMoreThanOneChannel" #selectedEditionLabel-cell="{ row }">
+              <template
+                v-if="!hasMoreThanOneChannel"
+                #selectedEditionLabel-cell="{ row }"
+              >
                 <USelect
                   v-if="productEditionOptionsMap?.[row.original.productId]?.length"
                   class="min-w-[200px]"
@@ -335,7 +366,10 @@
                 />
               </template>
               <template #utmCampaign-cell="{ row }">
-                <UKbd class="font-mono" :value="row.original.utmCampaign" />
+                <UKbd
+                  class="font-mono"
+                  :value="row.original.utmCampaign"
+                />
               </template>
               <template #link-cell="{ row }">
                 <div class="flex items-center gap-2">
@@ -406,10 +440,10 @@ const isSharingMode = computed({
     navigateTo(localeRoute({
       query: {
         ...route.query,
-        share: value ? '1' : undefined
-      }
+        share: value ? '1' : undefined,
+      },
     }), { replace: true })
-  }
+  },
 })
 
 const pageTitle = computed(() => {
@@ -418,7 +452,7 @@ const pageTitle = computed(() => {
 
 useSeoMeta({
   title: () => pageTitle.value,
-  ogTitle: () => pageTitle.value
+  ogTitle: () => pageTitle.value,
 })
 
 const productIdInputModelValue = ref('')
@@ -438,7 +472,7 @@ const productIdInputModel = computed<string>({
   },
   set: (value: string) => {
     productIdInputModelValue.value = value
-  }
+  },
 })
 
 const productIdInputs = computed(() => {
@@ -470,9 +504,9 @@ const productId = computed(() => {
   return productIds.value[0] || ''
 })
 
-function constructUTMQueryString (input: {
-  utmCampaign?: string,
-  utmSource?: string,
+function constructUTMQueryString(input: {
+  utmCampaign?: string
+  utmSource?: string
   utmMedium?: string
 } = {}) {
   const searchParams = new URLSearchParams()
@@ -513,19 +547,19 @@ const additionalQueryStringInput = computed({
     return constructUTMQueryString({
       utmCampaign: utmCampaignInput.value,
       utmSource: utmSourceInput.value,
-      utmMedium: utmMediumInput.value
+      utmMedium: utmMediumInput.value,
     })
   },
   set: (value) => {
     linkQueryInputModel.value = value
-  }
+  },
 })
 
 const additionalQueryStringInputPlaceholder = computed(() => {
   return constructUTMQueryString({
     utmCampaign: utmCampaignDefault,
     utmSource: utmSourceDefault.value,
-    utmMedium: utmMediumDefault
+    utmMedium: utmMediumDefault,
   })
 })
 
@@ -533,7 +567,7 @@ const linkQueryDefault = computed(() => {
   return {
     utm_medium: utmMediumDefault,
     utm_source: utmSourceDefault.value,
-    utm_campaign: utmCampaignDefault
+    utm_campaign: utmCampaignDefault,
   }
 })
 const mergedQueryStringObject = computed<Record<string, string>>(() => {
@@ -557,23 +591,23 @@ const commonQueryStringTableRows = computed(() => {
     .filter(([key]) => !(key === 'utm_campaign' && shouldPrefixChannelIdForUTMCampaign.value))
     .map(([key, value]) => ({
       key,
-      value
+      value,
     }))
 })
 
 const destinationSettings = computed(() => [
   {
     name: $t('purchase_link.liker_land_product'),
-    value: 'liker_land'
+    value: 'liker_land',
   },
   {
     name: $t('purchase_link.stripe_checkout'),
-    value: 'direct'
+    value: 'direct',
   },
   {
     name: $t('purchase_link.custom_page'),
-    value: 'custom'
-  }
+    value: 'custom',
+  },
 ])
 const destinationSetting = ref(destinationSettings.value[0]?.value || 'liker_land')
 const isUsingCustomDestination = computed(() => destinationSetting.value === 'custom')
@@ -596,7 +630,7 @@ const customChannelInput = computed<string>({
   },
   set: (value: string) => {
     customChannelInputValue.value = value
-  }
+  },
 })
 const customChannels = computed(
   () => customChannelInput.value
@@ -607,16 +641,16 @@ const customChannels = computed(
       const channelInfo = likerStore.getChannelInfoById(channelId)
       return {
         id: channelId,
-        name: channelInfo?.displayName || channelId
+        name: channelInfo?.displayName || channelId,
       }
-    })
+    }),
 )
 const shouldIncludeDefaultChannels = ref(false)
 const isIncludeDefaultChannels = computed({
   get: () => !customChannels.value.length || shouldIncludeDefaultChannels.value,
   set: (value) => {
     shouldIncludeDefaultChannels.value = value
-  }
+  },
 })
 const allChannelTableRows = computed(() => {
   return customChannels.value.concat(isIncludeDefaultChannels.value ? AFFILIATION_CHANNELS : [])
@@ -652,15 +686,17 @@ const productEditionOptionsMap = computed(() => {
           let name = ''
           if (typeof price.name === 'object') {
             name = price.name?.zh || price.name?.en || ''
-          } else {
+          }
+          else {
             name = price.name || ''
           }
           return {
             label: [name, `$${price.price}`].filter(Boolean).join(' - '),
-            value: price.index || 0
+            value: price.index || 0,
           }
         })
-      } else {
+      }
+      else {
         optionsMap[id] = []
       }
     }
@@ -673,7 +709,7 @@ const productTableRows = computed(() => {
   return productDataList.value?.map(({ id, data }) => ({
     id,
     name: typeof data.name === 'object' ? (data.name?.zh || data.name?.en) : data.name,
-    editionOptions: productEditionOptionsMap.value[id] || []
+    editionOptions: productEditionOptionsMap.value[id] || [],
   })) || []
 })
 
@@ -682,39 +718,39 @@ const linkTableColumns = computed(() => {
   if (!isUsingCustomDestination.value) {
     cols.push({
       accessorKey: 'productId',
-      header: $t('common.title')
+      header: $t('common.title'),
     },
     {
       accessorKey: 'selectedEditionLabel',
-      header: $t('table.selected_edition')
+      header: $t('table.selected_edition'),
     })
   }
 
   if (!isSharingMode.value) {
     cols.push({
       accessorKey: 'utmCampaign',
-      header: $t('purchase_link.utm_campaign')
+      header: $t('purchase_link.utm_campaign'),
     })
   }
   cols.push({
     accessorKey: 'link',
-    header: $t('common.link')
+    header: $t('common.link'),
   })
   return cols
 })
 
 interface AffiliationLink {
-  productId: string,
-  productName: string,
-  selectedEditionLabel: string,
-  selectedEditionIndex: number,
-  channelId: string,
-  channelName: string,
-  utmCampaign: string,
-  utmMedium: string,
-  utmSource: string,
-  url: string,
-  qrCodeUrl: string,
+  productId: string
+  productName: string
+  selectedEditionLabel: string
+  selectedEditionIndex: number
+  channelId: string
+  channelName: string
+  utmCampaign: string
+  utmMedium: string
+  utmSource: string
+  url: string
+  qrCodeUrl: string
 }
 
 const linkTableRowsMapByChannel = computed(() => {
@@ -754,8 +790,8 @@ const linkTableRowsMapByChannel = computed(() => {
         isUseLikerLandLink: destinationSetting.value === 'liker_land',
         query: {
           utm_campaign: utmCampaign,
-          ...mergedQueryStringObject.value
-        }
+          ...mergedQueryStringObject.value,
+        },
       }
 
       map.get(channel.id)?.push({
@@ -771,8 +807,8 @@ const linkTableRowsMapByChannel = computed(() => {
         url: getPurchaseLink(urlConfig),
         qrCodeUrl: getPurchaseLink({
           ...urlConfig,
-          isForQRCode: mergedQueryStringObject.value.utm_source === linkQueryDefault.value.utm_source
-        })
+          isForQRCode: mergedQueryStringObject.value.utm_source === linkQueryDefault.value.utm_source,
+        }),
       })
     })
   })
@@ -781,7 +817,7 @@ const linkTableRowsMapByChannel = computed(() => {
 })
 
 const linkTableRows = computed(() =>
-  allChannelTableRows.value.flatMap(channel => linkTableRowsMapByChannel.value.get(channel.id) || [])
+  allChannelTableRows.value.flatMap(channel => linkTableRowsMapByChannel.value.get(channel.id) || []),
 )
 
 const getLinkTableRowsMapByChannel = (channelId: string) => linkTableRowsMapByChannel.value.get(channelId) || []
@@ -793,18 +829,18 @@ const isOpenQRCodeModal = computed({
     if (!value) {
       selectedPurchaseLink.value = undefined
     }
-  }
+  },
 })
 
-async function fetchProductData (id: string) {
+async function fetchProductData(id: string) {
   const classData = await $fetch<ProductData>(`${LIKE_CO_API}/likernft/book/store/${id}`)
   return {
     id,
-    data: classData
+    data: classData,
   }
 }
 
-async function createAffiliationLink () {
+async function createAffiliationLink() {
   productIdError.value = false
   productDataList.value = undefined
   productEditionSelectModelValue.value = {}
@@ -840,7 +876,8 @@ async function createAffiliationLink () {
             throw new Error($t('purchase_link.channel_stripe_incomplete'))
           }
         }))
-      } catch (error) {
+      }
+      catch (error) {
         customChannelInputError.value = (error as Error).message
         isSharingMode.value = false
         return
@@ -853,31 +890,35 @@ async function createAffiliationLink () {
       const dataList = await Promise.all(productIds.value.map(id => fetchProductData(id)))
       productDataList.value = dataList
       useLogEvent('purchase_link_created', { product_count: dataList.length })
-    } catch (error) {
+    }
+    catch (error) {
       productIdError.value = (error as Error).message
       isSharingMode.value = false
     }
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: $t('purchase_link.failed_create_link'),
       duration: 0,
-      color: 'error'
+      color: 'error',
     })
     isSharingMode.value = false
-  } finally {
+  }
+  finally {
     creatingAffiliationLinkState.value = ''
   }
 }
 
-function getQRCodeFilename (link: AffiliationLink) {
+function getQRCodeFilename(link: AffiliationLink) {
   const filenameParts: string[] = []
   if (isUsingCustomDestination.value) {
     const url = new URL(customDestinationURLInput.value)
     filenameParts.push(url.hostname)
-  } else {
+  }
+  else {
     filenameParts.push(`${link.productName || link.productId}`)
   }
   if (link.channelId) {
@@ -886,12 +927,12 @@ function getQRCodeFilename (link: AffiliationLink) {
   return filenameParts.join('_')
 }
 
-function copyLink (text = '') {
+function copyLink(text = '') {
   useLogEvent('purchase_link_copy')
   copyToClipboard(text, $t('purchase_link.copied_to_clipboard'))
 }
 
-function downloadPurchaseLinksByTableRows (rows: AffiliationLink[] = [], channelId?: string) {
+function downloadPurchaseLinksByTableRows(rows: AffiliationLink[] = [], channelId?: string) {
   useLogEvent('purchase_link_download_csv', { count: rows.length, channel_id: channelId })
   downloadFile({
     data: rows.map(({
@@ -900,77 +941,79 @@ function downloadPurchaseLinksByTableRows (rows: AffiliationLink[] = [], channel
       selectedEditionLabel, ...link
     }) => ({
       edition: `${selectedEditionIndex + 1}. ${selectedEditionLabel}`,
-      ...link
+      ...link,
     })),
     fileName: ['affiliation_links', channelId, Date.now()].filter(Boolean).join('_').concat('.csv'),
-    fileType: 'csv'
+    fileType: 'csv',
   })
 }
 
-function downloadAllPurchaseLinks () {
+function downloadAllPurchaseLinks() {
   downloadPurchaseLinksByTableRows(linkTableRows.value)
 }
 
-function downloadPurchaseLinksByChannelId (channelId: string) {
+function downloadPurchaseLinksByChannelId(channelId: string) {
   return () => downloadPurchaseLinksByTableRows(getLinkTableRowsMapByChannel(channelId))
 }
 
-function printQRCodesByTableRows (rows: AffiliationLink[] = []) {
+function printQRCodesByTableRows(rows: AffiliationLink[] = []) {
   useLogEvent('purchase_link_print_qr', { count: rows.length })
   try {
     sessionStorage.setItem(
       'nft_book_press_batch_qrcode',
-      convertArrayOfObjectsToCSV(rows.map(({ channelId, qrCodeUrl, ...link }) => ({ key: channelId, ...link, url: qrCodeUrl })))
+      convertArrayOfObjectsToCSV(rows.map(({ channelId, qrCodeUrl, ...link }) => ({ key: channelId, ...link, url: qrCodeUrl }))),
     )
     window.open('/batch-qrcode?print=1', 'batch_qrcode', 'popup,menubar=no,location=no,status=no')
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: $t('purchase_link.failed_print_qr'),
       duration: 0,
-      color: 'error'
+      color: 'error',
     })
   }
 }
 
-function printAllQRCodes () {
+function printAllQRCodes() {
   printQRCodesByTableRows(linkTableRows.value)
 }
 
-function printQRCodesByChannelId (channelId: string) {
+function printQRCodesByChannelId(channelId: string) {
   return () => printQRCodesByTableRows(getLinkTableRowsMapByChannel(channelId))
 }
 
-function shortenLinksByTableRows (rows: AffiliationLink[] = []) {
+function shortenLinksByTableRows(rows: AffiliationLink[] = []) {
   try {
     sessionStorage.setItem(
       'nft_book_press_batch_shorten_url',
-      convertArrayOfObjectsToCSV(rows.map(({ channelId, ...link }) => ({ key: channelId, ...link })))
+      convertArrayOfObjectsToCSV(rows.map(({ channelId, ...link }) => ({ key: channelId, ...link }))),
     )
     navigateTo(localeRoute({ name: 'batch-short-links', query: { print: 1 } }))
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: $t('purchase_link.failed_shorten_links'),
       duration: 0,
-      color: 'error'
+      color: 'error',
     })
   }
 }
 
-function shortenAllLinks () {
+function shortenAllLinks() {
   shortenLinksByTableRows(linkTableRows.value)
 }
 
-function shortenLinksByChannelId (channelId: string) {
+function shortenLinksByChannelId(channelId: string) {
   return () => shortenLinksByTableRows(getLinkTableRowsMapByChannel(channelId))
 }
 
-function shareTableLinkByChannelId (channelId: string) {
+function shareTableLinkByChannelId(channelId: string) {
   return () => {
     const url = new URL(`${SITE_URL}/affiliation-link`)
     url.searchParams.set('from', channelId)
@@ -984,26 +1027,26 @@ function shareTableLinkByChannelId (channelId: string) {
   }
 }
 
-async function downloadQRCodesByTableRows (rows: AffiliationLink[] = [], channelId?: string) {
+async function downloadQRCodesByTableRows(rows: AffiliationLink[] = [], channelId?: string) {
   useLogEvent('purchase_link_download_qr', { count: rows.length, channel_id: channelId })
   const items = rows.map(link => ({
     url: link.qrCodeUrl,
-    filename: getQRCodeFilename(link)
+    filename: getQRCodeFilename(link),
   }))
   await downloadQRCodes(items, {
-    zipFilename: ['affiliation_links_qrcodes', channelId, Date.now()].filter(Boolean).join('_')
+    zipFilename: ['affiliation_links_qrcodes', channelId, Date.now()].filter(Boolean).join('_'),
   })
 }
 
-async function downloadAllQRCodes () {
+async function downloadAllQRCodes() {
   await downloadQRCodesByTableRows(linkTableRows.value)
 }
 
-function downloadQRCodesByChannelId (channelId: string) {
+function downloadQRCodesByChannelId(channelId: string) {
   return () => downloadQRCodesByTableRows(getLinkTableRowsMapByChannel(channelId), channelId)
 }
 
-function prefillChannelIdIfPossible () {
+function prefillChannelIdIfPossible() {
   if (!customChannelInput.value && userLikerInfo.value) {
     customChannelInput.value = convertLikerIdToChannelId(userLikerInfo.value.user)
   }
@@ -1022,7 +1065,8 @@ onMounted(() => {
 watch(isSharingMode, (value) => {
   if (value) {
     createAffiliationLink()
-  } else {
+  }
+  else {
     productDataList.value = undefined
   }
 })

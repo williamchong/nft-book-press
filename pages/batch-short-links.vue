@@ -46,9 +46,16 @@
 
       <UCard :ui="{ body: 'space-y-2' }">
         <UFormField :label="$t('batch_short_links.upload_csv')">
-          <UInput type="file" accept="csv" @change="handleFileChange" />
+          <UInput
+            type="file"
+            accept="csv"
+            @change="handleFileChange"
+          />
         </UFormField>
-        <USeparator class="print:hidden" :label="$t('batch_short_links.or_divider')" />
+        <USeparator
+          class="print:hidden"
+          :label="$t('batch_short_links.or_divider')"
+        />
         <UFormField :label="$t('batch_short_links.input_csv')">
           <UTextarea
             v-model="csvInput"
@@ -72,7 +79,7 @@
         <UCard
           :ui="{
             header: 'flex justify-between items-center gap-2',
-            body: 'p-0'
+            body: 'p-0',
           }"
         >
           <template #header>
@@ -135,6 +142,7 @@
 import { parse as csvParse } from 'csv-parse/sync'
 
 import { convertArrayOfObjectsToCSV } from '~/utils'
+
 const { t: $t } = useI18n()
 
 const { showErrorToast } = useToastComposable()
@@ -145,17 +153,17 @@ const CSV_HEADER = 'key,url'
 
 enum ShortLinkProvider {
   Bitly = 'bitly',
-  ShortIO = 'shortio'
+  ShortIO = 'shortio',
 }
 const shortLinkProviders = [
   {
     label: 'Bitly',
-    value: ShortLinkProvider.Bitly
+    value: ShortLinkProvider.Bitly,
   },
   {
     label: 'Short.io',
-    value: ShortLinkProvider.ShortIO
-  }
+    value: ShortLinkProvider.ShortIO,
+  },
 ]
 const shortLinkProvider = ref<ShortLinkProvider>(route.query.provider as ShortLinkProvider || ShortLinkProvider.Bitly)
 const shouldShowShortLinkDomain = computed(() => shortLinkProvider.value === ShortLinkProvider.ShortIO)
@@ -181,7 +189,7 @@ const shortenedURLItems = ref<{ key: string, url: string, destination: string }[
 
 useSeoMeta({
   title: 'Batch Create Book Short Links',
-  ogTitle: 'Batch Create Book Short Links'
+  ogTitle: 'Batch Create Book Short Links',
 })
 
 onMounted(() => {
@@ -191,33 +199,35 @@ onMounted(() => {
       csvInput.value = loadedInput
       sessionStorage.removeItem('nft_book_press_batch_shorten_url')
     }
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
   }
 })
 
-async function shortenURLWithBitly ({ url, key }: { url: string, key: string }) {
+async function shortenURLWithBitly({ url, key }: { url: string, key: string }) {
   try {
     const data = await $fetch<{ link: string }>('https://api-ssl.bitly.com/v4/bitlinks', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${apiKey.value}`
+        Authorization: `Bearer ${apiKey.value}`,
       },
       body: {
         long_url: url,
         domain: 'bit.ly',
         title: [titlePrefix.value, key].join(' - '),
         tags: [
-          'nft-book-press'
-        ]
-      }
+          'nft-book-press',
+        ],
+      },
     })
     if (!data) {
       throw new Error($t('batch_short_links.bitly_no_data'))
     }
     return data.link
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
     showErrorToast(error)
@@ -225,12 +235,12 @@ async function shortenURLWithBitly ({ url, key }: { url: string, key: string }) 
   }
 }
 
-async function shortenURLWithShortIO ({ url, key }: { url: string, key: string }) {
+async function shortenURLWithShortIO({ url, key }: { url: string, key: string }) {
   try {
     const data = await $fetch<{ shortURL: string }>('https://api.short.io/links/public', {
       method: 'POST',
       headers: {
-        Authorization: apiKey.value
+        Authorization: apiKey.value,
       },
       body: {
         allowDuplicates: true,
@@ -238,15 +248,16 @@ async function shortenURLWithShortIO ({ url, key }: { url: string, key: string }
         originalURL: url,
         title: [titlePrefix.value, key].join(' - '),
         tags: [
-          'nft-book-press'
-        ]
-      }
+          'nft-book-press',
+        ],
+      },
     })
     if (!data) {
       throw new Error($t('batch_short_links.shortio_no_data'))
     }
     return data.shortURL
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
     showErrorToast(error)
@@ -254,7 +265,7 @@ async function shortenURLWithShortIO ({ url, key }: { url: string, key: string }
   }
 }
 
-async function startShorteningURLs () {
+async function startShorteningURLs() {
   let urlItems: { key: string, url: string }[] = []
   try {
     let input = csvInput.value
@@ -263,9 +274,10 @@ async function startShorteningURLs () {
     }
     urlItems = csvParse(input, {
       columns: true,
-      skip_empty_lines: true
+      skip_empty_lines: true,
     })
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
     showErrorToast(error)
@@ -288,30 +300,31 @@ async function startShorteningURLs () {
       shortenedURLItems.value.push({
         key,
         url: shortenedURL,
-        destination: url
+        destination: url,
       })
     }
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
     showErrorToast(error)
   }
 }
 
-function downloadAllShortenedLinks () {
+function downloadAllShortenedLinks() {
   downloadFile({
     data: shortenedURLItems.value,
     fileName: 'shortened_links.csv',
-    fileType: 'csv'
+    fileType: 'csv',
   })
 }
 
-async function convertToQRCode () {
+async function convertToQRCode() {
   sessionStorage.setItem('nft_book_press_batch_qrcode', convertArrayOfObjectsToCSV(shortenedURLItems.value))
   await navigateTo(localeRoute({ name: 'batch-qrcode' }))
 }
 
-function handleFileChange (event: Event) {
+function handleFileChange(event: Event) {
   const files = (event.target as HTMLInputElement)?.files
   if (!files?.length) { return }
   const file = files[0]
@@ -325,5 +338,4 @@ function handleFileChange (event: Event) {
   }
   reader.readAsText(file)
 }
-
 </script>

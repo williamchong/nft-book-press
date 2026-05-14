@@ -15,28 +15,28 @@ let cachedSmartWalletClient: any | null = null
 let cachedMagicInstance: Magic | null = null
 let pendingClientCreation: Promise<any> | null = null
 
-async function loadAlchemyModules () {
+async function loadAlchemyModules() {
   const [aaSdk, infra, walletClient] = await Promise.all([
     import('@aa-sdk/core'),
     import('@account-kit/infra'),
-    import('@account-kit/wallet-client')
+    import('@account-kit/wallet-client'),
   ])
   return {
     WalletClientSigner: aaSdk.WalletClientSigner,
     alchemy: infra.alchemy,
     base: infra.base,
     baseSepolia: infra.baseSepolia,
-    createSmartWalletClient: walletClient.createSmartWalletClient
+    createSmartWalletClient: walletClient.createSmartWalletClient,
   }
 }
 
-function clearSponsoredClientCache () {
+function clearSponsoredClientCache() {
   cachedSmartWalletClient = null
   cachedMagicInstance = null
   pendingClientCreation = null
 }
 
-export function useSponsoredTransaction () {
+export function useSponsoredTransaction() {
   const config = useRuntimeConfig()
   const { address, connector } = useConnection()
 
@@ -45,12 +45,12 @@ export function useSponsoredTransaction () {
   const isLoginWithMagic = computed(() => connector.value?.id === 'magic')
 
   const isSponsoredMode = computed(() =>
-    !!isLoginWithMagic.value &&
-    !!alchemyApiKey.value &&
-    !!config.public.ALCHEMY_GAS_POLICY_ID
+    !!isLoginWithMagic.value
+    && !!alchemyApiKey.value
+    && !!config.public.ALCHEMY_GAS_POLICY_ID,
   )
 
-  function getMagicInstance (): Promise<Magic> {
+  function getMagicInstance(): Promise<Magic> {
     const c = toRaw(connector.value) as any
     if (!c) {
       throw new Error('Magic connector not available')
@@ -64,7 +64,7 @@ export function useSponsoredTransaction () {
     throw new Error('Magic connector not available')
   }
 
-  async function createSmartWalletClient () {
+  async function createSmartWalletClient() {
     const magic = await getMagicInstance()
 
     if (!alchemyModules) {
@@ -77,7 +77,7 @@ export function useSponsoredTransaction () {
 
     const walletClient = createWalletClient({
       chain: alchemyChain,
-      transport: custom(magic.rpcProvider as any)
+      transport: custom(magic.rpcProvider as any),
     })
 
     const baseSigner = new WalletClientSigner(walletClient, 'magic')
@@ -86,10 +86,10 @@ export function useSponsoredTransaction () {
       signAuthorization: async (unsignedAuth: any): Promise<any> => {
         const signature = await (magic.wallet as any).sign7702Authorization({
           ...unsignedAuth,
-          contractAddress: unsignedAuth.address ?? unsignedAuth.contractAddress
+          contractAddress: unsignedAuth.address ?? unsignedAuth.contractAddress,
         })
         return { ...unsignedAuth, ...signature }
-      }
+      },
     }
 
     const policyId = config.public.ALCHEMY_GAS_POLICY_ID as string
@@ -97,14 +97,14 @@ export function useSponsoredTransaction () {
       chain: alchemyChain,
       transport: alchemy({ apiKey }),
       signer: signer as any,
-      ...(policyId ? { policyId } : {})
+      ...(policyId ? { policyId } : {}),
     })
     cachedMagicInstance = magic
 
     return cachedSmartWalletClient
   }
 
-  async function getOrCreateSmartWalletClient () {
+  async function getOrCreateSmartWalletClient() {
     const magic = await getMagicInstance()
 
     if (cachedSmartWalletClient && cachedMagicInstance === magic) {
@@ -121,7 +121,7 @@ export function useSponsoredTransaction () {
     return pendingClientCreation
   }
 
-  async function sponsoredWriteContract (params: SponsoredWriteContractParams): Promise<Hash> {
+  async function sponsoredWriteContract(params: SponsoredWriteContractParams): Promise<Hash> {
     if (!address.value) {
       throw new Error('No connected account')
     }
@@ -133,7 +133,7 @@ export function useSponsoredTransaction () {
       const callData = encodeFunctionData({
         abi: params.abi as Abi,
         functionName: params.functionName,
-        args: params.args || []
+        args: params.args || [],
       })
 
       const result = await client.sendCalls({
@@ -141,16 +141,17 @@ export function useSponsoredTransaction () {
         calls: [{
           to: params.address,
           data: callData,
-          value: '0x0' as `0x${string}`
+          value: '0x0' as `0x${string}`,
         }],
         capabilities: {
-          eip7702Auth: true
-        }
+          eip7702Auth: true,
+        },
       })
 
       const status = await client.waitForCallsStatus({ id: result.id })
       txHash = status.receipts?.[0]?.transactionHash as Hash | undefined
-    } catch (error) {
+    }
+    catch (error) {
       clearSponsoredClientCache()
       throw error
     }
@@ -169,6 +170,6 @@ export function useSponsoredTransaction () {
 
   return {
     isSponsoredMode,
-    sponsoredWriteContract
+    sponsoredWriteContract,
   }
 }

@@ -1,6 +1,6 @@
 import { useStorage } from '@vueuse/core'
 
-export function useOneTimePopup (key: string) {
+export function useOneTimePopup(key: string) {
   const storage = useStorage<boolean>(key, false)
   const show = ref(false)
 
@@ -10,7 +10,7 @@ export function useOneTimePopup (key: string) {
     }
   })
 
-  function close () {
+  function close() {
     show.value = false
     storage.value = true
   }

@@ -15,7 +15,10 @@
       @close="error = { message: '', actions: [] }"
     />
 
-    <UProgress v-if="isLoading" animation="carousel">
+    <UProgress
+      v-if="isLoading"
+      animation="carousel"
+    >
       <template #indicator>
         Loading...
       </template>
@@ -25,7 +28,7 @@
       v-if="bookstoreApiStore.isAuthenticated"
       :ui="{
         body: 'space-y-6',
-        footer: 'flex justify-center gap-2'
+        footer: 'flex justify-center gap-2',
       }"
     >
       <UCard :ui="{ body: 'p-0' }">
@@ -93,7 +96,10 @@
 
       <UCard>
         <div class="space-y-2 mb-4">
-          <h5 class="text-sm font-bold" v-text="`${$t('nft_book_form.buyer_message')}`" />
+          <h5
+            class="text-sm font-bold"
+            v-text="`${$t('nft_book_form.buyer_message')}`"
+          />
           <p v-text="orderInfo.message" />
         </div>
 
@@ -128,7 +134,10 @@
               :disabled="!isSingleQuantity"
               class="font-mono"
             >
-              <template v-if="orderInfo.quantity > 1" #leading>
+              <template
+                v-if="orderInfo.quantity > 1"
+                #leading
+              >
                 <span class="text-sm text-gray-400 dark:text-gray-600">#{{ i }}</span>
               </template>
             </UInput>
@@ -142,7 +151,10 @@
             color="primary"
             @click="handleConfirmNFTId"
           />
-          <USeparator v-if="isSingleQuantity" :class="['text-sm text-gray-600', 'sm:w-min']">
+          <USeparator
+            v-if="isSingleQuantity"
+            :class="['text-sm text-gray-600', 'sm:w-min']"
+          >
             OR
           </USeparator>
           <UButton
@@ -211,7 +223,7 @@ const { getBalanceOf, getTokenIdByOwnerIndex } = useNFTContractReader()
 const { assertSufficientBalanceForTransaction, waitForTransactionReceipt } = useNFTContractWriter()
 
 const { showErrorToast } = useToastComposable()
-const error = ref({ message: '', actions: [] as { label: string; variant: 'solid' | 'outline' | 'soft' | 'subtle' | 'ghost' | 'link'; color: 'error' | 'primary' | 'neutral'; click: () => void }[] })
+const error = ref({ message: '', actions: [] as { label: string, variant: 'solid' | 'outline' | 'soft' | 'subtle' | 'ghost' | 'link', color: 'error' | 'primary' | 'neutral', click: () => void }[] })
 const isLoading = ref(false)
 const classId = computed(() => route.params.classId as string)
 const paymentId = computed(() => route.query.payment_id as string)
@@ -265,15 +277,15 @@ onMounted(async () => {
   const data = await $fetch(`${LIKE_CO_API}/likernft/book/purchase/${classId.value}/status/${paymentId.value}`,
     {
       headers: {
-        authorization: `Bearer ${token.value}`
-      }
+        authorization: `Bearer ${token.value}`,
+      },
     })
   orderInfo.value = data as OrderInfo
   lazyFetchClassMetadataById(classId.value as string)
   await fetchNextNFTId(orderInfo.value.quantity || 1)
 })
 
-async function handleConfirmNFTId () {
+async function handleConfirmNFTId() {
   if (!hasValidNftInput.value) { return }
 
   try {
@@ -296,7 +308,7 @@ async function handleConfirmNFTId () {
 
     const [metadata, ownerResult] = await Promise.all([
       fetchNFTMetadata(),
-      getNFTOwner(classId.value, firstNftId)
+      getNFTOwner(classId.value, firstNftId),
     ])
     const owner = ownerResult as string
     if (!metadata || owner !== sessionWallet.value) {
@@ -306,14 +318,15 @@ async function handleConfirmNFTId () {
     }
 
     isNftIdConfirmed.value = true
-  } catch (err) {
+  }
+  catch (err) {
     validationError.value = (err as Error).message
     nftIds.value = []
     isNftIdConfirmed.value = false
   }
 }
 
-async function fetchNFTMetadata () {
+async function fetchNFTMetadata() {
   try {
     isVerifyingNFTId.value = true
     if (!nftIds.value.length || nftIds.value[0] === undefined) {
@@ -324,26 +337,30 @@ async function fetchNFTMetadata () {
       const metadata = await getNFTMetadata(classId.value, nftIds.value[0])
       nftImage.value = parseImageURLFromMetadata(metadata?.image || '')
       return metadata
-    } catch (err) {
+    }
+    catch (err) {
       nftImage.value = ''
       if ((err as { data?: { code?: number } })?.data?.code === 2) {
         nftIdError.value = 'NFT not found'
-      } else {
+      }
+      else {
         nftIdError.value = (err as Error).toString()
       }
     }
-  } catch (err) {
+  }
+  catch (err) {
     error.value = {
       message: (err as Error).toString(),
-      actions: []
+      actions: [],
     }
     showErrorToast(err)
-  } finally {
+  }
+  finally {
     isVerifyingNFTId.value = false
   }
 }
 
-async function fetchNextNFTId (_count = 1) {
+async function fetchNextNFTId(_count = 1) {
   try {
     nftIds.value = []
     nftIdError.value = false
@@ -380,7 +397,8 @@ async function fetchNextNFTId (_count = 1) {
     isNftIdConfirmed.value = true
 
     await fetchNFTMetadata()
-  } catch (err) {
+  }
+  catch (err) {
     const message = (err as Error).toString()
     nftIdError.value = message
     error.value = {
@@ -392,19 +410,19 @@ async function fetchNextNFTId (_count = 1) {
           color: 'error',
           click: () => {
             showRestockModal.value = true
-          }
-        }
-      ]
+          },
+        },
+      ],
     }
     showErrorToast(message)
   }
 }
 
-function onCheckOwnedIds () {
+function onCheckOwnedIds() {
   window.open(`${NFT_ITEM_URL}/${classId.value}`, '_blank', 'noopener')
 }
 
-async function onSendNFTStart () {
+async function onSendNFTStart() {
   if (isSendButtonDisabled.value) { return }
   try {
     isLoading.value = true
@@ -419,7 +437,8 @@ async function onSendNFTStart () {
         const mismatchNftId = nftIds.value[mismatchNftIdIndex]
         throw new Error(`NFT classId: ${classId.value} nftId:${mismatchNftId} is not owned by sender!`)
       }
-    } else {
+    }
+    else {
       await fetchNextNFTId(orderInfo.value.quantity || 1)
     }
 
@@ -431,13 +450,13 @@ async function onSendNFTStart () {
         wallet.value,
         Array(orderInfo.value.quantity).fill(orderInfo.value.wallet),
         nftIds.value,
-        Array(orderInfo.value.quantity).fill(memo.value)
-      ]
+        Array(orderInfo.value.quantity).fill(memo.value),
+      ],
     }
 
     await assertSufficientBalanceForTransaction({
       wallet: wallet.value,
-      ...txParams
+      ...txParams,
     })
 
     const txHash = await writeContractAsync(txParams)
@@ -448,36 +467,37 @@ async function onSendNFTStart () {
           method: 'POST',
           body: {
             txHash,
-            quantity: orderInfo.value.quantity || 1
+            quantity: orderInfo.value.quantity || 1,
           },
           headers: {
-            authorization: `Bearer ${token.value}`
-          }
+            authorization: `Bearer ${token.value}`,
+          },
         })
 
       await navigateTo(localeRoute({
         name: 'my-books-status-classId',
         params: {
-          classId: classId.value
-        }
+          classId: classId.value,
+        },
       }))
     }
-  } catch (err) {
+  }
+  catch (err) {
     // eslint-disable-next-line no-console
     console.error(err)
     error.value = {
       message: (err as Error).toString(),
-      actions: []
+      actions: [],
     }
     showErrorToast(err)
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
-function handleFinishRestock () {
+function handleFinishRestock() {
   showRestockModal.value = false
   fetchNextNFTId(orderInfo.value.quantity || 1)
 }
-
 </script>

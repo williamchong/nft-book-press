@@ -11,7 +11,10 @@
       @close="error = ''"
     />
 
-    <UProgress v-if="isLoading" animation="carousel">
+    <UProgress
+      v-if="isLoading"
+      animation="carousel"
+    >
       <template #indicator>
         Loading...
       </template>
@@ -45,7 +48,12 @@
                     {{ $t('table.showing_rows', { from: tablePageRowFrom, to: tablePageRowTo, total: tableRows.length }) }}
                   </span>
                 </div>
-                <UInput v-model="searchInput" class="max-w-xs" icon="i-heroicons-magnifying-glass-20-solid" :placeholder="$t('table.search_placeholder')" />
+                <UInput
+                  v-model="searchInput"
+                  class="max-w-xs"
+                  icon="i-heroicons-magnifying-glass-20-solid"
+                  :placeholder="$t('table.search_placeholder')"
+                />
               </div>
             </template>
             <!-- Table -->
@@ -74,7 +82,10 @@
                 <NFTClassMetadataLoader :class-id="row.original.classId">
                   <template #default="{ isLoading: isLoadingMetadata }">
                     <UProgress v-if="isLoadingMetadata || !row.original.className" />
-                    <div v-else class="max-w-xs truncate">
+                    <div
+                      v-else
+                      class="max-w-xs truncate"
+                    >
                       {{ row.original.className }}
                     </div>
                   </template>
@@ -125,23 +136,23 @@ const authorPromoFormUrl = computed(() => {
   const email = stripeStatus?.email || ''
   const baseUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSdiV9jIUFcDjoFoLtz6KMmq1YRFjU7uXR7ka36JKhVespsP6w/viewform'
   const params = new URLSearchParams({
-    usp: 'pp_url',
+    'usp': 'pp_url',
     'entry.1466422015': likerId,
     'entry.1252262934': evmWallet,
-    'entry.1672981182': email
+    'entry.1672981182': email,
   })
   return `${baseUrl}?${params.toString()}`
 })
 
 useSeoMeta({
   title: () => $t('seo_titles.book_listing_management'),
-  ogTitle: () => $t('seo_titles.book_listing_management')
+  ogTitle: () => $t('seo_titles.book_listing_management'),
 })
 
 // Tabs
 const tabItems = computed(() => [
   { label: $t('bookstore.current_listing'), value: 'current' },
-  { label: $t('bookstore.viewable_listing'), value: 'viewable' }
+  { label: $t('bookstore.viewable_listing'), value: 'viewable' },
 ])
 
 const selectedTabItemIndex = ref(route.query.tab as string || 'current')
@@ -157,7 +168,7 @@ const searchInput = ref('')
 
 const sort = ref({
   column: 'pendingAction',
-  direction: 'desc' as 'asc' | 'desc'
+  direction: 'desc' as 'asc' | 'desc',
 })
 
 // Pagination
@@ -174,7 +185,7 @@ const tableRows = computed(() => (selectedTabItemIndex.value === 'viewable' ? mo
   priceInUSD: b.prices?.[0]?.price,
   prices: b.prices?.map(p => p.price),
   pendingAction: b.pendingNFTCount,
-  sold: b.sold
+  sold: b.sold,
 })).filter((b) => {
   if (!searchInput.value) { return true }
   const normalizedSearchInput = searchInput.value.toLowerCase()
@@ -204,25 +215,25 @@ const paginatedTableRows = computed(() => {
 const tableColumns = computed(() => [
   {
     accessorKey: 'pendingAction',
-    header: $t('table.pending_action')
+    header: $t('table.pending_action'),
   },
   {
     accessorKey: 'className',
-    header: $t('table.class_name')
+    header: $t('table.class_name'),
   },
   {
     accessorKey: 'priceInUSD',
-    header: $t('table.price_in_usd')
+    header: $t('table.price_in_usd'),
   },
   {
     accessorKey: 'sold',
-    header: $t('table.sold')
+    header: $t('table.sold'),
   },
   {
     accessorKey: 'classId',
     header: $t('bookstore.class_id'),
-    meta: { class: { td: 'font-mono' } }
-  }
+    meta: { class: { td: 'font-mono' } },
+  },
 ])
 
 whenever(isLoading, () => { error.value = '' })
@@ -251,11 +262,11 @@ onMounted(async () => {
   classIds.forEach(classId => lazyFetchClassMetadataById(classId))
 })
 
-async function selectTableRow (row: { original: { classId: string } }) {
+async function selectTableRow(row: { original: { classId: string } }) {
   useLogEvent('my_books_view_detail', { class_id: row.original.classId })
   await navigateTo(localeRoute({
     name: 'my-books-status-classId',
-    params: { classId: row.original.classId }
+    params: { classId: row.original.classId },
   }))
 }
 </script>

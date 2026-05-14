@@ -16,7 +16,10 @@
       variant="solid"
       @click="handleConnect('magic')"
     >
-      <span class="grow mr-[28px]" v-text="$t('login_panel_continue_with_email')" />
+      <span
+        class="grow mr-[28px]"
+        v-text="$t('login_panel_continue_with_email')"
+      />
     </UButton>
 
     <template v-if="othersConnectors.length">
@@ -47,7 +50,10 @@
                 :alt="connector.name"
               />
             </template>
-            <span class="grow mr-[28px]" v-text="connector.name" />
+            <span
+              class="grow mr-[28px]"
+              v-text="connector.name"
+            />
           </UButton>
         </li>
       </ul>
@@ -72,9 +78,8 @@ const { connectors, error } = useConnect()
 
 const othersConnectors = computed(() => connectors.filter(c => !['magic', 'injected'].includes(c.id)))
 
-function handleConnect (connectorId = '') {
+function handleConnect(connectorId = '') {
   useLogEvent('login_panel_connect', { method: connectorId })
   emit('connect', connectorId)
 }
-
 </script>

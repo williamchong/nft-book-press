@@ -8,12 +8,25 @@
         @dragleave.prevent="isDragging = false"
         @click="($refs.imageFile as HTMLInputElement)?.click()"
       >
-        <UIcon name="i-heroicons-folder-arrow-down" class="w-5 h-5" />
-        <p class="text-gray-600 my-[16px]" v-text="$t('upload_form.drag_files_here')" />
-        <UButton type="button" variant="ghost" @click.stop="($refs.imageFile as HTMLInputElement)?.click()">
+        <UIcon
+          name="i-heroicons-folder-arrow-down"
+          class="w-5 h-5"
+        />
+        <p
+          class="text-gray-600 my-[16px]"
+          v-text="$t('upload_form.drag_files_here')"
+        />
+        <UButton
+          type="button"
+          variant="ghost"
+          @click.stop="($refs.imageFile as HTMLInputElement)?.click()"
+        >
           {{ $t('common.select_file') }}
         </UButton>
-        <p class="text-xs text-gray-500 mt-2" v-text="$t('upload_form.file_size_suggestion')" />
+        <p
+          class="text-xs text-gray-500 mt-2"
+          v-text="$t('upload_form.file_size_suggestion')"
+        />
         <a
           :href="PUBLISH_GUIDE_URL"
           target="_blank"
@@ -21,7 +34,10 @@
           class="text-xs text-primary-500 hover:text-primary-600 mt-2 flex items-center gap-1"
           @click.stop
         >
-          <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" />
+          <UIcon
+            name="i-heroicons-question-mark-circle"
+            class="w-4 h-4"
+          />
           {{ $t('upload_form.help_link') }}
         </a>
         <input
@@ -34,7 +50,10 @@
         >
       </form>
 
-      <div v-if="fileRecords.length" class="flex flex-col w-full">
+      <div
+        v-if="fileRecords.length"
+        class="flex flex-col w-full"
+      >
         <table class="w-full">
           <tbody class="w-full">
             <tr
@@ -88,7 +107,10 @@
     >
       <template #label="{ item }">
         <span>{{ item.label }}</span>
-        <UTooltip v-if="item.value === 'open'" :text="$t('upload_form.drm_option_open_tooltip')">
+        <UTooltip
+          v-if="item.value === 'open'"
+          :text="$t('upload_form.drm_option_open_tooltip')"
+        >
           <a
             :href="$t('upload_form.drm_option_open_tooltip')"
             target="_blank"
@@ -96,7 +118,10 @@
             class="inline-flex items-center ml-1"
             @click.stop
           >
-            <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4 text-gray-400 hover:text-primary-500" />
+            <UIcon
+              name="i-heroicons-question-mark-circle"
+              class="w-4 h-4 text-gray-400 hover:text-primary-500"
+            />
           </a>
         </UTooltip>
       </template>
@@ -125,7 +150,11 @@
             <div class="flex items-center text-sm text-gray-600">
               <span>{{ $t('upload_form.processing_file', { index: currentFileIndex, total: totalFiles }) }}</span>
             </div>
-            <UProgress :value="Math.round((completedFiles / totalFiles) * 100)" color="primary" class="w-full" />
+            <UProgress
+              :value="Math.round((completedFiles / totalFiles) * 100)"
+              color="primary"
+              class="w-full"
+            />
           </template>
           <UProgress
             v-else
@@ -139,7 +168,10 @@
     <UModal v-model:open="showValidationWarning">
       <template #body>
         <div class="flex items-start gap-3 p-4">
-          <UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-yellow-500 shrink-0 mt-0.5" />
+          <UIcon
+            name="i-heroicons-exclamation-triangle"
+            class="w-6 h-6 text-yellow-500 shrink-0 mt-0.5"
+          />
           <div class="space-y-2">
             <h3 class="font-semibold text-gray-900">
               {{ $t('upload_form.validation_error') }}
@@ -156,7 +188,10 @@
               rel="noopener noreferrer"
               class="text-sm text-primary-500 hover:text-primary-600 flex items-center gap-1"
             >
-              <UIcon name="i-heroicons-question-mark-circle" class="w-4 h-4" />
+              <UIcon
+                name="i-heroicons-question-mark-circle"
+                class="w-4 h-4"
+              />
               {{ $t('upload_form.help_link') }}
             </a>
           </div>
@@ -184,7 +219,10 @@
     <UModal v-model:open="showEpubValidationModal">
       <template #header>
         <div class="flex items-center gap-3">
-          <UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-yellow-500 shrink-0" />
+          <UIcon
+            name="i-heroicons-exclamation-triangle"
+            class="w-6 h-6 text-yellow-500 shrink-0"
+          />
           <h3 class="font-semibold text-gray-900">
             {{ $t('upload_form.epub_validation_title') }}
           </h3>
@@ -195,13 +233,19 @@
       </template>
       <template #body>
         <div class="max-h-[300px] overflow-y-auto space-y-2 text-sm">
-          <div v-if="epubValidationErrors" class="text-red-600">
+          <div
+            v-if="epubValidationErrors"
+            class="text-red-600"
+          >
             <p class="font-semibold mb-1">
               {{ $t('upload_form.epub_validation_errors') }}:
             </p>
             <pre class="whitespace-pre-wrap text-xs">{{ epubValidationErrors }}</pre>
           </div>
-          <div v-if="epubValidationWarnings" class="text-yellow-600">
+          <div
+            v-if="epubValidationWarnings"
+            class="text-yellow-600"
+          >
             <p class="font-semibold mb-1">
               {{ $t('upload_form.epub_validation_warnings') }}:
             </p>
@@ -226,11 +270,12 @@
 import { BigNumber } from 'bignumber.js'
 import {
   estimateBundlrFilePrice,
-  canSponsorArweaveUpload
+  canSponsorArweaveUpload,
 } from '~/utils/arweave'
 import { PUBLISH_GUIDE_URL } from '~/constant'
 
 import type { FileRecord, EpubMetadata, ArweaveEstimate } from '~/types'
+
 const { t: $t } = useI18n()
 
 const UPLOAD_FILESIZE_MAX = 200 * 1024 * 1024
@@ -246,7 +291,7 @@ const { prepareArweaveUpload, executeArweaveUpload: executeArweaveUploadComposab
 export type { FileRecord }
 
 const props = defineProps({
-  defaultEncrypted: { type: Boolean, default: true }
+  defaultEncrypted: { type: Boolean, default: true },
 })
 
 const fileRecords = ref<FileRecord[]>([])
@@ -266,7 +311,7 @@ const drmOption = ref(props.defaultEncrypted ? 'encrypted' : 'open')
 const isEncryptEBookData = computed(() => drmOption.value === 'encrypted')
 const drmOptions = computed(() => [
   { label: $t('upload_form.drm_option_encrypted'), value: 'encrypted' },
-  { label: $t('upload_form.drm_option_open'), value: 'open' }
+  { label: $t('upload_form.drm_option_open'), value: 'open' },
 ])
 
 const emit = defineEmits(['arweaveUploaded', 'submit', 'fileReady', 'fileUploadStatus'])
@@ -301,7 +346,7 @@ const computedFormClasses = computed(() => [
   'text-gray-500',
   'cursor-pointer',
   'bg-gray-100',
-  'hover:bg-gray-200'
+  'hover:bg-gray-200',
 ])
 
 watch(isEncryptEBookData, async () => {
@@ -319,9 +364,11 @@ const formatLanguage = (language: string) => {
   if (language) {
     if (language.toLowerCase().startsWith('en')) {
       formattedLanguage = 'en'
-    } else if (language.toLowerCase().startsWith('zh')) {
+    }
+    else if (language.toLowerCase().startsWith('zh')) {
       formattedLanguage = 'zh'
-    } else {
+    }
+    else {
       formattedLanguage = language
     }
   }
@@ -336,20 +383,21 @@ const getFileInfo = async (file: Blob) => {
     }
     const [fileSHA256, ipfsHash] = await Promise.all([
       digestFileSHA256(fileBytes),
-      calculateIPFSHash(Buffer.from(fileBytes))
+      calculateIPFSHash(Buffer.from(fileBytes)),
     ])
     return {
       fileBytes,
       fileSHA256,
-      ipfsHash
+      ipfsHash,
     }
-  } catch (error) {
+  }
+  catch (error) {
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: $t('upload_form.error_during_upload'),
       description: (error as Error).message || $t('upload_form.upload_error_occurred'),
       duration: 3000,
-      color: 'error'
+      color: 'error',
     })
     return null
   }
@@ -359,8 +407,8 @@ const onFileUpload = async (event: Event) => {
   try {
     uploadStatus.value = $t('upload_form.loading')
     isSizeExceeded.value = false
-    const files =
-      (event as InputEvent).dataTransfer?.files || (event.target as HTMLInputElement)?.files
+    const files
+      = (event as InputEvent).dataTransfer?.files || (event.target as HTMLInputElement)?.files
 
     if (event.currentTarget instanceof HTMLElement) {
       event.currentTarget.classList.remove('bg-gray-100')
@@ -399,7 +447,7 @@ const onFileUpload = async (event: Event) => {
               fileType: file.type,
               ipfsHash: ipfsHash || undefined,
               fileSHA256,
-              fileBlob: file
+              fileBlob: file,
             }
             if (fileRecord.fileType === 'application/epub+zip') {
               const validation = await validateEpub(fileBytes)
@@ -413,26 +461,28 @@ const onFileUpload = async (event: Event) => {
                 showEpubValidationModal.value = true
               }
               await processEPub({ buffer: fileBytes, file })
-            } else if (fileRecord.fileType?.startsWith('image/')) {
+            }
+            else if (fileRecord.fileType?.startsWith('image/')) {
               let emptyCoverMetadata = epubMetadataList.value.find(
-                (metadata: EpubMetadata) => !metadata.thumbnailIpfsHash
+                (metadata: EpubMetadata) => !metadata.thumbnailIpfsHash,
               )
               if (!emptyCoverMetadata) {
                 if (epubMetadataList.value.length === 0) {
                   // No EPUB file was uploaded — epubMetadataList is still empty
                   emptyCoverMetadata = {
                     thumbnailIpfsHash: null,
-                    coverData: null
+                    coverData: null,
                   }
                   epubMetadataList.value.push(emptyCoverMetadata)
-                } else {
+                }
+                else {
                   // A cover image has already been assigned — only one cover is allowed
                   toast.add({
                     icon: 'i-heroicons-exclamation-circle',
                     title: $t('upload_form.warning'),
                     description: $t('upload_form.only_one_cover_image'),
                     duration: 3000,
-                    color: 'warning'
+                    color: 'warning',
                   })
                   return
                 }
@@ -447,17 +497,20 @@ const onFileUpload = async (event: Event) => {
               coverReader.readAsDataURL(file)
             }
           }
-        } else {
+        }
+        else {
           isSizeExceeded.value = true
         }
         fileRecords.value.push(fileRecord)
         uploadStatus.value = ''
       }
     }
-  } finally {
+  }
+  finally {
     try {
       await estimateArweaveFee()
-    } catch (error) {
+    }
+    catch (error) {
       // eslint-disable-next-line no-console
       console.error(error)
     }
@@ -500,18 +553,19 @@ const validateEpub = async (buffer: ArrayBuffer): Promise<{ errors: string, warn
     return {
       errors: errorMessages,
       warnings: warningMessages,
-      hasIssues: !!(errorMessages || warningMessages)
+      hasIssues: !!(errorMessages || warningMessages),
     }
-  } catch (error) {
+  }
+  catch (error) {
     return {
       errors: (error as Error).message || $t('upload_form.epub_validation_failed'),
       warnings: '',
-      hasIssues: true
+      hasIssues: true,
     }
   }
 }
 
-const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer; file: File }) => {
+const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer, file: File }) => {
   try {
     const { default: ePub } = await import('@likecoin/epub-ts')
     const book = ePub(buffer)
@@ -554,7 +608,7 @@ const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer; file: File }
         const parser = new DOMParser()
         const opfDocument = parser.parseFromString(opfContent, 'application/xml')
         const dcSubjectElements = opfDocument.querySelectorAll(
-          'dc\\:subject, subject'
+          'dc\\:subject, subject',
         )
         const subjects: string[] = []
         dcSubjectElements.forEach((element) => {
@@ -577,15 +631,15 @@ const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer; file: File }
           [blobData],
           `${metadata?.title || 'cover'}_cover.jpeg`,
           {
-            type: 'image/jpeg'
-          }
+            type: 'image/jpeg',
+          },
         )
 
         const coverInfo = await getFileInfo(coverFile)
         if (coverInfo) {
           const {
             fileSHA256,
-            ipfsHash: ipfsThumbnailHash
+            ipfsHash: ipfsThumbnailHash,
           } = coverInfo
 
           epubMetadata.thumbnailIpfsHash = ipfsThumbnailHash
@@ -596,7 +650,7 @@ const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer; file: File }
             fileType: coverFile.type,
             fileBlob: coverFile,
             ipfsHash: ipfsThumbnailHash ?? undefined,
-            fileSHA256
+            fileSHA256,
           }
           const coverReader = new FileReader()
           coverReader.onload = (e) => {
@@ -614,7 +668,8 @@ const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer; file: File }
       }
     }
     epubMetadataList.value.push(epubMetadata)
-  } catch (err) {
+  }
+  catch (err) {
     // eslint-disable-next-line no-console
     console.error(err)
     toast.add({
@@ -622,7 +677,7 @@ const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer; file: File }
       title: $t('upload_form.error_during_upload'),
       description: (err as Error).message || $t('upload_form.epub_processing_error'),
       duration: 3000,
-      color: 'error'
+      color: 'error',
     })
   }
 }
@@ -647,11 +702,12 @@ const handleDeleteFile = (index: number) => {
         return metadata
       })
       .filter((metadata: EpubMetadata) =>
-        metadata.epubFileName || metadata.thumbnailIpfsHash
+        metadata.epubFileName || metadata.thumbnailIpfsHash,
       )
-  } else if (removedFile.fileType === 'application/epub+zip') {
+  }
+  else if (removedFile.fileType === 'application/epub+zip') {
     epubMetadataList.value = epubMetadataList.value.filter(
-      (metadata: EpubMetadata) => metadata.epubFileName !== removedFile.fileName
+      (metadata: EpubMetadata) => metadata.epubFileName !== removedFile.fileName,
     )
   }
 }
@@ -666,11 +722,11 @@ const estimateArweaveFee = async (): Promise<void> => {
       const priceResult = await estimateBundlrFilePrice({
         fileSize: record.fileBlob?.size || 0,
         ipfsHash: (isEbook && isEncryptEBookData.value) ? undefined : record.ipfsHash,
-        token: token.value
+        token: token.value,
       })
       results.push({
         ...priceResult,
-        ipfsHash: record.ipfsHash
+        ipfsHash: record.ipfsHash,
       })
     }
 
@@ -694,10 +750,10 @@ const estimateArweaveFee = async (): Promise<void> => {
       if (arweaveId) {
         sentArweaveTransactionInfo.value.set(ipfsHash, {
           transactionHash: '',
-          arweaveId
+          arweaveId,
         })
         const metadata = epubMetadataList.value.find(
-          (data: EpubMetadata) => data.thumbnailIpfsHash === ipfsHash
+          (data: EpubMetadata) => data.thumbnailIpfsHash === ipfsHash,
         )
         if (metadata) {
           metadata.thumbnailArweaveId = arweaveId
@@ -709,32 +765,34 @@ const estimateArweaveFee = async (): Promise<void> => {
     })
 
     arweaveFee.value = totalFee
-  } catch (err) {
+  }
+  catch (err) {
     console.error(err)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: $t('upload_form.error_during_upload'),
       description: (err as Error).message || $t('upload_form.fee_estimation_error'),
       duration: 3000,
-      color: 'error'
+      color: 'error',
     })
-  } finally {
+  }
+  finally {
     uploadStatus.value = ''
   }
 }
 
-const storeArweaveResult = (record: FileRecord, result: { arweaveId: string; arweaveLink: string; arweaveKey?: string }) => {
+const storeArweaveResult = (record: FileRecord, result: { arweaveId: string, arweaveLink: string, arweaveKey?: string }) => {
   const { arweaveId, arweaveLink, arweaveKey } = result
   const existingData = sentArweaveTransactionInfo.value.get(record.ipfsHash) || {}
   sentArweaveTransactionInfo.value.set(record.ipfsHash, {
     ...existingData,
     arweaveId,
     arweaveLink,
-    arweaveKey
+    arweaveKey,
   })
   if (record.fileName?.endsWith('cover.jpeg')) {
     const metadata = epubMetadataList.value.find(
-      (file: EpubMetadata) => file.thumbnailIpfsHash === record.ipfsHash
+      (file: EpubMetadata) => file.thumbnailIpfsHash === record.ipfsHash,
     )
     if (metadata) {
       metadata.thumbnailArweaveId = arweaveId
@@ -746,7 +804,7 @@ const storeArweaveResult = (record: FileRecord, result: { arweaveId: string; arw
 
 const setEbookCoverFromImages = async () => {
   const metadata = epubMetadataList.value.find(
-    (m: EpubMetadata) => m.coverData || m.thumbnailIpfsHash
+    (m: EpubMetadata) => m.coverData || m.thumbnailIpfsHash,
   )
   if (metadata?.thumbnailArweaveId) { return }
 
@@ -762,13 +820,13 @@ const setEbookCoverFromImages = async () => {
         arrayBuffer: await file.fileBlob.arrayBuffer(),
         fileSize: file.fileBlob.size,
         fileType: file.fileType,
-        encrypt: false
+        encrypt: false,
       })
       arweaveId = result.arweaveId
       sentArweaveTransactionInfo.value.set(file.ipfsHash, {
         ...existingData,
         arweaveId: result.arweaveId,
-        arweaveLink: result.arweaveLink
+        arweaveLink: result.arweaveLink,
       })
     }
 
@@ -802,9 +860,9 @@ const onSubmitInternal = async () => {
 
     uploadStatus.value = $t('upload_form.uploading')
     if (
-      fileRecords.value.find(file => file.fileType === 'application/pdf') &&
-      !fileRecords.value.find(
-        file => file.fileType === 'application/epub+zip'
+      fileRecords.value.find(file => file.fileType === 'application/pdf')
+      && !fileRecords.value.find(
+        file => file.fileType === 'application/epub+zip',
       )
     ) {
       uploadStatus.value = $t('upload_form.preparing_cover')
@@ -827,10 +885,10 @@ const onSubmitInternal = async () => {
           continue
         }
 
-        const shouldEncrypt =
-          (record.fileType === 'application/epub+zip' ||
-            record.fileType === 'application/pdf') &&
-          isEncryptEBookData.value
+        const shouldEncrypt
+          = (record.fileType === 'application/epub+zip'
+            || record.fileType === 'application/pdf')
+          && isEncryptEBookData.value
 
         // Prepare: encrypt + sign transaction (interactive, requires wallet)
         const prepareResult = await prepareArweaveUpload({
@@ -838,12 +896,13 @@ const onSubmitInternal = async () => {
           fileSize: record.fileBlob.size,
           fileType: record.fileType as string,
           encrypt: shouldEncrypt,
-          sponsored: isArweaveSponsored.value
+          sponsored: isArweaveSponsored.value,
         })
 
         if ('alreadyExists' in prepareResult) {
           storeArweaveResult(record, prepareResult.result)
-        } else {
+        }
+        else {
           // Chain upload after previous upload completes, but don't await here
           // so the next file's signature can be collected concurrently
           const capturedRecord = record
@@ -858,7 +917,8 @@ const onSubmitInternal = async () => {
 
     // Wait for the last upload to finish
     await pendingUpload
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
     uploadStatus.value = ''
@@ -867,10 +927,11 @@ const onSubmitInternal = async () => {
       title: $t('upload_form.error_during_upload'),
       description: (error as Error).message || $t('upload_form.upload_error_occurred'),
       duration: 3000,
-      color: 'error'
+      color: 'error',
     })
     return
-  } finally {
+  }
+  finally {
     uploadStatus.value = ''
     totalFiles.value = 0
     currentFileIndex.value = 0
@@ -901,20 +962,20 @@ const onSubmitInternal = async () => {
       arweaveId: record.arweaveId,
       arweaveLink: record.arweaveLink,
       arweaveKey: record.arweaveKey,
-      ipfsHash: record.ipfsHash
+      ipfsHash: record.ipfsHash,
     })),
-    epubMetadata: epubMetadataList.value[0]
+    epubMetadata: epubMetadataList.value[0],
   }
 
   emit('submit', uploadFileData)
 }
 
-const validateFiles = (): { valid: boolean; error?: string; canProceedAnyway?: boolean } => {
+const validateFiles = (): { valid: boolean, error?: string, canProceedAnyway?: boolean } => {
   const pdfFiles = fileRecords.value.filter(
-    file => file.fileType === 'application/pdf'
+    file => file.fileType === 'application/pdf',
   )
   const epubFiles = fileRecords.value.filter(
-    file => file.fileType === 'application/epub+zip'
+    file => file.fileType === 'application/epub+zip',
   )
   const coverFiles = fileRecords.value.filter((file) => {
     return file.fileType?.startsWith('image/')
@@ -926,21 +987,21 @@ const validateFiles = (): { valid: boolean; error?: string; canProceedAnyway?: b
   if (epubFiles.length === 0 && pdfFiles.length === 0) {
     return {
       valid: false,
-      error: $t('upload_form.missing_ebook_file')
+      error: $t('upload_form.missing_ebook_file'),
     }
   }
 
   if (pdfFiles.length > 1) {
     return {
       valid: false,
-      error: $t('upload_form.too_many_pdfs')
+      error: $t('upload_form.too_many_pdfs'),
     }
   }
 
   if (manualCoverFiles.length > 1) {
     return {
       valid: false,
-      error: $t('upload_form.only_one_cover_image')
+      error: $t('upload_form.only_one_cover_image'),
     }
   }
 
@@ -948,7 +1009,7 @@ const validateFiles = (): { valid: boolean; error?: string; canProceedAnyway?: b
     return {
       valid: false,
       error: $t('upload_form.missing_cover_for_pdf'),
-      canProceedAnyway: false
+      canProceedAnyway: false,
     }
   }
 
@@ -956,7 +1017,7 @@ const validateFiles = (): { valid: boolean; error?: string; canProceedAnyway?: b
     return {
       valid: false,
       error: $t('upload_form.missing_cover_for_epub'),
-      canProceedAnyway: false
+      canProceedAnyway: false,
     }
   }
 
@@ -985,6 +1046,6 @@ const onSubmit = async () => {
 
 defineExpose({
   onSubmit,
-  validateFiles
+  validateFiles,
 })
 </script>

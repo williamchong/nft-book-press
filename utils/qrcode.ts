@@ -3,7 +3,7 @@ import type {
   DotType,
   CornerSquareType,
   CornerDotType,
-  FileExtension
+  FileExtension,
 } from '@likecoin/qr-code-styling'
 
 import NFCIcon from '~/assets/images/nfc.png'
@@ -12,27 +12,27 @@ import BookStoreIcon from '~/assets/images/3ook-store.png'
 export const iconOptions = [
   {
     value: 'bookStore',
-    label: '3ookStore'
+    label: '3ookStore',
   },
   {
     value: 'nfc',
-    label: 'NFC'
+    label: 'NFC',
   },
   {
     value: 'none',
-    label: 'None'
-  }
+    label: 'None',
+  },
 ]
 
 export const dotStyleOptions = [
   {
     value: 'square',
-    label: 'Square'
+    label: 'Square',
   },
   {
     value: 'rounded',
-    label: 'Rounded'
-  }
+    label: 'Rounded',
+  },
 ]
 
 export const DEFAULT_QR_CODE_ICON = 'bookStore'
@@ -41,10 +41,10 @@ export const DEFAULT_QR_CODE_DOT_STYLE = 'rounded'
 
 const iconMap: Record<string, string> = {
   bookStore: BookStoreIcon,
-  nfc: NFCIcon
+  nfc: NFCIcon,
 }
 
-export function getQRCodeIcon (value = DEFAULT_QR_CODE_ICON) {
+export function getQRCodeIcon(value = DEFAULT_QR_CODE_ICON) {
   return iconMap[value] || iconMap[DEFAULT_QR_CODE_ICON]
 }
 
@@ -59,7 +59,7 @@ export interface QRCodeOptions {
   dotStyle?: string
 }
 
-export function getQRCodeOptions ({
+export function getQRCodeOptions({
   data = '',
   width = 300,
   height = 300,
@@ -67,7 +67,7 @@ export function getQRCodeOptions ({
   bgColor = '#ffffff',
   margin = 10,
   image = undefined as string | undefined,
-  dotStyle = DEFAULT_QR_CODE_DOT_STYLE
+  dotStyle = DEFAULT_QR_CODE_DOT_STYLE,
 }: QRCodeOptions = {}) {
   return {
     width,
@@ -78,24 +78,24 @@ export function getQRCodeOptions ({
     imageOptions: {
       hideBackgroundDots: true,
       imageSize: 0.3,
-      margin: 10
+      margin: 10,
     },
     dotsOptions: {
       color: fillColor,
-      type: dotStyle as DotType
+      type: dotStyle as DotType,
     },
     backgroundOptions: {
-      color: bgColor
+      color: bgColor,
     },
     cornersSquareOptions: {
       color: fillColor,
-      type: (dotStyle === 'rounded' ? 'extra-rounded' : 'square') as CornerSquareType
+      type: (dotStyle === 'rounded' ? 'extra-rounded' : 'square') as CornerSquareType,
     },
     cornersDotOptions: {
       color: fillColor,
-      type: (dotStyle === 'rounded' ? 'dot' : 'square') as CornerDotType
+      type: (dotStyle === 'rounded' ? 'dot' : 'square') as CornerDotType,
     },
-    data
+    data,
   }
 }
 
@@ -104,15 +104,15 @@ const QRCODE_DOWNLOADABLE_FILE_TYPES: {
   label: string
 }[] = [
   { value: 'svg', label: 'SVG' },
-  { value: 'png', label: 'PNG' }
+  { value: 'png', label: 'PNG' },
 ]
 
-export async function downloadQRCodes (
+export async function downloadQRCodes(
   items: { filename: string, url: string }[],
   options: {
-    zipFilename?: string,
+    zipFilename?: string
     qrCodeOptions?: QRCodeOptions
-  } = {}
+  } = {},
 ) {
   const zipFilename = `${options.zipFilename || 'QR Codes'}-${new Date().getTime()}.zip`
   try {
@@ -127,7 +127,7 @@ export async function downloadQRCodes (
         }
         return {
           filename: `${item.filename}.${extension}`,
-          data
+          data,
         }
       }))
     }))
@@ -146,11 +146,12 @@ export async function downloadQRCodes (
       type: 'blob',
       compression: 'DEFLATE',
       compressionOptions: {
-        level: 9
-      }
+        level: 9,
+      },
     })
     saveAs(zipFileBlob, zipFilename)
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
     const toast = useToast()
@@ -158,7 +159,7 @@ export async function downloadQRCodes (
       icon: 'i-heroicons-exclamation-circle',
       title: `Failed to download QR codes file ${zipFilename}`,
       duration: 0,
-      color: 'error'
+      color: 'error',
     })
   }
 }

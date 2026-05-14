@@ -1,6 +1,12 @@
 <template>
-  <ul v-if="props.isLarge" class="space-y-10">
-    <li v-for="item in items" :key="item.label">
+  <ul
+    v-if="props.isLarge"
+    class="space-y-10"
+  >
+    <li
+      v-for="item in items"
+      :key="item.label"
+    >
       <UCard>
         <template #header>
           <h3 class="text-sm font-bold font-mono">
@@ -9,7 +15,10 @@
         </template>
 
         <ul class="flex flex-wrap gap-4">
-          <li v-for="link in item.links" :key="link.label">
+          <li
+            v-for="link in item.links"
+            :key="link.label"
+          >
             <UButton
               :label="link.label"
               :leading-icon="link.icon"
@@ -25,8 +34,15 @@
     </li>
   </ul>
 
-  <div v-else class="space-y-4">
-    <div v-for="item in items" :key="item.label" class="space-y-3">
+  <div
+    v-else
+    class="space-y-4"
+  >
+    <div
+      v-for="item in items"
+      :key="item.label"
+      class="space-y-3"
+    >
       <h3 class="text-sm font-mono text-gray-400 dark:text-gray-300 px-3">
         {{ item.label }}
       </h3>
@@ -40,6 +56,7 @@
 
 <script setup lang="ts">
 import { PUBLISH_GUIDE_URL, AFFILIATION_GUIDE_URL } from '~/constant'
+
 const { t: $t } = useI18n()
 
 const localeRoute = useLocaleRoute()
@@ -50,13 +67,13 @@ const { getTotalPendingNFTCount, isAuthenticated } = storeToRefs(bookstoreApiSto
 const props = defineProps({
   isLarge: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
 const emit = defineEmits(['click-link'])
 
-function handleLinkClick ({ label }: { label?: string }) {
+function handleLinkClick({ label }: { label?: string }) {
   useLogEvent('site_menu_click_link', { label })
   emit('click-link')
 }
@@ -70,34 +87,34 @@ const items = computed(() => {
           {
             label: $t('menu.about'),
             icon: 'i-heroicons-information-circle',
-            to: localeRoute({ name: 'about' })
+            to: localeRoute({ name: 'about' }),
           },
           {
             label: $t('menu.publisher_guide'),
             icon: 'i-heroicons-arrow-top-right-on-square-20-solid',
             to: PUBLISH_GUIDE_URL,
-            target: '_blank'
+            target: '_blank',
           },
           {
             label: $t('menu.affiliation_guide'),
             icon: 'i-heroicons-arrow-top-right-on-square-20-solid',
             to: AFFILIATION_GUIDE_URL,
-            target: '_blank'
+            target: '_blank',
           },
           {
             label: $t('menu.listing_disclaimer'),
             icon: 'i-heroicons-shield-exclamation',
             to: $t('menu.listing_disclaimer_url'),
-            target: '_blank'
-          }
-        ]
-      }
+            target: '_blank',
+          },
+        ],
+      },
     ].map(item => ({
       ...item,
       links: item.links.map(link => ({
         ...link,
-        onSelect: () => handleLinkClick({ label: link.label })
-      }))
+        onSelect: () => handleLinkClick({ label: link.label }),
+      })),
     }))
   }
 
@@ -108,22 +125,22 @@ const items = computed(() => {
         {
           label: $t('menu.start_publishing'),
           icon: 'i-heroicons-sparkles',
-          to: localeRoute({ name: 'new-book' })
+          to: localeRoute({ name: 'new-book' }),
         },
         {
           label: $t('menu.manage_book_listings'),
           icon: 'i-heroicons-rectangle-stack',
           to: localeRoute({ name: 'my-books' }),
           exact: true,
-          badge: getTotalPendingNFTCount.value
+          badge: getTotalPendingNFTCount.value,
         },
         {
           label: $t('menu.bulk_upload'),
           icon: 'i-heroicons-arrow-up-tray',
           to: localeRoute({ name: 'bulk-upload' }),
-          exact: true
-        }
-      ]
+          exact: true,
+        },
+      ],
     },
     {
       label: $t('menu.bookstore_readers'),
@@ -131,9 +148,9 @@ const items = computed(() => {
         {
           label: $t('menu.readers_list'),
           icon: 'i-heroicons-sparkles',
-          to: localeRoute({ name: 'readers' })
-        }
-      ]
+          to: localeRoute({ name: 'readers' }),
+        },
+      ],
     },
     {
       label: $t('menu.authors_affiliates'),
@@ -142,15 +159,15 @@ const items = computed(() => {
           label: $t('menu.sales_report'),
           icon: 'i-heroicons-user-group',
           to: localeRoute({ name: 'sales-report' }),
-          exact: true
+          exact: true,
         },
         {
           label: $t('menu.latest_books'),
           icon: 'i-heroicons-book-open',
           to: localeRoute({ name: 'latest-books' }),
-          exact: true
-        }
-      ]
+          exact: true,
+        },
+      ],
     },
     {
       label: $t('menu.help'),
@@ -158,39 +175,39 @@ const items = computed(() => {
         {
           label: $t('menu.about'),
           icon: 'i-heroicons-information-circle',
-          to: localeRoute({ name: 'about' })
+          to: localeRoute({ name: 'about' }),
         },
         {
           label: $t('menu.publisher_guide'),
           icon: 'i-heroicons-arrow-top-right-on-square-20-solid',
           to: PUBLISH_GUIDE_URL,
-          target: '_blank'
+          target: '_blank',
         },
         {
           label: $t('menu.affiliation_guide'),
           icon: 'i-heroicons-arrow-top-right-on-square-20-solid',
           to: AFFILIATION_GUIDE_URL,
-          target: '_blank'
+          target: '_blank',
         },
         {
           label: $t('menu.preview_book'),
           icon: 'i-heroicons-eye',
-          to: localeRoute({ name: 'preview-book' })
+          to: localeRoute({ name: 'preview-book' }),
         },
         {
           label: $t('menu.settings'),
           icon: 'i-heroicons-cog-8-tooth',
           to: localeRoute({ name: 'settings' }),
-          exact: true
-        }
-      ]
-    }
+          exact: true,
+        },
+      ],
+    },
   ].map(item => ({
     ...item,
     links: item.links.map(link => ({
       ...link,
-      onSelect: () => handleLinkClick({ label: link.label })
-    }))
+      onSelect: () => handleLinkClick({ label: link.label }),
+    })),
   }))
 })
 </script>

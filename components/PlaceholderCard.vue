@@ -1,6 +1,9 @@
 <template>
   <div class="relative overflow-hidden rounded border border-dashed border-gray-400 dark:border-gray-500 opacity-75 flex items-center justify-center p-4">
-    <svg class="absolute inset-0 h-full w-full stroke-gray-900/10 dark:stroke-white/10" fill="none">
+    <svg
+      class="absolute inset-0 h-full w-full stroke-gray-900/10 dark:stroke-white/10"
+      fill="none"
+    >
       <defs>
         <pattern
           id="placeholder-pattern"
@@ -13,7 +16,12 @@
           <path d="M-3 13 15-5M-5 5l18-18M-1 21 17 3" />
         </pattern>
       </defs>
-      <rect stroke="none" fill="url(#placeholder-pattern)" width="100%" height="100%" />
+      <rect
+        stroke="none"
+        fill="url(#placeholder-pattern)"
+        width="100%"
+        height="100%"
+      />
     </svg>
     <slot />
   </div>

@@ -1,7 +1,7 @@
 export interface ClassMetadataHasPart {
   '@type'?: string
-  isAccessibleForFree?: boolean
-  text?: string
+  'isAccessibleForFree'?: boolean
+  'text'?: string
 }
 
 export interface ISCNContentMetadata {
@@ -16,67 +16,67 @@ export interface ISCNContentMetadata {
 }
 
 export interface ISCNData {
-  contentMetadata: ISCNContentMetadata
-  owner: string
+  'contentMetadata': ISCNContentMetadata
+  'owner': string
   '@id': string
 }
 
 export interface PotentialActionTarget {
   '@type'?: string
-  contentType: string
-  url: string
-  name: string
-  encodingType?: string
+  'contentType': string
+  'url': string
+  'name': string
+  'encodingType'?: string
 }
 
 export interface PotentialAction {
   '@type'?: string
-  target?: PotentialActionTarget[]
+  'target'?: PotentialActionTarget[]
 }
 
 export interface ClassMetadata {
   '@type'?: string
-  name?: string
-  description?: string
-  descriptionFull?: string
-  alternativeHeadline?: string
-  url?: string
-  keywords?: string | string[]
-  thumbnailUrl?: string
-  image?: string
-  inLanguage?: string
-  datePublished?: string
-  author?: string | { name?: string; description?: string; url?: string }
-  usageInfo?: string
-  isbn?: string
-  publisher?: string
-  genre?: string
-  contentFingerprints?: string[]
-  sameAs?: string[]
-  potentialAction?: PotentialAction
-  hasPart?: ClassMetadataHasPart | ClassMetadataHasPart[]
-  recordNotes?: string
+  'name'?: string
+  'description'?: string
+  'descriptionFull'?: string
+  'alternativeHeadline'?: string
+  'url'?: string
+  'keywords'?: string | string[]
+  'thumbnailUrl'?: string
+  'image'?: string
+  'inLanguage'?: string
+  'datePublished'?: string
+  'author'?: string | { name?: string, description?: string, url?: string }
+  'usageInfo'?: string
+  'isbn'?: string
+  'publisher'?: string
+  'genre'?: string
+  'contentFingerprints'?: string[]
+  'sameAs'?: string[]
+  'potentialAction'?: PotentialAction
+  'hasPart'?: ClassMetadataHasPart | ClassMetadataHasPart[]
+  'recordNotes'?: string
   [key: string]: unknown
 }
 
 export interface ISCNRegisterPayload {
-  name: string
-  description: string
-  tagsString: string
-  url: string
-  license: string
+  'name': string
+  'description': string
+  'tagsString': string
+  'url': string
+  'license': string
   '@type': string
-  author: string
-  fileSHA256?: string | string[]
-  publisher?: string
-  authorDescription?: string
-  contentFingerprints?: string[]
-  recordNotes?: string
-  memo?: string
-  inLanguage?: string
-  datePublished?: string
-  thumbnailUrl?: string
-  isbn?: string
+  'author': string
+  'fileSHA256'?: string | string[]
+  'publisher'?: string
+  'authorDescription'?: string
+  'contentFingerprints'?: string[]
+  'recordNotes'?: string
+  'memo'?: string
+  'inLanguage'?: string
+  'datePublished'?: string
+  'thumbnailUrl'?: string
+  'isbn'?: string
 }
 
 export interface ISCNFormData {
@@ -115,7 +115,7 @@ export interface ISCNTxPayload {
   url?: string
   thumbnailUrl?: string
   publisher?: string
-  author: string | { name: string; description: string }
+  author: string | { name: string, description: string }
   keywords: string[]
   usageInfo: string
   contentFingerprints: string[]

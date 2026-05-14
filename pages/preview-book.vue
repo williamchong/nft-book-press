@@ -1,6 +1,9 @@
 <template>
   <PageBody>
-    <h1 class="text-2xl font-bold" v-text="$t('preview_book.title')" />
+    <h1
+      class="text-2xl font-bold"
+      v-text="$t('preview_book.title')"
+    />
 
     <UAlert
       v-if="errorMessage"
@@ -10,7 +13,10 @@
     />
 
     <div class="flex gap-2 items-end">
-      <UFormField :label="$t('preview_book.title')" class="flex-1">
+      <UFormField
+        :label="$t('preview_book.title')"
+        class="flex-1"
+      >
         <UInput
           v-model="inputUrl"
           :placeholder="$t('preview_book.input_placeholder')"
@@ -25,12 +31,22 @@
       />
     </div>
 
-    <p v-if="detectedType" class="text-sm text-gray-500">
+    <p
+      v-if="detectedType"
+      class="text-sm text-gray-500"
+    >
       {{ $t('preview_book.detected_type') }}: {{ detectedType }}
     </p>
-    <p v-else class="text-sm text-gray-500" v-text="$t('preview_book.supported_formats')" />
+    <p
+      v-else
+      class="text-sm text-gray-500"
+      v-text="$t('preview_book.supported_formats')"
+    />
 
-    <div v-if="fileBlob" class="flex">
+    <div
+      v-if="fileBlob"
+      class="flex"
+    >
       <UButton
         :label="$t('preview_book.download')"
         variant="outline"
@@ -39,7 +55,10 @@
       />
     </div>
 
-    <UProgress v-if="isLoading" animation="carousel" />
+    <UProgress
+      v-if="isLoading"
+      animation="carousel"
+    />
 
     <img
       v-if="imageObjectUrl"
@@ -60,17 +79,26 @@
       class="w-full border rounded-lg overflow-auto bg-gray-100 flex justify-center"
       style="height: 70vh"
     >
-      <canvas ref="pdfCanvasRef" class="shadow-lg" />
+      <canvas
+        ref="pdfCanvasRef"
+        class="shadow-lg"
+      />
     </div>
 
-    <div v-if="isBookLoaded || isPdfLoaded" class="flex justify-center gap-4 items-center">
+    <div
+      v-if="isBookLoaded || isPdfLoaded"
+      class="flex justify-center gap-4 items-center"
+    >
       <UButton
         :label="$t('preview_book.prev_page')"
         variant="outline"
         icon="i-heroicons-chevron-left"
         @click="prevPage"
       />
-      <span v-if="isPdfLoaded" class="text-sm text-gray-500">
+      <span
+        v-if="isPdfLoaded"
+        class="text-sm text-gray-500"
+      >
         {{ pdfCurrentPage }} / {{ pdfTotalPages }}
       </span>
       <UButton
@@ -99,7 +127,7 @@ const downloadMimeMap: Record<Exclude<DetectedFileType, null>, string> = {
   WebP: 'image/webp',
   BMP: 'image/bmp',
   PDF: 'application/pdf',
-  EPUB: 'application/epub+zip'
+  EPUB: 'application/epub+zip',
 }
 const downloadExtMap: Record<Exclude<DetectedFileType, null>, string> = {
   PNG: 'png',
@@ -108,7 +136,7 @@ const downloadExtMap: Record<Exclude<DetectedFileType, null>, string> = {
   WebP: 'webp',
   BMP: 'bmp',
   PDF: 'pdf',
-  EPUB: 'epub'
+  EPUB: 'epub',
 }
 
 const { t: $t } = useI18n()
@@ -131,19 +159,19 @@ const fileBlob = shallowRef<Blob | null>(null)
 const imageObjectUrl = useObjectUrl(imageBlob)
 const downloadFilename = ref('')
 
-let rendition: { display: () => Promise<unknown>; prev: () => void; next: () => void; destroy: () => void } | null = null
+let rendition: { display: () => Promise<unknown>, prev: () => void, next: () => void, destroy: () => void } | null = null
 let pdfDocument: PDFDocumentProxy | null = null
 let pdfjsLib: typeof import('pdfjs-dist') | null = null
 
-function detectFileType (buffer: ArrayBuffer): DetectedFileType {
+function detectFileType(buffer: ArrayBuffer): DetectedFileType {
   const bytes = new Uint8Array(buffer.slice(0, 12))
   if (bytes.length >= 4 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) { return 'PNG' }
   if (bytes.length >= 3 && bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) { return 'JPEG' }
   if (bytes.length >= 3 && bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46) { return 'GIF' }
   if (
-    bytes.length >= 12 &&
-    bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
-    bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50
+    bytes.length >= 12
+    && bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46
+    && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50
   ) { return 'WebP' }
   if (bytes.length >= 2 && bytes[0] === 0x42 && bytes[1] === 0x4D) { return 'BMP' }
   // %PDF-
@@ -153,18 +181,18 @@ function detectFileType (buffer: ArrayBuffer): DetectedFileType {
   return null
 }
 
-async function loadPdfJs () {
+async function loadPdfJs() {
   if (pdfjsLib) { return pdfjsLib }
   const pdfjs = await import('pdfjs-dist')
   pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     'pdfjs-dist/build/pdf.worker.min.mjs',
-    import.meta.url
+    import.meta.url,
   ).toString()
   pdfjsLib = pdfjs
   return pdfjs
 }
 
-async function renderPdfPage (pageNum: number) {
+async function renderPdfPage(pageNum: number) {
   if (!pdfDocument || !pdfCanvasRef.value) { return }
   const page = await pdfDocument.getPage(pageNum)
   const scale = 1.5
@@ -178,11 +206,11 @@ async function renderPdfPage (pageNum: number) {
   await page.render({
     canvas,
     transform: pixelRatio !== 1 ? [pixelRatio, 0, 0, pixelRatio, 0, 0] : undefined,
-    viewport
+    viewport,
   }).promise
 }
 
-async function resolveUrl (rawUrl: string): Promise<{ fileUrl: string; key?: string }> {
+async function resolveUrl(rawUrl: string): Promise<{ fileUrl: string, key?: string }> {
   const apiEndpoints = getApiEndpoints()
   const arweaveLinkEndpoint = apiEndpoints.API_GET_ARWEAVE_V2_LINK
 
@@ -192,15 +220,16 @@ async function resolveUrl (rawUrl: string): Promise<{ fileUrl: string; key?: str
     if (parsedRawUrl.origin !== expectedOrigin) {
       throw new Error('URL origin does not match expected API endpoint')
     }
-    let res: { arweaveId?: string; key?: string; link?: string }
+    let res: { arweaveId?: string, key?: string, link?: string }
     try {
-      res = await $fetch<{ arweaveId?: string; key?: string; link?: string }>(rawUrl, {
+      res = await $fetch<{ arweaveId?: string, key?: string, link?: string }>(rawUrl, {
         headers: {
           authorization: `Bearer ${bookstoreApiStore.token}`,
-          Accept: 'application/json'
-        }
+          Accept: 'application/json',
+        },
       })
-    } catch (err) {
+    }
+    catch (err) {
       if (err instanceof FetchError && err.response?.status === 403) {
         const token = parsedRawUrl.searchParams.get('token')?.trim()
         throw new Error(token ? 'invalid_token' : 'missing_token')
@@ -241,12 +270,13 @@ async function resolveUrl (rawUrl: string): Promise<{ fileUrl: string; key?: str
       return { fileUrl: parsed.toString(), key }
     }
     return { fileUrl: rawUrl }
-  } catch {
+  }
+  catch {
     return { fileUrl: rawUrl }
   }
 }
 
-async function loadBook () {
+async function loadBook() {
   errorMessage.value = ''
   detectedType.value = ''
   isLoading.value = true
@@ -275,12 +305,15 @@ async function loadBook () {
       const resolved = await resolveUrl(inputUrl.value)
       fileUrl = resolved.fileUrl
       key = resolved.key
-    } catch (err) {
+    }
+    catch (err) {
       if (err instanceof Error && err.message === 'missing_token') {
         errorMessage.value = $t('preview_book.error_missing_token')
-      } else if (err instanceof Error && err.message === 'invalid_token') {
+      }
+      else if (err instanceof Error && err.message === 'invalid_token') {
         errorMessage.value = $t('preview_book.error_invalid_token')
-      } else {
+      }
+      else {
         errorMessage.value = $t('preview_book.error_resolve')
       }
       return
@@ -289,7 +322,8 @@ async function loadBook () {
     let arrayBuffer: ArrayBuffer
     try {
       arrayBuffer = await $fetch<ArrayBuffer>(fileUrl, { responseType: 'arrayBuffer' })
-    } catch {
+    }
+    catch {
       errorMessage.value = $t('preview_book.error_fetch')
       return
     }
@@ -297,7 +331,8 @@ async function loadBook () {
     if (key) {
       try {
         arrayBuffer = await decryptDataWithAES({ data: arrayBuffer, key })
-      } catch {
+      }
+      catch {
         errorMessage.value = $t('preview_book.error_decrypt')
         return
       }
@@ -328,7 +363,7 @@ async function loadBook () {
             data: arrayBuffer,
             wasmUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/wasm/`,
             cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`,
-            cMapPacked: true
+            cMapPacked: true,
           })
           pdfDocument = await loadingTask.promise
           pdfTotalPages.value = pdfDocument.numPages
@@ -336,7 +371,8 @@ async function loadBook () {
           isPdfLoaded.value = true
           await nextTick()
           await renderPdfPage(1)
-        } catch {
+        }
+        catch {
           errorMessage.value = $t('preview_book.error_render_pdf')
         }
         break
@@ -348,7 +384,8 @@ async function loadBook () {
           rendition = book.renderTo(viewerRef.value!, { width: '100%', height: '100%' })
           await rendition!.display()
           isBookLoaded.value = true
-        } catch {
+        }
+        catch {
           errorMessage.value = $t('preview_book.error_render')
         }
         break
@@ -357,12 +394,13 @@ async function loadBook () {
         errorMessage.value = $t('preview_book.error_unsupported_format')
         break
     }
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
-function prevPage () {
+function prevPage() {
   if (isPdfLoaded.value && pdfCurrentPage.value > 1) {
     pdfCurrentPage.value--
     renderPdfPage(pdfCurrentPage.value)
@@ -371,7 +409,7 @@ function prevPage () {
   rendition?.prev()
 }
 
-function nextPage () {
+function nextPage() {
   if (isPdfLoaded.value && pdfCurrentPage.value < pdfTotalPages.value) {
     pdfCurrentPage.value++
     renderPdfPage(pdfCurrentPage.value)
@@ -380,7 +418,7 @@ function nextPage () {
   rendition?.next()
 }
 
-async function triggerDownload () {
+async function triggerDownload() {
   if (!fileBlob.value) { return }
   const { saveAs } = await import('file-saver')
   saveAs(fileBlob.value, downloadFilename.value || 'book')

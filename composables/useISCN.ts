@@ -13,12 +13,12 @@ const getFileMimeType = (fileType: string): string => {
   }
 }
 
-export function useISCN ({
+export function useISCN({
   iscnFormData,
-  iscnChainData = ref({})
+  iscnChainData = ref({}),
 }: {
-  iscnFormData: Ref<ISCNFormData>;
-  iscnChainData?: Ref<ClassMetadata>;
+  iscnFormData: Ref<ISCNFormData>
+  iscnChainData?: Ref<ClassMetadata>
 }) {
   const getFileTypeFromMime = (fileType: string): string => {
     switch (fileType) {
@@ -40,16 +40,16 @@ export function useISCN ({
     }
     return {
       '@type': 'ReadAction',
-      target: iscnFormData.value.downloadableUrls.map((urlObj: { url: string; type: string; fileName: string }) => {
+      'target': iscnFormData.value.downloadableUrls.map((urlObj: { url: string, type: string, fileName: string }) => {
         const isEncrypted = urlObj.url?.startsWith(arweaveLinkEndpoint) || urlObj.url?.includes('?key=')
         return {
           '@type': 'EntryPoint',
-          contentType: getFileMimeType(urlObj.type),
-          url: urlObj.url,
-          name: urlObj.fileName,
-          encodingType: isEncrypted ? 'aes256gcm' : undefined
+          'contentType': getFileMimeType(urlObj.type),
+          'url': urlObj.url,
+          'name': urlObj.fileName,
+          'encodingType': isEncrypted ? 'aes256gcm' : undefined,
         }
-      })
+      }),
     }
   })
 
@@ -60,20 +60,20 @@ export function useISCN ({
     if (data.author) {
       attributes.push({
         trait_type: 'Author',
-        value: data.author.name || data.author
+        value: data.author.name || data.author,
       })
     }
     if (data.publisher) {
       attributes.push({
         trait_type: 'Publisher',
-        value: data.publisher
+        value: data.publisher,
       })
     }
     if (data.publicationDate) {
       attributes.push({
         trait_type: 'Publish Date',
         display_type: 'date',
-        value: ((new Date(data.publicationDate)).getTime() || 0) / 1000
+        value: ((new Date(data.publicationDate)).getTime() || 0) / 1000,
       })
     }
     return attributes.length ? attributes : undefined
@@ -82,38 +82,38 @@ export function useISCN ({
   const payload = computed(() => ({
     ...existingIscnData.value,
     '@type': iscnFormData.value.type,
-    name: iscnFormData.value.title,
-    description: iscnFormData.value.description,
-    descriptionFull: iscnFormData.value.descriptionFull || undefined,
-    alternativeHeadline: iscnFormData.value.alternativeHeadline || undefined,
-    author: iscnFormData.value.author.name,
-    authorDescription: iscnFormData.value.author.description,
-    license:
+    'name': iscnFormData.value.title,
+    'description': iscnFormData.value.description,
+    'descriptionFull': iscnFormData.value.descriptionFull || undefined,
+    'alternativeHeadline': iscnFormData.value.alternativeHeadline || undefined,
+    'author': iscnFormData.value.author.name,
+    'authorDescription': iscnFormData.value.author.description,
+    'license':
       iscnFormData.value.license === 'Other'
         ? iscnFormData.value.customLicense
         : iscnFormData.value.license,
-    contentFingerprints: iscnFormData.value.contentFingerprints.map(
-      (f: { url: string }) => f.url
+    'contentFingerprints': iscnFormData.value.contentFingerprints.map(
+      (f: { url: string }) => f.url,
     ),
-    inLanguage: iscnFormData.value.language,
-    publisher: iscnFormData.value.publisher,
-    isbn: iscnFormData.value.isbn,
-    datePublished: iscnFormData.value.publicationDate
+    'inLanguage': iscnFormData.value.language,
+    'publisher': iscnFormData.value.publisher,
+    'isbn': iscnFormData.value.isbn,
+    'datePublished': iscnFormData.value.publicationDate
       ? new Date(iscnFormData.value.publicationDate).toISOString().split('T')[0]
       : undefined,
-    url: iscnFormData.value.bookInfoUrl,
-    tagsString: iscnFormData.value.tags?.join(', ') || '',
-    thumbnailUrl: iscnFormData.value.coverUrl,
-    genre: iscnFormData.value.genre || undefined,
-    hasPart: iscnFormData.value.previewContent
+    'url': iscnFormData.value.bookInfoUrl,
+    'tagsString': iscnFormData.value.tags?.join(', ') || '',
+    'thumbnailUrl': iscnFormData.value.coverUrl,
+    'genre': iscnFormData.value.genre || undefined,
+    'hasPart': iscnFormData.value.previewContent
       ? {
           '@type': 'Chapter',
-          isAccessibleForFree: true,
-          text: iscnFormData.value.previewContent
+          'isAccessibleForFree': true,
+          'text': iscnFormData.value.previewContent,
         }
       : undefined,
-    potentialAction: formattedPotentialActionList.value,
-    attributes: getAttributes(iscnFormData.value)
+    'potentialAction': formattedPotentialActionList.value,
+    'attributes': getAttributes(iscnFormData.value),
   }))
 
   const computeISCNSalt = (msgSender: `0x${string}`) => {
@@ -138,6 +138,6 @@ export function useISCN ({
     getFileMimeType,
     getFileTypeFromMime,
     payload,
-    computeISCNSalt
+    computeISCNSalt,
   }
 }

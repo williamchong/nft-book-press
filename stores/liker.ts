@@ -25,7 +25,7 @@ export const useLikerStore = defineStore('liker', () => {
     return getLikerInfoById.value(likerId)
   })
 
-  async function fetchLikerInfoById (likerId: string) {
+  async function fetchLikerInfoById(likerId: string) {
     try {
       const result = await useFetchLikerInfoById(likerId)
       const likerInfo = result
@@ -34,12 +34,13 @@ export const useLikerStore = defineStore('liker', () => {
       }
       likerInfoMapById.value[likerId] = likerInfo
       return likerInfo
-    } catch {
+    }
+    catch {
       return null
     }
   }
 
-  async function lazyFetchLikerInfoById (likerId: string) {
+  async function lazyFetchLikerInfoById(likerId: string) {
     if (likerInfoMapById.value[likerId]) {
       return likerInfoMapById.value[likerId]
     }
@@ -48,7 +49,7 @@ export const useLikerStore = defineStore('liker', () => {
     return likerInfo
   }
 
-  async function fetchLikerInfoByWallet (wallet: string, { nocache = false } = {}) {
+  async function fetchLikerInfoByWallet(wallet: string, { nocache = false } = {}) {
     try {
       const result = await useFetchLikerInfoByWallet(wallet, { nocache })
       const likerInfo = result
@@ -57,12 +58,13 @@ export const useLikerStore = defineStore('liker', () => {
       }
       likerInfoMapById.value[likerInfo.user] = likerInfo
       return likerInfo
-    } catch {
+    }
+    catch {
       return null
     }
   }
 
-  async function lazyFetchLikerInfoByWallet (wallet: string) {
+  async function lazyFetchLikerInfoByWallet(wallet: string) {
     const likerId = likerIdMapByWallet.value[wallet]
     if (likerId) {
       return lazyFetchLikerInfoById(likerId)
@@ -72,7 +74,7 @@ export const useLikerStore = defineStore('liker', () => {
     return likerInfo
   }
 
-  async function lazyFetchChannelInfoById (channelId: string) {
+  async function lazyFetchChannelInfoById(channelId: string) {
     const likerId = convertChannelIdToLikerId(channelId)
     const result = await lazyFetchLikerInfoById(likerId)
     return result
@@ -88,6 +90,6 @@ export const useLikerStore = defineStore('liker', () => {
     lazyFetchLikerInfoById,
     fetchLikerInfoByWallet,
     lazyFetchLikerInfoByWallet,
-    lazyFetchChannelInfoById
+    lazyFetchChannelInfoById,
   }
 })
