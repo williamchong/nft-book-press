@@ -1,7 +1,10 @@
 <template>
   <PageBody class="space-y-6">
     <div class="flex justify-between items-center">
-      <h1 class="text-lg font-bold font-mono" v-text="$t('menu.readers_list')" />
+      <h1
+        class="text-lg font-bold font-mono"
+        v-text="$t('menu.readers_list')"
+      />
       <div class="flex gap-2">
         <UButton
           icon="i-hugeicons-csv-02"
@@ -9,7 +12,7 @@
           variant="outline"
           @click="exportSelectedToCSV"
         >
-          {{ $t('common.export_csv',{ length: hasSelection ? selectionCount : ordersStore.readers.length }) }}
+          {{ $t('common.export_csv', { length: hasSelection ? selectionCount : ordersStore.readers.length }) }}
         </UButton>
         <UButton
           icon="i-heroicons-arrow-path"
@@ -35,9 +38,15 @@
     <UCard :ui="{ body: 'p-0!' }">
       <template #header>
         <div class="flex justify-between items-center">
-          <h3 class="font-medium" v-text="$t('readers.total_readers', { count: ordersStore.isLoading ? '...' : ordersStore.readers.length })" />
+          <h3
+            class="font-medium"
+            v-text="$t('readers.total_readers', { count: ordersStore.isLoading ? '...' : ordersStore.readers.length })"
+          />
           <div class="flex items-center gap-2">
-            <span class="text-sm text-gray-500" v-text="$t('common.page_size')" />
+            <span
+              class="text-sm text-gray-500"
+              v-text="$t('common.page_size')"
+            />
             <USelect
               v-model="pageSize"
               :items="pageSizeOptions"
@@ -75,7 +84,10 @@
             :trailing-icon="getSortIcon(sortState.column, sortState.direction, column.key)"
             @click="() => sortByColumn(column.key)"
           />
-          <UTooltip v-else text="USD">
+          <UTooltip
+            v-else
+            text="USD"
+          >
             <UButton
               color="neutral"
               variant="ghost"
@@ -90,7 +102,10 @@
           :key="`header-${book.classId}`"
           #[`book_${book.classId}-header`]
         >
-          <UTooltip :text="book.name || book.classId" class="cursor-help">
+          <UTooltip
+            :text="book.name || book.classId"
+            class="cursor-help"
+          >
             <UButton
               color="neutral"
               variant="ghost"
@@ -122,19 +137,31 @@
             size="sm"
             @click.stop="openWalletLink(row.original.readerWallet)"
           />
-          <span v-else class="text-gray-400">-</span>
+          <span
+            v-else
+            class="text-gray-400"
+          >-</span>
         </template>
 
         <template #firstPurchaseTime-cell="{ row }">
-          <span class="text-sm" v-text="formatDate(row.original.firstPurchaseTime)" />
+          <span
+            class="text-sm"
+            v-text="formatDate(row.original.firstPurchaseTime)"
+          />
         </template>
 
         <template #lastPurchaseTime-cell="{ row }">
-          <span class="text-sm" v-text="formatDate(row.original.lastPurchaseTime)" />
+          <span
+            class="text-sm"
+            v-text="formatDate(row.original.lastPurchaseTime)"
+          />
         </template>
 
         <template #lifetimeValue-cell="{ row }">
-          <span class="font-medium" v-text="`$${formatValue(row.original.lifetimeValue)}`" />
+          <span
+            class="font-medium"
+            v-text="`$${formatValue(row.original.lifetimeValue)}`"
+          />
         </template>
 
         <template #hasMessage-cell="{ row }">
@@ -203,7 +230,7 @@ const {
   getSortIcon,
   baseColumnsConfig,
   pageSizeOptions,
-  exportReadersToCSV
+  exportReadersToCSV,
 } = useReadersTable()
 
 const pageSize = ref(100)
@@ -219,46 +246,49 @@ onMounted(async () => {
   }
 })
 
-async function loadReadersData () {
+async function loadReadersData() {
   await ordersStore.fetchReaders()
 }
 
-async function refreshData () {
+async function refreshData() {
   await ordersStore.fetchReaders(true)
   clearSelection()
 }
 
-function onPageSizeChange (newSize: number) {
+function onPageSizeChange(newSize: number) {
   setPageSize(newSize)
   currentPage.value = 1
 }
 
-function sortByColumn (columnKey: string) {
+function sortByColumn(columnKey: string) {
   const currentSort = sortState.value
 
   if (currentSort.column === columnKey) {
     if (currentSort.direction === 'asc') {
       setSortState(columnKey, 'desc')
-    } else if (currentSort.direction === 'desc') {
+    }
+    else if (currentSort.direction === 'desc') {
       setSortState(null, null)
-    } else {
+    }
+    else {
       setSortState(columnKey, 'asc')
     }
-  } else {
+  }
+  else {
     setSortState(columnKey, 'asc')
   }
 }
 
-function exportSelectedToCSV () {
+function exportSelectedToCSV() {
   useLogEvent('readers_export_csv')
   exportReadersToCSV()
 }
 
-function openMailto (email: string) {
+function openMailto(email: string) {
   window.open(`mailto:${email}`, '_self')
 }
 
-function openWalletLink (wallet: string) {
+function openWalletLink(wallet: string) {
   window.open(getWalletLink(wallet), '_blank')
 }
 </script>

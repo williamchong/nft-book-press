@@ -16,7 +16,11 @@
               {{ $t('notifications.iscn_registration_complete') }}
             </p>
           </div>
-          <UProgress animation="carousel" color="primary" class="w-full" />
+          <UProgress
+            animation="carousel"
+            color="primary"
+            class="w-full"
+          />
         </div>
       </template>
     </UModal>
@@ -44,7 +48,7 @@ const iscnFormData = ref<ISCNFormData>({
   publicationDate: '',
   author: {
     name: '',
-    description: ''
+    description: '',
   },
   license: 'All Rights Reserved',
   customLicense: '',
@@ -52,13 +56,13 @@ const iscnFormData = ref<ISCNFormData>({
   downloadableUrls: [{
     url: '',
     type: '',
-    fileName: ''
+    fileName: '',
   }],
   language: '',
   bookInfoUrl: '',
   tags: [],
   coverUrl: '',
-  genre: ''
+  genre: '',
 })
 
 const uploadStatus = ref('')
@@ -95,7 +99,7 @@ const initializeFromSessionStorage = () => {
     publicationDate: new Date().toISOString().split('T')[0] || '',
     author: {
       name: data.epubMetadata?.author ?? '',
-      description: ''
+      description: '',
     },
     license: 'All Rights Reserved',
     customLicense: '',
@@ -107,7 +111,7 @@ const initializeFromSessionStorage = () => {
     language: formatLanguage(data.epubMetadata?.language || 'zh'),
     bookInfoUrl: '',
     tags: data.epubMetadata?.tags || [],
-    genre: ''
+    genre: '',
   }
 
   baseData.downloadableUrls = data.fileRecords
@@ -115,7 +119,7 @@ const initializeFromSessionStorage = () => {
     .map(file => ({
       url: file.arweaveKey ? file.arweaveLink : `ar://${file.arweaveId}`,
       type: getFileType(file.fileType),
-      fileName: file.fileName
+      fileName: file.fileName,
     }))
 
   baseData.contentFingerprints = [
@@ -129,8 +133,8 @@ const initializeFromSessionStorage = () => {
             ? arweaveUrl
             : `ar://${r.arweaveId}`
         })
-        .filter(Boolean)
-    )
+        .filter(Boolean),
+    ),
   ].map(url => ({ url }))
 
   return baseData
@@ -166,20 +170,22 @@ const submitToISCN = async (): Promise<void> => {
     uploadStatus.value = 'success'
     emit('submit', {
       iscnId: classId,
-      txHash
+      txHash,
     })
-  } catch (err) {
+  }
+  catch (err) {
     // eslint-disable-next-line no-console
     console.error(err)
     showErrorToast(`'SIGNING_ERROR':${err as string}`)
     uploadStatus.value = ''
-  } finally {
+  }
+  finally {
     uploadStatus.value = ''
   }
 }
 
 defineExpose({
-  onSubmit
+  onSubmit,
 })
 </script>
 

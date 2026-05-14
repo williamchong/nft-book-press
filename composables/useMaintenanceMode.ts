@@ -1,9 +1,9 @@
 const WHITELISTED_ROUTE_NAMES = [
   'batch-short-links',
-  'batch-qrcode'
+  'batch-qrcode',
 ]
 
-export function useMaintenanceMode () {
+export function useMaintenanceMode() {
   const config = useRuntimeConfig()
   const route = useRoute()
   const getRouteQuery = useRouteQuery()
@@ -19,12 +19,12 @@ export function useMaintenanceMode () {
   })
 
   const isShowMaintenancePage = computed(() => (
-    config.public.IS_MAINTENANCE &&
-    !shouldOverrideMaintenancePage.value &&
-    !isWhitelistedRoute.value
+    config.public.IS_MAINTENANCE
+    && !shouldOverrideMaintenancePage.value
+    && !isWhitelistedRoute.value
   ))
 
   return {
-    isShowMaintenancePage
+    isShowMaintenancePage,
   }
 }

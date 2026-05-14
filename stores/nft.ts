@@ -9,26 +9,26 @@ export const useNftStore = defineStore('nft', () => {
 
   const getClassListingInfoById = computed(() => (classId: string) => classListingInfoByIdMap.value[classId])
 
-  async function fetchClassMetadataById (classId: string) {
+  async function fetchClassMetadataById(classId: string) {
     const { getClassMetadata } = useNFTContractReader()
     const classData = await getClassMetadata(classId)
     classMetadataByIdMap.value[classId] = classData
     return classData
   }
 
-  function lazyFetchClassMetadataById (classId: string) {
+  function lazyFetchClassMetadataById(classId: string) {
     if (getClassMetadataById.value(classId)) { return getClassMetadataById.value(classId) }
     return fetchClassMetadataById(classId)
   }
 
-  async function fetchClassListingInfoById (classId: string) {
+  async function fetchClassListingInfoById(classId: string) {
     const data = await $fetch<Record<string, unknown>>(`${LIKE_CO_API}/likernft/book/store/${classId}`)
     const listingInfo = data
     classListingInfoByIdMap.value[classId] = listingInfo
     return listingInfo
   }
 
-  function lazyFetchClassListingInfoById (classId: string) {
+  function lazyFetchClassListingInfoById(classId: string) {
     if (classListingInfoByIdMap.value[classId]) { return classListingInfoByIdMap.value[classId] }
     return fetchClassListingInfoById(classId)
   }
@@ -41,6 +41,6 @@ export const useNftStore = defineStore('nft', () => {
     fetchClassMetadataById,
     lazyFetchClassMetadataById,
     fetchClassListingInfoById,
-    lazyFetchClassListingInfoById
+    lazyFetchClassListingInfoById,
   }
 })

@@ -1,5 +1,8 @@
 <template>
-  <UForm :state="state" class="flex flex-col gap-[12px]">
+  <UForm
+    :state="state"
+    class="flex flex-col gap-[12px]"
+  >
     <UFormField
       :label="$t('form_labels.nft_mint_count')"
       class="text-left"
@@ -19,7 +22,10 @@
       :error="!state.imageUrl && $t('nft_mint_form.image_url_required')"
       required
     >
-      <UInput v-model="state.imageUrl" :placeholder="$t('nft_mint_form.ipfs_placeholder')" />
+      <UInput
+        v-model="state.imageUrl"
+        :placeholder="$t('nft_mint_form.ipfs_placeholder')"
+      />
     </UFormField>
   </UForm>
 </template>
@@ -37,12 +43,12 @@ const props = defineProps<{
   showMaxSupply?: boolean
 }>()
 
-const emit = defineEmits<{(
+const emit = defineEmits<{ (
   e: 'update:modelValue', value: NFTMintFormState
 ): void }>()
 
 const state = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: value => emit('update:modelValue', value),
 })
 </script>

@@ -1,6 +1,6 @@
 import type { BookInfo, ReaderData } from '~/stores/orders'
 
-export function useReadersTable () {
+export function useReadersTable() {
   const { t } = useI18n()
 
   const ordersStore = useOrdersStore()
@@ -8,7 +8,7 @@ export function useReadersTable () {
   const pagination = ref({
     page: 1,
     limit: 100,
-    total: 0
+    total: 0,
   })
 
   const sortState = ref<{
@@ -16,14 +16,14 @@ export function useReadersTable () {
     direction: 'asc' | 'desc' | null
   }>({
     column: null,
-    direction: null
+    direction: null,
   })
 
   const pageSizeOptions = [
     { label: '25', value: 25 },
     { label: '50', value: 50 },
     { label: '100', value: 100 },
-    { label: '200', value: 200 }
+    { label: '200', value: 200 },
   ]
 
   const selectedRows = ref<ReaderData[]>([])
@@ -36,7 +36,7 @@ export function useReadersTable () {
     { key: 'firstPurchaseTime', label: t('table.first_purchase'), accessorKey: 'firstPurchaseTime', header: t('table.first_purchase') },
     { key: 'lastPurchaseTime', label: t('table.last_purchase'), accessorKey: 'lastPurchaseTime', header: t('table.last_purchase') },
     { key: 'lifetimeValue', label: t('table.lifetime_value'), accessorKey: 'lifetimeValue', header: t('table.lifetime_value') },
-    { key: 'hasMessage', label: t('table.has_message'), accessorKey: 'hasMessage', header: t('table.has_message') }
+    { key: 'hasMessage', label: t('table.has_message'), accessorKey: 'hasMessage', header: t('table.has_message') },
   ])
 
   const columns = computed(() => {
@@ -44,14 +44,14 @@ export function useReadersTable () {
       key: col.key,
       label: col.label,
       accessorKey: col.accessorKey,
-      header: col.header
+      header: col.header,
     }))
 
     const bookColumns = Object.values(ordersStore.booksInfo).map((book: BookInfo) => ({
       key: `book_${book.classId}`,
       label: book.name?.slice(0, 1) || book.classId.slice(0, 1),
       accessorKey: `book_${book.classId}`,
-      header: book.name?.slice(0, 1) || book.classId.slice(0, 1)
+      header: book.name?.slice(0, 1) || book.classId.slice(0, 1),
     }))
 
     return [...baseColumns, ...bookColumns]
@@ -74,19 +74,26 @@ export function useReadersTable () {
         const aTime = new Date(aValue as string | number).getTime()
         const bTime = new Date(bValue as string | number).getTime()
         comparison = aTime - bTime
-      } else if (typeof aValue === 'string' && typeof bValue === 'string') {
+      }
+      else if (typeof aValue === 'string' && typeof bValue === 'string') {
         comparison = aValue.localeCompare(bValue)
-      } else if (typeof aValue === 'number' && typeof bValue === 'number') {
+      }
+      else if (typeof aValue === 'number' && typeof bValue === 'number') {
         comparison = aValue - bValue
-      } else if (typeof aValue === 'boolean' && typeof bValue === 'boolean') {
+      }
+      else if (typeof aValue === 'boolean' && typeof bValue === 'boolean') {
         comparison = (aValue ? 1 : 0) - (bValue ? 1 : 0)
-      } else if (aValue == null && bValue == null) {
+      }
+      else if (aValue == null && bValue == null) {
         comparison = 0
-      } else if (aValue == null) {
+      }
+      else if (aValue == null) {
         comparison = -1
-      } else if (bValue == null) {
+      }
+      else if (bValue == null) {
         comparison = 1
-      } else {
+      }
+      else {
         comparison = String(aValue).localeCompare(String(bValue))
       }
 
@@ -106,15 +113,15 @@ export function useReadersTable () {
     return Math.ceil(pagination.value.total / pagination.value.limit)
   })
 
-  function onSelect (rows: ReaderData[]) {
+  function onSelect(rows: ReaderData[]) {
     selectedRows.value = rows
   }
 
-  function clearSelection () {
+  function clearSelection() {
     selectedRows.value = []
   }
 
-  function formatDate (dateString: string | number, locale = 'zh-TW'): string {
+  function formatDate(dateString: string | number, locale = 'zh-TW'): string {
     if (!dateString) { return '-' }
 
     const date = new Date(dateString)
@@ -123,43 +130,43 @@ export function useReadersTable () {
     return date.toLocaleDateString(locale, {
       year: 'numeric',
       month: '2-digit',
-      day: '2-digit'
+      day: '2-digit',
     })
   }
 
-  function formatValue (amount: number, decimals = 2): string {
+  function formatValue(amount: number, decimals = 2): string {
     if (typeof amount !== 'number' || isNaN(amount)) { return '0.00' }
     return `${amount.toFixed(decimals)}`
   }
 
-  function setSortState (column: string | null, direction: 'asc' | 'desc' | null) {
+  function setSortState(column: string | null, direction: 'asc' | 'desc' | null) {
     sortState.value.column = column
     sortState.value.direction = direction
   }
 
-  function setPage (page: number) {
+  function setPage(page: number) {
     const maxPage = Math.ceil(pagination.value.total / pagination.value.limit)
     pagination.value.page = Math.max(1, Math.min(page, maxPage))
   }
 
-  function setPageSize (limit: number) {
+  function setPageSize(limit: number) {
     pagination.value.limit = limit
     pagination.value.page = 1 // Reset to first page
   }
 
-  function shortenWallet (wallet: string, startLength = 6, endLength = 4): string {
+  function shortenWallet(wallet: string, startLength = 6, endLength = 4): string {
     if (!wallet) { return '' }
     if (wallet.length <= startLength + endLength) { return wallet }
 
     return `${wallet.slice(0, startLength)}...${wallet.slice(-endLength)}`
   }
 
-  function getWalletLink (wallet: string): string {
+  function getWalletLink(wallet: string): string {
     if (!wallet) { return '' }
     return `https://opensea.io/${wallet}`
   }
 
-  function getSortIcon (currentColumn: string | null, currentDirection: 'asc' | 'desc' | null, columnKey: string) {
+  function getSortIcon(currentColumn: string | null, currentDirection: 'asc' | 'desc' | null, columnKey: string) {
     if (currentColumn === columnKey) {
       return currentDirection === 'asc'
         ? 'i-heroicons-bars-arrow-up-20-solid'
@@ -168,7 +175,7 @@ export function useReadersTable () {
     return 'i-heroicons-arrows-up-down-20-solid'
   }
 
-  function getNestedValue (obj: Record<string, unknown>, path: string): unknown {
+  function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
     return path.split('.').reduce<unknown>((current, key) => {
       if (current && typeof current === 'object') {
         return (current as Record<string, unknown>)[key]
@@ -177,10 +184,10 @@ export function useReadersTable () {
     }, obj)
   }
 
-  async function exportToCSV (
+  async function exportToCSV(
     data: Record<string, unknown>[],
-    columnConfig: { key: string; label: string; formatter?: (value: unknown) => string }[],
-    filename?: string
+    columnConfig: { key: string, label: string, formatter?: (value: unknown) => string }[],
+    filename?: string,
   ) {
     if (data.length === 0) {
       return
@@ -203,10 +210,10 @@ export function useReadersTable () {
     await downloadCSV(processedData, columns, finalFilename)
   }
 
-  async function exportReadersToCSV () {
+  async function exportReadersToCSV() {
     const dataToExport = hasSelection.value ? selectedRows.value : ordersStore.readers
 
-    const columnConfig: { key: string; label: string; formatter?: (value: unknown) => string }[] = [
+    const columnConfig: { key: string, label: string, formatter?: (value: unknown) => string }[] = [
       { key: 'readerEmail', label: t('table.reader_email') },
       { key: 'readerWallet', label: t('table.reader_wallet') },
       { key: 'firstPurchaseTime', label: t('table.first_purchase'), formatter: (val: unknown) => formatDate(val as string | number) },
@@ -216,8 +223,8 @@ export function useReadersTable () {
       ...Object.values(ordersStore.booksInfo).map((book: BookInfo) => ({
         key: `purchasedBooks.${book.classId}`,
         label: book.name || book.classId,
-        formatter: (val: unknown) => (val as boolean) ? 'Y' : 'N'
-      }))
+        formatter: (val: unknown) => (val as boolean) ? 'Y' : 'N',
+      })),
     ]
 
     const filename = `readers_export_${new Date().toISOString().split('T')[0]}.csv`
@@ -254,6 +261,6 @@ export function useReadersTable () {
     pageSizeOptions,
 
     exportToCSV,
-    exportReadersToCSV
+    exportReadersToCSV,
   }
 }

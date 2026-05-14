@@ -26,7 +26,6 @@
 </template>
 
 <script setup lang="ts">
-
 const route = useRoute()
 const localeRoute = useLocaleRoute()
 const toast = useToast()
@@ -38,13 +37,14 @@ const newEditionIndex = computed(() => {
 
 const isLoading = ref(false)
 
-async function handleNewBookSubmit () {
+async function handleNewBookSubmit() {
   try {
     await navigateTo(localeRoute({
       name: 'my-books-status-classId',
-      params: { classId: classId.value }
+      params: { classId: classId.value },
     }))
-  } catch (err) {
+  }
+  catch (err) {
     const errorData = (err as { data?: string }).data || err
     // eslint-disable-next-line no-console
     console.error(errorData)
@@ -52,18 +52,18 @@ async function handleNewBookSubmit () {
       icon: 'i-heroicons-exclamation-circle',
       title: String(errorData),
       duration: 0,
-      color: 'error'
+      color: 'error',
     })
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
-async function handleClickBack () {
+async function handleClickBack() {
   await navigateTo(localeRoute({
     name: 'my-books-status-classId',
-    params: { classId: classId.value }
+    params: { classId: classId.value },
   }))
 }
-
 </script>

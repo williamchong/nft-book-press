@@ -82,22 +82,22 @@ const features = computed(() => [
   {
     icon: 'i-heroicons-currency-dollar',
     title: $t('landing.feature_revenue_title'),
-    desc: $t('landing.feature_revenue_desc')
+    desc: $t('landing.feature_revenue_desc'),
   },
   {
     icon: 'i-heroicons-bolt',
     title: $t('landing.feature_payout_title'),
-    desc: $t('landing.feature_payout_desc')
+    desc: $t('landing.feature_payout_desc'),
   },
   {
     icon: 'i-heroicons-megaphone',
     title: $t('landing.feature_affiliate_title'),
-    desc: $t('landing.feature_affiliate_desc')
+    desc: $t('landing.feature_affiliate_desc'),
   },
   {
     icon: 'i-heroicons-chart-bar',
     title: $t('landing.feature_analytics_title'),
-    desc: $t('landing.feature_analytics_desc')
-  }
+    desc: $t('landing.feature_analytics_desc'),
+  },
 ])
 </script>

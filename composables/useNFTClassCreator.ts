@@ -4,22 +4,22 @@ import { DEFAULT_MAX_SUPPLY } from '~/constant'
 import { formatISCNTxPayload } from '~/utils/iscn'
 import type { ISCNFormData } from '~/types/iscn'
 
-export function useNFTClassCreator () {
+export function useNFTClassCreator() {
   const walletStore = useWalletStore()
   const { wallet } = storeToRefs(walletStore)
   const {
     assertSufficientBalanceForTransaction,
-    waitForTransactionReceipt
+    waitForTransactionReceipt,
   } = useNFTContractWriter()
   const { writeContractAsync } = useContractWrite()
   const {
     LIKE_NFT_CONTRACT_ADDRESS,
-    LIKE_EVM_NFT_TARGET_ADDRESS
+    LIKE_EVM_NFT_TARGET_ADDRESS,
   } = useRuntimeConfig().public
 
-  async function createNFTClass (params: {
+  async function createNFTClass(params: {
     iscnFormData: Ref<ISCNFormData>
-  }): Promise<{ classId: string; txHash: string }> {
+  }): Promise<{ classId: string, txHash: string }> {
     const { payload, computeISCNSalt } = useISCN({ iscnFormData: params.iscnFormData })
 
     const contentMetadata = formatISCNTxPayload(payload.value)
@@ -31,7 +31,7 @@ export function useNFTClassCreator () {
       nft_meta_collection_id: 'nft_book',
       nft_meta_collection_name: 'NFT Book',
       nft_meta_collection_description: 'NFT Book by Liker Land',
-      recordTimestamp: new Date().toISOString()
+      recordTimestamp: new Date().toISOString(),
     }
 
     const salt = computeISCNSalt(wallet.value!)
@@ -50,16 +50,16 @@ export function useNFTClassCreator () {
             name: metadata.name,
             symbol: 'BOOK',
             metadata: JSON.stringify(metadata),
-            max_supply: DEFAULT_MAX_SUPPLY
-          }
+            max_supply: DEFAULT_MAX_SUPPLY,
+          },
         },
-        500
-      ]
+        500,
+      ],
     }
 
     await assertSufficientBalanceForTransaction({
       wallet: wallet.value!,
-      ...txParams
+      ...txParams,
     })
 
     const txHash = await writeContractAsync(txParams)
@@ -73,7 +73,7 @@ export function useNFTClassCreator () {
       abi: LIKE_NFT_ABI,
       logs: receipt.logs,
       eventName: 'NewBookNFT',
-      strict: false
+      strict: false,
     })
 
     const classId = bookNFTLog?.args?.bookNFT?.toLowerCase()

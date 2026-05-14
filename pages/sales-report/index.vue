@@ -69,15 +69,24 @@
         :ui="{ th: 'text-center', td: 'text-center' }"
       >
         <template #classId-cell="{ row }">
-          <a :href="`${BOOK3_URL}/store/${row.original.classId || ''}`" target="_blank">
+          <a
+            :href="`${BOOK3_URL}/store/${row.original.classId || ''}`"
+            target="_blank"
+          >
             {{ (row.original.classId ? nftStore.getClassMetadataById(row.original.classId)?.name : '') || row.original.classId || '' }}
           </a>
         </template>
         <template #buyerEmail-cell="{ row }">
-          <a v-if="row.original.buyerEmail" :href="`mailto:${row.original.buyerEmail}`">
+          <a
+            v-if="row.original.buyerEmail"
+            :href="`mailto:${row.original.buyerEmail}`"
+          >
             {{ row.original.buyerEmail }}
           </a>
-          <span v-else class="text-gray-400">-</span>
+          <span
+            v-else
+            class="text-gray-400"
+          >-</span>
         </template>
       </UTable>
     </UCard>
@@ -136,8 +145,8 @@
             :to="localeRoute({
               name: 'sales-report-payouts-payoutId',
               params: {
-                payoutId: row.original.id
-              }
+                payoutId: row.original.id,
+              },
             })"
           />
         </template>
@@ -177,7 +186,7 @@ onMounted(async () => {
   await stripeStore.refreshStripeConnectStatus(wallet.value)
   await Promise.all([
     loadCommissionHistory(),
-    loadPayoutHistory()
+    loadPayoutHistory(),
   ])
 })
 
@@ -199,7 +208,7 @@ const commissionHistoryRows = computed(() => {
       amountTotal: formatNumberWithCurrency(row.amountTotal, row.currency),
       currency: formatCurrency(row.currency),
       buyerEmail: row.buyerEmail || '',
-      timestamp: new Date(row.timestamp).toLocaleString()
+      timestamp: new Date(row.timestamp).toLocaleString(),
     }
   })
 })
@@ -212,25 +221,25 @@ const payoutHistoryRows = computed(() => {
       currency,
       status,
       arrivalTs,
-      createdTs
+      createdTs,
     } = row
     return {
       id,
       amount: formatNumberWithCurrency(amount, currency),
       status,
       createdTs: new Date(createdTs * 1000).toLocaleString(),
-      arrivalTs: arrivalTs ? new Date(arrivalTs * 1000).toLocaleString() : ''
+      arrivalTs: arrivalTs ? new Date(arrivalTs * 1000).toLocaleString() : '',
     }
   })
 })
 
-async function loadCommissionHistory () {
+async function loadCommissionHistory() {
   try {
     isLoading.value = true
     const data = await $fetch(`${LIKE_CO_API}/likernft/book/user/commissions/list`, {
       headers: {
-        authorization: `Bearer ${token.value}`
-      }
+        authorization: `Bearer ${token.value}`,
+      },
     })
     commissionHistory.value = (data as { commissions?: CommissionRow[] })?.commissions || []
 
@@ -238,34 +247,38 @@ async function loadCommissionHistory () {
       .filter((row: CommissionRow) => !!row.classId)
       .map((row: CommissionRow) => row.classId as string))
     classIds.forEach((classId: string) => nftStore.lazyFetchClassMetadataById(classId))
-  } catch (e) {
+  }
+  catch (e) {
     console.error(e)
     error.value = (e as Error).toString()
     showErrorToast(e)
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
-async function loadPayoutHistory () {
+async function loadPayoutHistory() {
   if (!isStripeConnectReady.value) return
   try {
     isLoading.value = true
     const data = await $fetch(`${LIKE_CO_API}/likernft/book/user/payouts/list`, {
       headers: {
-        authorization: `Bearer ${token.value}`
-      }
+        authorization: `Bearer ${token.value}`,
+      },
     })
     payoutHistory.value = (data as { payouts?: PayoutRow[] })?.payouts || []
-  } catch (e) {
+  }
+  catch (e) {
     error.value = (e as Error).toString()
     showErrorToast(e)
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
-async function exportCommissionHistory () {
+async function exportCommissionHistory() {
   useLogEvent('sales_report_export_commission')
   const date = new Date().toISOString().split('T')[0]
 
@@ -277,7 +290,7 @@ async function exportCommissionHistory () {
     { accessorKey: 'buyerEmail', header: $t('table.buyer_email') },
     { accessorKey: 'amount', header: $t('user_settings.commission') },
     { accessorKey: 'amountTotal', header: $t('user_settings.sale_amount') },
-    { accessorKey: 'currency', header: $t('user_settings.currency') }
+    { accessorKey: 'currency', header: $t('user_settings.currency') },
   ]
 
   const data = commissionHistory.value.map((row: CommissionRow) => ({
@@ -299,13 +312,13 @@ async function exportCommissionHistory () {
     buyerEmail: row.buyerEmail || '',
     amount: convertDecimalToAmount(row.amount, row.currency),
     currency: formatCurrency(row.currency),
-    amountTotal: convertDecimalToAmount(row.amountTotal, row.currency)
+    amountTotal: convertDecimalToAmount(row.amountTotal, row.currency),
   }))
 
   await downloadCSV(data, columns, `sales-commission-history-${date}.csv`)
 }
 
-async function exportPayoutHistory () {
+async function exportPayoutHistory() {
   useLogEvent('sales_report_export_payout')
   const date = new Date().toISOString().split('T')[0]
 
@@ -314,7 +327,7 @@ async function exportPayoutHistory () {
     { accessorKey: 'amount', header: $t('user_settings.payout_amount') },
     { accessorKey: 'status', header: $t('user_settings.status') },
     { accessorKey: 'arrivalTs', header: $t('user_settings.arrived') },
-    { accessorKey: 'id', header: 'ID' }
+    { accessorKey: 'id', header: 'ID' },
   ]
 
   const data = payoutHistory.value.map((row: PayoutRow) => ({
@@ -322,10 +335,9 @@ async function exportPayoutHistory () {
     amount: convertDecimalToAmount(row.amount, row.currency),
     status: row.status,
     arrivalTs: row.arrivalTs ? new Date(row.arrivalTs * 1000).toLocaleString() : '',
-    id: row.id
+    id: row.id,
   }))
 
   await downloadCSV(data, columns, `sales-payout-history-${date}.csv`)
 }
-
 </script>

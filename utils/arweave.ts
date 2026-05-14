@@ -2,22 +2,22 @@ import { getApiEndpoints } from '~/constant/api'
 import type { ArweaveEstimate } from '~/types'
 import { uploadToIrys } from '~/utils/irys'
 
-export function canSponsorArweaveUpload (
+export function canSponsorArweaveUpload(
   estimate: Pick<ArweaveEstimate, 'remainingBytes' | 'remainingUploads' | 'isUnlimited'>,
   totalSize: number,
-  fileCount: number
+  fileCount: number,
 ): boolean {
   if (estimate.isUnlimited) { return true }
-  return estimate.remainingBytes !== undefined &&
-    estimate.remainingUploads !== undefined &&
-    estimate.remainingBytes >= totalSize &&
-    estimate.remainingUploads >= fileCount
+  return estimate.remainingBytes !== undefined
+    && estimate.remainingUploads !== undefined
+    && estimate.remainingBytes >= totalSize
+    && estimate.remainingUploads >= fileCount
 }
 
-export async function estimateBundlrFilePrice ({
+export async function estimateBundlrFilePrice({
   fileSize,
   ipfsHash,
-  token
+  token,
 }: {
   fileSize: number
   ipfsHash?: string
@@ -28,14 +28,14 @@ export async function estimateBundlrFilePrice ({
     method: 'POST',
     body: {
       fileSize,
-      ipfsHash
+      ipfsHash,
     },
-    headers: token ? { Authorization: `Bearer ${token}` } : {}
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
   })
   return data
 }
 
-export async function uploadSingleFileToBundlr (
+export async function uploadSingleFileToBundlr(
   file: Buffer,
   {
     fileType,
@@ -44,7 +44,7 @@ export async function uploadSingleFileToBundlr (
     txHash,
     token,
     key,
-    sponsored
+    sponsored,
   }: {
     fileSize: number
     fileType?: string
@@ -53,13 +53,13 @@ export async function uploadSingleFileToBundlr (
     token: string
     key?: string
     sponsored?: boolean
-  }
+  },
 ) {
   const tags = [
     { name: 'App-Name', value: 'publish.3ook.com' },
     { name: 'App-Version', value: '2.0' },
     { name: 'User-Agent', value: 'publish.3ook.com' },
-    { name: 'IPFS-CID', value: ipfsHash }
+    { name: 'IPFS-CID', value: ipfsHash },
   ]
   if (fileType) { tags.push({ name: 'Content-Type', value: fileType }) }
   if (key) { tags.push({ name: 'Content-Encoding', value: 'aes256gcm' }) }
@@ -70,7 +70,7 @@ export async function uploadSingleFileToBundlr (
     ipfsHash,
     txHash,
     token,
-    sponsored
+    sponsored,
   })
 
   const registrationId = sponsored ? (uploadId || txHash) : (txHash || uploadId)
@@ -91,9 +91,9 @@ export async function uploadSingleFileToBundlr (
         txHash: registrationId,
         arweaveId,
         token: signToken,
-        key
+        key,
       },
-      headers: token ? { Authorization: `Bearer ${token}` } : {}
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
     const result = data as { link?: string }
     if (result?.link) {
@@ -104,6 +104,6 @@ export async function uploadSingleFileToBundlr (
   return {
     arweaveId,
     arweaveLink,
-    arweaveKey: key
+    arweaveKey: key,
   }
 }

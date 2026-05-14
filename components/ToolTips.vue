@@ -1,28 +1,36 @@
 <template>
   <div :class="{ tooltip: props.showToolTip }">
     <slot />
-    <div v-if="$slots.image" class="tooltipImage" :style="{...props.imageStyle}">
+    <div
+      v-if="$slots.image"
+      class="tooltipImage"
+      :style="{ ...props.imageStyle }"
+    >
       <slot name="image" />
     </div>
-    <span v-if="props.showToolTip && props.toolTipText" class="tooltipText">
+    <span
+      v-if="props.showToolTip && props.toolTipText"
+      class="tooltipText"
+    >
       {{ props.toolTipText }}
     </span>
   </div>
 </template>
+
 <script setup lang="ts">
 const props = defineProps({
   toolTipText: {
     type: String,
-    default: undefined
+    default: undefined,
   },
   showToolTip: {
     type: Boolean,
-    default: true
+    default: true,
   },
   imageStyle: {
     type: Object,
-    default: () => ({ width: '400px' })
-  }
+    default: () => ({ width: '400px' }),
+  },
 })
 </script>
 

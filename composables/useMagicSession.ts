@@ -3,10 +3,10 @@ import type { Magic } from 'magic-sdk'
 
 let pendingSessionCheck: Promise<void> | null = null
 
-export function useMagicSession () {
+export function useMagicSession() {
   const { $wagmiConfig } = useNuxtApp()
 
-  async function doEnsureMagicSession () {
+  async function doEnsureMagicSession() {
     const currentKey = $wagmiConfig.state.current
     const connector = currentKey
       ? $wagmiConfig.state.connections.get(currentKey)?.connector
@@ -17,7 +17,8 @@ export function useMagicSession () {
     try {
       const magic = await (connector as unknown as { getMagic: () => Promise<Magic> }).getMagic()
       needsReauth = !(await magic.user.isLoggedIn())
-    } catch {
+    }
+    catch {
       needsReauth = true
     }
 
@@ -27,7 +28,7 @@ export function useMagicSession () {
     }
   }
 
-  function ensureMagicSession () {
+  function ensureMagicSession() {
     if (pendingSessionCheck) {
       return pendingSessionCheck
     }

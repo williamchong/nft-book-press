@@ -29,7 +29,11 @@
         ?from={{ channelId }}
       </UKbd>{{ $t('latest_books_extended.append_suffix') }}
     </UCard>
-    <UTabs v-model="selectedTabItemIndex" class="w-full" :items="tabItems">
+    <UTabs
+      v-model="selectedTabItemIndex"
+      class="w-full"
+      :items="tabItems"
+    >
       <template #content="{ item }">
         <UCard
           :key="item.value"
@@ -40,17 +44,36 @@
           }"
         >
           <div class="flex px-3 py-3.5 border-b border-gray-200">
-            <UInput v-model="q" :placeholder="$t('latest_books.filter_placeholder')" />
+            <UInput
+              v-model="q"
+              :placeholder="$t('latest_books.filter_placeholder')"
+            />
           </div>
-          <UTable :columns="tableColumns" :data="filteredRows" @select="selectTableRow">
+          <UTable
+            :columns="tableColumns"
+            :data="filteredRows"
+            @select="selectTableRow"
+          >
             <template #image-cell="{ row }">
-              <img v-if="row.original.image" :src="row.original.image" :alt="row.original.className" class="w-12 h-12 object-cover rounded-lg">
+              <img
+                v-if="row.original.image"
+                :src="row.original.image"
+                :alt="row.original.className"
+                class="w-12 h-12 object-cover rounded-lg"
+              >
             </template>
             <template #className-cell="{ row }">
-              <div class="max-w-[20vw] whitespace-normal" v-text="row.original.className" />
+              <div
+                class="max-w-[20vw] whitespace-normal"
+                v-text="row.original.className"
+              />
             </template>
             <template #url-cell="{ row }">
-              <UButton :label="$t('common.copy')" :disabled="!isAffiliationReady" @click="handleCopyButtonClick($event, row.original.url)" />
+              <UButton
+                :label="$t('common.copy')"
+                :disabled="!isAffiliationReady"
+                @click="handleCopyButtonClick($event, row.original.url)"
+              />
             </template>
           </UTable>
         </UCard>
@@ -78,7 +101,7 @@ const { isAuthenticated, wallet: sessionWallet } = storeToRefs(bookstoreApiStore
 
 const tabItems = computed(() => [
   { label: $t('latest_books.latest_releases'), value: 'latest' },
-  { label: $t('latest_books.best_sellers'), value: 'bestselling' }
+  { label: $t('latest_books.best_sellers'), value: 'bestselling' },
 ])
 
 const error = ref('')
@@ -90,7 +113,7 @@ const { data: latestBookList, error: latestBooksError } = useLazyAsyncData(
     const data = await $fetch(`${BOOK3_URL}/api/store/products?tag=latest`)
     return (data as { records?: BookRecord[] })?.records || []
   },
-  { default: () => [] as BookRecord[] }
+  { default: () => [] as BookRecord[] },
 )
 
 const { data: bestSellerBookList, error: bestSellersError } = useLazyAsyncData(
@@ -99,7 +122,7 @@ const { data: bestSellerBookList, error: bestSellersError } = useLazyAsyncData(
     const data = await $fetch(`${BOOK3_URL}/api/store/products?tag=bestselling`)
     return (data as { records?: BookRecord[] })?.records || []
   },
-  { default: () => [] as BookRecord[] }
+  { default: () => [] as BookRecord[] },
 )
 
 watch([latestBooksError, bestSellersError], ([e1, e2]) => {
@@ -122,23 +145,23 @@ const isAffiliationReady = computed(() => isStripeConnectReady.value && channelI
 const tableColumns = computed(() => [
   {
     accessorKey: 'image',
-    header: $t('table.cover')
+    header: $t('table.cover'),
   },
   {
     accessorKey: 'className',
-    header: $t('latest_books.book_name')
+    header: $t('latest_books.book_name'),
   },
   {
     accessorKey: 'author',
-    header: $t('common.author')
+    header: $t('common.author'),
   },
   {
     accessorKey: 'priceInUSD',
-    header: $t('common.price')
+    header: $t('common.price'),
   }, {
     accessorKey: 'url',
-    header: isAffiliationReady.value ? $t('latest_books.affiliation_link') : $t('common.link')
-  }
+    header: isAffiliationReady.value ? $t('latest_books.affiliation_link') : $t('common.link'),
+  },
 ])
 const selectedTabItemKey = computed(() => selectedTabItemIndex.value || 'latest')
 const bookList = computed(() => selectedTabItemKey.value === 'latest' ? latestBookList.value : bestSellerBookList.value)
@@ -151,7 +174,7 @@ const tableRows = computed(() => bookList.value.map((b) => {
     image: image ? getImageResizeURL(parseImageURLFromMetadata(image)) : undefined,
     author,
     priceInUSD: `US$${b.minPrice || b.prices?.[0]?.price || 0}`,
-    url: `${BOOK3_URL}/store/${b.classId}?from=${channelId.value}&utm_source=bookpress&utm_medium=list_${selectedTabItemKey.value}`
+    url: `${BOOK3_URL}/store/${b.classId}?from=${channelId.value}&utm_source=bookpress&utm_medium=list_${selectedTabItemKey.value}`,
   }
 }))
 
@@ -169,20 +192,21 @@ const filteredRows = computed(() => {
 
 useSeoMeta({
   title: () => $t('seo.latest_books_title'),
-  ogTitle: () => $t('seo.latest_books_title')
+  ogTitle: () => $t('seo.latest_books_title'),
 })
 
 onMounted(async () => {
   if (isAuthenticated.value) {
     try {
       await fetchUserStripeInfo()
-    } catch (e) {
+    }
+    catch (e) {
       console.error(e)
     }
   }
 })
 
-async function fetchUserStripeInfo () {
+async function fetchUserStripeInfo() {
   if (!sessionWallet.value) {
     isStripeConnectReady.value = false
     return
@@ -190,24 +214,25 @@ async function fetchUserStripeInfo () {
   try {
     const stripeConnectStatus = await stripeStore.fetchStripeConnectStatusByWallet(sessionWallet.value)
     isStripeConnectReady.value = stripeConnectStatus?.isReady
-  } catch (err) {
+  }
+  catch (err) {
     // eslint-disable-next-line no-console
     console.error(err)
     isStripeConnectReady.value = false
   }
 }
 
-function handleAffiliationSetupButtonClick () {
+function handleAffiliationSetupButtonClick() {
   useLogEvent('latest_books_click_affiliation_setup')
   navigateTo(localeRoute({ name: 'settings' }))
 }
 
-function selectTableRow (row: { original: { url: string } }) {
+function selectTableRow(row: { original: { url: string } }) {
   useLogEvent('latest_books_click_table_row')
   window.open(row.original.url, '_blank')
 }
 
-function handleCopyButtonClick (e: MouseEvent, text: string) {
+function handleCopyButtonClick(e: MouseEvent, text: string) {
   e.stopPropagation()
   useLogEvent('latest_books_click_copy_button')
   copyToClipboard(text)
@@ -220,5 +245,4 @@ watch(isAuthenticated, () => {
     })
   }
 })
-
 </script>

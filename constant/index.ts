@@ -7,10 +7,10 @@ export const MAXIMUM_PRICE = 99.99
 
 export const USD_PRICING_OPTIONS = [0, ...Array.from(
   { length: Math.round(MAXIMUM_PRICE - MINIMAL_PRICE) + 1 },
-  (_, i) => MINIMAL_PRICE + i
+  (_, i) => MINIMAL_PRICE + i,
 )].map(value => ({
   label: (value === 0) ? '免費' : value.toFixed(2),
-  value: value.toString()
+  value: value.toString(),
 }))
 
 export const DEFAULT_MAX_SUPPLY = 18446744073709551615n
@@ -46,7 +46,7 @@ export const AFFILIATION_CHANNELS = [
   { id: '@reveriebookstore', name: '長夢書店' },
   { id: '@dionysus_books', name: '神話書店' },
   { id: '@knockknockbookstore', name: 'knock knock 覺閣' },
-  { id: '@tobylai1221', name: '藝跡文化' }
+  { id: '@tobylai1221', name: '藝跡文化' },
 ]
 
 export const AUTHOR_MESSAGE_LIMIT = 98
@@ -58,11 +58,11 @@ export const UPDATE_ISCN_GAS_MULTIPLIER = 1.75
 
 export const languageOptions = [
   { label: 'English', value: 'en' },
-  { label: '中文', value: 'zh' }
+  { label: '中文', value: 'zh' },
 ]
 
 export const typeOptions = [
-  { label: 'Book', value: 'Book' }
+  { label: 'Book', value: 'Book' },
 ]
 
 export const licenseOptions = [
@@ -74,7 +74,7 @@ export const licenseOptions = [
   { label: 'CC BY-SA', value: 'https://creativecommons.org/licenses/by-sa/4.0/' },
   { label: 'CC BY', value: 'https://creativecommons.org/licenses/by/4.0/' },
   { label: 'CC0 (Public Domain)', value: 'https://creativecommons.org/publicdomain/zero/1.0/' },
-  { label: 'Other', value: 'Other' }
+  { label: 'Other', value: 'Other' },
 ]
 
 export const MAX_DESCRIPTION_LENGTH = 1000
@@ -136,7 +136,7 @@ export const BOOK_CATEGORIES = [
   { i18nKey: 'book_category.true_crime', value: 'True Crime' },
   { i18nKey: 'book_category.young_adult_fiction', value: 'Young Adult Fiction' },
   { i18nKey: 'book_category.young_adult_nonfiction', value: 'Young Adult Nonfiction' },
-  { i18nKey: 'book_category.other', value: 'Other' }
+  { i18nKey: 'book_category.other', value: 'Other' },
 ] as const
 
 export const PUBLISH_GUIDE_URL = 'https://docs.3ook.com/zh-TW/collections/14176162-出版'

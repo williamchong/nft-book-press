@@ -10,9 +10,9 @@ if (process.env.NODE_ENV !== 'development') {
     integrations: [
       Sentry.replayIntegration({
         maskAllText: true,
-        blockAllMedia: true
+        blockAllMedia: true,
       }),
-      Sentry.piniaIntegration(usePinia())
-    ]
+      Sentry.piniaIntegration(usePinia()),
+    ],
   })
 }

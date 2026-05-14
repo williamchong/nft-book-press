@@ -88,7 +88,7 @@ watch(() => userLikerInfo.value?.user, (likerId) => {
     likeWallet: info.likeWallet,
     avatar: info.avatar,
     locale: locale.value,
-    intercomToken: intercomToken.value
+    intercomToken: intercomToken.value,
   })
 })
 
@@ -96,7 +96,7 @@ const isRestoringSession = ref(false)
 
 const isMobileMenuOpen = computed({
   get: () => uiStore.isSiteMenuOpen,
-  set: value => uiStore.setSiteMenuOpen(value)
+  set: value => uiStore.setSiteMenuOpen(value),
 })
 
 const route = useRoute()
@@ -107,7 +107,7 @@ watch(
   () => route.fullPath,
   () => {
     isMobileMenuOpen.value = false
-  }
+  },
 )
 
 watch(() => bookstoreApiStore.isAuthenticated, (isAuthenticated) => {
@@ -118,18 +118,18 @@ watch(() => bookstoreApiStore.isAuthenticated, (isAuthenticated) => {
 
 useHead({
   htmlAttrs: {
-    class: 'h-dvh'
+    class: 'h-dvh',
   },
   bodyAttrs: {
-    class: 'h-dvh text-gray-700 dark:text-gray-200 dark:bg-gray-900'
+    class: 'h-dvh text-gray-700 dark:text-gray-200 dark:bg-gray-900',
   },
   link: [
     {
       rel: 'icon',
       type: 'image/x-icon',
-      href: `${SITE_URL}/favicon.ico`
-    }
-  ]
+      href: `${SITE_URL}/favicon.ico`,
+    },
+  ],
 })
 
 useSeoMeta({
@@ -141,7 +141,7 @@ useSeoMeta({
   ogDescription: () => $t('app.site_description'),
   ogType: 'website',
   ogSiteName: () => $t('app.site_title'),
-  themeColor: '#28646e'
+  themeColor: '#28646e',
 })
 
 onMounted(async () => {
@@ -151,27 +151,31 @@ onMounted(async () => {
     if (isAuthenticated.value && wallet.value) {
       useSetLogUser(wallet.value)
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: `${(error as Error).toString()}, please re-login`,
       duration: 0,
-      color: 'error'
+      color: 'error',
     })
     clearSession()
-  } finally {
+  }
+  finally {
     isRestoringSession.value = false
   }
 
   if (isAuthenticated.value) {
     try {
       await fetchBookListing()
-    } catch (error) {
+    }
+    catch (error) {
       // eslint-disable-next-line no-console
       console.error(error)
     }
-  } else if (route.query.auth) {
+  }
+  else if (route.query.auth) {
     const { auth: payload, ...query } = route.query
     if (typeof payload === 'string') {
       try {
@@ -180,7 +184,7 @@ onMounted(async () => {
           message,
           wallet,
           signMethod,
-          expiresIn
+          expiresIn,
         } = JSON.parse(payload)
         if (signature && message && wallet) {
           await authenticateBySignature({
@@ -188,10 +192,11 @@ onMounted(async () => {
             message,
             wallet,
             signMethod,
-            expiresIn
+            expiresIn,
           })
         }
-      } catch (error) {
+      }
+      catch (error) {
         // eslint-disable-next-line no-console
         console.error('An error occurred when authenticating with signature from query string', error)
       }
@@ -199,5 +204,4 @@ onMounted(async () => {
     router.replace({ query })
   }
 })
-
 </script>

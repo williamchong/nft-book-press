@@ -34,7 +34,11 @@
             :items="dropdownMenuItems"
             :popper="{ placement: 'bottom-end' }"
           >
-            <UButton color="neutral" variant="outline" icon="i-heroicons-ellipsis-horizontal-circle" />
+            <UButton
+              color="neutral"
+              variant="outline"
+              icon="i-heroicons-ellipsis-horizontal-circle"
+            />
           </UDropdownMenu>
         </template>
 
@@ -46,7 +50,8 @@
             const idx = selectedSaleItemTableRows.findIndex(r => r.index === row.original.index)
             if (idx >= 0) {
               selectedSaleItemTableRows.splice(idx, 1)
-            } else {
+            }
+            else {
               selectedSaleItemTableRows.push(row.original)
             }
           }"
@@ -61,7 +66,10 @@
               >
 
               <div class="flex flex-col justify-start">
-                <div class="whitespace-break-spaces" v-text="row.original.name" />
+                <div
+                  class="whitespace-break-spaces"
+                  v-text="row.original.name"
+                />
 
                 <USelect
                   v-if="!!row.original.classId && (row.original.prices?.length ?? 0) > 1"
@@ -95,7 +103,7 @@
               class="grow"
               :items="coupons.map(coupon => ({
                 label: coupon.name,
-                value: coupon.code
+                value: coupon.code,
               }))"
               :placeholder="$t('sales_pos.select_coupon')"
             />
@@ -119,7 +127,7 @@
             ]"
             :ui="{
               root: 'px-4 sm:px-6',
-              content: 'flex flex-col space-y-4'
+              content: 'flex flex-col space-y-4',
             }"
           >
             <template #content="{ item }">
@@ -177,7 +185,10 @@
 
       <UModal v-model:open="isShowAddItemModal">
         <template #header>
-          <h3 class="font-bold font-mono" v-text="'Add Item(s)'" />
+          <h3
+            class="font-bold font-mono"
+            v-text="'Add Item(s)'"
+          />
 
           <UButton
             icon="i-heroicons-x-mark"
@@ -234,7 +245,10 @@
 
       <UModal v-model:open="isOpenNewCouponModal">
         <template #header>
-          <h3 class="font-bold" v-text="'Add Coupon'" />
+          <h3
+            class="font-bold"
+            v-text="'Add Coupon'"
+          />
 
           <UButton
             icon="i-heroicons-x-mark-16-solid"
@@ -287,6 +301,7 @@
 <script setup lang="ts">
 import { useLocalStorage } from '@vueuse/core'
 import type { DropdownMenuItem, TableRow } from '#ui/types'
+
 const { t: $t } = useI18n()
 
 const route = useRoute()
@@ -296,16 +311,16 @@ const nftStore = useNftStore()
 
 const { lazyFetchClassMetadataById, lazyFetchClassListingInfoById } = nftStore
 
-const newProductIdInputs = ref<{ id: number; value: string, error?: Error }[]>([{ id: 0, value: '' }])
+const newProductIdInputs = ref<{ id: number, value: string, error?: Error }[]>([{ id: 0, value: '' }])
 const newProductIdInputNextId = ref(1)
 
 const isOpenNewCouponModal = ref(false)
 const newCouponNameInput = ref('')
 const newCouponCodeInput = ref('')
-const coupons = useLocalStorage<{name: string, code: string}[]>('nft_book_store_pos_coupons', [])
+const coupons = useLocalStorage<{ name: string, code: string }[]>('nft_book_store_pos_coupons', [])
 const selectedCouponCode = ref('')
 
-const saleItemList = useLocalStorage<{ classId: string; priceIndex?: number }[]>('nft_book_store_pos_items', [])
+const saleItemList = useLocalStorage<{ classId: string, priceIndex?: number }[]>('nft_book_store_pos_items', [])
 const isShowAddItemModal = ref(false)
 const isOpenQRCodeModal = ref(false)
 const isEditMode = ref(false)
@@ -319,7 +334,7 @@ watch(isShowAddItemModal, (value) => {
 
 const saleItemTableColumns = computed(() => {
   const columns = [
-    { accessorKey: 'name', header: $t('common.name'), class: '' }
+    { accessorKey: 'name', header: $t('common.name'), class: '' },
   ]
   if (isEditMode.value) {
     columns.push({ accessorKey: 'delete-action', header: '', class: 'w-12' })
@@ -334,7 +349,7 @@ const dropdownMenuItems = computed(() => {
     items.push([{
       label: isEditMode.value ? 'Exit Edit Items' : 'Edit Items',
       icon: isEditMode.value ? 'i-heroicons-pencil-solid' : 'i-heroicons-pencil',
-      onSelect: toggleEditMode
+      onSelect: toggleEditMode,
     }])
   }
 
@@ -344,35 +359,35 @@ const dropdownMenuItems = computed(() => {
       icon: 'i-heroicons-tag',
       onSelect: () => {
         isOpenNewCouponModal.value = !isOpenNewCouponModal.value
-      }
+      },
     },
     {
       class: 'text-red-500',
       label: 'Clear All Coupons',
       icon: 'i-heroicons-trash',
       disabled: !coupons.value.length,
-      onSelect: clearAllCoupons
-    }
+      onSelect: clearAllCoupons,
+    },
   ])
 
   return items
 })
 
 interface SaleItem {
-  classId?: string;
-  prices?: Record<string, unknown>[];
-  name: string;
-  image: string;
-  index: number;
+  classId?: string
+  prices?: Record<string, unknown>[]
+  name: string
+  image: string
+  index: number
 }
 
-function getPriceSelectItems (prices?: Record<string, unknown>[]) {
+function getPriceSelectItems(prices?: Record<string, unknown>[]) {
   if (!prices) { return [] }
   return prices.map((price) => {
-    const name = price.name as { zh?: string; en?: string } | string | undefined
+    const name = price.name as { zh?: string, en?: string } | string | undefined
     return {
       label: (typeof name === 'object' ? (name?.zh || name?.en) : name) || '',
-      value: (price.index as number) || 0
+      value: (price.index as number) || 0,
     }
   })
 }
@@ -389,7 +404,7 @@ const saleItemTableRows = computed<SaleItem[]>(() => {
       name: metadata?.name || '',
       prices: listingPrices?.map((price: Record<string, unknown>) => ({ ...price })),
       image: parseImageURLFromMetadata((nestedMetadata?.image as string) || ''),
-      index
+      index,
     }
   })
 })
@@ -400,9 +415,11 @@ const selectedItems = computed(() => {
   return items.sort((a, b) => {
     if (a?.priceIndex !== undefined && !b?.priceIndex) {
       return -1
-    } else if (!a?.priceIndex && b?.priceIndex !== undefined) {
+    }
+    else if (!a?.priceIndex && b?.priceIndex !== undefined) {
       return 1
-    } else {
+    }
+    else {
       return 0
     }
   })
@@ -417,10 +434,10 @@ watch(saleItemTableRows, (rows) => {
 const checkoutUrl = computed(() => {
   const params = new URLSearchParams({
     utm_source: 'direct-checkout',
-    utm_medium: 'pos'
+    utm_medium: 'pos',
   })
   const productsString = selectedItems.value
-    .filter((item): item is { classId: string; priceIndex?: number } => !!item)
+    .filter((item): item is { classId: string, priceIndex?: number } => !!item)
     .map(({ classId, priceIndex }) => {
       return `${classId}${priceIndex ? `:${priceIndex}` : ''}`
     }).join(',')
@@ -434,7 +451,7 @@ const checkoutUrl = computed(() => {
 const pageTitle = computed(() => '3ook Point Of Sale')
 useSeoMeta({
   title: () => pageTitle.value,
-  ogTitle: () => pageTitle.value
+  ogTitle: () => pageTitle.value,
 })
 
 onMounted(() => {
@@ -446,17 +463,17 @@ onMounted(() => {
   })
 })
 
-function addNewItemInput () {
+function addNewItemInput() {
   if (newProductIdInputs.value.length) {
     newProductIdInputs.value.push({ id: newProductIdInputNextId.value++, value: '' })
   }
 }
 
-function deleteNewItemInput (index: number) {
+function deleteNewItemInput(index: number) {
   newProductIdInputs.value.splice(index, 1)
 }
 
-function handleNewItemInputUpdate (index: number, value: string) {
+function handleNewItemInputUpdate(index: number, value: string) {
   const input = newProductIdInputs.value[index]
   if (input) {
     input.error = undefined
@@ -464,7 +481,7 @@ function handleNewItemInputUpdate (index: number, value: string) {
   }
 }
 
-function addSaleItem () {
+function addSaleItem() {
   newProductIdInputs.value.forEach((input) => {
     input.error = undefined
     let productId = input.value.trim()
@@ -476,7 +493,8 @@ function addSaleItem () {
       saleItemList.value.push({ classId: productId, priceIndex: 0 })
       lazyFetchClassMetadataById(productId)
       lazyFetchClassListingInfoById(productId)
-    } else {
+    }
+    else {
       input.error = new Error('Invalid product ID')
     }
   })
@@ -485,39 +503,39 @@ function addSaleItem () {
   }
 }
 
-function changePriceIndex (value: number, { index }: { index: number }) {
+function changePriceIndex(value: number, { index }: { index: number }) {
   const item = saleItemList.value[index]
   if (item) {
     item.priceIndex = Number(value)
   }
 }
 
-function removeSaleItem ({ index }: { index: number }) {
+function removeSaleItem({ index }: { index: number }) {
   saleItemList.value.splice(index, 1)
   selectedSaleItemTableRows.value = selectedSaleItemTableRows.value.filter(row => row.index !== index)
 }
 
-function toggleAddItemModal () {
+function toggleAddItemModal() {
   isShowAddItemModal.value = !isShowAddItemModal.value
 }
 
-function toggleEditMode () {
+function toggleEditMode() {
   isEditMode.value = !isEditMode.value
 }
 
-function addCouponCode () {
+function addCouponCode() {
   coupons.value.push({ name: newCouponNameInput.value, code: newCouponCodeInput.value })
   newCouponNameInput.value = ''
   newCouponCodeInput.value = ''
   toast.add({
     title: 'Added coupon',
     duration: 2000,
-    color: 'success'
+    color: 'success',
   })
   isOpenNewCouponModal.value = false
 }
 
-function clearAllCoupons () {
+function clearAllCoupons() {
   const isConfirm = window.confirm('Are you sure you want to clear all coupons?')
   if (isConfirm) {
     coupons.value = []
@@ -525,21 +543,20 @@ function clearAllCoupons () {
     toast.add({
       title: 'Cleared all coupons',
       duration: 2000,
-      color: 'error'
+      color: 'error',
     })
   }
 }
 
-function copyCartUrl () {
+function copyCartUrl() {
   copyToClipboard(checkoutUrl.value)
 }
 
-function goToCartUrl () {
+function goToCartUrl() {
   window.open(checkoutUrl.value)
 }
 
-function generateQRCode () {
+function generateQRCode() {
   isOpenQRCodeModal.value = true
 }
-
 </script>

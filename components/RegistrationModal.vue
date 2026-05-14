@@ -87,7 +87,7 @@ const props = withDefaults(defineProps<RegistrationModalProps>(), {
   accountId: '',
   isAccountIdHidden: true,
   displayName: '',
-  isDisplayNameHidden: true
+  isDisplayNameHidden: true,
 })
 
 const accountId = ref(props.accountId || '')
@@ -109,7 +109,7 @@ watch(accountIdError, (newValue) => {
   }
 })
 
-function handleRegisterButtonClick () {
+function handleRegisterButtonClick() {
   accountIdError.value = false
   emailError.value = false
 
@@ -136,7 +136,7 @@ function handleRegisterButtonClick () {
   const result = {
     accountId: accountId.value,
     email: email.value,
-    displayName: displayName.value
+    displayName: displayName.value,
   }
 
   emit('submit', result)

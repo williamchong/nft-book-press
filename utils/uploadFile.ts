@@ -23,32 +23,35 @@ export interface UploadFileData {
 
 export const FILE_UPLOAD_KEY = 'publish_book_uploaded_file'
 
-export function setUploadFileData (data: Partial<UploadFileData>) {
+export function setUploadFileData(data: Partial<UploadFileData>) {
   try {
     sessionStorage.setItem(FILE_UPLOAD_KEY, JSON.stringify(data))
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.warn('Failed to save to sessionStorage:', error)
   }
 }
 
-export function getUploadFileData (): UploadFileData | null {
+export function getUploadFileData(): UploadFileData | null {
   try {
     const stored = sessionStorage.getItem(FILE_UPLOAD_KEY)
     if (stored) {
       return JSON.parse(stored)
     }
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.warn('Failed to read from sessionStorage:', error)
   }
   return null
 }
 
-export function clearUploadFileData () {
+export function clearUploadFileData() {
   try {
     sessionStorage.removeItem(FILE_UPLOAD_KEY)
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.warn('Failed to clear sessionStorage:', error)
   }

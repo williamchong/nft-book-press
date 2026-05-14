@@ -95,97 +95,109 @@ const isStripeConnectReady = computed(() => currentStripeAccount.value?.isReady)
 const buttonText = computed(() => {
   if (!currentStripeAccount.value?.hasAccount && !isStripeConnectReady.value) {
     return $t('user_settings.setup_stripe_connect')
-  } else if (currentStripeAccount.value?.hasAccount && !isStripeConnectReady.value) {
+  }
+  else if (currentStripeAccount.value?.hasAccount && !isStripeConnectReady.value) {
     return $t('user_settings.resume_stripe_connect_setup')
-  } else if (currentStripeAccount.value?.hasAccount && isStripeConnectReady.value) {
+  }
+  else {
     return $t('user_settings.login_to_stripe')
   }
 })
 
-async function refreshStripeConnectStatus () {
+async function refreshStripeConnectStatus() {
   try {
     isLoading.value = true
     await stripeStore.refreshStripeConnectStatus(wallet.value)
-  } catch (e) {
+  }
+  catch (e) {
     error.value = (e as Error).toString()
     showErrorToast(e)
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
-async function onLoginToStripe () {
+async function onLoginToStripe() {
   try {
     isLoading.value = true
     const data = await $fetch(`${LIKE_CO_API}/likernft/book/user/connect/login`,
       {
         method: 'POST',
         headers: {
-          authorization: `Bearer ${token.value}`
-        }
-      }
+          authorization: `Bearer ${token.value}`,
+        },
+      },
     )
     const url = (data as { url?: string }).url
     if (url) {
       window.open(url)
-    } else {
+    }
+    else {
       throw new Error('CANNOT_GET_STRIPE_CONNECT_RUL')
     }
-  } catch (e) {
+  }
+  catch (e) {
     // eslint-disable-next-line no-console
     console.error(e)
     error.value = (e as Error).toString()
     showErrorToast(e)
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
-async function onSetupStripe () {
+async function onSetupStripe() {
   try {
     isLoading.value = true
     const data = await $fetch(`${LIKE_CO_API}/likernft/book/user/connect/new`,
       {
         method: 'POST',
         headers: {
-          authorization: `Bearer ${token.value}`
-        }
-      }
+          authorization: `Bearer ${token.value}`,
+        },
+      },
     )
     const url = (data as { url?: string }).url
     if (url) {
       window.open(url)
-    } else {
+    }
+    else {
       throw new Error('CANNOT_GET_STRIPE_CONNECT_RUL')
     }
-  } catch (e) {
+  }
+  catch (e) {
     // eslint-disable-next-line no-console
     console.error(e)
     error.value = (e as Error).toString()
     showErrorToast(e)
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
 
-async function handleClickStripeButton () {
+async function handleClickStripeButton() {
   const action = isStripeConnectReady.value ? 'stripe_login' : 'stripe_setup_started'
   useLogEvent(action)
   isLoading.value = true
   try {
     if (!isStripeConnectReady.value) {
       await onSetupStripe()
-    } else {
+    }
+    else {
       await onLoginToStripe()
     }
-  } catch (e) {
+  }
+  catch (e) {
     // eslint-disable-next-line no-console
     console.error(e)
     error.value = (e as Error).toString()
     showErrorToast(e)
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
-
 </script>

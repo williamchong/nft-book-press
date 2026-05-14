@@ -4,7 +4,7 @@ const PDF_MAGIC = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2D])
 const ZIP_LOCAL_HEADER = new Uint8Array([0x50, 0x4B, 0x03, 0x04])
 const EPUB_MIMETYPE = 'application/epub+zip'
 
-function startsWith (bytes: Uint8Array, prefix: Uint8Array): boolean {
+function startsWith(bytes: Uint8Array, prefix: Uint8Array): boolean {
   if (bytes.length < prefix.length) { return false }
   for (let i = 0; i < prefix.length; i++) {
     if (bytes[i] !== prefix[i]) { return false }
@@ -14,7 +14,7 @@ function startsWith (bytes: Uint8Array, prefix: Uint8Array): boolean {
 
 // EPUB OCF spec mandates the first ZIP entry is `mimetype`, stored uncompressed,
 // with content `application/epub+zip` — so reading the local file header is enough.
-export function detectEbookType (buffer: ArrayBuffer): EbookType | null {
+export function detectEbookType(buffer: ArrayBuffer): EbookType | null {
   const bytes = new Uint8Array(buffer)
 
   if (startsWith(bytes, PDF_MAGIC)) { return 'pdf' }

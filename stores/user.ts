@@ -14,27 +14,28 @@ export const useUserStore = defineStore('user', () => {
   })
   const isFetchingUserLikerInfo = ref(false)
 
-  async function fetchBookUserProfile () {
+  async function fetchBookUserProfile() {
     const data = await $fetch(
       `${LIKE_CO_API}/likernft/book/user/profile`,
       {
         headers: {
-          authorization: `Bearer ${token.value}`
-        }
-      }
+          authorization: `Bearer ${token.value}`,
+        },
+      },
     )
     bookUser.value = data as Record<string, unknown>
     return bookUser.value
   }
 
-  async function lazyFetchBookUserProfile () {
+  async function lazyFetchBookUserProfile() {
     if (bookUser.value) {
       return bookUser.value
     }
     try {
       const user = await fetchBookUserProfile()
       return user
-    } catch (e: unknown) {
+    }
+    catch (e: unknown) {
       if ((e as Error).message !== 'USER_NOT_FOUND') {
         // eslint-disable-next-line no-console
         console.error(e)
@@ -42,7 +43,7 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  async function fetchUserLikerInfo ({ nocache = false } = {}) {
+  async function fetchUserLikerInfo({ nocache = false } = {}) {
     if (!isAuthenticated.value) {
       return null
     }
@@ -50,12 +51,13 @@ export const useUserStore = defineStore('user', () => {
       isFetchingUserLikerInfo.value = true
       const likerInfo = await likerStore.fetchLikerInfoByWallet(wallet.value, { nocache })
       return likerInfo
-    } finally {
+    }
+    finally {
       isFetchingUserLikerInfo.value = false
     }
   }
 
-  async function lazyFetchUserLikerInfo () {
+  async function lazyFetchUserLikerInfo() {
     if (!isAuthenticated.value) {
       return null
     }
@@ -70,7 +72,8 @@ export const useUserStore = defineStore('user', () => {
     if (isAuthenticated.value) {
       lazyFetchUserLikerInfo()
       lazyFetchBookUserProfile()
-    } else {
+    }
+    else {
       bookUser.value = null
     }
   })
@@ -82,6 +85,6 @@ export const useUserStore = defineStore('user', () => {
     fetchBookUserProfile,
     lazyFetchBookUserProfile,
     fetchUserLikerInfo,
-    lazyFetchUserLikerInfo
+    lazyFetchUserLikerInfo,
   }
 })

@@ -1,7 +1,7 @@
 import type { ClassMetadata, ISCNRegisterPayload, ISCNTxPayload, ISCNValidationData } from '~/types/iscn'
 import { MAX_DESCRIPTION_LENGTH, MAX_DESCRIPTION_FULL_LENGTH, MAX_PREVIEW_CONTENT_LENGTH } from '~/constant'
 
-function isValidImageUrl (urlString: string): boolean {
+function isValidImageUrl(urlString: string): boolean {
   if (!urlString) { return false }
 
   // Check that non-ASCII characters are percent-encoded
@@ -13,13 +13,14 @@ function isValidImageUrl (urlString: string): boolean {
   try {
     const url = new URL(urlString)
     return ['http:', 'https:', 'ar:', 'ipfs:'].includes(url.protocol)
-  } catch {
+  }
+  catch {
     return false
   }
 }
 
-export function getPreviewContentFromHasPart (
-  hasPart?: ClassMetadata['hasPart']
+export function getPreviewContentFromHasPart(
+  hasPart?: ClassMetadata['hasPart'],
 ): string | undefined {
   if (!hasPart) { return undefined }
   if (!Array.isArray(hasPart)) {
@@ -28,7 +29,7 @@ export function getPreviewContentFromHasPart (
   return hasPart.find(p => p.isAccessibleForFree === true && !!p.text)?.text
 }
 
-export function formatISCNTxPayload (payload: ISCNRegisterPayload): ISCNTxPayload {
+export function formatISCNTxPayload(payload: ISCNRegisterPayload): ISCNTxPayload {
   const {
     tagsString = '',
     license,
@@ -44,7 +45,7 @@ export function formatISCNTxPayload (payload: ISCNRegisterPayload): ISCNTxPayloa
   const authorEntity = (author && authorDescription)
     ? {
         name: author,
-        description: authorDescription
+        description: authorDescription,
       }
     : author
 
@@ -54,11 +55,11 @@ export function formatISCNTxPayload (payload: ISCNRegisterPayload): ISCNTxPayloa
     author: authorEntity,
     keywords: tagsString.split(',').map(k => k.trim()).filter(Boolean),
     usageInfo: license,
-    contentFingerprints: [...new Set(contentFingerprints)]
+    contentFingerprints: [...new Set(contentFingerprints)],
   }
 }
 
-export function validateISCNForm (data: ISCNValidationData, maxDescriptionLength = MAX_DESCRIPTION_LENGTH): string[] {
+export function validateISCNForm(data: ISCNValidationData, maxDescriptionLength = MAX_DESCRIPTION_LENGTH): string[] {
   const errors: string[] = []
   const desc = data.description || ''
 
@@ -68,7 +69,8 @@ export function validateISCNForm (data: ISCNValidationData, maxDescriptionLength
 
   if (!desc) {
     errors.push('Please fill in the description')
-  } else if (desc.length > maxDescriptionLength) {
+  }
+  else if (desc.length > maxDescriptionLength) {
     errors.push(`Description cannot exceed ${maxDescriptionLength} characters`)
   }
 
@@ -90,7 +92,8 @@ export function validateISCNForm (data: ISCNValidationData, maxDescriptionLength
 
   if (!data.coverUrl) {
     errors.push('Please provide a cover image URL')
-  } else if (!isValidImageUrl(data.coverUrl)) {
+  }
+  else if (!isValidImageUrl(data.coverUrl)) {
     errors.push('Cover image URL must be a valid URL with http://, https://, ar://, or ipfs:// protocol')
   }
 

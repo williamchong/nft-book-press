@@ -73,7 +73,11 @@
                 class="text-red-700 text-[10px]"
               >{{ stripeConnectInputError }}</span>
             </div>
-            <UProgress v-if="isStripeConnectLoading" class="my-[6px]" animation="carousel" />
+            <UProgress
+              v-if="isStripeConnectLoading"
+              class="my-[6px]"
+              animation="carousel"
+            />
             <div
               v-else-if="inputWallet && inputAccountConnectStatus"
               class="flex flex-col gap-[8px] mt-[12px] px-[6px] py-[4px] w-[80%]"
@@ -124,6 +128,7 @@
 
 <script setup lang="ts">
 import { LIKE_ADDRESS_REGEX } from '~/constant'
+
 const localeRoute = useLocaleRoute()
 const { t: $t } = useI18n()
 
@@ -138,30 +143,29 @@ const isUsingDefaultAccount = defineModel<boolean>('isUsingDefaultAccount')
 const props = defineProps({
   loginAddress: {
     type: String,
-    default: ''
+    default: '',
   },
   shouldDisableSetting: {
     type: Boolean,
-    default: false
+    default: false,
   },
   stripeConnectWallet: {
     type: String,
-    default: ''
+    default: '',
   },
   isUpdatingStripeAccount: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
-// eslint-disable-next-line func-call-spacing
 const emit = defineEmits<{
-  (e: 'save', wallet: string | undefined): void;
+  (e: 'save', wallet: string | undefined): void
 }>()
 
 const accountType = computed({
   get: () => isUsingDefaultAccount.value ? 'default' : 'other',
-  set: (val: string) => { isUsingDefaultAccount.value = val === 'default' }
+  set: (val: string) => { isUsingDefaultAccount.value = val === 'default' },
 })
 
 const inputWallet = ref('')
@@ -183,7 +187,7 @@ watch(() => props.stripeConnectWallet, (wallet) => {
   }
 }, { immediate: true })
 
-async function onStripeConnectWalletInput (input: Event) {
+async function onStripeConnectWalletInput(input: Event) {
   if (!isStripeConnectChecked.value) { return }
   const inputValue = (input.target as HTMLInputElement).value.trim()
   inputWallet.value = inputValue
@@ -202,17 +206,18 @@ async function onStripeConnectWalletInput (input: Event) {
   isStripeConnectLoading.value = true
   try {
     await fetchStripeConnectStatusByWallet(inputValue)
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
-  } finally {
+  }
+  finally {
     isStripeConnectLoading.value = false
   }
 }
 
-function handleSaveStripeConnectWallet () {
+function handleSaveStripeConnectWallet() {
   const wallet = isUsingDefaultAccount.value ? props.loginAddress : inputWallet.value
   emit('save', wallet)
 }
-
 </script>

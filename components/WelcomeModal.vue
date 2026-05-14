@@ -61,7 +61,6 @@ const { t: $t } = useI18n()
 const migrationURL = appendUTMParamsToURL({
   url: LIKECOIN_V3_BOOK_MIGRATION_SITE_URL,
   medium: 'popup',
-  campaign: 'migration'
+  campaign: 'migration',
 })
-
 </script>

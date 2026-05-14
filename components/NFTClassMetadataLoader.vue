@@ -8,8 +8,8 @@ const nftStore = useNftStore()
 const props = defineProps({
   classId: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const isLoading = ref(false)
@@ -18,9 +18,11 @@ onMounted(async () => {
   try {
     isLoading.value = true
     await nftStore.lazyFetchClassMetadataById(props.classId)
-  } catch {
+  }
+  catch {
     // ignore
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 })

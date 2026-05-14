@@ -8,9 +8,16 @@
       :label="$t('batch_qrcode.upload_csv')"
       class="print:hidden"
     >
-      <UInput type="file" accept="csv" @change="handleFileChange" />
+      <UInput
+        type="file"
+        accept="csv"
+        @change="handleFileChange"
+      />
     </UFormField>
-    <USeparator class="print:hidden" :label="$t('batch_qrcode.or_divider')" />
+    <USeparator
+      class="print:hidden"
+      :label="$t('batch_qrcode.or_divider')"
+    />
     <UFormField
       class="print:hidden"
       :label="$t('batch_qrcode.input_csv')"
@@ -84,7 +91,10 @@
           v-for="item in items"
           :key="item.key || item.url"
         >
-          <figure ref="qrCodeRef" class="qrcode">
+          <figure
+            ref="qrCodeRef"
+            class="qrcode"
+          >
             <figcaption class="text-xs text-center font-mono">
               {{ item.key || item.url }}
             </figcaption>
@@ -97,6 +107,7 @@
 
 <script setup lang="ts">
 import { parse as csvParse } from 'csv-parse/sync'
+
 const { t: $t } = useI18n()
 
 const CSV_HEADER = 'key,url'
@@ -141,7 +152,7 @@ watch(selectedQRCodeIcon, () => {
 
 useSeoMeta({
   title: 'Batch Create Book QR Codes',
-  ogTitle: 'Batch Create Book QR Codes'
+  ogTitle: 'Batch Create Book QR Codes',
 })
 
 onMounted(() => {
@@ -156,21 +167,22 @@ onMounted(() => {
         drawQRCodes()
       }
     })
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
   }
 })
 
-function getQRCodeStyleOptions () {
+function getQRCodeStyleOptions() {
   return {
     image: selectedQRCodeIcon.value === 'none' ? undefined : getQRCodeIcon(selectedQRCodeIcon.value),
     fillColor: selectedQRCodeColor.value,
-    dotStyle: selectedQRCodeDotStyle.value
+    dotStyle: selectedQRCodeDotStyle.value,
   }
 }
 
-async function drawQRCodes () {
+async function drawQRCodes() {
   try {
     let input = csvInput.value
     if (!input.includes(CSV_HEADER)) {
@@ -178,16 +190,17 @@ async function drawQRCodes () {
     }
     urlItems.value = csvParse(input, {
       columns: true,
-      skip_empty_lines: true
+      skip_empty_lines: true,
     }) as { key: string, url: string }[]
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: $t('batch_qrcode.parse_csv_error'),
       duration: 0,
-      color: 'error'
+      color: 'error',
     })
   }
 
@@ -196,7 +209,7 @@ async function drawQRCodes () {
     const qrcode = new QRCodeStyling(getQRCodeOptions({
       margin: 0,
       data: item.url,
-      ...getQRCodeStyleOptions()
+      ...getQRCodeStyleOptions(),
     }))
     const element = qrCodeRef.value?.[index] as HTMLElement | undefined
     if (element) {
@@ -209,7 +222,7 @@ async function drawQRCodes () {
   })
 }
 
-function handleFileChange (event: Event) {
+function handleFileChange(event: Event) {
   const files = (event.target as HTMLInputElement)?.files
   if (!files?.length) { return }
   const file = files[0]
@@ -224,26 +237,26 @@ function handleFileChange (event: Event) {
   reader.readAsText(file)
 }
 
-function handleClickPrint () {
+function handleClickPrint() {
   if (csvInput.value) {
     window.print()
   }
 }
 
-function handleClickDownload () {
+function handleClickDownload() {
   downloadQRCodes(
     urlItems.value.map(item => ({
       filename: item.key,
-      url: item.url
+      url: item.url,
     })),
     {
       qrCodeOptions: {
         ...getQRCodeStyleOptions(),
         margin: 40,
         width: 1024,
-        height: 1024
-      }
-    }
+        height: 1024,
+      },
+    },
   )
 }
 </script>

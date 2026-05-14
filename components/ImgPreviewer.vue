@@ -29,14 +29,13 @@
 </template>
 
 <script setup lang="ts">
-
 const props = defineProps({
   fileType: {
     type: String,
-    default: undefined
+    default: undefined,
   },
   fileData: { type: String, default: undefined },
-  size: { type: String, default: 'large' }
+  size: { type: String, default: 'large' },
 })
 
 const mimeType = computed(() => {

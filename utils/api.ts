@@ -11,14 +11,14 @@ export interface FetchLikerInfoResult {
   description: string
 }
 
-export async function useFetchLikerInfoById (likerId: string) {
+export async function useFetchLikerInfoById(likerId: string) {
   const { LIKE_CO_API } = useRuntimeConfig().public
   const url = `${LIKE_CO_API}/users/id/${likerId}/min`
   const result = await $fetch<FetchLikerInfoResult>(url)
   return result
 }
 
-export async function useFetchLikerInfoByWallet (wallet: string, { nocache = false } = {}) {
+export async function useFetchLikerInfoByWallet(wallet: string, { nocache = false } = {}) {
   const { LIKE_CO_API } = useRuntimeConfig().public
   const timestamp = nocache ? `?ts=${Math.round(new Date().getTime() / 1000)}` : ''
   const url = `${LIKE_CO_API}/users/addr/${wallet}/min${timestamp}`
@@ -26,11 +26,11 @@ export async function useFetchLikerInfoByWallet (wallet: string, { nocache = fal
   return result
 }
 
-export async function postRegisterCheck ({
+export async function postRegisterCheck({
   accountId,
   walletAddress,
   email,
-  magicDIDToken
+  magicDIDToken,
 }: {
   accountId?: string
   walletAddress?: string
@@ -46,20 +46,20 @@ export async function postRegisterCheck ({
       accountId,
       walletAddress,
       email,
-      magicDIDToken
-    }
+      magicDIDToken,
+    },
   })
   return result
 }
 
-export async function postNewUser ({
+export async function postNewUser({
   walletAddress,
   signature,
   message,
   accountId,
   email,
   magicUserId,
-  magicDIDToken
+  magicDIDToken,
 }: {
   walletAddress: string
   signature: string
@@ -80,8 +80,8 @@ export async function postNewUser ({
       user: accountId,
       email,
       magicUserId,
-      magicDIDToken
-    }
+      magicDIDToken,
+    },
   })
   return result
 }
@@ -101,12 +101,12 @@ export interface OrdersResponse {
   orders: OrderData[]
 }
 
-export async function fetchBookOrders (classId: string, token: string) {
+export async function fetchBookOrders(classId: string, token: string) {
   const { LIKE_CO_API } = useRuntimeConfig().public
   const result = await $fetch<OrdersResponse>(`${LIKE_CO_API}/likernft/book/purchase/${classId}/orders`, {
     headers: {
-      authorization: `Bearer ${token}`
-    }
+      authorization: `Bearer ${token}`,
+    },
   })
   return result
 }

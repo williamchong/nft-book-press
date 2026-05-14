@@ -10,7 +10,10 @@
       @close="error = ''"
     />
 
-    <UProgress v-if="isLoading" animation="carousel">
+    <UProgress
+      v-if="isLoading"
+      animation="carousel"
+    >
       <template #indicator>
         {{ $t('loading.progress') }}
       </template>
@@ -26,7 +29,10 @@
       >
         <div class="flex justify-between items-center w-full">
           <div class="flex items-center gap-2">
-            <h3 class="font-bold font-mono" v-text="nftClassName || classId" />
+            <h3
+              class="font-bold font-mono"
+              v-text="nftClassName || classId"
+            />
             <ULink
               :to="affiliationLink"
               class="flex items-center"
@@ -56,7 +62,7 @@
                 : 'i-heroicons-chevron-down'
             "
             @click="
-              () => {showEditISCN = !showEditISCN}
+              () => { showEditISCN = !showEditISCN }
             "
           />
         </div>
@@ -71,7 +77,10 @@
       <UCard :ui="{ body: 'p-0' }">
         <template #header>
           <div class="flex justify-between items-center">
-            <h3 class="font-bold font-mono" v-text="$t('pages.editions')" />
+            <h3
+              class="font-bold font-mono"
+              v-text="$t('pages.editions')"
+            />
             <div class="flex justify-between items-center gap-4">
               <UButton
                 icon="i-heroicons-plus"
@@ -83,7 +92,7 @@
                 :to="localeRoute({
                   name: 'my-books-status-classId-edit-new',
                   params: { classId },
-                  query: { price_index: prices.length }
+                  query: { price_index: prices.length },
                 })"
               />
             </div>
@@ -95,7 +104,10 @@
           :data="editionsTableRows"
         >
           <template #sort-cell="{ row }">
-            <div v-if="!row.original.isStockBalancePlaceholderRow && prices.length > 1" class="flex flex-col gap-1">
+            <div
+              v-if="!row.original.isStockBalancePlaceholderRow && prices.length > 1"
+              class="flex flex-col gap-1"
+            >
               <UButton
                 :icon="row.original.originalIndex === 0 ? 'i-heroicons-chevron-down' : 'i-heroicons-chevron-up'"
                 variant="ghost"
@@ -108,10 +120,16 @@
                 @click="row.original.originalIndex === 0 ? movePriceDown(row.original.originalIndex) : movePriceUp(row.original.originalIndex)"
               />
             </div>
-            <span v-if="!row.original.isStockBalancePlaceholderRow && prices.length === 1" v-text="String(row.original.originalIndex + 1)" />
+            <span
+              v-if="!row.original.isStockBalancePlaceholderRow && prices.length === 1"
+              v-text="String(row.original.originalIndex + 1)"
+            />
           </template>
           <template #name-cell="{ row }">
-            <h4 class="font-medium" v-text="typeof row.original.name === 'object' ? row.original.name.zh : row.original.name" />
+            <h4
+              class="font-medium"
+              v-text="typeof row.original.name === 'object' ? row.original.name.zh : row.original.name"
+            />
           </template>
           <template #delivery-cell="{ row }">
             <h4
@@ -136,7 +154,7 @@
               icon="i-heroicons-document"
               :to="localeRoute({
                 name: 'my-books-status-classId-edit-editionIndex',
-                params: { classId, editionIndex: String(row.original.index) }
+                params: { classId, editionIndex: String(row.original.index) },
               })"
               variant="soft"
               color="neutral"
@@ -161,9 +179,16 @@
         }"
       >
         <template #header>
-          <h3 class="font-bold font-mono" v-text="$t('pages.orders')" />
+          <h3
+            class="font-bold font-mono"
+            v-text="$t('pages.orders')"
+          />
 
-          <UInput v-model="searchInput" icon="i-heroicons-magnifying-glass-20-solid" :placeholder="$t('status_page.search_placeholder')" />
+          <UInput
+            v-model="searchInput"
+            icon="i-heroicons-magnifying-glass-20-solid"
+            :placeholder="$t('status_page.search_placeholder')"
+          />
         </template>
 
         <UTable
@@ -226,7 +251,10 @@
         }"
       >
         <div class="flex justify-between items-center w-full">
-          <h3 class="font-bold font-mono" v-text="$t('nft_book_form.advanced_settings')" />
+          <h3
+            class="font-bold font-mono"
+            v-text="$t('nft_book_form.advanced_settings')"
+          />
           <UButton
             color="neutral"
             variant="ghost"
@@ -247,7 +275,10 @@
             <!-- Share channel summary -->
             <UCard :ui="{ body: 'p-0' }">
               <template #header>
-                <h3 class="font-bold font-mono" v-text="$t('pages.sales_channel_summary')" />
+                <h3
+                  class="font-bold font-mono"
+                  v-text="$t('pages.sales_channel_summary')"
+                />
               </template>
 
               <UTable
@@ -277,11 +308,14 @@
             <UCard
               :ui="{
                 header: 'flex justify-between items-center',
-                body: 'space-y-8 p-0'
+                body: 'space-y-8 p-0',
               }"
             >
               <template #header>
-                <h4 class="text-sm font-bold font-mono" v-text="$t('form.share_sales_data')" />
+                <h4
+                  class="text-sm font-bold font-mono"
+                  v-text="$t('form.share_sales_data')"
+                />
                 <div class="flex gap-2">
                   <UInput
                     v-model="moderatorWalletInput"
@@ -331,15 +365,24 @@
               :ui="{ body: 'space-y-4' }"
             >
               <template #header>
-                <h3 class="font-bold font-mono" v-text="$t('form.copy_purchase_link')" />
+                <h3
+                  class="font-bold font-mono"
+                  v-text="$t('form.copy_purchase_link')"
+                />
               </template>
 
               <UFormField :label="$t('form.edition')">
-                <USelect v-model="priceIndex" :items="priceIndexOptions" />
+                <USelect
+                  v-model="priceIndex"
+                  :items="priceIndexOptions"
+                />
               </UFormField>
 
               <UFormField :label="$t('form.sales_channel_for_links')">
-                <UInput v-model="fromChannelInput" placeholder="Channel ID(s), separated by commas (e.g. store01, store02)" />
+                <UInput
+                  v-model="fromChannelInput"
+                  placeholder="Channel ID(s), separated by commas (e.g. store01, store02)"
+                />
               </UFormField>
 
               <UCard
@@ -347,7 +390,10 @@
                 :ui="{ header: 'flex justify-between items-center', body: 'p-0' }"
               >
                 <template #header>
-                  <h4 class="text-sm font-bold font-mono" v-text="$t('purchase_link.download_all_links')" />
+                  <h4
+                    class="text-sm font-bold font-mono"
+                    v-text="$t('purchase_link.download_all_links')"
+                  />
 
                   <UDropdownMenu
                     :items="[
@@ -367,7 +413,7 @@
                           icon: 'i-heroicons-sparkles',
                           onSelect: shortenAllLinks,
                         },
-                      ]
+                      ],
                     ]"
                     :popper="{ placement: 'top-end' }"
                   >
@@ -419,7 +465,10 @@
                   </template>
                 </UTable>
               </UCard>
-              <div v-else-if="purchaseLinks[0]" class="flex items-center gap-2">
+              <div
+                v-else-if="purchaseLinks[0]"
+                class="flex items-center gap-2"
+              >
                 <UButton
                   icon="i-heroicons-qr-code"
                   variant="outline"
@@ -452,7 +501,10 @@
             </UCard>
 
             <UFormField class="flex items-center">
-              <UTooltip class="flex items-center gap-2" :text="$t('nft_book_form.is_adult_only_tooltip')">
+              <UTooltip
+                class="flex items-center gap-2"
+                :text="$t('nft_book_form.is_adult_only_tooltip')"
+              >
                 <UCheckbox
                   v-model="isAdultOnly"
                   name="isAdultOnly"
@@ -541,6 +593,7 @@ import { whenever } from '@vueuse/core'
 import { getPortfolioURL, downloadFile, convertArrayOfObjectsToCSV, getPurchaseLink, copyToClipboard } from '~/utils'
 import type { PurchaseItem, ClassListingData, ClassListingPrice, EditionTableRow } from '~/types'
 import { getApiEndpoints } from '~/constant/api'
+
 const { t: $t } = useI18n()
 
 const MAX_EDITION_COUNT = 2
@@ -595,12 +648,12 @@ const enableCustomMessagePage = ref(true)
 
 const hideAudioRadio = computed({
   get: () => (hideAudio.value ? 'forbid' : 'allow'),
-  set: (val: string) => { hideAudio.value = val === 'forbid' }
+  set: (val: string) => { hideAudio.value = val === 'forbid' },
 })
 
 const isPlusReadingEnabledRadio = computed({
   get: () => (isPlusReadingEnabled.value ? 'join' : 'skip'),
-  set: (val: string) => { isPlusReadingEnabled.value = val === 'join' }
+  set: (val: string) => { isPlusReadingEnabled.value = val === 'join' },
 })
 const useLikerLandPurchaseLink = ref(true)
 const shouldDisableStripeConnectSetting = ref(false)
@@ -631,14 +684,14 @@ const purchaseLinks = computed(() =>
         classId: classId.value,
         priceIndex: priceIndex.value,
         channel,
-        isUseLikerLandLink: useLikerLandPurchaseLink.value
-      })
-    }))
+        isUseLikerLandLink: useLikerLandPurchaseLink.value,
+      }),
+    })),
 )
 
 const selectedPurchaseLink = ref<{
-  channel: string,
-  url: string,
+  channel: string
+  url: string
 } | undefined>(undefined)
 
 const isOpenQRCodeModal = computed({
@@ -647,7 +700,7 @@ const isOpenQRCodeModal = computed({
     if (!value) {
       selectedPurchaseLink.value = undefined
     }
-  }
+  },
 })
 
 const salesChannelMap = computed(() => {
@@ -656,15 +709,15 @@ const salesChannelMap = computed(() => {
   }
   const map: {
     [key in string]: {
-      count: number,
+      count: number
       totalUSD: number
     };
-  } = purchaseList.value.reduce((acc: Record<string, { count: number; totalUSD: number }>, cur: PurchaseItem) => {
+  } = purchaseList.value.reduce((acc: Record<string, { count: number, totalUSD: number }>, cur: PurchaseItem) => {
     const from = cur.from || 'empty'
     if (!acc[from]) {
       acc[from] = {
         count: 0,
-        totalUSD: 0
+        totalUSD: 0,
       }
     }
     acc[from].count += 1
@@ -699,7 +752,7 @@ const orderTableColumns = computed(() => {
     { accessorKey: 'buyerEmail', header: $t('table.buyer_email') },
     { accessorKey: 'readerEmail', header: $t('table.reader_email') },
     { accessorKey: 'wallet', header: $t('table.reader_wallet') },
-    { accessorKey: 'message', header: $t('table.reader_message') }
+    { accessorKey: 'message', header: $t('table.reader_message') },
   ]
 })
 
@@ -708,7 +761,7 @@ const ordersData = computed(() => {
   return orders
 })
 
-function getQRCodeFilename (channel = '') {
+function getQRCodeFilename(channel = '') {
   const filenameParts = [`${nftClassName.value || classId.value}`, `price_${priceIndex.value}`]
   if (channel) {
     filenameParts.push(`channel_${channel}`)
@@ -716,7 +769,7 @@ function getQRCodeFilename (channel = '') {
   return filenameParts.join('_')
 }
 
-function getOrdersTableActionItems (purchaseListItem: PurchaseItem) {
+function getOrdersTableActionItems(purchaseListItem: PurchaseItem) {
   const actionItems = []
 
   if (purchaseListItem.status === 'completed' && purchaseListItem.txHash) {
@@ -724,22 +777,23 @@ function getOrdersTableActionItems (purchaseListItem: PurchaseItem) {
       label: $t('status_page.view_transaction'),
       icon: 'i-heroicons-magnifying-glass',
       to: `${CHAIN_EXPLORER_URL}/${purchaseListItem.txHash}`,
-      target: '_blank'
+      target: '_blank',
     }])
-  } else if (purchaseListItem.status === 'pendingNFT' && userCanSendNFT.value) {
+  }
+  else if (purchaseListItem.status === 'pendingNFT' && userCanSendNFT.value) {
     actionItems.push([{
       label: 'Send NFT',
       icon: 'i-heroicons-paper-airplane',
       to: localeRoute({
         name: 'my-books-send-classId',
         params: {
-          classId: purchaseListItem.classId
+          classId: purchaseListItem.classId,
         },
         query: {
           owner_wallet: ownerWallet.value,
-          payment_id: purchaseListItem.id
-        }
-      })
+          payment_id: purchaseListItem.id,
+        },
+      }),
     }])
   }
 
@@ -749,7 +803,7 @@ function getOrdersTableActionItems (purchaseListItem: PurchaseItem) {
       icon: 'i-heroicons-envelope',
       onSelect: () => {
         sendReminderEmail(purchaseListItem)
-      }
+      },
     }])
   }
 
@@ -759,14 +813,14 @@ function getOrdersTableActionItems (purchaseListItem: PurchaseItem) {
       icon: 'i-heroicons-check-circle',
       onSelect: () => {
         hardSetStatusToCompleted(purchaseListItem)
-      }
+      },
     }])
   }
 
   return actionItems
 }
 
-function getStatusLabel (purchaseListItem: PurchaseItem) {
+function getStatusLabel(purchaseListItem: PurchaseItem) {
   switch (purchaseListItem.status) {
     case 'paid':
       return 'Paid'
@@ -782,7 +836,7 @@ function getStatusLabel (purchaseListItem: PurchaseItem) {
   }
 }
 
-function getStatusLabelColor (purchaseListItem: PurchaseItem): 'info' | 'warning' | 'success' | 'neutral' {
+function getStatusLabelColor(purchaseListItem: PurchaseItem): 'info' | 'warning' | 'success' | 'neutral' {
   switch (purchaseListItem.status) {
     case 'paid':
       return 'info'
@@ -816,19 +870,19 @@ const ordersTableRows = computed(() => purchaseList.value?.map((p, index) => ({
   message: p.message || '',
   from: p.from || '',
   quantity: p.quantity || 1,
-  actions: getOrdersTableActionItems(p)
+  actions: getOrdersTableActionItems(p),
 })).filter((p) => {
   if (!searchInput.value) { return true }
   const normalizedSearchInput = searchInput.value.toLowerCase()
   return (
-    p.readerEmail.toLowerCase().includes(normalizedSearchInput) ||
-    p.buyerEmail.toLowerCase().includes(normalizedSearchInput) ||
-    p.buyerPhone.toLowerCase().includes(normalizedSearchInput) ||
-    p.wallet?.toLowerCase().includes(normalizedSearchInput) ||
-    p.priceName?.toLowerCase().includes(normalizedSearchInput) ||
-    p.statusLabel?.toLowerCase().includes(normalizedSearchInput) ||
-    p.orderDate?.toLowerCase().includes(normalizedSearchInput) ||
-    p.from?.toLowerCase().includes(normalizedSearchInput)
+    p.readerEmail.toLowerCase().includes(normalizedSearchInput)
+    || p.buyerEmail.toLowerCase().includes(normalizedSearchInput)
+    || p.buyerPhone.toLowerCase().includes(normalizedSearchInput)
+    || p.wallet?.toLowerCase().includes(normalizedSearchInput)
+    || p.priceName?.toLowerCase().includes(normalizedSearchInput)
+    || p.statusLabel?.toLowerCase().includes(normalizedSearchInput)
+    || p.orderDate?.toLowerCase().includes(normalizedSearchInput)
+    || p.from?.toLowerCase().includes(normalizedSearchInput)
   )
 }))
 
@@ -837,7 +891,7 @@ const moderatorWalletsTableColumns = computed(() => {
 
   if (userIsOwner.value) {
     columns.push(
-      { accessorKey: 'remove', header: '' }
+      { accessorKey: 'remove', header: '' },
     )
   }
 
@@ -849,11 +903,11 @@ const moderatorWalletsTableRows = computed(() => moderatorWallets.value.map((wal
     index,
     wallet,
     shortenWallet: shortenWalletAddress(wallet),
-    walletLink: getPortfolioURL(wallet)
+    walletLink: getPortfolioURL(wallet),
   }
 }))
 
-function normalizeChannelId (channelId: string) {
+function normalizeChannelId(channelId: string) {
   switch (channelId) {
     case 'empty':
       return 'Not set'
@@ -867,13 +921,13 @@ const salesChannelTableRows = computed(() => Object.entries(salesChannelMap.valu
   id,
   idLabel: normalizeChannelId(id),
   count: value.count || 0,
-  totalUSD: (value.totalUSD || 0).toFixed(2)
+  totalUSD: (value.totalUSD || 0).toFixed(2),
 })))
 
 const priceIndexOptions = computed(() => classListingInfo.value.prices?.map((p: ClassListingPrice, index: number) => ({
   label: `${typeof p.name === 'object' ? (p.name.en || '') : p.name} - $${p.price}`,
   value: index,
-  disabled: index === priceIndex.value
+  disabled: index === priceIndex.value,
 })) || [])
 
 const editionsTableColumns = computed(() => {
@@ -885,10 +939,10 @@ const editionsTableColumns = computed(() => {
     {
       accessorKey: 'delivery',
       header: $t('table.delivery'),
-      class: 'w-[120px]'
+      class: 'w-[120px]',
     },
     { accessorKey: 'stock', header: $t('table.stock'), class: 'w-[120px]' },
-    { accessorKey: 'price', header: $t('table.price_usd'), class: 'w-[120px]' }
+    { accessorKey: 'price', header: $t('table.price_usd'), class: 'w-[120px]' },
   )
 
   if (userIsOwner.value) {
@@ -902,7 +956,7 @@ const editionsTableRows = computed(() => {
   const rows: EditionTableRow[] = prices.value.map((element, index) => ({
     ...element,
     originalIndex: index,
-    isStockBalancePlaceholderRow: false
+    isStockBalancePlaceholderRow: false,
   }))
 
   // If it's a manual edition, add a row for stock balance.
@@ -916,7 +970,7 @@ const editionsTableRows = computed(() => {
       originalIndex: -1,
       index: -1,
       description: '',
-      isAllowCustomPrice: false
+      isAllowCustomPrice: false,
     })
   }
 
@@ -928,7 +982,8 @@ whenever(isLoading, () => { error.value = '' })
 watch(sessionWallet, async (newWallet) => {
   if (newWallet) {
     await calculateStock()
-  } else {
+  }
+  else {
     stockBalance.value = -99
   }
 })
@@ -939,8 +994,8 @@ onMounted(async () => {
     const classData = await $fetch<ClassListingData>(`${LIKE_CO_API}/likernft/book/store/${classId.value}`,
       {
         headers: {
-          authorization: `Bearer ${token.value}`
-        }
+          authorization: `Bearer ${token.value}`,
+        },
       })
     classListingInfo.value = classData
     prices.value = classListingInfo.value.prices
@@ -953,7 +1008,7 @@ onMounted(async () => {
       hideDownload: classHideDownload,
       hideAudio: classHideAudio,
       isAdultOnly: classIsAdultOnly,
-      isPlusReadingEnabled: classIsPlusReadingEnabled
+      isPlusReadingEnabled: classIsPlusReadingEnabled,
     } = classData
     moderatorWallets.value = classModeratorWallets || []
     isStripeConnectChecked.value = !!(classConnectedWallets && Object.keys(classConnectedWallets).length)
@@ -966,7 +1021,8 @@ onMounted(async () => {
         isUsingDefaultAccount.value = false
         try {
           await fetchStripeConnectStatusByWallet(classStripeWallet)
-        } catch (err) {
+        }
+        catch (err) {
           // eslint-disable-next-line no-console
           console.error(err)
         }
@@ -986,20 +1042,23 @@ onMounted(async () => {
       await calculateStock()
       try {
         await fetchStripeConnectStatusByWallet(sessionWallet.value)
-      } catch (err) {
+      }
+      catch (err) {
         // eslint-disable-next-line no-console
         console.error(err)
       }
     }
     lazyFetchClassMetadataById(classId.value as string)
-  } catch (err) {
+  }
+  catch (err) {
     error.value = (err as Error).toString()
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 })
 
-async function calculateStock () {
+async function calculateStock() {
   const pendingNFTCount = classListingInfo.value.pendingNFTCount || 0
   const count = await getBalanceOf(classId.value, sessionWallet.value as string)
   const manuallyAssignedNFTCount = prices.value
@@ -1008,17 +1067,17 @@ async function calculateStock () {
   stockBalance.value = (Number(count) - manuallyAssignedNFTCount - AUTHOR_RESERVED_NFT_COUNT - pendingNFTCount) || 0
 }
 
-async function movePriceUp (index: number) {
+async function movePriceUp(index: number) {
   if (index <= 0) { return }
   await movePrice(index, index - 1)
 }
 
-async function movePriceDown (index: number) {
+async function movePriceDown(index: number) {
   if (index >= prices.value.length - 1) { return }
   await movePrice(index, index + 1)
 }
 
-async function movePrice (fromIndex: number, toIndex: number) {
+async function movePrice(fromIndex: number, toIndex: number) {
   try {
     isUpdatingPricesOrder.value = true
 
@@ -1032,11 +1091,11 @@ async function movePrice (fromIndex: number, toIndex: number) {
     await $fetch(`${LIKE_CO_API}/likernft/book/store/${classId.value}/price/${priceIndex}/order`, {
       method: 'PUT',
       headers: {
-        authorization: `Bearer ${token.value}`
+        authorization: `Bearer ${token.value}`,
       },
       body: {
-        order: toIndex
-      }
+        order: toIndex,
+      },
     })
     prices.value = newPrices.map((p, order) => ({ ...p, order }))
     classListingInfo.value.prices = prices.value
@@ -1044,17 +1103,19 @@ async function movePrice (fromIndex: number, toIndex: number) {
       icon: 'i-heroicons-check-circle',
       title: 'Updated editions order successfully',
       duration: 2000,
-      color: 'success'
+      color: 'success',
     })
-  } catch (err) {
+  }
+  catch (err) {
     prices.value = classListingInfo.value.prices
     error.value = (err as Error).toString()
-  } finally {
+  }
+  finally {
     isUpdatingPricesOrder.value = false
   }
 }
 
-async function sendReminderEmail (purchase: PurchaseItem) {
+async function sendReminderEmail(purchase: PurchaseItem) {
   const orderData = ordersData.value?.find(p => p.id === purchase.id)
   if (!orderData) {
     throw new Error('ORDER_NOT_FOUND')
@@ -1064,19 +1125,19 @@ async function sendReminderEmail (purchase: PurchaseItem) {
     {
       method: 'POST',
       headers: {
-        authorization: `Bearer ${token.value}`
-      }
+        authorization: `Bearer ${token.value}`,
+      },
     })
 
   toast.add({
     icon: 'i-heroicons-check-circle',
     title: $t('status_page.send_reminder_email'),
     duration: 2000,
-    color: 'success'
+    color: 'success',
   })
 }
 
-async function hardSetStatusToCompleted (purchase: PurchaseItem) {
+async function hardSetStatusToCompleted(purchase: PurchaseItem) {
   const userConfirmed = confirm('Do you want to skip the \'Send NFT\' action and override this payment status to \'completed\'?')
   if (!userConfirmed) {
     return
@@ -1097,13 +1158,14 @@ async function hardSetStatusToCompleted (purchase: PurchaseItem) {
         method: 'POST',
         body: {
           txHash: null,
-          quantity: purchase.quantity || 1
+          quantity: purchase.quantity || 1,
         },
         headers: {
-          authorization: `Bearer ${token.value}`
-        }
+          authorization: `Bearer ${token.value}`,
+        },
       })
-  } catch (err) {
+  }
+  catch (err) {
     mutableOrder.status = previousStatus
     throw err
   }
@@ -1114,13 +1176,13 @@ async function hardSetStatusToCompleted (purchase: PurchaseItem) {
   }
 }
 
-function addModeratorWallet () {
+function addModeratorWallet() {
   if (!moderatorWalletInput.value) { return }
   moderatorWallets.value.push(moderatorWalletInput.value)
   moderatorWalletInput.value = ''
 }
 
-async function updateSettings () {
+async function updateSettings() {
   try {
     if (moderatorWalletInput.value) {
       throw new Error($t('errors.add_moderator_wallet'))
@@ -1142,81 +1204,85 @@ async function updateSettings () {
       isPlusReadingEnabled: isPlusReadingEnabled.value,
       mustClaimToView: mustClaimToView.value,
       tableOfContents: tableOfContents.value,
-      enableCustomMessagePage: enableCustomMessagePage.value
+      enableCustomMessagePage: enableCustomMessagePage.value,
     })
     await navigateTo(localeRoute({
-      name: 'my-books'
+      name: 'my-books',
     }))
-  } catch (err) {
+  }
+  catch (err) {
     const errorData = (err as { data?: string }).data || err
     console.error(errorData)
     error.value = String(errorData)
-  } finally {
+  }
+  finally {
     isLoading.value = false
     shouldDisableStripeConnectSetting.value = false
   }
 }
 
-function copyPurchaseLink (text = '') {
+function copyPurchaseLink(text = '') {
   copyToClipboard(text, $t('purchase_link.copied_to_clipboard'))
 }
 
-function downloadAllPurchaseLinks () {
+function downloadAllPurchaseLinks() {
   downloadFile({
     data: purchaseLinks.value,
     fileName: `${classId.value}_purchase_links.csv`,
-    fileType: 'csv'
+    fileType: 'csv',
   })
 }
 
-function printAllQRCodes () {
+function printAllQRCodes() {
   try {
     sessionStorage.setItem(
       'nft_book_press_batch_qrcode',
-      convertArrayOfObjectsToCSV(purchaseLinks.value.map(({ channel, ...link }) => ({ key: channel, ...link })))
+      convertArrayOfObjectsToCSV(purchaseLinks.value.map(({ channel, ...link }) => ({ key: channel, ...link }))),
     )
     window.open('/batch-qrcode?print=1', 'batch_qrcode', 'popup,menubar=no,location=no,status=no')
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: $t('purchase_link.failed_print_qr'),
       duration: 0,
-      color: 'error'
+      color: 'error',
     })
   }
 }
 
-async function shortenAllLinks () {
+async function shortenAllLinks() {
   try {
     sessionStorage.setItem(
       'nft_book_press_batch_shorten_url',
-      convertArrayOfObjectsToCSV(purchaseLinks.value.map(({ channel, url }) => ({ key: channel, url })))
+      convertArrayOfObjectsToCSV(purchaseLinks.value.map(({ channel, url }) => ({ key: channel, url }))),
     )
     await navigateTo(localeRoute({ name: 'batch-short-links', query: { print: 1 } }))
-  } catch (error) {
+  }
+  catch (error) {
     // eslint-disable-next-line no-console
     console.error(error)
     toast.add({
       icon: 'i-heroicons-exclamation-circle',
       title: $t('purchase_link.failed_shorten_links'),
       duration: 0,
-      color: 'error'
+      color: 'error',
     })
   }
 }
 
-function handleOpenRestockModal () {
+function handleOpenRestockModal() {
   showRestockModal.value = true
 }
 
-async function handleMintNFTSubmit () {
+async function handleMintNFTSubmit() {
   await calculateStock()
   showRestockModal.value = false
 }
 
-function isContentFingerprintEncrypted (contentFingerprints: string[]) {
+function isContentFingerprintEncrypted(contentFingerprints: string[]) {
   const apiEndpoints = getApiEndpoints()
   const arweaveLinkEndpoint = apiEndpoints.API_GET_ARWEAVE_V2_LINK
   return contentFingerprints.some((fingerprint) => {
@@ -1224,9 +1290,9 @@ function isContentFingerprintEncrypted (contentFingerprints: string[]) {
   })
 }
 
-async function handleISCNUpdated ({
+async function handleISCNUpdated({
   classId,
-  metadata
+  metadata,
 }: {
   classId: string
   metadata: Record<string, unknown> & { contentFingerprints?: string[] }
@@ -1239,7 +1305,7 @@ async function handleISCNUpdated ({
       hideDownload.value = shouldHideDownload
     }
     await updateBookListingSetting(classId, {
-      hideDownload: shouldHideDownload
+      hideDownload: shouldHideDownload,
     })
   }
 }

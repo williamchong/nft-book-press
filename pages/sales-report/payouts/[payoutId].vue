@@ -6,7 +6,10 @@
       </h1>
     </div>
 
-    <UProgress v-if="isLoading" animation="carousel">
+    <UProgress
+      v-if="isLoading"
+      animation="carousel"
+    >
       <template #indicator>
         {{ $t('loading.progress') }}
       </template>
@@ -23,7 +26,7 @@
     <UCard
       :ui="{
         header: 'flex justify-between items-center',
-        body: 'p-0'
+        body: 'p-0',
       }"
     >
       <template #header>
@@ -99,7 +102,10 @@
 
     <UModal v-model:open="isModalMetadataOpen">
       <template #header>
-        <h4 class="font-mono font-bold" v-text="$t('table.metadata')" />
+        <h4
+          class="font-mono font-bold"
+          v-text="$t('table.metadata')"
+        />
 
         <UButton
           color="neutral"
@@ -136,15 +142,15 @@ const isModalMetadataOpen = computed({
     if (!value) {
       modalMetadata.value = ''
     }
-  }
+  },
 })
 
 const { data: payoutData, status: fetchStatus, error: fetchError } = useLazyAsyncData(
   `payout-${payoutId.value}`,
   () => $fetch(`${LIKE_CO_API}/likernft/book/user/payouts/${payoutId.value}`, {
-    headers: { authorization: `Bearer ${token.value}` }
+    headers: { authorization: `Bearer ${token.value}` },
   }) as Promise<PayoutData>,
-  { server: false, default: () => ({} as PayoutData) }
+  { server: false, default: () => ({} as PayoutData) },
 )
 
 const isLoading = computed(() => fetchStatus.value === 'pending')
@@ -158,7 +164,7 @@ const payoutDataRows = computed(() => {
     amount,
     status,
     currency,
-    arrivalTs
+    arrivalTs,
   } = payoutData.value
   return [
     {
@@ -167,8 +173,8 @@ const payoutDataRows = computed(() => {
       amount: formatNumberWithCurrency(amount, currency),
       status,
       currency: formatCurrency(currency),
-      arrivalTs: arrivalTs ? new Date(arrivalTs * 1000).toLocaleString() : ''
-    }
+      arrivalTs: arrivalTs ? new Date(arrivalTs * 1000).toLocaleString() : '',
+    },
   ]
 })
 
@@ -181,7 +187,7 @@ const payoutItemRows = computed(() => {
       currency,
       description,
       status,
-      metadata
+      metadata,
     } = row
     return {
       commissionId,
@@ -190,12 +196,12 @@ const payoutItemRows = computed(() => {
       currency: formatCurrency(currency),
       description,
       status,
-      metadata: JSON.stringify(metadata, null, 2)
+      metadata: JSON.stringify(metadata, null, 2),
     }
   })
 })
 
-async function exportPayoutData () {
+async function exportPayoutData() {
   if (!payoutDataRows.value.length) { return }
 
   const date = new Date().toISOString().split('T')[0]
@@ -206,7 +212,7 @@ async function exportPayoutData () {
     { accessorKey: 'amount', header: $t('table.payout_amount') },
     { accessorKey: 'currency', header: $t('table.currency') },
     { accessorKey: 'status', header: $t('table.status') },
-    { accessorKey: 'arrivalTs', header: $t('table.arrived') }
+    { accessorKey: 'arrivalTs', header: $t('table.arrived') },
   ]
 
   const { id, createdTs, amount, currency, status, arrivalTs } = payoutData.value
@@ -216,13 +222,13 @@ async function exportPayoutData () {
     currency: formatCurrency(currency),
     amount: convertDecimalToAmount(amount, currency),
     status,
-    arrivalTs: arrivalTs ? new Date(arrivalTs * 1000).toLocaleString() : ''
+    arrivalTs: arrivalTs ? new Date(arrivalTs * 1000).toLocaleString() : '',
   }]
 
   await downloadCSV(data, columns, `payout-details-${payoutId.value}-${date}.csv`)
 }
 
-async function exportPayoutItems () {
+async function exportPayoutItems() {
   if (!payoutItemRows.value.length) { return }
 
   const date = new Date().toISOString().split('T')[0]
@@ -234,7 +240,7 @@ async function exportPayoutItems () {
     { accessorKey: 'currency', header: $t('table.currency') },
     { accessorKey: 'description', header: $t('common.description') },
     { accessorKey: 'status', header: $t('table.status') },
-    { accessorKey: 'metadata', header: $t('table.metadata') }
+    { accessorKey: 'metadata', header: $t('table.metadata') },
   ]
 
   const data = payoutItemDetails.value.map(row => ({
@@ -244,7 +250,7 @@ async function exportPayoutItems () {
     amount: convertDecimalToAmount(row.amount, row.currency),
     description: row.description || '',
     status: row.status,
-    metadata: row.metadata ? JSON.stringify(row.metadata, null, 2) : ''
+    metadata: row.metadata ? JSON.stringify(row.metadata, null, 2) : '',
   }))
 
   await downloadCSV(data, columns, `payout-items-${payoutId.value}-${date}.csv`)

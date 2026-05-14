@@ -11,7 +11,7 @@ interface ProcessingCallbacks {
   sponsored?: boolean
 }
 
-export function useBulkUpload () {
+export function useBulkUpload() {
   const walletStore = useWalletStore()
   const bookstoreApiStore = useBookstoreApiStore()
   const { wallet, signer } = storeToRefs(walletStore)
@@ -26,9 +26,9 @@ export function useBulkUpload () {
   const currentBook = ref<BulkUploadBook | null>(null)
   const currentStep = ref('')
 
-  async function processBook (
+  async function processBook(
     book: BulkUploadBook,
-    callbacks: ProcessingCallbacks = {}
+    callbacks: ProcessingCallbacks = {},
   ): Promise<boolean> {
     const { onStatusChange, onError } = callbacks
 
@@ -67,22 +67,24 @@ export function useBulkUpload () {
       onStatusChange?.(book.id, BookUploadStatus.COMPLETED)
       useLogEvent('bulk_upload_book_completed', { book_id: book.id, class_id: book.classId })
       return true
-    } catch (error: any) {
+    }
+    catch (error: any) {
       const errorMessage = error?.message || error?.toString() || 'Unknown error'
       useLogEvent('bulk_upload_book_failed', { book_id: book.id, error: errorMessage })
       onError?.(book.id, errorMessage)
       onStatusChange?.(book.id, BookUploadStatus.FAILED, errorMessage)
       return false
-    } finally {
+    }
+    finally {
       isProcessing.value = false
       currentBook.value = null
       currentStep.value = ''
     }
   }
 
-  async function uploadFilesToArweave (
+  async function uploadFilesToArweave(
     book: BulkUploadBook,
-    callbacks: ProcessingCallbacks
+    callbacks: ProcessingCallbacks,
   ): Promise<void> {
     const { onProgress, sponsored } = callbacks
     let pendingUpload: Promise<void> = Promise.resolve()
@@ -97,7 +99,7 @@ export function useBulkUpload () {
         fileSize: book.coverFile.size,
         fileType: book.coverFile.type,
         encrypt: false,
-        sponsored
+        sponsored,
       })
       if ('alreadyExists' in coverPrepare) {
         const coverResult = coverPrepare.result
@@ -105,16 +107,17 @@ export function useBulkUpload () {
         book.coverIpfsHash = coverResult.ipfsHash
         onProgress?.(book.id, {
           coverArweaveId: coverResult.arweaveId,
-          coverIpfsHash: coverResult.ipfsHash
+          coverIpfsHash: coverResult.ipfsHash,
         })
-      } else {
+      }
+      else {
         pendingUpload = executeArweaveUpload(coverPrepare)
           .then((coverResult) => {
             book.coverArweaveId = coverResult.arweaveId
             book.coverIpfsHash = coverResult.ipfsHash
             onProgress?.(book.id, {
               coverArweaveId: coverResult.arweaveId,
-              coverIpfsHash: coverResult.ipfsHash
+              coverIpfsHash: coverResult.ipfsHash,
             })
           })
       }
@@ -140,7 +143,7 @@ export function useBulkUpload () {
         fileSize: ebookFile.size,
         fileType: detectedType === 'epub' ? 'application/epub+zip' : 'application/pdf',
         encrypt: book.enableDRM,
-        sponsored
+        sponsored,
       })
       if ('alreadyExists' in bookPrepare) {
         await pendingUpload
@@ -153,9 +156,10 @@ export function useBulkUpload () {
           bookArweaveId: bookResult.arweaveId,
           bookArweaveKey: bookResult.arweaveKey,
           bookArweaveLink: bookResult.arweaveLink,
-          bookIpfsHash: bookResult.ipfsHash
+          bookIpfsHash: bookResult.ipfsHash,
         })
-      } else {
+      }
+      else {
         const prevUpload = pendingUpload
         pendingUpload = prevUpload.then(() =>
           executeArweaveUpload(bookPrepare).then((bookResult) => {
@@ -167,9 +171,9 @@ export function useBulkUpload () {
               bookArweaveId: bookResult.arweaveId,
               bookArweaveKey: bookResult.arweaveKey,
               bookArweaveLink: bookResult.arweaveLink,
-              bookIpfsHash: bookResult.ipfsHash
+              bookIpfsHash: bookResult.ipfsHash,
             })
-          })
+          }),
         )
       }
     }
@@ -177,9 +181,9 @@ export function useBulkUpload () {
     await pendingUpload
   }
 
-  async function createNFTClassForBook (
+  async function createNFTClassForBook(
     book: BulkUploadBook,
-    callbacks: ProcessingCallbacks
+    callbacks: ProcessingCallbacks,
   ): Promise<void> {
     const { onProgress } = callbacks
     currentStep.value = 'creating_nft_class'
@@ -192,7 +196,7 @@ export function useBulkUpload () {
 
     const contentFingerprints = [
       { url: `ar://${book.coverArweaveId}` },
-      { url: arweaveLink }
+      { url: arweaveLink },
     ]
 
     const iscnFormData = ref({
@@ -206,7 +210,7 @@ export function useBulkUpload () {
       publicationDate: book.publishDate || '',
       author: {
         name: book.authorName,
-        description: book.authorDescription || ''
+        description: book.authorDescription || '',
       },
       license: 'All Rights Reserved',
       customLicense: '',
@@ -214,13 +218,13 @@ export function useBulkUpload () {
       downloadableUrls: [{
         url: arweaveLink,
         type: fileType,
-        fileName: ebookFile?.name || book.epubFilename || book.pdfFilename || `${book.title}.${fileType}`
+        fileName: ebookFile?.name || book.epubFilename || book.pdfFilename || `${book.title}.${fileType}`,
       }],
       language: book.language,
       bookInfoUrl: '',
       tags: book.tags,
       coverUrl: `ar://${book.coverArweaveId}`,
-      genre: ''
+      genre: '',
     })
 
     const { classId } = await createNFTClass({ iscnFormData })
@@ -228,9 +232,9 @@ export function useBulkUpload () {
     onProgress?.(book.id, { classId })
   }
 
-  async function mintNFTForBook (
+  async function mintNFTForBook(
     book: BulkUploadBook,
-    callbacks: ProcessingCallbacks
+    callbacks: ProcessingCallbacks,
   ): Promise<void> {
     const { onProgress } = callbacks
     currentStep.value = 'minting_nft'
@@ -248,23 +252,23 @@ export function useBulkUpload () {
       name: `${book.title} #${Number(fromTokenId) + index}`,
       attributes: [
         { trait_type: 'Author', value: book.authorName },
-        { trait_type: 'Publisher', value: book.publisher }
-      ]
+        { trait_type: 'Publisher', value: book.publisher },
+      ],
     })
 
     const { txHash } = await mintNFT({
       classId: book.classId,
       mintCount,
-      buildTokenMetadata
+      buildTokenMetadata,
     })
 
     book.mintTxHash = txHash
     onProgress?.(book.id, { mintTxHash: txHash })
   }
 
-  async function createBookListing (
+  async function createBookListing(
     book: BulkUploadBook,
-    _callbacks: ProcessingCallbacks
+    _callbacks: ProcessingCallbacks,
   ): Promise<void> {
     currentStep.value = 'creating_listing'
 
@@ -275,11 +279,11 @@ export function useBulkUpload () {
     const price = {
       name: {
         en: book.editionName,
-        zh: book.editionName
+        zh: book.editionName,
       },
       description: {
         en: book.editionDescription,
-        zh: book.editionDescription
+        zh: book.editionDescription,
       },
       priceInDecimal: Math.round(book.listPrice * 100),
       price: book.listPrice,
@@ -287,7 +291,7 @@ export function useBulkUpload () {
       isAutoDeliver: book.isAutoDeliver,
       isAllowCustomPrice: true,
       isUnlisted: false,
-      autoMemo: book.autoMemo
+      autoMemo: book.autoMemo,
     }
 
     await newBookListing(book.classId, {
@@ -298,17 +302,17 @@ export function useBulkUpload () {
       mustClaimToView: true,
       enableCustomMessagePage: !!book.autoMemo,
       hideDownload: book.enableDRM,
-      isPlusReadingEnabled: true
+      isPlusReadingEnabled: true,
     })
   }
 
-  async function processBooksSequentially (
+  async function processBooksSequentially(
     books: BulkUploadBook[],
     callbacks: ProcessingCallbacks & {
       onBookComplete?: (book: BulkUploadBook, success: boolean) => void
       shouldContinue?: () => boolean
-    }
-  ): Promise<{ completed: number; failed: number }> {
+    },
+  ): Promise<{ completed: number, failed: number }> {
     let completed = 0
     let failed = 0
 
@@ -328,7 +332,8 @@ export function useBulkUpload () {
 
       if (success) {
         completed++
-      } else {
+      }
+      else {
         failed++
       }
 
@@ -346,6 +351,6 @@ export function useBulkUpload () {
     currentBook: readonly(currentBook),
     currentStep: readonly(currentStep),
     processBook,
-    processBooksSequentially
+    processBooksSequentially,
   }
 }

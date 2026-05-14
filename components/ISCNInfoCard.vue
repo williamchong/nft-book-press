@@ -6,7 +6,10 @@
       </h2>
     </template>
 
-    <UFormField :label="$t('iscn.owner')" class="text-left">
+    <UFormField
+      :label="$t('iscn.owner')"
+      class="text-left"
+    >
       <UButton
         :label="iscnOwner"
         :to="`${OPENSEA_URL}/${encodeURIComponent(iscnOwner)}`"
@@ -23,7 +26,10 @@
       />
     </UFormField>
 
-    <UFormField v-if="iscnData?.contentMetadata?.alternativeHeadline" :label="$t('iscn_form.subtitle')">
+    <UFormField
+      v-if="iscnData?.contentMetadata?.alternativeHeadline"
+      :label="$t('iscn_form.subtitle')"
+    >
       <UInput
         :model-value="iscnData?.contentMetadata?.alternativeHeadline"
         :readonly="true"
@@ -39,7 +45,10 @@
       />
     </UFormField>
 
-    <UFormField v-if="iscnData?.contentMetadata?.descriptionFull" :label="$t('iscn_form.description_full')">
+    <UFormField
+      v-if="iscnData?.contentMetadata?.descriptionFull"
+      :label="$t('iscn_form.description_full')"
+    >
       <UTextarea
         :model-value="iscnData?.contentMetadata?.descriptionFull"
         :readonly="true"
@@ -48,7 +57,10 @@
       />
     </UFormField>
 
-    <UFormField v-if="previewContent" :label="$t('iscn_form.preview_content')">
+    <UFormField
+      v-if="previewContent"
+      :label="$t('iscn_form.preview_content')"
+    >
       <UTextarea
         :model-value="previewContent"
         :readonly="true"
@@ -79,7 +91,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-defineEmits<{(e: 'edit'): void }>()
+defineEmits<{ (e: 'edit'): void }>()
 
 const { OPENSEA_URL } = useRuntimeConfig().public
 

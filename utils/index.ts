@@ -6,12 +6,12 @@ import { keccak256, toBytes } from 'viem'
 const ACCOUNT_ID_CHARS = 'abcdefghjkmnpqrstuvwxyz' as const
 const ACCOUNT_ID_LENGTH = 6
 
-export function getIsTestnet () {
+export function getIsTestnet() {
   const { IS_TESTNET } = useRuntimeConfig().public
   return IS_TESTNET === 'TRUE'
 }
 
-export function addParamToUrl (url: string, params: { [key: string]: string }) {
+export function addParamToUrl(url: string, params: { [key: string]: string }) {
   const urlObject = new URL(url)
   const urlParams = new URLSearchParams(urlObject.search)
   Object.entries(params).forEach(([key, value]) => {
@@ -23,7 +23,7 @@ export function addParamToUrl (url: string, params: { [key: string]: string }) {
   return urlObject.toString()
 }
 
-export function downloadBlob (content: string, filename: string, contentType: string) {
+export function downloadBlob(content: string, filename: string, contentType: string) {
   // Create a blob
   const blob = new Blob([content], { type: contentType })
   const url = URL.createObjectURL(blob)
@@ -41,10 +41,10 @@ export function downloadBlob (content: string, filename: string, contentType: st
  * @param columns - Column definitions with key and display label
  * @param filename - Output filename
  */
-export async function downloadCSV (
+export async function downloadCSV(
   data: Record<string, unknown>[],
-  columns: { accessorKey: string; header: string }[],
-  filename: string
+  columns: { accessorKey: string, header: string }[],
+  filename: string,
 ) {
   if (data.length === 0) {
     return
@@ -54,12 +54,12 @@ export async function downloadCSV (
 
   // Map data to columns and use csv-stringify for proper escaping
   const rows = data.map(row =>
-    columns.map(col => row[col.accessorKey] ?? '')
+    columns.map(col => row[col.accessorKey] ?? ''),
   )
 
   const csvContent = csvStringify(rows, {
     header: true,
-    columns: columns.map(col => col.header)
+    columns: columns.map(col => col.header),
   })
 
   // Add BOM for Excel compatibility with Chinese characters
@@ -68,22 +68,24 @@ export async function downloadCSV (
   saveAs(blob, filename)
 }
 
-export function parseImageURLFromMetadata (image: string): string {
+export function parseImageURLFromMetadata(image: string): string {
   const { ARWEAVE_ENDPOINT } = useRuntimeConfig().public
   if (!image) { return '' }
   return image.replace('ar://', `${ARWEAVE_ENDPOINT}/`).replace('ipfs://', 'https://ipfs.io/ipfs/')
 }
 
-export function downloadFile ({ data, fileName, fileType }:{data: Record<string, unknown> | Record<string, unknown>[], fileName:string, fileType:string}) {
+export function downloadFile({ data, fileName, fileType }: { data: Record<string, unknown> | Record<string, unknown>[], fileName: string, fileType: string }) {
   let fileData
   let mimeType
   if (fileType === 'json') {
     fileData = JSON.stringify(data, null, 2)
     mimeType = 'application/json'
-  } else if (fileType === 'csv') {
+  }
+  else if (fileType === 'csv') {
     fileData = convertArrayOfObjectsToCSV(Array.isArray(data) ? data : [data])
     mimeType = 'text/csv'
-  } else {
+  }
+  else {
     throw new Error('Unsupported file type')
   }
 
@@ -99,18 +101,18 @@ export function downloadFile ({ data, fileName, fileType }:{data: Record<string,
   document.body.removeChild(fileLink)
 }
 
-export function sleep (time: number) {
+export function sleep(time: number) {
   return new Promise((resolve) => { setTimeout(resolve, time) })
 }
 
-export function convertArrayOfObjectsToCSV (data: Record<string, unknown>[]): string {
+export function convertArrayOfObjectsToCSV(data: Record<string, unknown>[]): string {
   if (data.length === 0) {
     return ''
   }
   return csvStringify(data, { header: true })
 }
 
-export function getPortfolioURL (wallet = '') {
+export function getPortfolioURL(wallet = '') {
   const { OPENSEA_URL } = useRuntimeConfig().public
   return `${OPENSEA_URL}/${wallet}`
 }
@@ -118,23 +120,23 @@ export function getPortfolioURL (wallet = '') {
 export const deliverMethodOptions = [
   {
     value: 'auto',
-    label: 'Auto delivery / 自動發書'
+    label: 'Auto delivery / 自動發書',
   },
   {
     value: 'manual',
-    label: 'Manual delivery / 手動發書'
-  }
+    label: 'Manual delivery / 手動發書',
+  },
 ]
 
-export function getPurchaseLink ({
+export function getPurchaseLink({
   classId,
   priceIndex = 0,
   channel,
   customLink,
   isUseLikerLandLink,
   isForQRCode,
-  query: queryInput
-}:{
+  query: queryInput,
+}: {
   classId?: string
   priceIndex?: number
   channel?: string
@@ -144,7 +146,7 @@ export function getPurchaseLink ({
   query?: Record<string, string>
 }) {
   const query: Record<string, string> = {
-    from: channel || ''
+    from: channel || '',
   }
   if (classId && !customLink) {
     query.price_index = priceIndex.toString()
@@ -169,17 +171,17 @@ export function getPurchaseLink ({
     : `${LIKE_CO_API}/likernft/book/purchase/${classId}/new${queryString}`
 }
 
-export function formatCurrency (currency: string) {
+export function formatCurrency(currency: string) {
   return currency?.toUpperCase() || ''
 }
 
-export function formatNumberWithCurrency (valueInDecimal: number, currency: string) {
+export function formatNumberWithCurrency(valueInDecimal: number, currency: string) {
   const value = convertDecimalToAmount(valueInDecimal, currency)
   const suffix = currency ? ` ${formatCurrency(currency)}` : ''
   return `${value.toLocaleString('en-US')}${suffix}`
 }
 
-export function convertDecimalToAmount (valueInDecimal: number, currency: string) {
+export function convertDecimalToAmount(valueInDecimal: number, currency: string) {
   let value = 0
   switch (currency) {
     case 'usdc':
@@ -193,19 +195,19 @@ export function convertDecimalToAmount (valueInDecimal: number, currency: string
   return value
 }
 
-export function validateChannelId (channelId: string) {
+export function validateChannelId(channelId: string) {
   return channelId.startsWith('@')
 }
 
-export function convertChannelIdToLikerId (channelId: string) {
+export function convertChannelIdToLikerId(channelId: string) {
   return channelId.replace(/^@/, '')
 }
 
-export function convertLikerIdToChannelId (likerId: string) {
+export function convertLikerIdToChannelId(likerId: string) {
   return `@${likerId}`
 }
 
-export function copyToClipboard (text: string, title?: string): void {
+export function copyToClipboard(text: string, title?: string): void {
   const toast = useToast()
   const { copy } = useClipboard()
 
@@ -214,23 +216,23 @@ export function copyToClipboard (text: string, title?: string): void {
       icon: 'i-heroicons-check-circle',
       title: title || 'Copied to clipboard',
       duration: 2000,
-      color: 'success'
+      color: 'success',
     })
   }).catch(() => {
     toast.add({
       icon: 'i-heroicons-warning',
       title: 'Failed to copy',
-      duration: 3000
+      duration: 3000,
     })
   })
 }
 
-export function getImageResizeURL (url: string, { width = 300 }: { width?: number } = {}) {
+export function getImageResizeURL(url: string, { width = 300 }: { width?: number } = {}) {
   const { LIKE_CO_STATIC_ENDPOINT } = useRuntimeConfig().public
   return `${LIKE_CO_STATIC_ENDPOINT}/thumbnail/?url=${encodeURIComponent(url)}&width=${width}`
 }
 
-export function fileToArrayBuffer (file: Blob): Promise<ArrayBuffer> {
+export function fileToArrayBuffer(file: Blob): Promise<ArrayBuffer> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
 
@@ -255,27 +257,27 @@ export function fileToArrayBuffer (file: Blob): Promise<ArrayBuffer> {
   })
 }
 
-export function digestFileSHA256 (buffer: ArrayBuffer) {
+export function digestFileSHA256(buffer: ArrayBuffer) {
   const hashHex = Buffer.from(buffer).toString('hex')
   return hashHex
 }
 
-export async function calculateIPFSHash (fileBytes: Uint8Array | Buffer, options?: Record<string, unknown>) {
+export async function calculateIPFSHash(fileBytes: Uint8Array | Buffer, options?: Record<string, unknown>) {
   try {
     options = options || {}
 
     const block = {
-      put: async () => {}
+      put: async () => {},
     } as unknown as WritableStorage
 
     let lastCid
     for await (const { cid } of importer([{
-      content: fileBytes
+      content: fileBytes,
     }], block, {
       ...options,
       cidVersion: 0,
       rawLeaves: false,
-      onlyHash: true
+      onlyHash: true,
     } as Parameters<typeof importer>[2])) {
       lastCid = cid
     }
@@ -284,18 +286,19 @@ export async function calculateIPFSHash (fileBytes: Uint8Array | Buffer, options
       return lastCid.toString()
     }
     return null
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Error calculating IPFS hash:', error)
     return null
   }
 }
 
-export function appendUTMParamsToURL ({
+export function appendUTMParamsToURL({
   url,
   source = 'publish-liker-land',
   medium = '',
-  campaign = ''
-}:{
+  campaign = '',
+}: {
   url: string
   source?: string
   medium?: string
@@ -308,15 +311,15 @@ export function appendUTMParamsToURL ({
   return urlObj.toString()
 }
 
-export function verifyAccountId (id: string) {
+export function verifyAccountId(id: string) {
   return !!id && (/^[a-z0-9-_]+$/.test(id) && id.length >= 5 && id.length <= 20)
 }
 
-export function verifyEmail (email: string) {
+export function verifyEmail(email: string) {
   return !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 
-function convertBigIntToBaseString (num: bigint, length: number) {
+function convertBigIntToBaseString(num: bigint, length: number) {
   let str = ''
   for (let i = 0; i < length; i++) {
     const base = BigInt(ACCOUNT_ID_CHARS.length)
@@ -326,7 +329,7 @@ function convertBigIntToBaseString (num: bigint, length: number) {
   return str
 }
 
-export function generateAccountIdFromWalletAddress (walletAddress: string) {
+export function generateAccountIdFromWalletAddress(walletAddress: string) {
   const hash = keccak256(toBytes(walletAddress.trim().toLowerCase()))
   // Add 2 to include '0x' prefix
   const hex = hash.slice(0, ACCOUNT_ID_LENGTH * 2 + 2)
@@ -334,6 +337,6 @@ export function generateAccountIdFromWalletAddress (walletAddress: string) {
   return convertBigIntToBaseString(num, ACCOUNT_ID_LENGTH)
 }
 
-export function checkIsEVMAddress (address: string) {
+export function checkIsEVMAddress(address: string) {
   return /^0x[a-fA-F0-9]{40}$/.test(address)
 }

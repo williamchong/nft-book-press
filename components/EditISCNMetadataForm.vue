@@ -30,9 +30,8 @@ import type { ClassMetadata, ISCNFormData } from '~/types/iscn'
 import { getPreviewContentFromHasPart } from '~/utils/iscn'
 import type ISCNForm from '~/components/ISCNForm.vue'
 
-// eslint-disable-next-line func-call-spacing
 const emit = defineEmits<{
-  (e: 'iscnUpdated', payload: { classId: string; metadata: Record<string, unknown> & { name: string; description: string; symbol: string } }): void
+  (e: 'iscnUpdated', payload: { classId: string, metadata: Record<string, unknown> & { name: string, description: string, symbol: string } }): void
 }>()
 
 const nftStore = useNftStore()
@@ -66,7 +65,7 @@ const iscnFormData = ref<ISCNFormData>({
   publicationDate: '',
   author: {
     name: '',
-    description: ''
+    description: '',
   },
   license: 'All rights reserved',
   contentFingerprints: [{ url: '' }],
@@ -74,15 +73,15 @@ const iscnFormData = ref<ISCNFormData>({
     {
       url: '',
       type: '',
-      fileName: ''
-    }
+      fileName: '',
+    },
   ],
   customLicense: '',
   language: '',
   bookInfoUrl: '',
   tags: [],
   coverUrl: '',
-  genre: ''
+  genre: '',
 })
 
 const iscnChainData = ref({} as ClassMetadata)
@@ -107,22 +106,24 @@ watch(
         let downloadableUrls = [{
           url: '',
           type: '',
-          fileName: ''
+          fileName: '',
         }]
         if (metadata.potentialAction?.target && Array.isArray(metadata.potentialAction.target)) {
-          downloadableUrls = metadata.potentialAction.target.map((target: { contentType: string; url?: string; name?: string }) => ({
+          downloadableUrls = metadata.potentialAction.target.map((target: { contentType: string, url?: string, name?: string }) => ({
             type: getFileTypeFromMime(target.contentType),
             url: target.url || '',
-            fileName: target.name || ''
+            fileName: target.name || '',
           }))
-        } else if (metadata.sameAs && Array.isArray(metadata.sameAs)) {
+        }
+        else if (metadata.sameAs && Array.isArray(metadata.sameAs)) {
           downloadableUrls = metadata.sameAs.map(parseDownloadableUrl)
         }
         const tags: string[] = []
         if (metadata.keywords) {
           if (Array.isArray(metadata.keywords)) {
             tags.push(...metadata.keywords)
-          } else {
+          }
+          else {
             tags.push(...metadata.keywords.split(',').map((k: string) => k.trim()).filter((k: string) => k))
           }
         }
@@ -140,11 +141,11 @@ watch(
           publicationDate: metadata.datePublished || '',
           author: {
             name: (typeof metadata.author === 'object' ? metadata.author?.name : metadata.author) || '',
-            description: (typeof metadata.author === 'object' ? metadata.author?.description : '') || ''
+            description: (typeof metadata.author === 'object' ? metadata.author?.description : '') || '',
           },
           license: metadata.usageInfo || 'All Rights Reserved',
           contentFingerprints: metadata.contentFingerprints?.map((url: string) => ({
-            url
+            url,
           })) || [{ url: '' }],
           downloadableUrls,
           customLicense: '',
@@ -152,19 +153,21 @@ watch(
           bookInfoUrl: metadata.url || '',
           tags,
           coverUrl: metadata.thumbnailUrl || metadata.image || '',
-          genre: metadata.genre || ''
+          genre: metadata.genre || '',
         }
-      } catch (error) {
+      }
+      catch (error) {
         console.error('Error fetching ISCN data:', error)
-      } finally {
+      }
+      finally {
         isISCNLoading.value = false
       }
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
-function parseDownloadableUrl (url: string) {
+function parseDownloadableUrl(url: string) {
   try {
     const urlObj = new URL(url)
     const fileName = urlObj.searchParams.get('name') || ''
@@ -172,30 +175,31 @@ function parseDownloadableUrl (url: string) {
     return {
       url: url.split('?')[0] || '',
       fileName: name,
-      type: type || ''
+      type: type || '',
     }
-  } catch (e) {
+  }
+  catch (e) {
     return {
       url,
       fileName: '',
-      type: ''
+      type: '',
     }
   }
 }
 
-async function handleSave () {
+async function handleSave() {
   await validateWalletConsistency()
   if (!wallet.value || !signer.value) {
     toast.add({
       title: $t('auth.login_required'),
-      color: 'error'
+      color: 'error',
     })
     return
   }
   if (!isFormValid.value) {
     toast.add({
       title: formError.value.join(', '),
-      color: 'error'
+      color: 'error',
     })
     return
   }
@@ -210,12 +214,12 @@ async function handleSave () {
       nft_meta_collection_id: 'nft_book',
       nft_meta_collection_name: 'NFT Book',
       nft_meta_collection_description: 'NFT Book by Liker Land',
-      recordTimestamp: new Date().toISOString()
+      recordTimestamp: new Date().toISOString(),
     }
     const bookConfig = await getNFTClassConfig(props.classId)
     await checkAndGrantUpdater({
       classId: props.classId,
-      wallet: wallet.value
+      wallet: wallet.value,
     })
 
     const txParams = {
@@ -226,13 +230,13 @@ async function handleSave () {
         name: metadata.name,
         symbol: bookConfig.symbol,
         metadata: JSON.stringify(metadata),
-        max_supply: DEFAULT_MAX_SUPPLY
-      }]
+        max_supply: DEFAULT_MAX_SUPPLY,
+      }],
     }
 
     await assertSufficientBalanceForTransaction({
       wallet: wallet.value,
-      ...txParams
+      ...txParams,
     })
 
     const txHash = await writeContractAsync(txParams)
@@ -240,24 +244,25 @@ async function handleSave () {
     if (!receipt || receipt.status !== 'success') { throw new Error('INVALID_RECEIPT') }
     toast.add({
       title: $t('edit_iscn.update_success'),
-      color: 'info'
+      color: 'info',
     })
     iscnFormRef.value?.resetSnapshot()
     await nftStore.fetchClassMetadataById(props.classId)
     await refreshBookMetadata(props.classId)
     emit('iscnUpdated', {
       classId: props.classId,
-      metadata
+      metadata,
     })
-  } catch (error) {
+  }
+  catch (error) {
     toast.add({
       title: $t('edit_iscn.update_failed'),
       description: (error as Error).message,
-      color: 'error'
+      color: 'error',
     })
-  } finally {
+  }
+  finally {
     isSaving.value = false
   }
 }
-
 </script>

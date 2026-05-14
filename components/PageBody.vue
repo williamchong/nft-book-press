@@ -9,16 +9,16 @@ import { twMerge } from 'tailwind-merge'
 
 const props = defineProps<{
   ui?: {
-    base?: string;
-    padding?: string;
-    constrained?: string;
-  };
+    base?: string
+    padding?: string
+    constrained?: string
+  }
 }>()
 
 const containerClass = computed(() => twMerge(
   'space-y-6 max-w-full! pt-6 pb-20 pl-14! lg:pl-8!',
   props?.ui?.base,
   props?.ui?.padding,
-  props?.ui?.constrained
+  props?.ui?.constrained,
 ))
 </script>
