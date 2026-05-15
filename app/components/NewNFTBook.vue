@@ -800,6 +800,15 @@ function validate(prices: MappedPrice[]) {
   return true
 }
 
+function reportSubmitError(err: unknown): never {
+  const errorData = (err as { data?: string }).data || err
+  // eslint-disable-next-line no-console
+  console.error(errorData)
+  error.value = String(errorData)
+  showErrorToast(String(errorData))
+  throw err
+}
+
 async function onSubmit() {
   try {
     const p = mapPrices(prices.value)
@@ -835,8 +844,9 @@ async function onSubmit() {
     }
     emit('submit')
   }
-  catch (error) {
-
+  catch {
+    // Stop before emit('submit'): a failed request must not close the modal
+    // or refresh the listing. The error was already surfaced by the callee.
   }
 }
 
@@ -882,11 +892,7 @@ async function submitNewClass() {
     })
   }
   catch (err) {
-    const errorData = (err as { data?: string }).data || err
-    // eslint-disable-next-line no-console
-    console.error(errorData)
-    error.value = String(errorData)
-    showErrorToast(String(errorData))
+    reportSubmitError(err)
   }
   finally {
     isLoading.value = false
@@ -913,11 +919,7 @@ async function submitEditedClass() {
     })
   }
   catch (err) {
-    const errorData = (err as { data?: string }).data || err
-    // eslint-disable-next-line no-console
-    console.error(errorData)
-    error.value = String(errorData)
-    showErrorToast(String(errorData))
+    reportSubmitError(err)
   }
   finally {
     isLoading.value = false
@@ -934,9 +936,8 @@ async function addNewEdition() {
       price,
     })
   }
-  catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error)
+  catch (err) {
+    reportSubmitError(err)
   }
   finally {
     isLoading.value = false
