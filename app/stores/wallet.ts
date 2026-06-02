@@ -82,7 +82,11 @@ export const useWalletStore = defineStore('wallet', () => {
         (c: { id: string }) => c.id === connectorId,
       )
       if (!connector) { return }
-      await wagmiConnect({ connector, chainId })
+      // `connectors` is a Vue reactive array, so unwrap the proxy before
+      // handing it to wagmi core: its cycle-detection-free `deepEqual` would
+      // otherwise recurse through the proxy's circular connector→config graph
+      // and throw "Maximum call stack size exceeded".
+      await wagmiConnect({ connector: toRaw(connector), chainId })
 
       isLoginLoading.value = true
 
