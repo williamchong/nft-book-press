@@ -175,6 +175,10 @@ export function formatCurrency(currency: string) {
   return currency?.toUpperCase() || ''
 }
 
+export function convertMsToMinutes(ms: number) {
+  return Math.round((ms / (1000 * 60)) * 10) / 10
+}
+
 export function formatNumberWithCurrency(valueInDecimal: number, currency: string) {
   const value = convertDecimalToAmount(valueInDecimal, currency)
   const suffix = currency ? ` ${formatCurrency(currency)}` : ''
