@@ -341,7 +341,8 @@ export function useBulkUpload() {
       mustClaimToView: true,
       enableCustomMessagePage: !!book.autoMemo,
       hideDownload: book.enableDRM,
-      isPlusReadingEnabled: true,
+      hideAudio: !book.enableTTS,
+      isPlusReadingEnabled: book.isPlusReadingEnabled,
     })
   }
 

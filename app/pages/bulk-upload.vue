@@ -287,6 +287,8 @@
             { accessorKey: 'editionName', header: $t('form.edition') },
             { accessorKey: 'language', header: $t('form.language') },
             { accessorKey: 'enableDRM', header: $t('bulk_upload.enable_drm') },
+            { accessorKey: 'enableTTS', header: $t('bulk_upload.enable_tts') },
+            { accessorKey: 'isPlusReadingEnabled', header: $t('bulk_upload.enable_library') },
             { accessorKey: 'isAutoDeliver', header: $t('bulk_upload.auto_deliver') },
             { accessorKey: 'autoMemo', header: $t('bulk_upload.auto_memo') },
           ]"
@@ -298,6 +300,22 @@
               variant="soft"
             >
               {{ row.original.enableDRM ? $t('common.yes') : $t('common.no') }}
+            </UBadge>
+          </template>
+          <template #enableTTS-cell="{ row }">
+            <UBadge
+              :color="row.original.enableTTS ? 'primary' : 'neutral'"
+              variant="soft"
+            >
+              {{ row.original.enableTTS ? $t('common.yes') : $t('common.no') }}
+            </UBadge>
+          </template>
+          <template #isPlusReadingEnabled-cell="{ row }">
+            <UBadge
+              :color="row.original.isPlusReadingEnabled ? 'primary' : 'neutral'"
+              variant="soft"
+            >
+              {{ row.original.isPlusReadingEnabled ? $t('common.yes') : $t('common.no') }}
             </UBadge>
           </template>
           <template #isAutoDeliver-cell="{ row }">
@@ -607,6 +625,8 @@ const reviewData = computed(() =>
     editionName: book.editionName,
     language: book.language,
     enableDRM: book.enableDRM,
+    enableTTS: book.enableTTS,
+    isPlusReadingEnabled: book.isPlusReadingEnabled,
     isAutoDeliver: book.isAutoDeliver,
     autoMemo: book.autoMemo,
   })),
@@ -761,28 +781,32 @@ async function verifyProgressFieldsOnChain(booksToVerify: BulkUploadBook[]) {
 async function downloadCSVTemplate() {
   const { saveAs } = await import('file-saver')
 
+  // Keep aligned with CSV_ALL_COLUMNS order (positional).
   const sampleRow = [
-    'My Book Title',
-    'A great book about...',
-    '',
-    'Author Name',
-    'Author bio',
-    'Publisher',
-    '978-1234567890',
-    '2024-01-15',
-    '4.99',
-    '',
-    '',
-    'fiction,novel',
-    'cover.jpg',
-    '',
-    'book.epub',
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
+    'My Book Title', // book_title
+    'A great book about...', // book_description
+    '', // book_description_full
+    'Author Name', // author_name
+    'Author bio', // author_description
+    'Publisher', // publisher
+    'Publisher bio', // publisher_description
+    '978-1234567890', // isbn
+    '2024-01-15', // publish_date
+    '4.99', // list_price
+    '', // list_price_hkd
+    '', // list_price_twd
+    'fiction,novel', // tags
+    'cover.jpg', // cover_image_filename
+    '', // pdf_filename
+    'book.epub', // epub_filename
+    '', // edition_name
+    '', // edition_description
+    '', // auto_deliver
+    '', // auto_memo
+    '', // enable_drm
+    '', // enable_tts
+    '', // enable_library
+    '', // language
   ]
 
   const csvContent = csvStringify([sampleRow], {
