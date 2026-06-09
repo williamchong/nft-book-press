@@ -25,6 +25,8 @@ export const LIKE_ADDRESS_REGEX = /^like1[ac-hj-np-z02-9]{38}$/
 export const CSV_DEFAULT_LANGUAGE = 'zh'
 export const CSV_DEFAULT_AUTO_DELIVER = true
 export const CSV_DEFAULT_ENABLE_DRM = false
+export const CSV_DEFAULT_ENABLE_TTS = true
+export const CSV_DEFAULT_ENABLE_LIBRARY = true
 export const CSV_DEFAULT_EDITION_NAME = '電子版'
 export const CSV_DEFAULT_EDITION_DESCRIPTION = ''
 

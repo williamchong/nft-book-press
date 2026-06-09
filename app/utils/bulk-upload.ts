@@ -4,6 +4,8 @@ import {
   CSV_DEFAULT_LANGUAGE,
   CSV_DEFAULT_AUTO_DELIVER,
   CSV_DEFAULT_ENABLE_DRM,
+  CSV_DEFAULT_ENABLE_TTS,
+  CSV_DEFAULT_ENABLE_LIBRARY,
   CSV_DEFAULT_EDITION_NAME,
   CSV_DEFAULT_EDITION_DESCRIPTION,
   MAX_DESCRIPTION_LENGTH,
@@ -36,6 +38,8 @@ export const CSV_ALL_COLUMNS = [
   'auto_deliver',
   'auto_memo',
   'enable_drm',
+  'enable_tts',
+  'enable_library',
   'language',
 ]
 
@@ -45,6 +49,8 @@ export const CSV_OPTIONAL_COLUMNS_WITH_DEFAULTS: Record<string, string> = {
   edition_description: CSV_DEFAULT_EDITION_DESCRIPTION,
   auto_deliver: String(CSV_DEFAULT_AUTO_DELIVER),
   enable_drm: String(CSV_DEFAULT_ENABLE_DRM),
+  enable_tts: String(CSV_DEFAULT_ENABLE_TTS),
+  enable_library: String(CSV_DEFAULT_ENABLE_LIBRARY),
   language: CSV_DEFAULT_LANGUAGE,
 }
 
@@ -100,6 +106,8 @@ export function parseCSVRow(row: BulkUploadCSVRow, rowIndex: number): BulkUpload
     isAutoDeliver: row.auto_deliver?.trim().toLowerCase() !== 'false',
     autoMemo: row.auto_memo?.trim() || '',
     enableDRM: row.enable_drm?.trim().toLowerCase() === 'true',
+    enableTTS: row.enable_tts?.trim().toLowerCase() !== 'false',
+    isPlusReadingEnabled: row.enable_library?.trim().toLowerCase() !== 'false',
     language: row.language?.trim() || CSV_DEFAULT_LANGUAGE,
     status: BookUploadStatus.PENDING,
   }
@@ -175,13 +183,12 @@ export function validateBook(book: BulkUploadBook, rawRow?: BulkUploadCSVRow): B
 
   // Validate boolean fields contain valid values
   if (rawRow) {
-    const autoDeliverVal = rawRow.auto_deliver?.trim().toLowerCase() ?? ''
-    if (autoDeliverVal && !VALID_BOOLEAN_VALUES.includes(autoDeliverVal)) {
-      errors.push({ rowIndex, field: 'auto_deliver', message: 'bulk_upload.error_invalid_boolean', params: { field: 'auto_deliver', value: rawRow.auto_deliver!.trim() } })
-    }
-    const enableDrmVal = rawRow.enable_drm?.trim().toLowerCase() ?? ''
-    if (enableDrmVal && !VALID_BOOLEAN_VALUES.includes(enableDrmVal)) {
-      errors.push({ rowIndex, field: 'enable_drm', message: 'bulk_upload.error_invalid_boolean', params: { field: 'enable_drm', value: rawRow.enable_drm!.trim() } })
+    for (const field of ['auto_deliver', 'enable_drm', 'enable_tts', 'enable_library'] as const) {
+      const raw = rawRow[field]
+      const value = raw?.trim().toLowerCase() ?? ''
+      if (value && !VALID_BOOLEAN_VALUES.includes(value)) {
+        errors.push({ rowIndex, field, message: 'bulk_upload.error_invalid_boolean', params: { field, value: raw!.trim() } })
+      }
     }
   }
 
@@ -243,6 +250,8 @@ export function serializeBook(book: BulkUploadBook): SerializedBulkUploadBook {
     isAutoDeliver: book.isAutoDeliver,
     autoMemo: book.autoMemo,
     enableDRM: book.enableDRM,
+    enableTTS: book.enableTTS,
+    isPlusReadingEnabled: book.isPlusReadingEnabled,
     language: book.language,
     status: book.status,
     error: book.error,
@@ -326,6 +335,8 @@ export async function generateResultCSV(books: BulkUploadBook[]): Promise<void> 
     book.isAutoDeliver ? 'true' : 'false',
     book.autoMemo,
     book.enableDRM ? 'true' : 'false',
+    book.enableTTS ? 'true' : 'false',
+    book.isPlusReadingEnabled ? 'true' : 'false',
     book.language,
     book.classId || '',
     book.mintTxHash || '',

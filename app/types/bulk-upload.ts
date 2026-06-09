@@ -35,6 +35,8 @@ export interface BulkUploadCSVRow {
   auto_deliver?: string
   auto_memo?: string
   enable_drm?: string
+  enable_tts?: string
+  enable_library?: string
   language?: string
   // Resume fields (from result CSV)
   class_id?: string
@@ -73,6 +75,10 @@ export interface BulkUploadBook {
   isAutoDeliver: boolean
   autoMemo: string
   enableDRM: boolean
+  // Text-to-speech (audio narration); maps to inverse of listing `hideAudio`.
+  enableTTS: boolean
+  // Plus Library membership; maps to listing `isPlusReadingEnabled`.
+  isPlusReadingEnabled: boolean
   language: string
   // Runtime state
   status: BookUploadStatus
@@ -117,6 +123,8 @@ export interface SerializedBulkUploadBook {
   isAutoDeliver: boolean
   autoMemo: string
   enableDRM: boolean
+  enableTTS: boolean
+  isPlusReadingEnabled: boolean
   language: string
   status: BookUploadStatus
   error?: string
