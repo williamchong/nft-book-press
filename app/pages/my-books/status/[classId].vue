@@ -245,6 +245,38 @@
       </UCard>
 
       <UCard
+        v-if="plusReadingStatsRows.length"
+        :ui="{ body: 'p-0 sm:p-0' }"
+      >
+        <template #header>
+          <h3
+            class="font-bold"
+            v-text="$t('plus_reading_stats.title')"
+          />
+          <p
+            class="text-xs text-gray-500"
+            v-text="$t('plus_reading_stats.description')"
+          />
+          <div class="flex gap-2 mt-2">
+            <UBadge
+              color="primary"
+              variant="soft"
+              :label="$t('plus_reading_stats.total_reading', { value: convertMsToMinutes(plusReadingStatsSummary.totalReadingTimeMs) })"
+            />
+            <UBadge
+              color="neutral"
+              variant="soft"
+              :label="$t('plus_reading_stats.total_listening', { value: convertMsToMinutes(plusReadingStatsSummary.totalTTSTimeMs) })"
+            />
+          </div>
+        </template>
+        <UTable
+          :columns="plusReadingStatsColumns"
+          :data="plusReadingStatsRows"
+        />
+      </UCard>
+
+      <UCard
         :ui="{
           header: 'flex justify-between items-center',
           body: 'p-3',
@@ -590,8 +622,8 @@
 
 <script setup lang="ts">
 import { whenever } from '@vueuse/core'
-import { getPortfolioURL, downloadFile, convertArrayOfObjectsToCSV, getPurchaseLink, copyToClipboard } from '~/utils'
-import type { PurchaseItem, ClassListingData, ClassListingPrice, EditionTableRow } from '~/types'
+import { getPortfolioURL, downloadFile, convertArrayOfObjectsToCSV, getPurchaseLink, copyToClipboard, convertMsToMinutes } from '~/utils'
+import type { PurchaseItem, ClassListingData, ClassListingPrice, EditionTableRow, PlusReadingStats } from '~/types'
 import { getApiEndpoints } from '~/constant/api'
 
 const { t: $t } = useI18n()
@@ -655,6 +687,43 @@ const isPlusReadingEnabledRadio = computed({
   get: () => (isPlusReadingEnabled.value ? 'join' : 'skip'),
   set: (val: string) => { isPlusReadingEnabled.value = val === 'join' },
 })
+
+// Live Plus reading-library engagement for this book (current, not-yet-settled usage). Reading
+// time counts only borrowed (Plus-library) reads; listening (TTS) counts any read by a paid
+// Plus member — so these are rev-share-eligible durations, not gross engagement.
+const plusReadingStats = ref<PlusReadingStats['stats']>([])
+const plusReadingStatsSummary = ref<PlusReadingStats['summary']>({
+  totalReadingTimeMs: 0,
+  totalTTSTimeMs: 0,
+  bookCount: 0,
+  periodCount: 0,
+})
+const plusReadingStatsRows = computed(() => plusReadingStats.value.map(row => ({
+  periodId: row.periodId,
+  readingMinutes: convertMsToMinutes(row.readingTimeMs),
+  listeningMinutes: convertMsToMinutes(row.ttsTimeMs),
+})))
+const plusReadingStatsColumns = computed(() => [
+  { accessorKey: 'periodId', header: $t('plus_reading_stats.period') },
+  { accessorKey: 'readingMinutes', header: $t('plus_reading_stats.reading_minutes') },
+  { accessorKey: 'listeningMinutes', header: $t('plus_reading_stats.listening_minutes') },
+])
+
+async function fetchPlusReadingStats() {
+  try {
+    const data = await $fetch<PlusReadingStats>(`${LIKE_CO_API}/likernft/book/user/plus-reading/stats`, {
+      headers: { authorization: `Bearer ${token.value}` },
+      query: { classId: classId.value },
+    })
+    plusReadingStats.value = data?.stats || []
+    plusReadingStatsSummary.value = data?.summary || plusReadingStatsSummary.value
+  }
+  catch (err) {
+    // Non-blocking: engagement stats are supplementary to the listing page.
+    // eslint-disable-next-line no-console
+    console.error(err)
+  }
+}
 const useLikerLandPurchaseLink = ref(true)
 const shouldDisableStripeConnectSetting = ref(false)
 const isUsingDefaultAccount = ref(true)
@@ -1036,7 +1105,11 @@ onMounted(async () => {
     isPlusReadingEnabled.value = classIsPlusReadingEnabled ?? false
     enableCustomMessagePage.value = classEnableCustomMessagePage ?? true
     tableOfContents.value = classTableOfContent ?? ''
-    await ordersStore.fetchOrdersByClassId([classId.value])
+    // Independent fetches — run concurrently to keep them off each other's critical path.
+    await Promise.all([
+      ordersStore.fetchOrdersByClassId([classId.value]),
+      fetchPlusReadingStats(),
+    ])
 
     if (sessionWallet.value) {
       await calculateStock()

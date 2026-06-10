@@ -2,7 +2,7 @@ export type { ISCNContentMetadata, ISCNData, PotentialActionTarget, PotentialAct
 export type { BookPriceInDecimalByCurrency, ClassListingPrice, ClassListingData, BookRecord, ProductData, EditionTableRow } from './book'
 export type { PurchaseItem } from './purchase'
 export type { CommissionRow, PayoutRow, PayoutData, PayoutItemDetail } from './payout'
-export type { PlusReadingReportEntry, PlusReadingReport } from './plus-reading'
+export type { PlusReadingReportEntry, PlusReadingReport, PlusReadingStatsEntry, PlusReadingStats } from './plus-reading'
 export type { FileRecord, EpubMetadata, ArweaveEstimate } from './upload'
 export type { BulkUploadCSVRow, BulkUploadBook, SerializedBulkUploadBook, BulkUploadSession, BulkUploadValidationError, ValidatedProgressFields } from './bulk-upload'
 export { BookUploadStatus } from './bulk-upload'
