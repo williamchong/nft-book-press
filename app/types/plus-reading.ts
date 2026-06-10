@@ -22,3 +22,20 @@ export interface PlusReadingReport {
     bookCount: number
   }
 }
+
+export interface PlusReadingStatsEntry {
+  classId: string
+  periodId: string
+  readingTimeMs: number
+  ttsTimeMs: number
+}
+
+export interface PlusReadingStats {
+  stats: PlusReadingStatsEntry[]
+  summary: {
+    totalReadingTimeMs: number
+    totalTTSTimeMs: number
+    bookCount: number
+    periodCount: number
+  }
+}
