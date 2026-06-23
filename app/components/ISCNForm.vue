@@ -83,9 +83,10 @@
 
       <UFormField :label="$t('form.genre')">
         <USelect
-          v-model="formData.genre"
+          v-model="genreModel"
           :items="bookCategoryOptions"
           :placeholder="$t('iscn_form.select_genre')"
+          :ui="{ content: 'w-fit min-w-(--reka-select-trigger-width)' }"
         />
       </UFormField>
 
@@ -376,10 +377,16 @@ const downloadTypeOptions = [
   { label: 'Other', value: 'other' },
 ]
 
-const bookCategoryOptions = BOOK_CATEGORIES.map(cat => ({
-  label: $t(cat.i18nKey),
-  value: cat.value as string,
-}))
+// Reka UI's SelectItem rejects an empty-string value (it is reserved for the
+// cleared state), so the reset option uses a sentinel mapped back to '' below.
+const GENRE_NONE_VALUE = '__none__'
+const bookCategoryOptions = [
+  { label: $t('iscn_form.genre_none'), value: GENRE_NONE_VALUE },
+  ...BOOK_CATEGORIES.map(cat => ({
+    label: $t(cat.i18nKey),
+    value: cat.value as string,
+  })),
+]
 
 const shouldShowUploadModal = ref(false)
 const uploadFormRef = ref()
@@ -387,6 +394,14 @@ const fileRecords = ref<FileRecord[]>([])
 const uploadStatus = ref('')
 
 const formData = defineModel<ISCNFormData>({ required: true })
+
+// Bridge the empty stored genre to the dropdown's non-empty sentinel option.
+const genreModel = computed({
+  get: () => formData.value.genre || GENRE_NONE_VALUE,
+  set: (value: string) => {
+    formData.value.genre = value === GENRE_NONE_VALUE ? '' : value
+  },
+})
 
 const initialFormDataSnapshot = ref<string>('')
 

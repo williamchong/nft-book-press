@@ -430,6 +430,7 @@
   "iscn_form.publisher_description": "出版社描述",
   "iscn_form.select_date": "選擇日期",
   "iscn_form.select_file_type": "選擇檔案類型",
+  "iscn_form.genre_none": "不指定",
   "iscn_form.select_genre": "選擇分類",
   "iscn_form.select_language": "選擇語言",
   "iscn_form.select_license": "選擇授權",
