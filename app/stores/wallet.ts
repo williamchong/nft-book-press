@@ -24,6 +24,9 @@ export const useWalletStore = defineStore('wallet', () => {
   const isLoginLoading = ref(false)
 
   const wallet = computed(() => address.value ? checksumAddress(address.value) : undefined)
+  // Wrap wagmi's readonly `isConnected` ref in a computed so Pinia treats it as a
+  // getter, not writable state, avoiding a readonly-set warning on SSR hydration.
+  const isWalletConnected = computed(() => isConnected.value)
 
   const getLikeCoinV3BookMigrationSiteURL = computed(() => ({ utmSource }: { utmSource?: string } = {}) => {
     const { locale } = useI18n()
@@ -436,7 +439,7 @@ export const useWalletStore = defineStore('wallet', () => {
   return {
     wallet,
     signer: ref({}),
-    isConnected,
+    isConnected: isWalletConnected,
     isLoginLoading,
     initIfNecessary,
     validateWalletConsistency,
