@@ -430,6 +430,7 @@
   "iscn_form.publisher_description": "Publisher Description",
   "iscn_form.select_date": "Select date",
   "iscn_form.select_file_type": "Select file type",
+  "iscn_form.genre_none": "Unspecified",
   "iscn_form.select_genre": "Select category",
   "iscn_form.select_language": "Select language",
   "iscn_form.select_license": "Select license",
