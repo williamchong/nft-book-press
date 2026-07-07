@@ -8,31 +8,7 @@ const ACCOUNT_ID_LENGTH = 6
 
 export function getIsTestnet() {
   const { IS_TESTNET } = useRuntimeConfig().public
-  return IS_TESTNET === 'TRUE'
-}
-
-export function addParamToUrl(url: string, params: { [key: string]: string }) {
-  const urlObject = new URL(url)
-  const urlParams = new URLSearchParams(urlObject.search)
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined) {
-      urlParams.set(key, value)
-    }
-  })
-  urlObject.search = urlParams.toString()
-  return urlObject.toString()
-}
-
-export function downloadBlob(content: string, filename: string, contentType: string) {
-  // Create a blob
-  const blob = new Blob([content], { type: contentType })
-  const url = URL.createObjectURL(blob)
-
-  // Create a link to download it
-  const pom = document.createElement('a')
-  pom.href = url
-  pom.setAttribute('download', filename)
-  pom.click()
+  return !!IS_TESTNET
 }
 
 /**
@@ -116,17 +92,6 @@ export function getPortfolioURL(wallet = '') {
   const { OPENSEA_URL } = useRuntimeConfig().public
   return `${OPENSEA_URL}/${wallet}`
 }
-
-export const deliverMethodOptions = [
-  {
-    value: 'auto',
-    label: 'Auto delivery / 自動發書',
-  },
-  {
-    value: 'manual',
-    label: 'Manual delivery / 手動發書',
-  },
-]
 
 export function getPurchaseLink({
   classId,
@@ -261,9 +226,11 @@ export function fileToArrayBuffer(file: Blob): Promise<ArrayBuffer> {
   })
 }
 
-export function digestFileSHA256(buffer: ArrayBuffer) {
-  const hashHex = Buffer.from(buffer).toString('hex')
-  return hashHex
+export async function digestFileSHA256(buffer: ArrayBuffer) {
+  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer)
+  return Array.from(new Uint8Array(hashBuffer))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('')
 }
 
 export async function calculateIPFSHash(fileBytes: Uint8Array | Buffer, options?: Record<string, unknown>) {
@@ -339,8 +306,4 @@ export function generateAccountIdFromWalletAddress(walletAddress: string) {
   const hex = hash.slice(0, ACCOUNT_ID_LENGTH * 2 + 2)
   const num = BigInt(hex)
   return convertBigIntToBaseString(num, ACCOUNT_ID_LENGTH)
-}
-
-export function checkIsEVMAddress(address: string) {
-  return /^0x[a-fA-F0-9]{40}$/.test(address)
 }

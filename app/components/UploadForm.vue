@@ -292,8 +292,8 @@ const { t: $t } = useI18n()
 const UPLOAD_FILESIZE_MAX = 200 * 1024 * 1024
 
 const store = useWalletStore()
-const { signer } = storeToRefs(store)
 const { validateWalletConsistency } = store
+const { wallet } = storeToRefs(store)
 const bookstoreApiStore = useBookstoreApiStore()
 const { token } = storeToRefs(bookstoreApiStore)
 const toast = useToast()
@@ -403,21 +403,9 @@ const formatLanguage = (language: string) => {
   return formattedLanguage
 }
 
-const getFileInfo = async (file: Blob) => {
+const getFileInfoWithToast = async (file: Blob) => {
   try {
-    const fileBytes = (await fileToArrayBuffer(file)) as ArrayBuffer
-    if (!fileBytes) {
-      return null
-    }
-    const [fileSHA256, ipfsHash] = await Promise.all([
-      digestFileSHA256(fileBytes),
-      calculateIPFSHash(Buffer.from(fileBytes)),
-    ])
-    return {
-      fileBytes,
-      fileSHA256,
-      ipfsHash,
-    }
+    return await getFileInfo(file)
   }
   catch (error) {
     toast.add({
@@ -465,7 +453,7 @@ const onFileUpload = async (event: Event) => {
           }
           reader.readAsDataURL(file)
 
-          const info = await getFileInfo(file)
+          const info = await getFileInfoWithToast(file)
           if (info) {
             const { fileBytes, fileSHA256, ipfsHash } = info
             fileRecord = {
@@ -677,7 +665,7 @@ const processEPub = async ({ buffer, file }: { buffer: ArrayBuffer, file: File }
           },
         )
 
-        const coverInfo = await getFileInfo(coverFile)
+        const coverInfo = await getFileInfoWithToast(coverFile)
         if (coverInfo) {
           const {
             fileSHA256,
@@ -890,11 +878,9 @@ const setEbookCoverFromImages = async () => {
 
 const onSubmitInternal = async () => {
   try {
-    if (!signer.value) {
-      await validateWalletConsistency()
-    }
-    if (!signer.value) {
-      throw new Error('SIGNER_NOT_INITED')
+    await validateWalletConsistency()
+    if (!wallet.value) {
+      throw new Error('WALLET_NOT_INITED')
     }
     if (!fileRecords.value.some(file => file.fileBlob)) {
       throw new Error('NO_FILE_TO_UPLOAD')
