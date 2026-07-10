@@ -6,6 +6,8 @@ import {
   CSV_DEFAULT_ENABLE_DRM,
   CSV_DEFAULT_ENABLE_TTS,
   CSV_DEFAULT_ENABLE_LIBRARY,
+  CSV_DEFAULT_ENABLE_PREVIEW,
+  CSV_DEFAULT_PREVIEW_PERCENTAGE,
   CSV_DEFAULT_EDITION_NAME,
   CSV_DEFAULT_EDITION_DESCRIPTION,
   MAX_DESCRIPTION_LENGTH,
@@ -13,6 +15,7 @@ import {
 } from '~/constant'
 import type { BulkUploadBook, BulkUploadCSVRow, SerializedBulkUploadBook, BulkUploadValidationError, ValidatedProgressFields } from '~/types/bulk-upload'
 import { BookUploadStatus } from '~/types/bulk-upload'
+import { clampPreviewPercentage } from '~/composables/usePreviewCut'
 
 export const CSV_REQUIRED_COLUMNS = ['book_title', 'book_description', 'author_name', 'cover_image_filename']
 
@@ -40,6 +43,8 @@ export const CSV_ALL_COLUMNS = [
   'enable_drm',
   'enable_tts',
   'enable_library',
+  'enable_preview',
+  'preview_percentage',
   'language',
 ]
 
@@ -51,6 +56,8 @@ export const CSV_OPTIONAL_COLUMNS_WITH_DEFAULTS: Record<string, string> = {
   enable_drm: String(CSV_DEFAULT_ENABLE_DRM),
   enable_tts: String(CSV_DEFAULT_ENABLE_TTS),
   enable_library: String(CSV_DEFAULT_ENABLE_LIBRARY),
+  enable_preview: String(CSV_DEFAULT_ENABLE_PREVIEW),
+  preview_percentage: String(CSV_DEFAULT_PREVIEW_PERCENTAGE),
   language: CSV_DEFAULT_LANGUAGE,
 }
 
@@ -85,6 +92,10 @@ export function parseCSVRow(row: BulkUploadCSVRow, rowIndex: number): BulkUpload
   const listPriceTWD = parseOptionalDecimalPrice(row.list_price_twd)
   // Free books always opt into Plus all-you-can-read, regardless of enable_library.
   const isPlusReadingEnabled = listPrice === 0 || row.enable_library?.trim().toLowerCase() !== 'false'
+  const parsedPreviewPercentage = parseInt(row.preview_percentage?.trim() || '', 10)
+  const previewPercentage = isNaN(parsedPreviewPercentage)
+    ? CSV_DEFAULT_PREVIEW_PERCENTAGE
+    : clampPreviewPercentage(parsedPreviewPercentage)
 
   return {
     id: crypto.randomUUID(),
@@ -112,6 +123,8 @@ export function parseCSVRow(row: BulkUploadCSVRow, rowIndex: number): BulkUpload
     enableDRM: row.enable_drm?.trim().toLowerCase() === 'true',
     enableTTS: row.enable_tts?.trim().toLowerCase() !== 'false',
     isPlusReadingEnabled,
+    isPreviewEnabled: row.enable_preview?.trim().toLowerCase() !== 'false',
+    previewPercentage,
     language: row.language?.trim() || CSV_DEFAULT_LANGUAGE,
     status: BookUploadStatus.PENDING,
   }
@@ -187,7 +200,7 @@ export function validateBook(book: BulkUploadBook, rawRow?: BulkUploadCSVRow): B
 
   // Validate boolean fields contain valid values
   if (rawRow) {
-    for (const field of ['auto_deliver', 'enable_drm', 'enable_tts', 'enable_library'] as const) {
+    for (const field of ['auto_deliver', 'enable_drm', 'enable_tts', 'enable_library', 'enable_preview'] as const) {
       const raw = rawRow[field]
       const value = raw?.trim().toLowerCase() ?? ''
       if (value && !VALID_BOOLEAN_VALUES.includes(value)) {
@@ -256,6 +269,8 @@ export function serializeBook(book: BulkUploadBook): SerializedBulkUploadBook {
     enableDRM: book.enableDRM,
     enableTTS: book.enableTTS,
     isPlusReadingEnabled: book.isPlusReadingEnabled,
+    isPreviewEnabled: book.isPreviewEnabled,
+    previewPercentage: book.previewPercentage,
     language: book.language,
     status: book.status,
     error: book.error,
@@ -347,6 +362,8 @@ export async function generateResultCSV(books: BulkUploadBook[]): Promise<void> 
     book.enableDRM ? 'true' : 'false',
     book.enableTTS ? 'true' : 'false',
     book.isPlusReadingEnabled ? 'true' : 'false',
+    book.isPreviewEnabled ? 'true' : 'false',
+    book.previewPercentage,
     book.language,
     book.classId || '',
     book.mintTxHash || '',

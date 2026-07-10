@@ -294,6 +294,8 @@ export function useBulkUpload() {
       hideDownload: book.enableDRM,
       hideAudio: !book.enableTTS,
       isPlusReadingEnabled: book.isPlusReadingEnabled,
+      isPreviewEnabled: book.isPreviewEnabled,
+      previewPercentage: book.previewPercentage,
       descriptionFull: book.descriptionFull?.trim() || undefined,
     })
   }

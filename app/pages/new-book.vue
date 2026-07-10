@@ -62,6 +62,7 @@
             v-model:signature-image="signatureImage"
             mode="new"
             :max-editions="MAX_EDITION_COUNT"
+            :epub-spine-items="epubMetadata?.spineItems"
           />
         </div>
         <div
@@ -172,7 +173,7 @@ import type {
   PublishSession,
 } from '~/types/publish'
 import { BookUploadStatus } from '~/types/bulk-upload'
-import { MAX_EDITION_COUNT } from '~/constant'
+import { MAX_EDITION_COUNT, PREVIEW_PERCENTAGE_DEFAULT } from '~/constant'
 import {
   savePublishSession,
   loadPublishSession,
@@ -265,6 +266,9 @@ function createDefaultListingDraft(): PublishListingDraft {
     hideAudio: false,
     // New titles opt into Plus all-you-can-read by default.
     isPlusReadingEnabled: true,
+    // New titles opt into free preview by default.
+    isPreviewEnabled: true,
+    previewPercentage: PREVIEW_PERCENTAGE_DEFAULT,
     tableOfContents: '',
     descriptionFull: '',
     moderatorWallets: ['0xa037Feb6508A8C2F93bb19f6721730C45921f2D0'],
@@ -381,7 +385,7 @@ function persistDraft() {
 }
 
 watchDebounced(
-  [fileRecords, iscnFormData, listingDraft, encryptEbook, signatureImage, step],
+  [fileRecords, epubMetadata, iscnFormData, listingDraft, encryptEbook, signatureImage, step],
   persistDraft,
   { debounce: 500, deep: true },
 )

@@ -41,14 +41,51 @@
       v-text="$t('nft_book_form.plus_reading_free_forced')"
     />
   </UFormField>
+
+  <UFormField :label="$t('nft_book_form.free_preview')">
+    <URadioGroup
+      v-model="isPreviewEnabledRadio"
+      :items="[
+        { label: $t('nft_book_form.free_preview_enable'), value: 'enable' },
+        { label: $t('nft_book_form.free_preview_disable'), value: 'disable' },
+      ]"
+      orientation="vertical"
+    />
+    <UFormField
+      v-if="isPreviewEnabled"
+      class="mt-2"
+      :label="$t('nft_book_form.preview_percentage')"
+      :help="$t('nft_book_form.preview_percentage_hint', {
+        min: PREVIEW_PERCENTAGE_MIN,
+        max: PREVIEW_PERCENTAGE_MAX,
+      })"
+    >
+      <UInput
+        v-model="previewPercentageInput"
+        type="number"
+        step="1"
+        :min="PREVIEW_PERCENTAGE_MIN"
+        :max="PREVIEW_PERCENTAGE_MAX"
+      >
+        <template #trailing>
+          <span class="text-gray-500 text-sm">%</span>
+        </template>
+      </UInput>
+    </UFormField>
+  </UFormField>
 </template>
 
 <script setup lang="ts">
-// Shared class-level content settings (adult-only, AI audio, Plus reading)
-// used by the new-book pricing step and the status page's details editor.
+import { PREVIEW_PERCENTAGE_MIN, PREVIEW_PERCENTAGE_MAX } from '~/constant'
+
+// Shared class-level content settings (adult-only, AI audio, Plus reading,
+// free preview) used by the new-book pricing step and the status page's
+// details editor.
 const isAdultOnly = defineModel<boolean>('isAdultOnly', { required: true })
 const hideAudio = defineModel<boolean>('hideAudio', { required: true })
 const isPlusReadingEnabled = defineModel<boolean>('isPlusReadingEnabled', { required: true })
+const isPreviewEnabled = defineModel<boolean>('isPreviewEnabled', { required: true })
+const previewPercentage = defineModel<number>('previewPercentage', { required: true })
 
 const { isFreeBook = false } = defineProps<{
   isFreeBook?: boolean
@@ -62,6 +99,18 @@ const hideAudioRadio = computed({
 const isPlusReadingEnabledRadio = computed({
   get: () => (isPlusReadingEnabled.value ? 'join' : 'skip'),
   set: (val: string) => { isPlusReadingEnabled.value = val === 'join' },
+})
+
+const isPreviewEnabledRadio = computed({
+  get: () => (isPreviewEnabled.value ? 'enable' : 'disable'),
+  set: (val: string) => { isPreviewEnabled.value = val === 'enable' },
+})
+
+const previewPercentageInput = computed({
+  get: () => previewPercentage.value,
+  set: (val: number | string) => {
+    previewPercentage.value = clampPreviewPercentage(Number(val))
+  },
 })
 
 // Free books always opt into Plus all-you-can-read; force the flag on.

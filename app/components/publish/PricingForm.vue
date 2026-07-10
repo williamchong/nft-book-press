@@ -278,8 +278,33 @@
             v-model:is-adult-only="settings.isAdultOnly"
             v-model:hide-audio="settings.hideAudio"
             v-model:is-plus-reading-enabled="settings.isPlusReadingEnabled"
+            v-model:is-preview-enabled="settings.isPreviewEnabled"
+            v-model:preview-percentage="settings.previewPercentage"
             :is-free-book="isFreeBook"
           />
+
+          <!-- Live free-preview cut readout: the straddled chapter is included
+               in full, so the actual range can exceed the nominal %. -->
+          <div
+            v-if="mode === 'new' && previewCut"
+            class="p-3 border border-gray-200 rounded-lg bg-gray-50 text-sm"
+          >
+            <p
+              class="font-medium"
+              v-text="$t('nft_book_form.preview_actual_range')"
+            />
+            <ul class="mt-1 list-disc list-inside text-gray-600">
+              <li
+                v-for="item in previewCut.includedItems"
+                :key="item.href"
+                v-text="item.label"
+              />
+            </ul>
+            <p
+              class="mt-1 text-gray-600"
+              v-text="$t('nft_book_form.preview_actual_percent', { percent: previewCut.effectivePercentRounded })"
+            />
+          </div>
 
           <!-- Sales settings -->
           <UFormField class="flex items-center">
@@ -370,6 +395,7 @@ import {
   MAX_EDITION_COUNT,
 } from '~/constant'
 import type { PriceFormItem, PricingFormSettings } from '~/types/publish'
+import type { EpubSpineItem } from '~/types'
 import { getPriceItemUSDValue, validatePriceFormItems, createDefaultPriceFormItem } from '~/utils/listing'
 
 const { t: $t } = useI18n()
@@ -383,11 +409,13 @@ const { wallet: sessionWallet } = storeToRefs(bookstoreApiStore)
 
 const UPLOAD_FILESIZE_MAX = 1 * 1024 * 1024
 
-const { mode = 'new', maxEditions = MAX_EDITION_COUNT, displayEditIndex = undefined, hasExistingSignatureImage = false } = defineProps<{
+const { mode = 'new', maxEditions = MAX_EDITION_COUNT, displayEditIndex = undefined, hasExistingSignatureImage = false, epubSpineItems = undefined } = defineProps<{
   mode?: 'new' | 'edit'
   maxEditions?: number
   displayEditIndex?: number
   hasExistingSignatureImage?: boolean
+  // Spine table of the uploaded EPUB, for the free-preview cut readout.
+  epubSpineItems?: EpubSpineItem[]
 }>()
 
 const prices = defineModel<PriceFormItem[]>('prices', { required: true })
@@ -412,6 +440,17 @@ function onCustomPricingToggle(p: PriceFormItem, enabled: boolean) {
 const hasMultiplePrices = computed(() => prices.value.length > 1)
 // A free price tier (0) always opts the book into Plus all-you-can-read.
 const isFreeBook = computed(() => prices.value.some(p => getPriceItemUSDValue(p) === 0))
+
+// Actual preview outcome of the "generous" chapter cut, recomputed live as
+// the percentage input changes. null hides the readout (disabled or no EPUB).
+const previewCut = computed(() => {
+  if (!settings.value.isPreviewEnabled || !epubSpineItems?.length) { return null }
+  const cut = computePreviewCut(epubSpineItems, settings.value.previewPercentage)
+  return {
+    ...cut,
+    effectivePercentRounded: Math.round(cut.effectivePercent),
+  }
+})
 
 // UForm routes each returned error to the UFormField whose name matches
 // (prices.{i}.{field}); no per-field :error piping needed.

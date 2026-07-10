@@ -1,4 +1,5 @@
 import type { ClassListingData } from '~/types'
+import { PREVIEW_PERCENTAGE_DEFAULT } from '~/constant'
 
 // Owns the listing-owned (REST /settings) fields of a book class: init from
 // the fetched listing info, snapshot-based dirty tracking, cancel-restore,
@@ -11,6 +12,8 @@ export function useBookListingSettings(options: {
   const hideAudio = ref(false)
   const hideDownload = ref(false)
   const isPlusReadingEnabled = ref(false)
+  const isPreviewEnabled = ref(false)
+  const previewPercentage = ref(PREVIEW_PERCENTAGE_DEFAULT)
   const mustClaimToView = ref(true)
   const enableCustomMessagePage = ref(true)
   const descriptionFull = ref<string | undefined>('')
@@ -27,6 +30,8 @@ export function useBookListingSettings(options: {
       hideAudio: hideAudio.value,
       hideDownload: hideDownload.value,
       isPlusReadingEnabled: isPlusReadingEnabled.value,
+      isPreviewEnabled: isPreviewEnabled.value,
+      previewPercentage: previewPercentage.value,
       descriptionFull: descriptionFull.value ?? '',
       tableOfContents: tableOfContents.value,
       moderatorWallets: moderatorWallets.value,
@@ -43,6 +48,9 @@ export function useBookListingSettings(options: {
     isAdultOnly.value = classListingInfo.isAdultOnly ?? false
     // Legacy books default to opt-out; free books always opt in regardless of stored value.
     isPlusReadingEnabled.value = options.isFreeBook.value || (classListingInfo.isPlusReadingEnabled ?? false)
+    // Existing listings without the field are treated as preview-disabled.
+    isPreviewEnabled.value = classListingInfo.isPreviewEnabled ?? false
+    previewPercentage.value = clampPreviewPercentage(classListingInfo.previewPercentage ?? PREVIEW_PERCENTAGE_DEFAULT)
     enableCustomMessagePage.value = classListingInfo.enableCustomMessagePage ?? true
     tableOfContents.value = classListingInfo.tableOfContents ?? ''
     descriptionFull.value = classListingInfo.descriptionFull ?? ''
@@ -69,6 +77,8 @@ export function useBookListingSettings(options: {
       hideAudio.value = snapshot.hideAudio
       hideDownload.value = snapshot.hideDownload
       isPlusReadingEnabled.value = snapshot.isPlusReadingEnabled
+      isPreviewEnabled.value = snapshot.isPreviewEnabled
+      previewPercentage.value = snapshot.previewPercentage
       descriptionFull.value = snapshot.descriptionFull
       tableOfContents.value = snapshot.tableOfContents
       moderatorWallets.value = snapshot.moderatorWallets
@@ -88,6 +98,8 @@ export function useBookListingSettings(options: {
       hideAudio: hideAudio.value,
       isAdultOnly: isAdultOnly.value,
       isPlusReadingEnabled: isPlusReadingEnabled.value,
+      isPreviewEnabled: isPreviewEnabled.value,
+      previewPercentage: previewPercentage.value,
       mustClaimToView: mustClaimToView.value,
       tableOfContents: tableOfContents.value,
       // Toggling the field off sets this to undefined; send '' so the listing
@@ -102,6 +114,8 @@ export function useBookListingSettings(options: {
     hideAudio,
     hideDownload,
     isPlusReadingEnabled,
+    isPreviewEnabled,
+    previewPercentage,
     descriptionFull,
     tableOfContents,
     moderatorWallets,
