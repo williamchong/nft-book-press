@@ -15,7 +15,7 @@ export interface FileRecord {
 }
 
 // One spine content document of an EPUB, in spine order; sizeBytes is the
-// uncompressed byte size and label the best-matching ToC title.
+// uncompressed byte size and label is the best-matching ToC title.
 export interface EpubSpineItem {
   href: string
   sizeBytes: number

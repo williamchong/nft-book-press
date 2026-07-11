@@ -42,18 +42,20 @@
     />
   </UFormField>
 
-  <UFormField :label="$t('nft_book_form.free_preview')">
-    <URadioGroup
-      v-model="isPreviewEnabledRadio"
-      :items="[
-        { label: $t('nft_book_form.free_preview_enable'), value: 'enable' },
-        { label: $t('nft_book_form.free_preview_disable'), value: 'disable' },
-      ]"
-      orientation="vertical"
-    />
+  <div class="flex flex-col gap-2">
+    <UFormField :label="$t('nft_book_form.free_preview')">
+      <URadioGroup
+        v-model="isPreviewEnabledRadio"
+        :items="[
+          { label: $t('nft_book_form.free_preview_enable'), value: 'enable' },
+          { label: $t('nft_book_form.free_preview_disable'), value: 'disable' },
+        ]"
+        orientation="vertical"
+      />
+    </UFormField>
+
     <UFormField
       v-if="isPreviewEnabled"
-      class="mt-2"
       :label="$t('nft_book_form.preview_percentage')"
       :help="$t('nft_book_form.preview_percentage_hint', {
         min: PREVIEW_PERCENTAGE_MIN,
@@ -72,7 +74,7 @@
         </template>
       </UInput>
     </UFormField>
-  </UFormField>
+  </div>
 </template>
 
 <script setup lang="ts">

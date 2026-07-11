@@ -21,6 +21,9 @@ async function extractSpineItems(book: Book): Promise<EpubSpineItem[]> {
   }
   collectTocLabels(book.navigation?.toc || [])
 
+  const archive = book.archive
+  if (!archive) { return [] }
+
   const spineItems: EpubSpineItem[] = []
   for (const item of book.spine?.items || []) {
     const href = item.href?.split('#')[0]
@@ -28,11 +31,14 @@ async function extractSpineItems(book: Book): Promise<EpubSpineItem[]> {
     // getBlob returns the decompressed document, so blob.size is the
     // uncompressed byte size the preview-cut formula is defined over.
     const resolvedPath = book.path?.resolve(href) ?? href
-    const blob = await book.archive?.getBlob(resolvedPath)
+    const blob = await archive.getBlob(resolvedPath)
+    // A spine document we cannot size would desync the cut from the server's,
+    // so drop the whole table and let the caller hide the readout.
+    if (!blob) { return [] }
     const filename = href.split('/').pop() || href
     spineItems.push({
       href,
-      sizeBytes: blob?.size ?? 0,
+      sizeBytes: blob.size,
       label: labelByHref.get(href) || labelByFilename.get(filename) || filename,
     })
   }

@@ -92,10 +92,13 @@ export function parseCSVRow(row: BulkUploadCSVRow, rowIndex: number): BulkUpload
   const listPriceTWD = parseOptionalDecimalPrice(row.list_price_twd)
   // Free books always opt into Plus all-you-can-read, regardless of enable_library.
   const isPlusReadingEnabled = listPrice === 0 || row.enable_library?.trim().toLowerCase() !== 'false'
-  const parsedPreviewPercentage = parseInt(row.preview_percentage?.trim() || '', 10)
-  const previewPercentage = isNaN(parsedPreviewPercentage)
-    ? CSV_DEFAULT_PREVIEW_PERCENTAGE
-    : clampPreviewPercentage(parsedPreviewPercentage)
+  // Number() keeps decimals so clampPreviewPercentage rounds them, matching
+  // the UI's percentage input.
+  const rawPreviewPercentage = row.preview_percentage?.trim()
+  const parsedPreviewPercentage = rawPreviewPercentage ? Number(rawPreviewPercentage) : NaN
+  const previewPercentage = Number.isFinite(parsedPreviewPercentage)
+    ? clampPreviewPercentage(parsedPreviewPercentage)
+    : CSV_DEFAULT_PREVIEW_PERCENTAGE
 
   return {
     id: crypto.randomUUID(),
