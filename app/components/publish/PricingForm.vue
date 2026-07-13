@@ -289,20 +289,29 @@
             v-if="mode === 'new' && previewCut"
             class="p-3 border border-gray-200 rounded-lg bg-gray-50 text-sm"
           >
-            <p
-              class="font-medium"
-              v-text="$t('nft_book_form.preview_actual_range')"
-            />
-            <ul class="mt-1 list-disc list-inside text-gray-600">
-              <li
-                v-for="item in previewCut.includedItems"
-                :key="item.href"
-                v-text="item.label"
+            <template v-if="previewCut.ok">
+              <p
+                class="font-medium"
+                v-text="$t('nft_book_form.preview_actual_range')"
               />
-            </ul>
+              <ul class="mt-1 list-disc list-inside text-gray-600">
+                <li
+                  v-for="item in previewCut.includedItems"
+                  :key="item.href"
+                  v-text="item.label"
+                />
+              </ul>
+              <p
+                class="mt-1 text-gray-600"
+                v-text="$t('nft_book_form.preview_actual_percent', { percent: previewCut.effectivePercentageRounded })"
+              />
+            </template>
+
+            <!-- The server refuses these files: a reader would get a 403. -->
             <p
-              class="mt-1 text-gray-600"
-              v-text="$t('nft_book_form.preview_actual_percent', { percent: previewCut.effectivePercentRounded })"
+              v-else
+              class="text-red-600"
+              v-text="previewCut.message"
             />
           </div>
 
@@ -441,14 +450,24 @@ const hasMultiplePrices = computed(() => prices.value.length > 1)
 // A free price tier (0) always opts the book into Plus all-you-can-read.
 const isFreeBook = computed(() => prices.value.some(p => getPriceItemUSDValue(p) === 0))
 
-// Actual preview outcome of the "generous" chapter cut, recomputed live as
-// the percentage input changes. null hides the readout (disabled or no EPUB).
+// Actual preview outcome of the "generous" chapter cut, recomputed live as the
+// percentage input changes. null hides the readout (disabled or no EPUB).
+// FIRST_ITEM_TOO_LARGE is the only refusal an author can act on, so it is the
+// only one with its own message.
 const previewCut = computed(() => {
   if (!settings.value.isPreviewEnabled || !epubSpineItems?.length) { return null }
   const cut = computePreviewCut(epubSpineItems, settings.value.previewPercentage)
+  if (!cut.ok) {
+    return {
+      ...cut,
+      message: cut.reason === 'FIRST_ITEM_TOO_LARGE'
+        ? $t('nft_book_form.preview_unavailable_first_item_too_large')
+        : $t('nft_book_form.preview_unavailable'),
+    }
+  }
   return {
     ...cut,
-    effectivePercentRounded: Math.round(cut.effectivePercent),
+    effectivePercentageRounded: Math.round(cut.effectivePercentage),
   }
 })
 

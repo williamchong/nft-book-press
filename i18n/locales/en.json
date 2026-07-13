@@ -545,6 +545,8 @@
   "nft_book_form.preview_percentage_hint": "Integer between {min} and {max}, as a percentage of the book content",
   "nft_book_form.preview_actual_range": "Actual preview range",
   "nft_book_form.preview_actual_percent": "Actual preview: {percent}%",
+  "nft_book_form.preview_unavailable": "This file cannot be previewed, readers will not get a free preview.",
+  "nft_book_form.preview_unavailable_first_item_too_large": "The first chapter of this file is more than half the book, so no free preview can be cut from it. Split it into smaller chapters to enable preview.",
   "nft_book_form.limited": "Batch minting, author messages one by one, manual delivery",
   "nft_book_form.link_wallet": "Link my wallet",
   "nft_book_form.loading_progress_text": "Please do not close this window until operation is complete.",

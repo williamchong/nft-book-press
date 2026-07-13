@@ -1,3 +1,9 @@
+import {
+  PREVIEW_PERCENTAGE_MIN,
+  PREVIEW_PERCENTAGE_MAX,
+  PREVIEW_PERCENTAGE_DEFAULT,
+} from '~/utils/preview-cut'
+
 export const IPFS_VIEW_GATEWAY_URL = 'https://ipfs.io/ipfs'
 
 export const MINIMAL_PRICE = 0.99
@@ -19,9 +25,11 @@ export const DEFAULT_STOCK = 100
 
 export const MAX_EDITION_COUNT = 2
 
-export const PREVIEW_PERCENTAGE_MIN = 1
-export const PREVIEW_PERCENTAGE_MAX = 50
-export const PREVIEW_PERCENTAGE_DEFAULT = 10
+export {
+  PREVIEW_PERCENTAGE_MIN,
+  PREVIEW_PERCENTAGE_MAX,
+  PREVIEW_PERCENTAGE_DEFAULT,
+}
 
 export const EBOOK_FILE_TYPES = ['application/epub+zip', 'application/pdf']
 

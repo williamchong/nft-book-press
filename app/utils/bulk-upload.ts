@@ -15,7 +15,7 @@ import {
 } from '~/constant'
 import type { BulkUploadBook, BulkUploadCSVRow, SerializedBulkUploadBook, BulkUploadValidationError, ValidatedProgressFields } from '~/types/bulk-upload'
 import { BookUploadStatus } from '~/types/bulk-upload'
-import { clampPreviewPercentage } from '~/composables/usePreviewCut'
+import { clampPreviewPercentage } from '~/utils/preview-cut'
 
 export const CSV_REQUIRED_COLUMNS = ['book_title', 'book_description', 'author_name', 'cover_image_filename']
 

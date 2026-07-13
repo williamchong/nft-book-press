@@ -545,6 +545,8 @@
   "nft_book_form.preview_percentage_hint": "{min} 至 {max} 的整數，佔全書內容百分比",
   "nft_book_form.preview_actual_range": "實際試閱範圍",
   "nft_book_form.preview_actual_percent": "實際試閱比例：{percent}%",
+  "nft_book_form.preview_unavailable": "此檔案無法產生試閱，讀者將無法免費試閱。",
+  "nft_book_form.preview_unavailable_first_item_too_large": "此檔案的第一章佔全書一半以上，無法切出試閱內容。請將內容分拆成較小的章節，方可啟用試閱。",
   "nft_book_form.limited": "批量印鑄、作者逐一留言、手動發送",
   "nft_book_form.link_wallet": "連結我的錢包",
   "nft_book_form.loading_progress_text": "請勿關閉此視窗，直到操作完成。",
