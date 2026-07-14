@@ -572,6 +572,8 @@ async function downloadCSVTemplate() {
     '', // enable_drm
     '', // enable_tts
     '', // enable_library
+    '', // enable_preview
+    '', // preview_percentage
     '', // language
   ]
 

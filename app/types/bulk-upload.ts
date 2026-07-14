@@ -37,6 +37,8 @@ export interface BulkUploadCSVRow {
   enable_drm?: string
   enable_tts?: string
   enable_library?: string
+  enable_preview?: string
+  preview_percentage?: string
   language?: string
   // Resume fields (from result CSV)
   class_id?: string
@@ -80,6 +82,9 @@ export interface BulkUploadBook {
   enableTTS: boolean
   // Plus Library membership; maps to listing `isPlusReadingEnabled`.
   isPlusReadingEnabled: boolean
+  // Free preview of the first N% for logged-in readers.
+  isPreviewEnabled: boolean
+  previewPercentage: number
   language: string
   // Runtime state
   status: BookUploadStatus
@@ -127,6 +132,8 @@ export interface SerializedBulkUploadBook {
   enableDRM: boolean
   enableTTS: boolean
   isPlusReadingEnabled: boolean
+  isPreviewEnabled: boolean
+  previewPercentage: number
   language: string
   status: BookUploadStatus
   error?: string

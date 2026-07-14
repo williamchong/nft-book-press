@@ -90,6 +90,8 @@
         v-model:is-adult-only="isAdultOnly"
         v-model:hide-audio="hideAudio"
         v-model:is-plus-reading-enabled="isPlusReadingEnabled"
+        v-model:is-preview-enabled="isPreviewEnabled"
+        v-model:preview-percentage="previewPercentage"
         :is-free-book="isFreeBook"
       />
 
@@ -195,6 +197,8 @@ const {
   hideAudio,
   hideDownload,
   isPlusReadingEnabled,
+  isPreviewEnabled,
+  previewPercentage,
   descriptionFull,
   tableOfContents,
   moderatorWallets,
@@ -256,6 +260,12 @@ const readOnlyRows = computed(() => [
   {
     label: $t('nft_book_form.plus_reading'),
     value: isPlusReadingEnabled.value ? $t('nft_book_form.plus_reading_join') : $t('nft_book_form.plus_reading_skip'),
+  },
+  {
+    label: $t('nft_book_form.free_preview'),
+    value: isPreviewEnabled.value
+      ? `${previewPercentage.value}%`
+      : $t('nft_book_form.free_preview_disable'),
   },
   {
     label: $t('form.share_sales_data'),

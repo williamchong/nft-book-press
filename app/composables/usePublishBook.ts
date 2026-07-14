@@ -247,6 +247,8 @@ export function usePublishBook() {
           hideAudio: listingDraft.hideAudio,
           isAdultOnly: listingDraft.isAdultOnly,
           isPlusReadingEnabled: listingDraft.isPlusReadingEnabled,
+          isPreviewEnabled: listingDraft.isPreviewEnabled,
+          previewPercentage: listingDraft.previewPercentage,
           tableOfContents: listingDraft.tableOfContents || undefined,
           descriptionFull: listingDraft.descriptionFull?.trim() || undefined,
         })

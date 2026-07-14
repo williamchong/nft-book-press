@@ -36,6 +36,8 @@ export interface ClassListingData {
   hideAudio?: boolean
   isAdultOnly?: boolean
   isPlusReadingEnabled?: boolean
+  isPreviewEnabled?: boolean
+  previewPercentage?: number
   pendingNFTCount?: number
   enableSignatureImage?: boolean | 'signed'
 }

@@ -13,7 +13,8 @@
     "lint": "eslint . --fix",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
     "@aa-sdk/core": "^4.86.0",

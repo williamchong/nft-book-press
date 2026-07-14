@@ -14,6 +14,14 @@ export interface FileRecord {
   hasValidationIssues?: boolean
 }
 
+// One spine content document of an EPUB, in spine order; sizeBytes is the
+// uncompressed byte size and label is the best-matching ToC title.
+export interface EpubSpineItem {
+  href: string
+  sizeBytes: number
+  label: string
+}
+
 export interface EpubMetadata {
   title?: string
   author?: string
@@ -25,6 +33,7 @@ export interface EpubMetadata {
   thumbnailArweaveId?: string | null
   coverData?: string | null
   tableOfContents?: string
+  spineItems?: EpubSpineItem[]
 }
 
 export interface ArweaveEstimate {

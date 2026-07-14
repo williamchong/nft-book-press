@@ -1,4 +1,49 @@
-import type { FileRecord, EpubMetadata } from '~/types'
+import type { Book, NavItem } from '@likecoin/epub-ts'
+import type { FileRecord, EpubMetadata, EpubSpineItem } from '~/types'
+
+// Extracts the ordered spine table used by the free-preview cut readout:
+// uncompressed byte size of each spine content document (via the epub-ts
+// archive, backed by JSZip), labelled with the best-matching ToC title.
+async function extractSpineItems(book: Book): Promise<EpubSpineItem[]> {
+  const labelByHref = new Map<string, string>()
+  const labelByFilename = new Map<string, string>()
+  const collectTocLabels = (items: NavItem[]) => {
+    for (const item of items) {
+      const href = item.href?.split('#')[0]
+      const label = item.label?.trim()
+      if (href && label) {
+        if (!labelByHref.has(href)) { labelByHref.set(href, label) }
+        const filename = href.split('/').pop()
+        if (filename && !labelByFilename.has(filename)) { labelByFilename.set(filename, label) }
+      }
+      if (item.subitems?.length) { collectTocLabels(item.subitems) }
+    }
+  }
+  collectTocLabels(book.navigation?.toc || [])
+
+  const archive = book.archive
+  if (!archive) { return [] }
+
+  const spineItems: EpubSpineItem[] = []
+  for (const item of book.spine?.items || []) {
+    const href = item.href?.split('#')[0]
+    if (!href) { continue }
+    // getBlob returns the decompressed document, so blob.size is the
+    // uncompressed byte size the preview-cut formula is defined over.
+    const resolvedPath = book.path?.resolve(href) ?? href
+    const blob = await archive.getBlob(resolvedPath)
+    // A spine document we cannot size would desync the cut from the server's,
+    // so drop the whole table and let the caller hide the readout.
+    if (!blob) { return [] }
+    const filename = href.split('/').pop() || href
+    spineItems.push({
+      href,
+      sizeBytes: blob.size,
+      label: labelByHref.get(href) || labelByFilename.get(filename) || filename,
+    })
+  }
+  return spineItems
+}
 
 interface UseEpubProcessingOptions {
   // File hashing delegate; return null to skip (the host surfaces its own error).
@@ -106,6 +151,15 @@ export function useEpubProcessing(options: UseEpubProcessingOptions) {
           }).join('\n')
         }
         epubMetadata.tableOfContents = tocToMarkdown(book.navigation.toc)
+      }
+
+      // Get spine table for the free-preview cut readout (best-effort)
+      try {
+        epubMetadata.spineItems = await extractSpineItems(book)
+      }
+      catch (spineError) {
+        // eslint-disable-next-line no-console
+        console.error(spineError)
       }
 
       // Get tags

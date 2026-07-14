@@ -55,6 +55,8 @@ export interface PricingFormSettings {
   isAdultOnly: boolean
   hideAudio: boolean
   isPlusReadingEnabled: boolean
+  isPreviewEnabled: boolean
+  previewPercentage: number
   tableOfContents: string
   connectedWallets: Record<string, number> | null
 }

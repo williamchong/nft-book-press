@@ -1,3 +1,9 @@
+import {
+  PREVIEW_PERCENTAGE_MIN,
+  PREVIEW_PERCENTAGE_MAX,
+  PREVIEW_PERCENTAGE_DEFAULT,
+} from '~/utils/preview-cut'
+
 export const IPFS_VIEW_GATEWAY_URL = 'https://ipfs.io/ipfs'
 
 export const MINIMAL_PRICE = 0.99
@@ -19,6 +25,12 @@ export const DEFAULT_STOCK = 100
 
 export const MAX_EDITION_COUNT = 2
 
+export {
+  PREVIEW_PERCENTAGE_MIN,
+  PREVIEW_PERCENTAGE_MAX,
+  PREVIEW_PERCENTAGE_DEFAULT,
+}
+
 export const EBOOK_FILE_TYPES = ['application/epub+zip', 'application/pdf']
 
 export const NFT_DEFAULT_MINT_AMOUNT = 1
@@ -31,6 +43,8 @@ export const CSV_DEFAULT_AUTO_DELIVER = true
 export const CSV_DEFAULT_ENABLE_DRM = false
 export const CSV_DEFAULT_ENABLE_TTS = true
 export const CSV_DEFAULT_ENABLE_LIBRARY = true
+export const CSV_DEFAULT_ENABLE_PREVIEW = true
+export const CSV_DEFAULT_PREVIEW_PERCENTAGE = PREVIEW_PERCENTAGE_DEFAULT
 export const CSV_DEFAULT_EDITION_NAME = '電子版'
 export const CSV_DEFAULT_EDITION_DESCRIPTION = ''
 

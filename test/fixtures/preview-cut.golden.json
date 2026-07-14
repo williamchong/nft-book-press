@@ -1,0 +1,128 @@
+{
+  "$comment": "Golden fixture pinning the preview-cut rules. Source of truth lives in likecoin-cloud-functions (ebook-cors/preview/fixtures/); nft-book-press holds a byte-identical copy at test/fixtures/. Each repo runs its own copy of the rules against it (npm test), so a rule that changes on one side and not the other fails the other side's suite. Change the rules => bump `version`, update the cases, and copy this file across.",
+  "version": 1,
+  "constants": {
+    "minPercentage": 1,
+    "maxPercentage": 50,
+    "defaultPercentage": 10,
+    "overshootFactor": 2
+  },
+  "clamp": [
+    { "name": "in range", "value": 10, "expected": 10 },
+    { "name": "rounds up", "value": 10.6, "expected": 11 },
+    { "name": "rounds toward zero but never below the minimum", "value": 0.4, "expected": 1 },
+    { "name": "at the minimum", "value": 1, "expected": 1 },
+    { "name": "at the maximum", "value": 50, "expected": 50 },
+    { "name": "above the maximum", "value": 99, "expected": 50 },
+    { "name": "zero falls back to the default", "value": 0, "expected": 10 },
+    { "name": "negative falls back to the default", "value": -5, "expected": 10 },
+    { "name": "null falls back to the default", "value": null, "expected": 10 },
+    { "name": "non-numeric falls back to the default", "value": "abc", "expected": 10 }
+  ],
+  "epub": [
+    {
+      "name": "chapter boundary lands exactly on the mark",
+      "sizes": [10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+      "percentage": 10,
+      "expected": { "ok": true, "includedCount": 1, "effectivePercentage": 10 }
+    },
+    {
+      "name": "many small chapters cut close to the mark",
+      "sizes": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      "percentage": 10,
+      "expected": { "ok": true, "includedCount": 3, "effectivePercentage": 10 }
+    },
+    {
+      "name": "straddling chapter is included whole while it stays under the ceiling",
+      "sizes": [8, 8, 8, 8, 8, 8, 8, 8, 8, 28],
+      "percentage": 10,
+      "expected": { "ok": true, "includedCount": 2, "effectivePercentage": 16 }
+    },
+    {
+      "name": "straddling chapter is dropped once it breaks the ceiling",
+      "sizes": [5, 25, 70],
+      "percentage": 10,
+      "expected": { "ok": true, "includedCount": 1, "effectivePercentage": 5 }
+    },
+    {
+      "name": "one huge chapter cannot drag most of the book into the preview",
+      "sizes": [1, 98, 1],
+      "percentage": 10,
+      "expected": { "ok": true, "includedCount": 1, "effectivePercentage": 1 }
+    },
+    {
+      "name": "a cut covering every item falls back to all but the last",
+      "sizes": [2, 98],
+      "percentage": 10,
+      "expected": { "ok": true, "includedCount": 1, "effectivePercentage": 2 }
+    },
+    {
+      "name": "the first item is exempt from the ceiling",
+      "sizes": [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+      "percentage": 1,
+      "expected": { "ok": true, "includedCount": 1, "effectivePercentage": 5 }
+    },
+    {
+      "name": "the maximum percentage still drops the last item",
+      "sizes": [40, 60],
+      "percentage": 50,
+      "expected": { "ok": true, "includedCount": 1, "effectivePercentage": 40 }
+    },
+    {
+      "name": "a first item bigger than half the book is unpreviewable",
+      "sizes": [60, 40],
+      "percentage": 10,
+      "expected": { "ok": false, "reason": "FIRST_ITEM_TOO_LARGE" }
+    },
+    {
+      "name": "a single-document spine is unpreviewable",
+      "sizes": [100],
+      "percentage": 10,
+      "expected": { "ok": false, "reason": "NOT_ENOUGH_SPINE" }
+    },
+    {
+      "name": "a spine with no bytes is unpreviewable",
+      "sizes": [0, 0],
+      "percentage": 10,
+      "expected": { "ok": false, "reason": "EMPTY_SPINE" }
+    },
+    {
+      "name": "a non-positive percentage is rejected",
+      "sizes": [50, 50],
+      "percentage": 0,
+      "expected": { "ok": false, "reason": "INVALID_PERCENTAGE" }
+    }
+  ],
+  "pdf": [
+    {
+      "name": "pages round up to the mark",
+      "pageCount": 200,
+      "percentage": 10,
+      "expected": { "ok": true, "includedCount": 20, "effectivePercentage": 10 }
+    },
+    {
+      "name": "a short book still gives up one page",
+      "pageCount": 3,
+      "percentage": 10,
+      "expected": { "ok": true, "includedCount": 1, "effectivePercentage": 33.33333333333333 }
+    },
+    {
+      "name": "the last page is always withheld",
+      "pageCount": 2,
+      "percentage": 10,
+      "expected": { "ok": true, "includedCount": 1, "effectivePercentage": 50 }
+    },
+    {
+      "name": "half the pages at the maximum percentage",
+      "pageCount": 10,
+      "percentage": 50,
+      "expected": { "ok": true, "includedCount": 5, "effectivePercentage": 50 }
+    },
+    {
+      "name": "a one-page PDF is unpreviewable",
+      "pageCount": 1,
+      "percentage": 10,
+      "expected": { "ok": false, "reason": "NOT_ENOUGH_PAGES" }
+    }
+  ]
+}

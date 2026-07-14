@@ -24,7 +24,7 @@ yarn preview                    # Preview production build
 CI runs: `yarn lint` → `yarn typecheck` → `yarn generate` (all must pass).
 CD: pushes to `master` deploy to GitHub Pages via `yarn generate:production`.
 
-**No automated tests exist** — changes are verified manually via `yarn dev` in the browser.
+**Almost no automated tests exist** — changes are verified manually via `yarn dev` in the browser. The one exception is `yarn test` (`node --test`, no framework), which runs `test/preview-cut.test.mjs`: the free-preview cut rules in `app/utils/preview-cut.ts` are a verbatim copy of the ebook-cors server's `preview/plan.js`, and both repos check their copy against a byte-identical `preview-cut.golden.json`. Never change the rules or the fixture here alone — change the server first, then copy the fixture across, or the author-facing preview readout drifts from what readers actually get.
 
 ## Architecture
 
