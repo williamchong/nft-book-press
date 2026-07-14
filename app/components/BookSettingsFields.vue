@@ -62,17 +62,32 @@
         max: PREVIEW_PERCENTAGE_MAX,
       })"
     >
-      <UInput
-        v-model="previewPercentageInput"
-        type="number"
-        step="1"
-        :min="PREVIEW_PERCENTAGE_MIN"
-        :max="PREVIEW_PERCENTAGE_MAX"
-      >
-        <template #trailing>
-          <span class="text-gray-500 text-sm">%</span>
-        </template>
-      </UInput>
+      <div class="flex items-center gap-4 pt-2">
+        <USlider
+          :id="previewSliderId"
+          v-model="previewPercentage"
+          class="grow"
+          :min="PREVIEW_PERCENTAGE_MIN"
+          :max="PREVIEW_PERCENTAGE_MAX"
+          :step="1"
+          :aria-label="$t('nft_book_form.preview_percentage')"
+        />
+        <UInput
+          :id="previewInputId"
+          v-model="previewPercentageDraft"
+          class="shrink-0 w-24"
+          :ui="{ base: 'text-right tabular-nums' }"
+          inputmode="numeric"
+          :aria-label="$t('nft_book_form.preview_percentage')"
+          @focus="previewPercentageDraft = String(previewPercentage)"
+          @blur="commitPreviewPercentage"
+          @keydown.enter.prevent="commitPreviewPercentage"
+        >
+          <template #trailing>
+            <span class="text-gray-500 text-sm">%</span>
+          </template>
+        </UInput>
+      </div>
     </UFormField>
   </div>
 </template>
@@ -108,12 +123,28 @@ const isPreviewEnabledRadio = computed({
   set: (val: string) => { isPreviewEnabled.value = val === 'enable' },
 })
 
-const previewPercentageInput = computed({
-  get: () => previewPercentage.value,
-  set: (val: number | string) => {
-    previewPercentage.value = clampPreviewPercentage(Number(val))
-  },
+// UFormField shares one generated id with every control inside it, so the
+// slider and the input must carry explicit ones to avoid a duplicate id.
+const previewSliderId = useId()
+const previewInputId = useId()
+
+// The typed field keeps its own draft so half-finished input (empty, "5" on the
+// way to "50") survives until blur or Enter, instead of being clamped mid-typing.
+const previewPercentageDraft = ref(String(previewPercentage.value))
+watch(previewPercentage, (value) => {
+  previewPercentageDraft.value = String(value)
 })
+
+// clampPreviewPercentage() maps anything unparseable to the default 10, which
+// would silently move the cut; keep the current value on junk input instead.
+function commitPreviewPercentage() {
+  const parsed = Number(previewPercentageDraft.value)
+  const committed = Number.isFinite(parsed) && parsed > 0
+    ? clampPreviewPercentage(parsed)
+    : previewPercentage.value
+  previewPercentage.value = committed
+  previewPercentageDraft.value = String(committed)
+}
 
 // Free books always opt into Plus all-you-can-read; force the flag on.
 watch(() => isFreeBook, (isFree) => {
