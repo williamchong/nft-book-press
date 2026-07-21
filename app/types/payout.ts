@@ -1,6 +1,8 @@
 export interface CommissionRow {
   type: string
   classId?: string
+  // Backfilled commission docs may have no classId, only a description.
+  description?: string
   amount: number
   amountTotal: number
   currency: string

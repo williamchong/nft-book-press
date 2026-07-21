@@ -62,12 +62,18 @@
       >
         <template #classId-cell="{ row }">
           <a
-            :href="`${BOOK3_URL}/store/${row.original.classId || ''}`"
+            v-if="row.original.classId"
+            :href="`${BOOK3_URL}/store/${row.original.classId}`"
             target="_blank"
             rel="noopener noreferrer"
           >
-            {{ (row.original.classId ? nftStore.getClassMetadataById(row.original.classId)?.name : '') || row.original.classId || '' }}
+            {{ nftStore.getClassNameById(row.original.classId) || row.original.classId }}
           </a>
+          <span v-else-if="row.original.description">{{ row.original.description }}</span>
+          <span
+            v-else
+            class="text-gray-400"
+          >-</span>
         </template>
         <template #buyerEmail-cell="{ row }">
           <a
@@ -236,7 +242,7 @@ async function loadCommissionHistory() {
     const classIds = new Set<string>(commissionHistory.value
       .filter((row: CommissionRow) => !!row.classId)
       .map((row: CommissionRow) => row.classId as string))
-    classIds.forEach((classId: string) => nftStore.lazyFetchClassMetadataById(classId))
+    classIds.forEach((classId: string) => nftStore.lazyFetchClassNameById(classId))
   }
   catch (e) {
     console.error(e)
@@ -293,7 +299,7 @@ async function exportCommissionHistory() {
       }
       return type
     })(),
-    bookName: (row.classId ? nftStore.getClassMetadataById(row.classId)?.name : '') || '',
+    bookName: (row.classId ? nftStore.getClassNameById(row.classId) : row.description) || '',
     classId: row.classId || '',
     buyerEmail: row.buyerEmail || '',
     amount: convertDecimalToAmount(row.amount, row.currency),
