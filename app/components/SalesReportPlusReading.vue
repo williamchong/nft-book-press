@@ -68,12 +68,17 @@
       >
         <template #classId-cell="{ row }">
           <a
-            :href="`${BOOK3_URL}/store/${row.original.classId || ''}`"
+            v-if="row.original.classId"
+            :href="`${BOOK3_URL}/store/${row.original.classId}`"
             target="_blank"
             rel="noopener noreferrer"
           >
-            {{ (row.original.classId ? nftStore.getClassMetadataById(row.original.classId)?.name : '') || row.original.classId || '' }}
+            {{ nftStore.getClassNameById(row.original.classId) || row.original.classId }}
           </a>
+          <span
+            v-else
+            class="text-gray-400"
+          >-</span>
         </template>
         <template #status-cell="{ row }">
           <UBadge
@@ -142,7 +147,7 @@ async function loadReport() {
     const classIds = new Set<string>(payouts.value
       .filter((row: PlusReadingReportEntry) => !!row.classId)
       .map((row: PlusReadingReportEntry) => row.classId))
-    classIds.forEach((classId: string) => nftStore.lazyFetchClassMetadataById(classId))
+    classIds.forEach((classId: string) => nftStore.lazyFetchClassNameById(classId))
   }
   catch (e) {
     error.value = (e as Error).toString()
@@ -172,7 +177,7 @@ async function exportReport() {
 
   const data = payouts.value.map((row: PlusReadingReportEntry) => ({
     periodId: row.periodId,
-    bookName: (row.classId ? nftStore.getClassMetadataById(row.classId)?.name : '') || '',
+    bookName: nftStore.getClassNameById(row.classId) || '',
     classId: row.classId,
     readingMinutes: convertMsToMinutes(row.readingTimeMs),
     listeningMinutes: convertMsToMinutes(row.ttsTimeMs),
